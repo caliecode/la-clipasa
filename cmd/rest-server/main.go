@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 	"strings"
 
 	_ "github.com/caliecode/la-clipasa/internal/ent/generated/runtime"
@@ -22,9 +23,7 @@ func main() {
 
 	var errs []string
 
-	cfg := internal.Config
-
-	if env == "" && cfg.AppEnv != internal.AppEnvProd {
+	if env == "" && internal.AppEnv(os.Getenv("APP_ENV")) != internal.AppEnvProd {
 		errs = append(errs, "    - env is required but unset")
 	}
 
