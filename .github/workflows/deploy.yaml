@@ -40,11 +40,12 @@ jobs:
           source .envrc
 
           cd frontend && pnpm install
-          project build.frontend
+          project build.frontend --x-env=prod
 
       - name: Deploy frontend
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          # requires previously existing project (can manually upload anything)
           command: |
             pages deploy ./frontend/build
