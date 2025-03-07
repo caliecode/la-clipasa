@@ -1,0 +1,125 @@
+
+mutation CreateBulkCSVPost($input: Upload!) {
+  createBulkCSVPost(input: $input) {
+    posts {
+      content
+      createdAt
+      entityVector
+      id
+      isModerated
+      link
+      moderationComment
+      pinned
+      title
+      updatedAt
+    }
+  }
+}
+
+mutation CreateBulkPost($input: [CreatePostInput!]) {
+  createBulkPost(input: $input) {
+    posts {
+      content
+      createdAt
+      entityVector
+      id
+      isModerated
+      link
+      moderationComment
+      pinned
+      title
+      updatedAt
+    }
+  }
+}
+
+mutation CreatePost($input: CreatePostInput!) {
+  createPost(input: $input) {
+    post {
+      content
+      createdAt
+      entityVector
+      id
+      isModerated
+      link
+      moderationComment
+      pinned
+      title
+      updatedAt
+    }
+  }
+}
+
+mutation DeletePost($deletePostId: ID!) {
+  deletePost(id: $deletePostId) {
+    deletedID
+  }
+}
+
+query GetAllPosts {
+  posts {
+    edges {
+      node {
+        content
+        createdAt
+        entityVector
+        id
+        isModerated
+        link
+        moderationComment
+        pinned
+        title
+        updatedAt
+      }
+    }
+  }
+}
+query GetPostByID($postId: ID!) {
+  post(id: $postId) {
+    content
+    createdAt
+    entityVector
+    id
+    isModerated
+    link
+    moderationComment
+    pinned
+    title
+    updatedAt
+  }
+}
+
+query GetPosts($where: PostWhereInput) {
+  posts(where: $where) {
+    edges {
+      node {
+        content
+        createdAt
+        entityVector
+        id
+        isModerated
+        link
+        moderationComment
+        pinned
+        title
+        updatedAt
+      }
+    }
+  }
+}
+mutation UpdatePost($updatePostId: ID!, $input: UpdatePostInput!) {
+  updatePost(id: $updatePostId, input: $input) {
+    post {
+      content
+      createdAt
+      entityVector
+      id
+      isModerated
+      link
+      moderationComment
+      pinned
+      title
+      updatedAt
+    }
+  }
+}

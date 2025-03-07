@@ -1,0 +1,90 @@
+
+mutation CreateBulkCSVApiKey($input: Upload!) {
+  createBulkCSVApiKey(input: $input) {
+    apiKeys {
+      apiKey
+      createdAt
+      expiresOn
+      id
+      updatedAt
+    }
+  }
+}
+
+mutation CreateBulkApiKey($input: [CreateApiKeyInput!]) {
+  createBulkApiKey(input: $input) {
+    apiKeys {
+      apiKey
+      createdAt
+      expiresOn
+      id
+      updatedAt
+    }
+  }
+}
+
+mutation CreateApiKey($input: CreateApiKeyInput!) {
+  createApiKey(input: $input) {
+    apiKey {
+      apiKey
+      createdAt
+      expiresOn
+      id
+      updatedAt
+    }
+  }
+}
+
+mutation DeleteApiKey($deleteApiKeyId: ID!) {
+  deleteApiKey(id: $deleteApiKeyId) {
+    deletedID
+  }
+}
+
+query GetAllApiKeys {
+  apiKeys {
+    edges {
+      node {
+        apiKey
+        createdAt
+        expiresOn
+        id
+        updatedAt
+      }
+    }
+  }
+}
+query GetApiKeyByID($apiKeyId: ID!) {
+  apiKey(id: $apiKeyId) {
+    apiKey
+    createdAt
+    expiresOn
+    id
+    updatedAt
+  }
+}
+
+query GetApiKeys($where: ApiKeyWhereInput) {
+  apiKeys(where: $where) {
+    edges {
+      node {
+        apiKey
+        createdAt
+        expiresOn
+        id
+        updatedAt
+      }
+    }
+  }
+}
+mutation UpdateApiKey($updateApiKeyId: ID!, $input: UpdateApiKeyInput!) {
+  updateApiKey(id: $updateApiKeyId, input: $input) {
+    apiKey {
+      apiKey
+      createdAt
+      expiresOn
+      id
+      updatedAt
+    }
+  }
+}

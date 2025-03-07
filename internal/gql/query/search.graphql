@@ -1,0 +1,12 @@
+query GlobalSearch($query: String!) {
+  search(query: $query) {
+    nodes {
+      ... on UserSearchResult {
+        users {
+          awards
+          displayName
+        }
+      }
+    }
+  }
+}

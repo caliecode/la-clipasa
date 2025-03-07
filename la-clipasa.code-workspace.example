@@ -1,0 +1,54 @@
+{
+  "folders": [
+    {
+      "path": "."
+    },
+    {
+      "path": "frontend"
+    }
+  ],
+  "settings": {
+    // see https://github.com/yokoe/vscode-postfix-go/blob/master/src/templates/customTemplate.ts#L5
+    "postfixGo.customTemplates": [
+      {
+        "name": "my_switch",
+        "body": "switch ${1:{{expr}}} {\ncase ${2:condition}: \n${0}\n}",
+        "description": "A custom switch",
+        "when": [
+          "identifier"
+        ]
+      },
+    ],
+    "cssVariables.lookupFiles": [
+      "**/*.css",
+      "**/*.scss",
+      "**/*.sass",
+      "**/*.less",
+      "node_modules/@mantine/core/styles.css",
+      "frontend/node_modules/@mantine/core/styles.css"
+    ],
+    "cssVariables.languages": [
+      "astro",
+      "svelte",
+      "vue",
+      "vue-html",
+      "vue-postcss",
+      "scss",
+      "postcss",
+      "less",
+      "css",
+      "html",
+      "javascript",
+      "javascriptreact",
+      "typescript",
+      "typescriptreact",
+      "source.css.styled"
+    ],
+    "yaml.schemas": {
+      "https://raw.githubusercontent.com/docker/cli/master/cli/compose/schema/data/config_schema_v3.8.json": "*compose*.yml",
+    },
+    "yaml.customTags": [
+      "tag:yaml.org,2002:merge", // required for broken yaml extension
+    ],
+  }
+}

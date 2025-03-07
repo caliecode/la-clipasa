@@ -1,0 +1,40 @@
+version: "3.8"
+x-logging: &default-logging
+  options:
+    max-size: "10m"
+    max-file: "2"
+  driver: json-file
+
+# Debug config with docker-compose --env-file <...> config
+services:
+  db:
+    #  sqlc depends on https://github.com/pganalyze/libpg_query (pg 13 support only)
+    image: ${PROJECT_PREFIX:?not set}-postgres:latest
+    build:
+      context: ./postgres
+      dockerfile: Dockerfile
+    container_name: postgres_db_${PROJECT_PREFIX:?not set}
+    user: postgres
+    shm_size: 2g
+    environment:
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - la-clipasa_pg_data:/var/lib/postgresql/data/
+      # includes listen_addresses = '*' which is required
+      - ./postgresql.conf:/etc/postgresql/postgresql.conf
+      - ../.psqlrc:/var/lib/postgresql/.psqlrc
+    command: postgres -c "config_file=/etc/postgresql/postgresql.conf"
+    ports:
+      - ${EXPOSED_POSTGRES_PORT:?not set}:${POSTGRES_PORT:?not set}
+    env_file:
+      - ../.env.${APP_ENV:?not set}
+    restart: unless-stopped
+    logging: *default-logging
+    healthcheck:
+      test: ['CMD', 'pg_isready']
+      interval: 5s
+      timeout: 30s
+      retries: 3
+
+volumes:
+  la-clipasa_pg_data:

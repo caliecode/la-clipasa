@@ -1,0 +1,63 @@
+fragment User on User {
+  id
+  role
+  displayName
+  profileImage
+  alias
+  awards
+  lastPostSeenCursor
+}
+
+query Me {
+  me {
+    ...User
+    savedPosts {
+      id
+    }
+    likedPosts {
+      id
+    }
+    publishedPosts {
+      id
+    }
+    lastPostSeenCursor
+    # makes twitch requests with the users access token (token grant)
+    twitchInfo {
+      isSubscriber
+      isFollower
+      isBroadcaster
+      isBanned
+    }
+  }
+}
+
+query Users($after: Cursor, $first: Int, $before: Cursor, $last: Int, $where: UserWhereInput, $orderBy: UserOrder) {
+  users(after: $after, first: $first, before: $before, last: $last, where: $where, orderBy: $orderBy) {
+    pageInfo {
+      ...PaginationFragment
+    }
+    edges {
+      cursor
+      node {
+        ...User
+      }
+    }
+    totalCount
+  }
+}
+
+mutation UpdateUserAuth($id: ID!, $role: UserRole, $awards: [String!]) {
+  updateUser(id: $id, input: { role: $role, awards: $awards }) {
+    user {
+      ...User
+    }
+  }
+}
+
+mutation UpdateUser($id: ID!, $input: UpdateUserInput!) {
+  updateUser(id: $id, input: $input) {
+    user {
+      ...User
+    }
+  }
+}

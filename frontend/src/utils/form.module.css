@@ -1,0 +1,43 @@
+.valueComponentOuterBox {
+  display: flex;
+  cursor: default;
+  align-items: center;
+  padding: 2px;
+  padding-left: var(--mantine-spacing-xs);
+  border-radius: var(--mantine-radius-sm);
+
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+.valueComponentInnerBox {
+  line-height: 1;
+}
+
+.childCard {
+  background: light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-7));
+}
+
+.arrayChildCard {
+  width: 100%;
+  background: light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-7));
+  gap: 6px;
+}
+
+.select {
+}
+
+.pill {
+  display: flex;
+  align-items: center;
+  cursor: default;
+  background-color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-7));
+  border: rem(1px) solid light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-7));
+  padding-left: var(--mantine-spacing-xs);
+  border-radius: var(--mantine-radius-xl);
+}
+
+.label {
+  line-height: 1;
+  font-size: var(--mantine-font-size-xs);
+}

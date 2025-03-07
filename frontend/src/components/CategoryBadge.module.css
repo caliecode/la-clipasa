@@ -1,0 +1,21 @@
+.badge {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.badge:hover {
+  filter: brightness(1.2);
+}
+
+.emoji {
+  filter: var(--emoji-filter, none); /* Dynamic filter for emoji inversion */
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}

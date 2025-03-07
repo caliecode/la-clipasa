@@ -1,0 +1,9 @@
+
+extend type Post {
+  toHTML: String!
+  nodeId: String!
+}
+
+extend input CreatePostInput {
+  createWithEdges: [PostCategoryCategory!]
+}

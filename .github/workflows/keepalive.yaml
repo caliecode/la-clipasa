@@ -1,0 +1,22 @@
+name: Keepalive
+
+on:
+  workflow_dispatch:
+
+  schedule:
+    - cron: '0 0 */3 * *'
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - uses: ./.github/actions/setup
+
+      - name: Run keepalive
+        run: |
+          pnpm --workspace-root i puppeteer
+          node bin/scripts/keepalive.js

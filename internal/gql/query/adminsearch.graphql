@@ -1,0 +1,17 @@
+query AdminSearch($query: String!) {
+  adminSearch(query: $query) {
+    nodes {
+      ... on UserSearchResult {
+        users {
+          deletedBy
+          email
+          displayName
+          alias
+          profileImage
+          lastPostSeenCursor
+          awards
+        }
+      }
+    }
+  }
+}

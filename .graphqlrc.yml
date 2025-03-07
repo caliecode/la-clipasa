@@ -1,0 +1,2 @@
+schema: "internal/gql/schema/*.graphql"
+documents: ['testdoc.graphql','frontend/**/*.{graphql}']

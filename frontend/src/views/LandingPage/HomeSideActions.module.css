@@ -1,0 +1,119 @@
+.tooltip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 40px;
+  display: none;
+  z-index: 99999999999;
+  background-color: var(--mantine-color-gray-4);
+  color: var(--mantine-color-dark-4);
+  border-radius: 0.25rem;
+  padding: 0.4rem;
+  font-size: 0.8rem;
+  text-align: center;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.tooltip::after {
+  content: ' ';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: var(--mantine-color-gray-4) transparent transparent transparent;
+}
+
+.sideActions {
+  align-self: flex-start;
+  width: 100%;
+}
+
+.card {
+  background-color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-7));
+  width: 25vw;
+}
+@media (max-width: 75em) {
+  .card {
+    width: 100%;
+    max-width: 100vw;
+    background: none;
+  }
+}
+@media (max-width: 37.5em) {
+  .card {
+    width: 100vw;
+    background: none;
+  }
+}
+
+.section {
+  border-bottom: 1px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+  padding-left: var(--mantine-spacing-md);
+  padding-right: var(--mantine-spacing-md);
+  padding-bottom: var(--mantine-spacing-sm);
+}
+
+#post-search-box {
+  background-color: var(--mantine-color-gray-1);
+}
+
+.like {
+  color: var(--mantine-color-red-6);
+}
+
+.label {
+  text-transform: uppercase;
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 700;
+}
+.sideLabel {
+  text-transform: uppercase;
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 400;
+}
+
+.badgeHover:hover {
+  transform: scale(1.03);
+  transition-duration: 0.3s;
+  cursor: pointer;
+}
+
+.badgeFilter {
+  filter: grayscale(0.8);
+}
+
+.badgeFilter:hover {
+  filter: none;
+  transform: scale(1.03);
+  transition-duration: 0.3s;
+  cursor: pointer;
+}
+
+.popoverDropdown {
+  max-width: 30vw;
+  text-align: center;
+  display: block;
+  word-wrap: break-word;
+}
+
+@media (max-width: 36em) {
+  .popoverDropdown {
+    display: none;
+  }
+}
+
+.iconClickable {
+  cursor: pointer;
+}
+.iconClickable:hover {
+  filter: brightness(2);
+}
+
+@media only screen and (min-width: 1200px) {
+  .hideOnLarge {
+    display: none;
+  }
+}

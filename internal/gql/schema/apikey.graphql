@@ -1,0 +1,103 @@
+extend type Query {
+    """
+    Look up apiKey by ID
+    """
+     apiKey(
+        """
+        ID of the apiKey
+        """
+        id: ID!
+    ):  ApiKey!
+}
+
+extend type Mutation{
+    """
+    Create a new apiKey
+    """
+    createApiKey(
+        """
+        values of the apiKey
+        """
+        input: CreateApiKeyInput!
+    ): ApiKeyCreatePayload!
+    """
+    Create multiple new apiKeys
+    """
+    createBulkApiKey(
+        """
+        values of the apiKey
+        """
+        input: [CreateApiKeyInput!]
+    ): ApiKeyBulkCreatePayload!
+    """
+    Create multiple new apiKeys via file upload
+    """
+    createBulkCSVApiKey(
+        """
+        csv file containing values of the apiKey
+        """
+        input: Upload!
+    ): ApiKeyBulkCreatePayload!
+    """
+    Update an existing apiKey
+    """
+    updateApiKey(
+        """
+        ID of the apiKey
+        """
+        id: ID!
+        """
+        New values for the apiKey
+        """
+        input: UpdateApiKeyInput!
+    ): ApiKeyUpdatePayload!
+    """
+    Delete an existing apiKey
+    """
+    deleteApiKey(
+        """
+        ID of the apiKey
+        """
+        id: ID!
+    ): ApiKeyDeletePayload!
+}
+
+"""
+Return response for createApiKey mutation
+"""
+type ApiKeyCreatePayload {
+    """
+    Created apiKey
+    """
+    apiKey: ApiKey!
+}
+
+"""
+Return response for updateApiKey mutation
+"""
+type ApiKeyUpdatePayload {
+    """
+    Updated apiKey
+    """
+    apiKey: ApiKey!
+}
+
+"""
+Return response for deleteApiKey mutation
+"""
+type ApiKeyDeletePayload {
+    """
+    Deleted apiKey ID
+    """
+    deletedID: ID!
+}
+
+"""
+Return response for createBulkApiKey mutation
+"""
+type ApiKeyBulkCreatePayload {
+    """
+    Created apiKeys
+    """
+    apiKeys: [ApiKey!]
+}

@@ -1,0 +1,125 @@
+
+mutation CreateBulkCSVUser($input: Upload!) {
+  createBulkCSVUser(input: $input) {
+    users {
+      alias
+      authProvider
+      awards
+      createdAt
+      displayName
+      email
+      id
+      profileImage
+      role
+      updatedAt
+    }
+  }
+}
+
+mutation CreateBulkUser($input: [CreateUserInput!]) {
+  createBulkUser(input: $input) {
+    users {
+      alias
+      authProvider
+      awards
+      createdAt
+      displayName
+      email
+      id
+      profileImage
+      role
+      updatedAt
+    }
+  }
+}
+
+mutation CreateUser($input: CreateUserInput!) {
+  createUser(input: $input) {
+    user {
+      alias
+      authProvider
+      awards
+      createdAt
+      displayName
+      email
+      id
+      profileImage
+      role
+      updatedAt
+    }
+  }
+}
+
+mutation DeleteUser($deleteUserId: ID!) {
+  deleteUser(id: $deleteUserId) {
+    deletedID
+  }
+}
+
+query GetAllUsers {
+  users {
+    edges {
+      node {
+        alias
+        authProvider
+        awards
+        createdAt
+        displayName
+        email
+        id
+        profileImage
+        role
+        updatedAt
+      }
+    }
+  }
+}
+query GetUserByID($userId: ID!) {
+  user(id: $userId) {
+    alias
+    authProvider
+    awards
+    createdAt
+    displayName
+    email
+    id
+    profileImage
+    role
+    updatedAt
+  }
+}
+
+query GetUsers($where: UserWhereInput) {
+  users(where: $where) {
+    edges {
+      node {
+        alias
+        authProvider
+        awards
+        createdAt
+        displayName
+        email
+        id
+        profileImage
+        role
+        updatedAt
+      }
+    }
+  }
+}
+mutation UpdateUser($updateUserId: ID!, $input: UpdateUserInput!) {
+  updateUser(id: $updateUserId, input: $input) {
+    user {
+      alias
+      authProvider
+      awards
+      createdAt
+      displayName
+      email
+      id
+      profileImage
+      role
+      updatedAt
+    }
+  }
+}

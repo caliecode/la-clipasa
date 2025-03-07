@@ -1,0 +1,103 @@
+extend type Query {
+    """
+    Look up post by ID
+    """
+     post(
+        """
+        ID of the post
+        """
+        id: ID!
+    ):  Post!
+}
+
+extend type Mutation{
+    """
+    Create a new post
+    """
+    createPost(
+        """
+        values of the post
+        """
+        input: CreatePostInput!
+    ): PostCreatePayload!
+    """
+    Create multiple new posts
+    """
+    createBulkPost(
+        """
+        values of the post
+        """
+        input: [CreatePostInput!]
+    ): PostBulkCreatePayload!
+    """
+    Create multiple new posts via file upload
+    """
+    createBulkCSVPost(
+        """
+        csv file containing values of the post
+        """
+        input: Upload!
+    ): PostBulkCreatePayload!
+    """
+    Update an existing post
+    """
+    updatePost(
+        """
+        ID of the post
+        """
+        id: ID!
+        """
+        New values for the post
+        """
+        input: UpdatePostInput!
+    ): PostUpdatePayload!
+    """
+    Delete an existing post
+    """
+    deletePost(
+        """
+        ID of the post
+        """
+        id: ID!
+    ): PostDeletePayload!
+}
+
+"""
+Return response for createPost mutation
+"""
+type PostCreatePayload {
+    """
+    Created post
+    """
+    post: Post!
+}
+
+"""
+Return response for updatePost mutation
+"""
+type PostUpdatePayload {
+    """
+    Updated post
+    """
+    post: Post!
+}
+
+"""
+Return response for deletePost mutation
+"""
+type PostDeletePayload {
+    """
+    Deleted post ID
+    """
+    deletedID: ID!
+}
+
+"""
+Return response for createBulkPost mutation
+"""
+type PostBulkCreatePayload {
+    """
+    Created posts
+    """
+    posts: [Post!]
+}

@@ -1,0 +1,1343 @@
+#!/usr/bin/env bash
+# shellcheck disable=1091,2155,2068,2086,2031,2048,2178,2120
+#
+#
+# Main s̶c̶r̶i̶p̶t program to manage the entire project stack.
+#
+#
+
+source ".helpers.sh"
+
+starting_cwd=$(pwd)
+ensure_pwd_is_top_level
+
+declare X_FORCE_REGEN X_NO_CONFIRMATION X_NO_GEN X_NO_BACKUP X_ENV X_DEBUG X_NO_EXIT_CLEANUP
+declare BUILD_VERSION
+
+readonly CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+readonly SPEC_PATH="openapi.yaml"
+
+readonly BUILD_DIR="bin/build"
+readonly TOOLS_DIR="bin/tools"
+readonly MIGRATIONS_DIR="db/migrations"
+readonly MIGRATIONS_TABLE="schema_migrations"
+readonly POST_MIGRATIONS_DIR="db/post-migrations"
+readonly POST_MIGRATIONS_TABLE="schema_post_migrations"
+readonly CERTIFICATES_DIR="certificates"
+readonly GOWRAP_TEMPLATES_DIR="internal/gowrap-templates"
+readonly REPOS_DIR="internal/repos"
+readonly PG_REPO_DIR="$REPOS_DIR/postgresql"
+
+readonly POSTGRES_TEST_DB="postgres_test"
+readonly DUMPS_DIR="$HOME/openapi_go_gin_postgres_dumps"
+pkg="$(head -1 go.mod)"
+readonly GOMOD_PKG="${pkg#module *}"
+readonly REST_MODELS="internal/rest/models.spec.go"
+readonly PG_REPO_GEN="$PG_REPO_DIR/gen"
+readonly RUN_CACHE=".run.cache"
+readonly GEN_CACHE=".generate.cache"
+readonly GEN_CACHE_BACKUP="$GEN_CACHE-backup"
+readonly MAX_FNAME_LOG_LEN=13
+
+readonly TMP="${TMPDIR:-"/tmp"}"
+
+GEN_POSTGRES_DB="gen_db"
+
+failed_tool_build_marker="$TMP/failed_tool_build_marker"
+rm -f "$failed_tool_build_marker"
+
+go_test_flags=()
+# shuffle disables go test caching. Definitely don't want in dev.
+test -n "$CI" && go_test_flags+=("-shuffle=on")
+
+# determines whether gen cache should be restored at program exit, i.e. failed commands.
+# cache folder must be cleaned at exit if true.
+# only restores if true.
+declare need_backup_restore
+# stores the first executing function of xsetup.backup to track if caching gen is already running,
+# to allow for nested xsetup.backup and cache-cleanup inside multiple functions.
+xsetup_backup_gen_caller=""
+
+# stores the first executing function to determine if a migration
+# is needed when running gen* functions which call each other
+xsetup_gen_migrated=""
+
+# stores the first executing function to determine if tools have been built
+xsetup_tools_built=""
+
+# log for any function output.
+xlog() {
+  local fname="${FUNCNAME[1]#*.}"
+  local color="$BLUE"
+  local max_len=$MAX_FNAME_LOG_LEN
+
+  [[ "$CMD" = "$fname" ]] && cat && return
+
+  if [[ "${FUNCNAME[1]%%.*}" != "x" ]]; then
+    fname="${FUNCNAME[1]}" # show non-x funcs
+    color="$MAGENTA"
+  fi
+
+  if [[ "${FUNCNAME[1]}" =~ ^.*(check\.bin|install\.bin).* ]]; then
+    max_len=100
+  fi
+
+  if [[ ${#fname} -gt $max_len ]]; then
+    fname="${fname:0:$max_len}…"
+  fi
+
+  local _=$(printf "%*s |\n" $((max_len + 1)) "$fname")
+  sed -ue "s/^/${color}$fname >${OFF} /"
+}
+
+# log stderr for any function output.
+# sed is buffering by default (without -u) so streams dont preserve order
+# > >(one) 2> >(two) are background processes so it will break our parallel code.
+xerr() {
+  local fname="${FUNCNAME[1]#*.}"
+  local max_len=$MAX_FNAME_LOG_LEN
+
+  [[ "$CMD" = "$fname" ]] && cat && return
+  if [[ ${#fname} -gt $max_len ]]; then
+    fname="${fname:0:$max_len}…"
+  fi
+
+  local _=$(printf "%*s |\n" $((max_len + 1)) "$fname")
+  sed -ue "s/^/${RED}$fname >${OFF} /" >&2
+}
+
+kill_descendants() {
+  # air and vite spawn processes as well, need to kill those (whose parent is pid), kill $pid will not kill children. pkill -P would also work
+  kill $pids || true
+  kill "$(list_descendants $pids)" || true
+  pids=""
+}
+
+######################### x-functions setup #########################
+
+xsetup.build-tools() {
+  test -n "$xsetup_tools_built" && return
+
+  xsetup_tools_built="${FUNCNAME[1]}"
+
+  x.gen.build-tools || err Could not rebuild gen tools
+}
+
+backup_branch="backup-gen-$(uuidgen)"
+
+# TODO: when running gen and then stashing changes, or switching branches,
+# cache should be removed.
+gen-cache.backup() {
+  rm -rf "$GEN_CACHE_BACKUP" || true
+  cp -r "$GEN_CACHE" "$GEN_CACHE_BACKUP" || true
+}
+
+gen-cache.restore() {
+  rm -rf "$GEN_CACHE"
+  mv "$GEN_CACHE_BACKUP" "$GEN_CACHE" || true
+}
+
+# Create a backup stash with current changes.
+# Uncommitted changes are restored on error unless --x-no-backup flag is passed.
+xsetup.backup() {
+  test -n "$xsetup_backup_gen_caller" && return
+
+  xsetup_backup_gen_caller="${FUNCNAME[1]}"
+
+  mkdir -p "$GEN_CACHE"
+
+  backup_stash_name="backup-stash-$backup_branch"
+
+  echo "$backup_branch" >backup-gen-stash-dummy.txt # make sure something unique and not gitignored is in the current branch
+  gen-cache.backup
+  git stash push -m "$backup_stash_name" --include-untracked || err "Could not backup untracked changes before codegen"
+  git checkout -b "$backup_branch" &>/dev/null
+  git stash apply "stash^{/$backup_stash_name}" &>/dev/null
+
+  need_backup_restore=true # unless
+}
+
+xsetup.backup.cleanup() {
+  # only accept gen if the main function that backed it up in the first place
+  # finishes successfully, i.e. this very function was called
+  if [[ "$xsetup_backup_gen_caller" = "${FUNCNAME[1]}" ]]; then
+    need_backup_restore=false
+  fi
+}
+
+xsetup.backup.restore() {
+  echo "
+Backup branch: $backup_branch
+
+${RED}Restoring previous uncommitted changes to current branch (${YELLOW}${CURRENT_BRANCH}${RED})${OFF}"
+  wait # for any pending job
+
+  git reset --hard &>/dev/null && git clean -df &>/dev/null
+  # if not removing the whole cache folder we get `already exists, no checkout` upon stash apply since we have just reset gitignore
+  # IMPORTANT: we do want to delete regardless since we are restoring the cache folder on stash apply so we
+  # don't need complex cache invalidation based on what's been run
+  rm -rf "$GEN_CACHE"
+  git stash apply "stash^{/$backup_stash_name}" &>/dev/null
+}
+
+######################### x-functions #########################
+
+# Installs mkcert local development certificates.
+x.setup.mkcert() {
+  { { {
+    cd "$CERTIFICATES_DIR" || exit
+    echo "Setting up local certificates"
+    mkcert --cert-file localhost.pem --key-file localhost-key.pem "localhost" "*.e2e.localhost" "*.local.localhost" "*.dev.localhost" "*.ci.localhost" "*.prod.localhost" "127.0.0.1" "::1" "host.docker.internal" 2>&1
+    cd -
+  } 2>&4 | xlog >&3; } 4>&1 | xerr >&3; } 3>&1
+}
+
+# Check build dependencies are met and prompt to install if missing.
+x.check-build-deps() {
+  { { {
+    mkdir -p $TOOLS_DIR
+
+    while IFS= read -r line; do
+      [[ $line =~ ^declare\ -f\ check\.bin\. ]] && BIN_CHECKS+=("${line##declare -f check.bin.}")
+      [[ $line =~ ^declare\ -f\ install\.bin\. ]] && BIN_INSTALLS+=("${line##declare -f install.bin.}")
+    done < <(declare -F)
+
+    echo "Checking dependency minimum versions..."
+    for bin in "${BIN_CHECKS[@]}"; do
+      # local r
+      # r="$(...)" # redirect to var while also streaming unbuffered output with | tee /dev/tty
+      if "check.bin.$bin"; then
+        continue
+      fi
+
+      if ! element_in_array "$bin" "${BIN_INSTALLS[@]}"; then
+        echo "No automatic installation available. Please install $bin manually and retry"
+        exit 1
+      fi
+
+      with_tty confirm "Do you want to install $bin now?" || exit 1
+
+      echo "Installing $bin..."
+      if ! "install.bin.$bin"; then
+        err "$bin installation failed"
+      fi
+
+      if ! "check.bin.$bin"; then
+        err "$bin check failed after installation"
+      fi
+
+      echo "Installed $bin..."
+    done
+  } 2>&4 | xlog >&3; } 4>&1 | xerr >&3; } 3>&1
+}
+
+# Check dependencies and fetch required tools.
+x.bootstrap() {
+  { { {
+    git submodule update --init --recursive # sync later on with git `git submodule update --force --recursive --remote`
+
+    x.check-build-deps
+    x.backend.sync-deps
+    x.install-tools
+
+    cd frontend
+    pnpm i --frozen-lockfile
+    cd -
+
+    cd e2e
+    pnpm i --frozen-lockfile
+    cd -
+
+    echo "${RED}Make sure to add \`complete -o nospace -C project project\` to your ~/.bashrc for completion.${OFF}"
+  } 2>&4 | xlog >&3; } 4>&1 | xerr >&3; } 3>&1
+}
+
+# Install miscellaneous tool binaries locally.
+x.install-tools() {
+  { { {
+    declare -A jobs
+    local pids=() failed_jobs=()
+
+    # install node libs with --prefix $TOOLS_DIR, if any
+    # ...
+    commands=(
+      "go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@v4.15.2"
+      "go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.63.4"
+      "go install mvdan.cc/sh/v3/cmd/shfmt@latest"
+      "go install github.com/air-verse/air@latest"
+      "go install mvdan.cc/gofumpt@latest"
+      "go install github.com/mikefarah/yq/v4@v4.34.2"
+    )
+    for command in "${commands[@]}"; do
+      $command &
+      pids+=($!)
+      jobs[$!]="$command"
+    done
+
+    for pid in "${pids[@]}"; do
+      wait -fn "$pid" || failed_jobs+=("${jobs[$pid]}")
+    done
+
+    # For failing installs for no apparent reason, try running 'go clean -cache' and retry. Else install with ' -mod=readonly' flag.
+    if [[ ${#failed_jobs[@]} -gt 0 ]]; then
+      err "Could not install all tools. Failed jobs:
+$(join_by $'\n' "${failed_jobs[@]}")"
+    fi
+  } 2>&4 | xlog >&3; } 4>&1 | xerr >&3; } 3>&1
+}
+
+clean_yq_array() {
+  local -n __arr="$1"
+  __arr=("${__arr[*]//- /}")
+  mapfile -t __arr < <(printf "\"%s\"\n" ${__arr[*]})
+  echo ${__arr[@]}
+}
+
+go_test() {
+  local cache_opt="-count=1" exit_code=1
+  cache_all "$GEN_CACHE/go-test.md5" .env.$X_ENV db/ >/dev/null && cache_opt=""
+
+  set -x
+  APP_ENV="$X_ENV" go test ${go_test_flags[@]} $cache_opt $@
+  exit_code=$?
+  set +x
+
+  return $exit_code
+}
+
+# Run frontend code generation.
+x.gen.frontend() {
+  xsetup.backup
+  { { {
+    export PATH=frontend/node_modules/.bin:$PATH
+
+    vite_config_template_setup frontend # no need to run if cached .env
+
+    cd frontend
+    pnpm run gen
+    cd -
+
+    wait_without_error || err Failed jobs
+  } 2>&4 | xlog >&3; } 4>&1 | xerr >&3; } 3>&1
+  xsetup.backup.cleanup
+}
+
+# Run all codegen commands for the project.
+x.gen() {
+  [[ -n $X_NO_GEN ]] && return
+  xsetup.backup # Modification of vars inside would be local to subshell (caused by pipeline)
+  xsetup.build-tools
+  { { {
+    echo "Running code generation"
+
+    go generate ./...
+    gofumpt -w internal/gql* # entc codegen
+
+    wait_without_error || err Failed jobs
+
+    # restart is not robust
+    # vscode will randomly lose connection when restarting
+    # for pid in $(pidof gopls); do
+    #   restart_pid $pid &
+    # done
+
+    x.gen.frontend &
+
+    wait_without_error || err Failed jobs
+  } 2>&4 | xlog >&3; } 4>&1 | xerr >&3; } 3>&1
+  xsetup.backup.cleanup
+}
+
+# Build code generation custom tools.
+x.gen.build-tools() {
+  { { {
+    # openapi-go via codegen cli requires structs already compiled, but we will rebuild
+    # right before codegen gen-schema since PublicStructs is not used anywhere else inside codegen
+    # generate_structs_map
+
+    out_dir=$BUILD_DIR
+
+    wait_without_error --no-kill || {
+      mark_failed_tool_build
+    }
+  } 2>&4 | xlog >&3; } 4>&1 | xerr >&3; } 3>&1
+}
+
+# Lint the entire project.
+x.lint() {
+  { { {
+    x.lint.frontend &
+    x.lint.shell &
+    wait # wait_without_error -  don't care about errors yet
+  } 2>&4 | xlog >&3; } 4>&1 | xerr >&3; } 3>&1
+}
+
+exhaustive_lint() {
+  local lint_config=$(
+    cat <<EOF
+linters:
+  disable-all: true
+  enable:
+    - exhaustruct
+    - exhaustive
+linters-settings:
+  exhaustive:
+    # use //exhaustive:enforce above switches to enable
+    explicit-exhaustive-switch: true
+    explicit-exhaustive-map: true
+    default-case-required: true
+  exhaustruct:
+    # lint struct usage in all packages that use them
+    include:
+      - 'github\.com/laclipasa/la-clipasa/internal/gql\.DirectiveRoot$'
+    exclude:
+      - 'github\.com/laclipasa/la-clipasa/internal/repos/postgresql/gen/models\..*(UpdateParams|Joins)$'
+# in case we want to run a linter on test files only
+# issues:
+#   exclude-rules:
+#     - path-except: _test\.go
+#       linters:
+#         - exhaustruct
+EOF
+  )
+  LOG_LEVEL=error golangci-lint run --allow-parallel-runners --config <(echo "$lint_config")
+
+  echo "Exhaustive linting done"
+}
+
+# Format frontend files.
+x.lint.frontend() {
+  echo "Linting frontend"
+  cd frontend
+  pnpm run lint:fix
+  echo "Success"
+}
+
+# Format shell files.
+x.lint.shell() {
+  shfmt -l -i 2 -w bin/*
+}
+
+# Format SQL files.
+x.lint.sql() {
+  echo "Linting SQL"
+  SQL_DIRS=(
+    "$REPOS_DIR"
+    "db"
+  )
+  for slq_dir in ${SQL_DIRS[@]}; do
+    pg_format --config .pg_format $(find "$slq_dir" -name '*.*sql' -not -path "db/schema.sql") &
+  done
+
+  wait_without_error
+}
+
+# Run required backend pre-test setup: services, database cleanup, codegen...
+# Can be called independently, e.g. before running tests through an IDE.
+x.test.backend.setup() {
+  xsetup.backup # Modification of vars inside would be local to subshell (caused by pipeline)
+  { { {
+    # NOTE: tests run independently in Go so we can't have a function be called and run
+    # only once before any test starts
+    run_shared_services up -d --build --remove-orphans --force-recreate --wait
+    # no need to migrate, done on every test run internally
+    docker.postgres.drop_and_recreate_db $POSTGRES_TEST_DB
+    x.gen
+  } 2>&4 | xlog >&3; } 4>&1 | xerr >&3; } 3>&1
+  xsetup.backup.cleanup
+}
+
+# Test backend. Accepts `go test` parameters.
+# Args: [...]
+x.test.backend() {
+  xsetup.backup
+  { { {
+    exhaustive_lint
+
+    go_test -tags 'skip_xo' "$@" ./...
+    # go_test -tags 'skip_xo,!skip_countone' "$@" -count=1 ./...
+  } 2>&4 | xlog >&3; } 4>&1 | xerr >&3; } 3>&1
+  xsetup.backup.cleanup
+}
+
+# Build frontend.
+# Args: [...]
+x.build.frontend() {
+  vite_config_template_setup frontend
+
+  cd frontend
+  pnpm run build
+}
+
+# Test frontend. Accepts `vitest` parameters.
+# Args: [...]
+x.test.frontend() {
+  # TODO accept vitest args
+  vite_config_template_setup frontend
+
+  cd frontend
+  pnpm run test:no-watch "$@"
+  # pnpm run test-types:no-watch
+}
+
+# Test frontend on file changes. Accepts `vitest` parameters.
+# Args: [...]
+x.test.frontend.watch() {
+  vite_config_template_setup frontend
+
+  cd frontend
+  pnpm run test "$@"
+}
+
+test_backend_watch() {
+  clear
+
+  local tags='skip_xo,skip_countone'
+  echo "Waiting for changes..."
+  echo "Default test tags: $tags"
+  echo "Test args: $*"
+
+  trap 'exit' SIGINT # overrides exit-cleanup
+
+  while true; do
+    inotifywait \
+      --recursive \
+      -qq \
+      --event=close_write \
+      --format='%T %f' \
+      --timefmt='%s' \
+      . && clear &&
+      { go_test -tags $tags "$@" && echo "${GREEN}✓ All tests passing${OFF}"; } || echo "${RED}X Tests failed${OFF}"
+  done
+}
+
+# Test backend on file changes. Accepts `go test` parameters.
+# Args: [...]
+x.test.backend.watch() {
+  test_backend_watch "$@" ./...
+}
+
+# Watch specific functions in a given dir. Accepts `go test` parameters.
+# Example: internal/repos/postgresql/ TestUser_Create TestUser_Update -count=5
+# Example: internal/repos/postgresql/ "TestUser_.*"
+# Args: dir [fn ...]
+x.test.backend.watch-for() {
+  local dir="$1"
+  local tests=()
+  local gotest_args=()
+
+  for arg in "${@:2}"; do
+    if [[ $arg == Test* ]]; then
+      tests+=("$arg")
+    else
+      gotest_args+=("$arg")
+    fi
+  done
+
+  local fns=$(
+    IFS='|'
+    echo "${tests[*]}"
+  )
+
+  test_backend_watch -run "^($fns)$" "$GOMOD_PKG/$dir" "${gotest_args[@]}"
+}
+
+pre_build_cmd=""
+
+# # Run backend.
+# x.run.backend() {
+#   $pre_build_cmd
+#   go run ./cmd/rest-server/main.go -env=.env.$X_ENV
+# }
+
+# Run backend with hot-reloading.
+x.run.backend-hr() {
+  # TODO replace healthcheck with adhoc calls and bring services up in btaches
+  # to prevent either bombarding with req or having to wait too long at startup.
+  # see https://github.com/moby/moby/issues/33410
+
+  # https://github.com/air-verse/air/blob/master/air_example.toml
+  # NOTE: building binary unreliable sometimes, leads to bin not found.
+  local build_cmd="go build -o /mnt/ramdisk/rest-server ./cmd/rest-server/main.go"
+  local bin_cmd="/mnt/ramdisk/rest-server -env=.env.$X_ENV"
+  if ! test -d /mnt/ramdisk; then # setup with sudo mkdir -p /mnt/ramdisk; sudo mount -t tmpfs -o size=100M tmpfs /mnt/ramdisk
+    build_cmd=""
+    bin_cmd="go run ./cmd/rest-server/main.go -env=.env.$X_ENV"
+  fi
+  echo "Running $bin_cmd"
+
+  air \
+    --build.pre_cmd "$pre_build_cmd" \
+    --build.cmd "$build_cmd" \
+    --build.bin "$bin_cmd" \
+    --build.include_ext "go,work,mod" \
+    --build.include_file ".env.$X_ENV" \
+    --build.exclude_regex ".gen.go,_test.go" \
+    --build.exclude_dir ".git,tmp,**/testdata,vendor,frontend,external,*.cache,$GEN_CACHE,$TOOLS_DIR,internal/static/swagger-ui" \
+    --build.delay 1000 \
+    --build.exclude_unchanged "true" |
+    sed -e "s/^/${BLUE}[Air]${OFF} /"
+}
+
+# Run frontend with hot-reloading.
+x.run.frontend() {
+  vite_config_template_setup frontend
+  cd frontend
+  pnpm run dev |
+    sed -e "s/^/${GREEN}[Vite]${OFF} /"
+}
+
+# Run all project services with hot reload enabled in dev mode.
+x.run.all() {
+  run_hot_reload
+
+  while true; do
+    sleep 5
+  done
+
+  # TODO fix won't kill children
+  # next_allowed_run=$(date +%s)
+  # latency=3
+  # close_write event, else duplicated, tripl. events -> race condition
+  # while true; do
+  #   inotifywait \
+  #     --monitor $SPEC_PATH \
+  #     --event=close_write \
+  #     --format='%T %f' \
+  #     --timefmt='%s' |
+  #     while read -r event_time event_file 2>/dev/null || sleep $latency; do
+  #       if [[ $event_time -ge $next_allowed_run ]]; then
+  #         next_allowed_run=$(date --date="${latency}sec" +%s)
+
+  #         kill_descendants || true
+
+  #         run_hot_reload
+  #       fi
+  #     done
+  # done
+}
+
+# Syncs backend dependencies.
+x.backend.sync-deps() {
+  GOWORK=off go mod tidy
+  GOWORK=off go mod vendor
+}
+
+# Remove running project containers, including shared ones between environments.
+x.stop-project() {
+  { { {
+    run_shared_services down --remove-orphans
+  } 2>&4 | xlog >&3; } 4>&1 | xerr >&3; } 3>&1
+}
+
+# Recreates docker volumes for Postgres, Redis, etc. Unsaved data will be lost.
+x.recreate-shared-services() {
+  run_shared_services up -d --build --force-recreate --wait
+}
+
+# Checks before release:
+# - Magic keyword "STOPSHIP" not found in tracked files.
+x.release() {
+  { { {
+    search_stopship "STOPSHIP" &
+    GOWORK=off go mod verify & # (https://github.com/golang/go/issues/54372)
+
+    wait_without_error || err Failed jobs
+  } 2>&4 | xlog >&3; } 4>&1 | xerr >&3; } 3>&1
+}
+
+# Runs the go type checker.
+x.backend.typecheck() {
+  golangci-lint run --no-config --disable-all --enable=typecheck --allow-parallel-runners --timeout=10m
+}
+
+# Shows existing user api keys.
+x.dev-utils.api-keys() {
+  docker.postgres psql --no-psqlrc -d $POSTGRES_DB -c "select email, api_key from user_api_keys left join users using (user_id);"
+}
+
+########################## migrations ##########################
+
+get_db_url() {
+  echo "postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_SERVER:$EXPOSED_POSTGRES_PORT/$POSTGRES_DB"
+}
+
+migrate_post() {
+  migrate \
+    -path $POST_MIGRATIONS_DIR/ \
+    -database "$(get_db_url)?sslmode=disable&x-migrations-table=$POST_MIGRATIONS_TABLE" $@
+}
+
+# Wrapper for golang-migrate with predefined configuration.
+# TODO: migrate to use golang-migrate as a package and just execute on server start
+x.migrate() {
+  { { {
+    [[ $X_ENV = "prod" ]] && with_tty confirm "This will run migrations on production. Continue?"
+
+    migrate \
+      -path $MIGRATIONS_DIR/ \
+      -database "$(get_db_url)?sslmode=disable" \
+      "$@" 2>&1
+
+    if [[ "${*:1}" =~ (up|down)+ ]]; then # don't want to pass over create, etc.
+      echo "Running post-migrations"
+      if [[ "${*:1}" =~ (down)+ ]]; then
+        migrate_post force 1 2>&1 # no down revisions. Post migrations should be idempotent
+      else
+        migrate_post $@ 2>&1
+      fi
+    fi
+  } 2>&4 | xlog >&3; } 4>&1 | xerr >&3; } 3>&1
+}
+
+# Create a new migration file with the given `name`.
+# Args: name
+x.migrate.create() {
+  { { {
+    tmp="$*"
+    tmp="${tmp// /_}"
+    name="${tmp,,}"
+    test -z $name && err "Please provide a migration name"
+    x.migrate create -ext sql -dir $MIGRATIONS_DIR/ "$name"
+  } 2>&4 | xlog >&3; } 4>&1 | xerr >&3; } 3>&1
+}
+
+# Generate the required SQL migrations to sync ent schema.
+# Args: name
+x.ent.generate-migration() {
+  { { {
+    tmp="$*"
+    tmp="${tmp// /_}"
+    name="${tmp,,}"
+    test -z $name && err "Please provide a migration name"
+    x.ent.rehash-migrations
+    go run -mod=vendor internal/ent/migrate/main.go "$name"
+  } 2>&4 | xlog >&3; } 4>&1 | xerr >&3; } 3>&1
+}
+
+x.ent.validate-migrations() {
+  { { {
+    atlas migrate validate --dir "file://$MIGRATIONS_DIR" --dir-format golang-migrate --dev-url="$(get_db_url)?sslmode=disable"
+  } 2>&4 | xlog >&3; } 4>&1 | xerr >&3; } 3>&1
+}
+
+x.ent.rehash-migrations() {
+  { { {
+    atlas migrate hash --dir "file://$MIGRATIONS_DIR" --dir-format golang-migrate
+  } 2>&4 | xlog >&3; } 4>&1 | xerr >&3; } 3>&1
+}
+
+########################## db ##########################
+
+# Connects to the database container.
+x.db.bash() {
+  docker exec -it postgres_db_"$PROJECT_PREFIX" bash
+}
+
+# psql session for the current environment.
+x.db.psql() {
+  x.db.psql-with-db $POSTGRES_DB
+}
+
+# execute a SQL query in the current env database
+x.db.psql-exec() {
+  docker.postgres psql -tAX -v ON_ERROR_STOP=on -d $POSTGRES_DB "-c $*"
+}
+
+# psql session for `database`.
+# Args: db
+x.db.psql-with-db() {
+  docker exec -it postgres_db_"$PROJECT_PREFIX" psql -d $1
+}
+
+# Show active and max number of connections for the current environment.
+x.db.conns() {
+  x.db.conns-db $POSTGRES_DB
+}
+
+# Poll db connections in database.
+# Args: db
+x.db.conns.watch-db() {
+  trap 'exit' SIGINT # overrides exit-cleanup
+
+  while true; do
+    out=$(x.db.conns-db $1 || echo "${RED}Connection error ($1)${OFF}")
+    clear
+    echo $out
+    sleep 0.2
+  done
+}
+
+# Show active and max number of connections for `database`.
+# Args: db
+x.db.conns-db() {
+  { { {
+    current_conns=$(docker.postgres.psql -d $1 -c "SELECT count(*) FROM pg_stat_activity WHERE datname = '$1';")
+    max_conns=$(docker.postgres.psql -d $1 -c "SHOW max_connections;")
+    echo "$current_conns/$max_conns active connections in '$1'"
+  } 2>&4 | xlog >&3; } 4>&1 | xerr >&3; } 3>&1
+}
+# Create a new database in the current environment if it doesn't exist
+# and stops its running processes if any.
+x.db.recreate() {
+  { { {
+    docker.postgres.create_db $POSTGRES_DB
+    docker.postgres.stop_db_processes $POSTGRES_DB
+  } 2>&4 | xlog >&3; } 4>&1 | xerr >&3; } 3>&1
+}
+
+# Drop and recreate the database in the current environment.
+x.db.drop() {
+  [[ $X_ENV = "prod" && "$POSTGRES_DB" != "$GEN_POSTGRES_DB" ]] && with_tty confirm "This will drop production database data. Continue?"
+  { { {
+    docker.postgres.drop_and_recreate_db "$POSTGRES_DB"
+  } 2>&4 | xlog >&3; } 4>&1 | xerr >&3; } 3>&1
+}
+
+# Seed database.
+x.db.initial-data() {
+  { { {
+    x.db.drop
+    x.migrate up
+    echo "Loading initial data to $POSTGRES_DB"
+    # docker.postgres.psql -d $POSTGRES_DB <"./db/initial_data_$X_ENV.pgsql"
+    go run cmd/initial-data/main.go -env .env.$X_ENV
+  } 2>&4 | xlog >&3; } 4>&1 | xerr >&3; } 3>&1
+}
+
+# Backup the database for the current environment.
+x.db.dump() {
+  { { {
+    local dump_prefix="dump_${X_ENV}_"
+    running_dumps=$(docker.postgres.psql -P pager=off -U postgres -d "postgres_$X_ENV" \
+      -c "SELECT pid FROM pg_stat_activity WHERE application_name = 'pg_dump';")
+    if [[ "$running_dumps" != "" ]]; then
+      err "pg_dump is already running, aborting new dump"
+    fi
+
+    mkdir -p "$DUMPS_DIR"
+    schema_v=$(docker.postgres.psql -P pager=off -U postgres -d "postgres_$X_ENV" \
+      -c "SELECT version FROM $MIGRATIONS_TABLE;")
+    dump_file="${dump_prefix}$(date +%Y-%m-%dT%H-%M-%S)_version${schema_v}.gz"
+
+    echo "Dumping database to $dump_file"
+    docker.postgres pg_dump -U postgres -d "postgres_$X_ENV" |
+      gzip >"$DUMPS_DIR/$dump_file"
+  } 2>&4 | xlog >&3; } 4>&1 | xerr >&3; } 3>&1
+}
+
+# Restore the database with the latest dump or `file` for the current environment.
+# Args: [file]
+x.db.restore() {
+  dump_file="$1"
+  test -z $dump_file && err "A dump file path is required"
+
+  local dump_prefix="dump_${X_ENV}_"
+  if [[ -n $dump_file ]]; then
+    [[ ! -f $dump_file ]] && err "$dump_file does not exist"
+    [[ "$dump_file" != *"$dump_prefix"* ]] && confirm "${RED}Dump doesn't match prefix '$dump_prefix'. Continue?${OFF}"
+  else
+    mkdir -p "$DUMPS_DIR"
+    latest_dump_file=$(find "$DUMPS_DIR"/ -name "$dump_prefix*.gz" | sort -r | head -n 1)
+    if [[ -z "$latest_dump_file" ]]; then
+      err "No $dump_prefix* file found in $DUMPS_DIR"
+    fi
+    dump_file="$latest_dump_file"
+  fi
+
+  confirm "Do you want to restore ${YELLOW}$dump_file${OFF} in the ${RED}$X_ENV${OFF} environment?"
+
+  x.db.drop
+  gunzip -c "$dump_file" | docker.postgres.psql -U postgres -d "postgres_$X_ENV"
+  # sanity check, but probably better to do it before restoring...
+  dump_schema_v=$(docker.postgres.psql -P pager=off -U postgres -d "postgres_$X_ENV" -c "SELECT version FROM $MIGRATIONS_TABLE;")
+  file_schema_v=$(echo "$dump_file" | sed -E 's/.*_version([0-9]+)\..*/\1/')
+  echo "Migration revision: $dump_schema_v"
+  if [[ "$dump_schema_v" != "$file_schema_v" ]]; then
+    err "Schema version mismatch: $dump_schema_v (dump) != $file_schema_v (file). Dump has probably been renamed."
+  fi
+}
+
+########################## e2e ##########################
+
+# Run E2E tests.
+x.e2e.run() {
+  { { {
+    source .env.e2e
+
+    x.gen.e2e
+
+    name="$PROJECT_PREFIX-e2e"
+    cd e2e
+    DOCKER_BUILDKIT=1 BUILDKIT_PROGRESS=plain docker build -t "$name" .
+    cd - >/dev/null
+
+    # need symlink resolution for data
+
+    test -t 0 && opts="-t"
+    docker run -i $opts --rm \
+      --ipc=host \
+      --network host \
+      -v "$(pwd)/cmd/oidc-server/data/:/cmd/oidc-server/data/" \
+      -v "$(pwd)/e2e:/e2e/" \
+      "$name" \
+      bash -c "playwright test"
+  } 2>&4 | xlog >&3; } 4>&1 | xerr >&3; } 3>&1
+}
+
+########################### helpers ###########################
+
+# IMPORTANT: bug in declare -F returns line number of last nested function, if any.
+# extracting function here instead...
+run_hot_reload() {
+  x.run.backend-hr &
+  pids="$pids $!"
+  x.run.frontend &
+  pids="$pids $!"
+}
+
+run_shared_services() {
+  docker network create traefik-net 2>/dev/null || true
+
+  local extra_services
+  # if [[ $X_ENV != "prod" ]]; then
+  #   extra_services="-f docker-compose.oidc.yml"
+  # fi
+  cd docker
+  DOCKER_BUILDKIT=1 BUILDKIT_PROGRESS=plain docker compose \
+    -p "$PROJECT_PREFIX" \
+    -f docker-compose.shared.yml \
+    $extra_services \
+    --env-file ../.env."$X_ENV" \
+    "$@" 2>&1 # https://github.com/docker/compose/issues/7346
+  cd - >/dev/null
+}
+
+mark_failed_tool_build() {
+  touch "$failed_tool_build_marker"
+}
+
+# TODO: prevent ts from using node_modules/.../vite/types/importMeta.d.ts.
+vite_config_template_setup() {
+  local dir="$1"
+  local vite_env_file="$dir/src/vite-env.gen.d.ts"
+
+  local frontend_env
+  case "$X_ENV" in
+  dev) frontend_env="development" ;;
+  prod) frontend_env="production" ;;
+  ci) frontend_env="ci" ;;
+  *) err "Unhandled frontend environment: $X_ENV" ;;
+  esac
+  local env_file="$dir/.env.$frontend_env"
+
+  : >"$env_file"
+
+  jq -r 'to_entries[] | .key' "$dir/config.template.json" | while IFS= read -r key; do
+    printf "VITE_%s=%s\n" "$key" "${!key}" >>"$env_file"
+  done
+
+  cat <<EOF >"$vite_env_file"
+// Code generated by "project". DO NOT EDIT.
+
+/// <reference types="vite/client" />
+
+interface ImportMetaEnv {
+  readonly TESTING: string
+EOF
+
+  jq -r 'to_entries[] | "  readonly VITE_\(.key): string"' "$dir/config.template.json" >>"$vite_env_file"
+
+  cat <<EOF >>"$vite_env_file"
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv
+}
+EOF
+}
+
+ensure_tools_up_to_date() {
+  mkdir -p "$RUN_CACHE/xfunctions"
+  body="$RUN_CACHE/xfunctions/install-tools"
+  declare -f x.install-tools >"$body" # ignores comments
+
+  if ! cache_all "$RUN_CACHE/install-tools.md5" "$body" --no-regen >/dev/null; then
+    x.install-tools
+  fi
+}
+
+######################## ENTRYPOINT ########################
+
+export PROC=$$
+
+export POSTGRES_TRACE=${POSTGRES_TRACE:-false}
+export GIN_MODE=${GIN_MODE:-release}
+
+source ".project.dependencies.sh"
+source ".project.usage.sh"
+
+set -Eeo pipefail
+set -o errtrace
+
+X_ENV="dev" # default if none set
+test -n "$CI" && X_ENV="ci"
+# prod detection not necessary, calls without --x-env=prod will no affect prod data
+# unless .env.dev is filled and reuse db/credentials which is far-fetched.
+
+# --------------------- completion and delegation --------------------
+#      `complete -o nospace -C foo foo` > `source <(foo bloated_completion)`
+
+declare -A X_CUSTOM_COMPLETION
+
+readonly X_OPT_ENV__COMP="dev prod ci e2e"
+readonly X_FUNC_DB_GEN__COMP="up up-1 drop"
+
+_completion_x_option__env() {
+  local pre="$1"
+  local items=${X_OPT_ENV__COMP[@]}
+  for i in ${items[@]}; do
+    [[ ${i,,} == ${pre}* || " ${__x_options[*]} " =~ " ${pre} " ]] && echo "$i"
+  done
+}
+
+_completion_x_function__db.gen() {
+  local pre="$1"
+
+  local items=${X_FUNC_DB_GEN__COMP[@]}
+  for i in ${items[@]}; do
+    [[ ${i,,} == ${pre}* ]] && echo "$i"
+  done
+}
+
+_completion_x_function__test.backend.watch-for() {
+  local pre="$1"
+  local dirs=()
+  local -n __previous_x_fn_items="$2"
+  # local -n __previous_x_opt_items="$3" # not worth it, we wont have multiple completion for options, too convoluted. create multiple x options instead if at all
+
+  dir=${__previous_x_fn_items[0]}
+  seenfns=("${__previous_x_fn_items[@]:1}")
+  if [[ "${dir}" =~ "${dir%/}/" ]]; then
+    declare -a fns
+    go-utils.find_test_functions fns "$dir" 2>/dev/null || true
+
+    for i in "${fns[@]}"; do
+      [[ ${i,,} == ${pre}* && ! " ${seenfns[*]} " =~ " ${i} " ]] && echo "$i"
+    done
+
+    return
+  fi
+
+  # TODO abstract away for all completion functions to use
+  function find_dirs() {
+    while IFS= read -r -d '' dir; do
+      str="${dir%/}/"
+      str="${dir##\./}/"
+      dirs+=("$str")
+    done < <(find "$1" -mindepth 1 -maxdepth 1 -type d -print0)
+  }
+
+  find_dirs .
+
+  for dir in "${dirs[@]}"; do
+    if [[ "${pre}" == "${dir%/}"/* ]]; then
+      find_dirs "${pre%/*}"
+      break
+    fi
+  done
+
+  for dir in "${dirs[@]}"; do
+    [[ ${dir,,} == ${pre}* ]] && echo "$dir"
+  done
+}
+
+# should echo an array of possible options.
+# args received by completion functions:
+# 1. pre string
+# 2. current completion items array
+X_CUSTOM_COMPLETION=(
+  ["db.gen"]="_completion_x_function__db.gen"
+  ["test.backend.watch-for"]="_completion_x_function__test.backend.watch-for"
+  ["--x-env="]="_completion_x_option__env"
+)
+
+while IFS= read -r line; do
+  [[ $line =~ ^declare\ -f\ x\. ]] || continue
+  COMMANDS+=("${line##declare -f x.}")
+done < <(declare -F)
+# sort the array. Mimic file input to sort
+mapfile -t COMMANDS < \
+  <(LC_COLLATE=C sort < <(printf "%s\n" "${COMMANDS[@]}"))
+
+MAX_XFN_LEN=0 # for logging purposes
+for c in "${COMMANDS[@]}"; do
+  len=${#c}
+  ((len > MAX_XFN_LEN)) && MAX_XFN_LEN=$((len - 1)) # remove "x." but account for extra last space appended.
+done
+
+if [[ -n $COMP_LINE ]]; then
+  pre="${COMP_LINE##* }" # the part after the last space in the current command
+  pre="${pre,,}"         # autocomplete regardless of user input case
+  cur_commands=(${COMP_LINE%"$pre"})
+  # x option that accepts a single completion string needs special handling like --x-env=
+  if [[ "$COMP_LINE" =~ =$ ]]; then # ends with =
+    cur_commands=(${COMP_LINE})
+  elif [[ "$COMP_LINE" =~ =([^[:space:]]+)$ ]]; then # started typing option
+    pre=${BASH_REMATCH[1]}
+    cur_commands=("${COMP_LINE%%=*}=")
+  fi
+
+  complete_with_fn() {
+    local fn=${X_CUSTOM_COMPLETION["$1"]}
+    local items=$($fn "$pre" previous_x_fn_items 2>/dev/null || true)
+    test -z "$items" && return
+    for i in ${items[@]}; do
+      echo "$i"
+    done
+    exit
+  }
+
+  for c in "${COMMANDS[@]}"; do
+    if [[ " ${cur_commands[*]} " =~ " ${c} " ]]; then
+      xfn_specified=$c
+      break
+    fi
+  done
+
+  for c in "${COMMANDS[@]}"; do
+    test -z "${xfn_specified}" || break
+    test -z "${pre}" -o "${c}" != "${c#"${pre}"}" -a "${pre}" != "${c}" && echo "${c} "
+  done
+
+  declare __x_options x_options_lines
+
+  parse_x_options x_options_lines
+
+  for c in "${x_options_lines[@]}"; do
+    tmp="${c%%)*}"
+    xopt="${tmp//\*/}"
+    __x_options+=("$xopt")
+  done
+
+  # will jump directly to x options completion if we start typing "-"
+  declare -A __x_opts_seen
+  for cmd in ${cur_commands[@]}; do
+    for opt in ${__x_options[@]}; do
+      if [[ "$cmd" == *"$opt"* ]]; then
+        __x_opts_seen[$opt]=true
+        __x_last_opt_seen=$opt
+        break
+      fi
+    done
+  done
+
+  # completion for functions may be filepath completion, single or multiple selection from list of items...
+  # theres no way to abstract to main autocomplete.
+  declare -A __x_completion_x_options_items_seen
+  declare -A __x_completion_x_function_items_seen
+
+  previous_x_fn_items=()
+  save_flag=false
+  for i in "${!cur_commands[@]}"; do
+    cmd="${cur_commands[$i]}"
+
+    if [ "$cmd" == "$xfn_specified" ]; then
+      save_flag=true
+      continue # start matching rest of args passed
+    fi
+
+    if [ "$save_flag" == true ]; then
+      previous_x_fn_items+=("$cmd")
+    fi
+  done
+
+  # show completion for an x function
+  if [[ -n "${xfn_specified}" && "${pre}" != -* && ${#__x_opts_seen[@]} -eq 0 ]]; then
+    complete_with_fn $xfn_specified || true
+  # show completion for last --x-(.*)= if it specifies a completion func
+  elif [[ ${#__x_opts_seen[@]} -gt 0 ]] && [[ -n "$pre" ]]; then
+    xopt="${pre//\*/}"
+    ! [[ " ${__x_options[*]} " =~ " ${xopt} " ]] && xopt="$__x_last_opt_seen"
+    complete_with_fn $xopt || true
+  fi
+
+  test -z "${xfn_specified}" && exit
+
+  for opt in ${__x_options[@]}; do
+    [[ -n "${__x_opts_seen[$opt]}" ]] && continue
+    if [[ ${opt:0:${#pre}} == "${pre,,}" ]]; then
+      [[ "$opt" == "${pre,,}" ]] && continue # will have to be removed for inner completion
+      if [[ "${opt,,}" =~ ^.*= ]]; then
+        echo "${opt}"
+      else
+        echo "${opt} "
+      fi
+    fi
+  done
+
+  exit
+fi
+
+declare CMD="$1"
+
+# First comment lines automatically added to usage docs.
+while [[ "$#" -gt 0 ]]; do
+  case $1 in
+  --x-help)
+    # Show help for a particular x function.
+    COMMANDS=("$CMD")
+    usage
+    exit
+    ;;
+  --x-force-regen)
+    # Removes code generation cache, forcing a new run.
+    export X_FORCE_REGEN=1
+    ;;
+  --x-no-confirmation)
+    # Bypasses confirmation messages. (WIP: Use `yes` in the meantime)
+    export X_NO_CONFIRMATION=1
+    ;;
+  --x-no-gen)
+    # Skips code generation steps.
+    export X_NO_GEN=1
+    ;;
+  --x-no-exit-cleanup)
+    # Skip default cleanup on exit.
+    export X_NO_EXIT_CLEANUP=1
+    ;;
+  --x-debug)
+    # Debug bash script with -x shell option.
+    export X_DEBUG=1
+    ;;
+  --x-no-backup)
+    # Backup stash is not restored on failure.
+    # Please ensure there are no important uncommitted changes in the current branch beforehand.
+    export X_NO_BACKUP=1
+    ;;
+  --x-env=*)
+    # Environment to run commands in. Defaults to "dev" locally.
+    # Args: env
+    export X_ENV="${1#--x-env=}"
+    if [[ ! " ${X_OPT_ENV__COMP[*]} " =~ " $X_ENV " ]]; then
+      err "Valid environments: $X_OPT_ENV__COMP"
+    fi
+    ;;
+  *)
+    # will set everything else back later
+    args+=("$1")
+    ;;
+  esac
+  shift
+done
+
+for arg in ${args[@]}; do
+  set -- "$@" "$arg"
+done
+
+export BUILD_VERSION="$X_ENV-$(git rev-parse --verify HEAD)"
+
+readonly X_FORCE_REGEN X_NO_CONFIRMATION X_NO_GEN X_NO_BACKUP X_ENV X_DEBUG X_NO_EXIT_CLEANUP
+readonly base_cache_deps="bin/project bin/.helpers.sh .env.$X_ENV"
+
+######################## INIT ########################
+
+if test -n "$X_DEBUG"; then
+  set -x
+  N=$(date +%s%N)
+  # NOTE: would be nice to process incremental times, but due to xlog and xerr, subshells and
+  # background commands all over the place it's nearly impossible
+  if test -z "${BASH_SOURCE[1]##*/}"; then
+    export PS4='+[$((($(date +%s%N)-$N)/1000000))ms][${YELLOW}${BASH_SOURCE##*/}:${LINENO}${OFF}]: ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+  else
+    export PS4='+[$((($(date +%s%N)-$N)/1000000))ms][${YELLOW}${BASH_SOURCE[1]##*/}:${BASH_LINENO[0]}${OFF}]: ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+  fi
+fi
+
+# applicable to any command
+ensure_envvars_set ".env.template" ".env.${X_ENV}"
+
+# export to all subsequent commands or scripts
+set -a
+# shellcheck source=SCRIPTDIR/../.env.dev
+source ".env.$X_ENV"
+set +a
+
+trap 'show_tracebacks' ERR
+trap killgroup EXIT HUP INT TERM
+trap errtrap SIGUSR1
+# may get called multiple times
+trap 'exit-cleanup $LINENO' EXIT HUP INT TERM # EXIT (0) executed on exit from the shell
+if test -n "$X_NO_EXIT_CLEANUP"; then
+  trap ':' EXIT HUP INT TERM
+fi
+exit_cleanup_calls=0
+
+# exit-cleanup prevents exiting while we check if we should run cleanup.
+# For monitoring functions, a top level "trap 'exit' SIGINT"
+# is necessary to allow the user to exit. Handle cleanup calls manually, if any.
+# If the background process calls this script externally, --x-no-exit-cleanup is required
+# in those calls, due to possible CURRENT_BRANCH changes in the meantime.
+exit-cleanup() {
+  trap 'echo ignoring SIGINT' SIGINT
+  [[ "$exit_cleanup_calls" -gt 0 ]] && return
+  ((exit_cleanup_calls++)) || true
+
+  {
+    if [[ $need_backup_restore = true ]]; then
+      test -z "$X_NO_BACKUP" && xsetup.backup.restore
+      # IMPORTANT: if any command failed always restore gen cache, regardless of flags passed.
+      gen-cache.restore
+    fi
+
+    # will fail if not using --x-no-exit-cleanup when required
+    git checkout "$CURRENT_BRANCH" &>/dev/null || err "[ERROR] Could not checkout $CURRENT_BRANCH branch" >&2
+    rm -f backup-gen-stash-dummy.txt || true
+    git branch -D "$backup_branch" &>/dev/null || true
+
+    cd "$starting_cwd" || true
+  } & # ensure cleanup is always run at exit
+  wait
+}
+
+killgroup() {
+  printf "Killing spawned processes...\n\n"
+  # kill $(jobs -p) 2>/dev/null # doesn't really kill all children, just process group leaders
+  kill_descendants 2>/dev/null || true
+  pgrep -P $PROC | xargs kill || true
+  exit 1
+}
+
+errtrap() {
+  printf "Exiting due to propagated error...\n"
+  killgroup
+}
+
+source .envrc
+
+pids=""
+
+################ handle executing x functions ################
+
+if [[ -n "$1" ]]; then
+  shift
+  for c in "${COMMANDS[@]}"; do
+    declare cmd=$(command -v "x.$c")
+    if [[ $c == "$CMD" && -n "$cmd" ]]; then
+      ensure_tools_up_to_date
+
+      "x.$CMD" "$@"
+      err_code=$?
+
+      if test -f "$failed_tool_build_marker"; then
+        err "At least one gen tool build failed. A gen rerun may be required"
+      fi
+
+      exit $err_code # do not quote
+    fi
+  done
+fi
+
+# default to show usage if its a noop or didn't match a command
+usage

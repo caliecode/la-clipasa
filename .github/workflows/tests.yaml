@@ -1,0 +1,106 @@
+name: Tests
+env:
+  CI: true
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+  schedule:
+    - cron: '0 0 */3 * *'
+
+jobs:
+  run:
+    timeout-minutes: 60
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/setup
+      # source .envrc instead of direnv setup
+      - name: Setup project
+        run: |
+          source .envrc
+
+          # go mod download # it will access network/cache, which is not necessary with -mod=vendor
+          go mod verify
+
+          project lint
+
+      - name: Test frontend
+        run: |
+          source .envrc
+
+          project test.frontend
+
+      - name: Diff check
+        run: |
+          # debug gen: run with --x-force-regen
+          git diff --exit-code # -- . ':!dir_to_skip'
+          untracked_files=$(git ls-files --others --exclude-standard)
+          if [ -n "$untracked_files" ]; then
+              echo "[ERROR] Found untracked files:"
+              echo "${untracked_files[*]}"
+              exit 1
+          fi
+
+      - name: Vet
+        run: |
+          source .envrc
+
+          go vet ./...
+          go install golang.org/x/tools/go/analysis/passes/nilness/cmd/nilness@latest
+          nilness ./...
+
+      - name: Test backend
+        run: |
+          source .envrc
+
+          {
+            while sleep 1; do project db.conns-db postgres_test --x-no-exit-cleanup; done
+          } &
+          bg_pid=$!
+
+          echo -------1-------
+          POSTGRES_TRACE=false project test.create-crud-gen
+          echo -------2-------
+          POSTGRES_TRACE=false project test.backend -race -count=50 -timeout=40m
+          echo -------3-------
+          # some tests are skipped from race
+          POSTGRES_TRACE=false project test.backend -count=3 -timeout=40m
+
+          { test -n "$bg_pid" && kill $bg_pid; } || true
+
+      - name: Postgres logs
+        if: failure() # always()
+        run: docker logs postgres_db_la-clipasa
+
+
+      - name: Test E2E
+        run: |
+          source .envrc
+
+          project e2e.run
+
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: playwright-report
+          path: e2e/playwright-report/
+          retention-days: 5
+      # TODO: reuse actions/setup:
+      # https://stackoverflow.com/questions/65242830/in-a-github-actions-workflow-is-there-a-way-to-have-multiple-jobs-reuse-the-sam
+      # https://github.com/kmadof/github-actions-manual/blob/main/.github/actions/say-hello/action.yml
+
+      - name: Build frontend
+        run: |
+          source .envrc
+
+          project build.frontend
+
+        # TODO: atlas lint migrations

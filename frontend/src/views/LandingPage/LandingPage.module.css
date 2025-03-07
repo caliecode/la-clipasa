@@ -1,0 +1,11 @@
+.drawer {
+  height: 100%;
+  min-width: 100%;
+  z-index: 10000;
+}
+
+@media (min-width: 62em) {
+  .drawer {
+    min-width: 40%;
+  }
+}

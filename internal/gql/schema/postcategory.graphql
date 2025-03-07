@@ -1,0 +1,103 @@
+extend type Query {
+    """
+    Look up postCategory by ID
+    """
+     postCategory(
+        """
+        ID of the postCategory
+        """
+        id: ID!
+    ):  PostCategory!
+}
+
+extend type Mutation{
+    """
+    Create a new postCategory
+    """
+    createPostCategory(
+        """
+        values of the postCategory
+        """
+        input: CreatePostCategoryInput!
+    ): PostCategoryCreatePayload!
+    """
+    Create multiple new postCategorys
+    """
+    createBulkPostCategory(
+        """
+        values of the postCategory
+        """
+        input: [CreatePostCategoryInput!]
+    ): PostCategoryBulkCreatePayload!
+    """
+    Create multiple new postCategorys via file upload
+    """
+    createBulkCSVPostCategory(
+        """
+        csv file containing values of the postCategory
+        """
+        input: Upload!
+    ): PostCategoryBulkCreatePayload!
+    """
+    Update an existing postCategory
+    """
+    updatePostCategory(
+        """
+        ID of the postCategory
+        """
+        id: ID!
+        """
+        New values for the postCategory
+        """
+        input: UpdatePostCategoryInput!
+    ): PostCategoryUpdatePayload!
+    """
+    Delete an existing postCategory
+    """
+    deletePostCategory(
+        """
+        ID of the postCategory
+        """
+        id: ID!
+    ): PostCategoryDeletePayload!
+}
+
+"""
+Return response for createPostCategory mutation
+"""
+type PostCategoryCreatePayload {
+    """
+    Created postCategory
+    """
+    postCategory: PostCategory!
+}
+
+"""
+Return response for updatePostCategory mutation
+"""
+type PostCategoryUpdatePayload {
+    """
+    Updated postCategory
+    """
+    postCategory: PostCategory!
+}
+
+"""
+Return response for deletePostCategory mutation
+"""
+type PostCategoryDeletePayload {
+    """
+    Deleted postCategory ID
+    """
+    deletedID: ID!
+}
+
+"""
+Return response for createBulkPostCategory mutation
+"""
+type PostCategoryBulkCreatePayload {
+    """
+    Created postCategorys
+    """
+    postCategories: [PostCategory!]
+}

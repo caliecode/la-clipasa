@@ -1,0 +1,65 @@
+.categoryEdit {
+  pointer-events: all;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.categoryEditTooltip {
+  background-color: light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-5));
+  color: light-dark(var(--mantine-color-dark-6), var(--mantine-color-gray-0));
+}
+
+.action {
+  border: 0;
+  background-color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-6));
+  color: light-dark(var(--mantine-color-dark-6), var(--mantine-color-gray-0));
+
+  &:hover {
+    background-color: light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-5));
+  }
+
+  &:disabled {
+    background: light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5));
+  }
+}
+
+.categoryAction {
+  background-color: light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+}
+
+.likedAction {
+  --action-color: var(--mantine-color-red-6);
+  color: var(--action-color) !important;
+
+  & * {
+    color: var(--action-color) !important;
+  }
+}
+
+.savedAction {
+  --action-color: var(--mantine-color-yellow-6);
+  color: var(--action-color) !important;
+
+  & * {
+    color: var(--action-color) !important;
+  }
+}
+
+.restoreButton {
+  position: absolute;
+  right: 20px;
+}
+
+.beacon {
+  animation: beacon 1s ease-out;
+}
+
+@keyframes beacon {
+  from {
+    box-shadow: 0 0 0 0 var(--action-color);
+  }
+  to {
+    box-shadow: 0 0 0 10px transparent;
+  }
+}

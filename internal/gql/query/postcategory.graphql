@@ -1,0 +1,83 @@
+
+mutation CreateBulkCSVPostCategory($input: Upload!) {
+  createBulkCSVPostCategory(input: $input) {
+    postCategories {
+      category
+      createdAt
+      id
+      updatedAt
+    }
+  }
+}
+
+mutation CreateBulkPostCategory($input: [CreatePostCategoryInput!]) {
+  createBulkPostCategory(input: $input) {
+    postCategories {
+      category
+      createdAt
+      id
+      updatedAt
+    }
+  }
+}
+
+mutation CreatePostCategory($input: CreatePostCategoryInput!) {
+  createPostCategory(input: $input) {
+    postCategory {
+      category
+      createdAt
+      id
+      updatedAt
+    }
+  }
+}
+
+mutation DeletePostCategory($deletePostCategoryId: ID!) {
+  deletePostCategory(id: $deletePostCategoryId) {
+    deletedID
+  }
+}
+
+query GetAllPostCategories {
+  postCategories {
+    edges {
+      node {
+        category
+        createdAt
+        id
+        updatedAt
+      }
+    }
+  }
+}
+query GetPostCategoryByID($postCategoryId: ID!) {
+  postCategory(id: $postCategoryId) {
+    category
+    createdAt
+    id
+    updatedAt
+  }
+}
+
+query GetPostCategories($where: PostCategoryWhereInput) {
+  postCategories(where: $where) {
+    edges {
+      node {
+        category
+        createdAt
+        id
+        updatedAt
+      }
+    }
+  }
+}
+mutation UpdatePostCategory($updatePostCategoryId: ID!, $input: UpdatePostCategoryInput!) {
+  updatePostCategory(id: $updatePostCategoryId, input: $input) {
+    postCategory {
+      category
+      createdAt
+      id
+      updatedAt
+    }
+  }
+}

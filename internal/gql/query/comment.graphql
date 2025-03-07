@@ -1,0 +1,83 @@
+
+mutation CreateBulkCSVComment($input: Upload!) {
+  createBulkCSVComment(input: $input) {
+    comments {
+      content
+      createdAt
+      id
+      updatedAt
+    }
+  }
+}
+
+mutation CreateBulkComment($input: [CreateCommentInput!]) {
+  createBulkComment(input: $input) {
+    comments {
+      content
+      createdAt
+      id
+      updatedAt
+    }
+  }
+}
+
+mutation CreateComment($input: CreateCommentInput!) {
+  createComment(input: $input) {
+    comment {
+      content
+      createdAt
+      id
+      updatedAt
+    }
+  }
+}
+
+mutation DeleteComment($deleteCommentId: ID!) {
+  deleteComment(id: $deleteCommentId) {
+    deletedID
+  }
+}
+
+query GetAllComments {
+  comments {
+    edges {
+      node {
+        content
+        createdAt
+        id
+        updatedAt
+      }
+    }
+  }
+}
+query GetCommentByID($commentId: ID!) {
+  comment(id: $commentId) {
+    content
+    createdAt
+    id
+    updatedAt
+  }
+}
+
+query GetComments($where: CommentWhereInput) {
+  comments(where: $where) {
+    edges {
+      node {
+        content
+        createdAt
+        id
+        updatedAt
+      }
+    }
+  }
+}
+mutation UpdateComment($updateCommentId: ID!, $input: UpdateCommentInput!) {
+  updateComment(id: $updateCommentId, input: $input) {
+    comment {
+      content
+      createdAt
+      id
+      updatedAt
+    }
+  }
+}

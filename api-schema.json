@@ -1,0 +1,5686 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "properties": {
+    "Mutation": {
+      "type": "object",
+      "properties": {
+        "_m": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Boolean"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "createApiKey": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/ApiKeyCreatePayload"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "input": {
+                  "$ref": "#/definitions/CreateApiKeyInput",
+                  "description": "values of the apiKey"
+                }
+              },
+              "required": [
+                "input"
+              ]
+            }
+          },
+          "required": [],
+          "description": "Create a new apiKey"
+        },
+        "createBulkApiKey": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/ApiKeyBulkCreatePayload"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "input": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/CreateApiKeyInput"
+                  },
+                  "description": "values of the apiKey"
+                }
+              },
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Create multiple new apiKeys"
+        },
+        "createBulkCSVApiKey": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/ApiKeyBulkCreatePayload"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "input": {
+                  "$ref": "#/definitions/Upload",
+                  "description": "csv file containing values of the apiKey"
+                }
+              },
+              "required": [
+                "input"
+              ]
+            }
+          },
+          "required": [],
+          "description": "Create multiple new apiKeys via file upload"
+        },
+        "updateApiKey": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/ApiKeyUpdatePayload"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "$ref": "#/definitions/ID",
+                  "description": "ID of the apiKey"
+                },
+                "input": {
+                  "$ref": "#/definitions/UpdateApiKeyInput",
+                  "description": "New values for the apiKey"
+                }
+              },
+              "required": [
+                "id",
+                "input"
+              ]
+            }
+          },
+          "required": [],
+          "description": "Update an existing apiKey"
+        },
+        "deleteApiKey": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/ApiKeyDeletePayload"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "$ref": "#/definitions/ID",
+                  "description": "ID of the apiKey"
+                }
+              },
+              "required": [
+                "id"
+              ]
+            }
+          },
+          "required": [],
+          "description": "Delete an existing apiKey"
+        },
+        "createComment": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/CommentCreatePayload"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "input": {
+                  "$ref": "#/definitions/CreateCommentInput",
+                  "description": "values of the comment"
+                }
+              },
+              "required": [
+                "input"
+              ]
+            }
+          },
+          "required": [],
+          "description": "Create a new comment"
+        },
+        "createBulkComment": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/CommentBulkCreatePayload"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "input": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/CreateCommentInput"
+                  },
+                  "description": "values of the comment"
+                }
+              },
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Create multiple new comments"
+        },
+        "createBulkCSVComment": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/CommentBulkCreatePayload"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "input": {
+                  "$ref": "#/definitions/Upload",
+                  "description": "csv file containing values of the comment"
+                }
+              },
+              "required": [
+                "input"
+              ]
+            }
+          },
+          "required": [],
+          "description": "Create multiple new comments via file upload"
+        },
+        "updateComment": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/CommentUpdatePayload"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "$ref": "#/definitions/ID",
+                  "description": "ID of the comment"
+                },
+                "input": {
+                  "$ref": "#/definitions/UpdateCommentInput",
+                  "description": "New values for the comment"
+                }
+              },
+              "required": [
+                "id",
+                "input"
+              ]
+            }
+          },
+          "required": [],
+          "description": "Update an existing comment"
+        },
+        "deleteComment": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/CommentDeletePayload"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "$ref": "#/definitions/ID",
+                  "description": "ID of the comment"
+                }
+              },
+              "required": [
+                "id"
+              ]
+            }
+          },
+          "required": [],
+          "description": "Delete an existing comment"
+        },
+        "createPost": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/PostCreatePayload"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "input": {
+                  "$ref": "#/definitions/CreatePostInput",
+                  "description": "values of the post"
+                }
+              },
+              "required": [
+                "input"
+              ]
+            }
+          },
+          "required": [],
+          "description": "Create a new post"
+        },
+        "createBulkPost": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/PostBulkCreatePayload"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "input": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/CreatePostInput"
+                  },
+                  "description": "values of the post"
+                }
+              },
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Create multiple new posts"
+        },
+        "createBulkCSVPost": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/PostBulkCreatePayload"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "input": {
+                  "$ref": "#/definitions/Upload",
+                  "description": "csv file containing values of the post"
+                }
+              },
+              "required": [
+                "input"
+              ]
+            }
+          },
+          "required": [],
+          "description": "Create multiple new posts via file upload"
+        },
+        "updatePost": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/PostUpdatePayload"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "$ref": "#/definitions/ID",
+                  "description": "ID of the post"
+                },
+                "input": {
+                  "$ref": "#/definitions/UpdatePostInput",
+                  "description": "New values for the post"
+                }
+              },
+              "required": [
+                "id",
+                "input"
+              ]
+            }
+          },
+          "required": [],
+          "description": "Update an existing post"
+        },
+        "deletePost": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/PostDeletePayload"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "$ref": "#/definitions/ID",
+                  "description": "ID of the post"
+                }
+              },
+              "required": [
+                "id"
+              ]
+            }
+          },
+          "required": [],
+          "description": "Delete an existing post"
+        },
+        "createPostCategory": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/PostCategoryCreatePayload"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "input": {
+                  "$ref": "#/definitions/CreatePostCategoryInput",
+                  "description": "values of the postCategory"
+                }
+              },
+              "required": [
+                "input"
+              ]
+            }
+          },
+          "required": [],
+          "description": "Create a new postCategory"
+        },
+        "createBulkPostCategory": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/PostCategoryBulkCreatePayload"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "input": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/CreatePostCategoryInput"
+                  },
+                  "description": "values of the postCategory"
+                }
+              },
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Create multiple new postCategorys"
+        },
+        "createBulkCSVPostCategory": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/PostCategoryBulkCreatePayload"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "input": {
+                  "$ref": "#/definitions/Upload",
+                  "description": "csv file containing values of the postCategory"
+                }
+              },
+              "required": [
+                "input"
+              ]
+            }
+          },
+          "required": [],
+          "description": "Create multiple new postCategorys via file upload"
+        },
+        "updatePostCategory": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/PostCategoryUpdatePayload"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "$ref": "#/definitions/ID",
+                  "description": "ID of the postCategory"
+                },
+                "input": {
+                  "$ref": "#/definitions/UpdatePostCategoryInput",
+                  "description": "New values for the postCategory"
+                }
+              },
+              "required": [
+                "id",
+                "input"
+              ]
+            }
+          },
+          "required": [],
+          "description": "Update an existing postCategory"
+        },
+        "deletePostCategory": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/PostCategoryDeletePayload"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "$ref": "#/definitions/ID",
+                  "description": "ID of the postCategory"
+                }
+              },
+              "required": [
+                "id"
+              ]
+            }
+          },
+          "required": [],
+          "description": "Delete an existing postCategory"
+        },
+        "createUser": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/UserCreatePayload"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "input": {
+                  "$ref": "#/definitions/CreateUserInput",
+                  "description": "values of the user"
+                }
+              },
+              "required": [
+                "input"
+              ]
+            }
+          },
+          "required": [],
+          "description": "Create a new user"
+        },
+        "createBulkUser": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/UserBulkCreatePayload"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "input": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/CreateUserInput"
+                  },
+                  "description": "values of the user"
+                }
+              },
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Create multiple new users"
+        },
+        "createBulkCSVUser": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/UserBulkCreatePayload"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "input": {
+                  "$ref": "#/definitions/Upload",
+                  "description": "csv file containing values of the user"
+                }
+              },
+              "required": [
+                "input"
+              ]
+            }
+          },
+          "required": [],
+          "description": "Create multiple new users via file upload"
+        },
+        "updateUser": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/UserUpdatePayload"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "$ref": "#/definitions/ID",
+                  "description": "ID of the user"
+                },
+                "input": {
+                  "$ref": "#/definitions/UpdateUserInput",
+                  "description": "New values for the user"
+                }
+              },
+              "required": [
+                "id",
+                "input"
+              ]
+            }
+          },
+          "required": [],
+          "description": "Update an existing user"
+        },
+        "deleteUser": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/UserDeletePayload"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "$ref": "#/definitions/ID",
+                  "description": "ID of the user"
+                }
+              },
+              "required": [
+                "id"
+              ]
+            }
+          },
+          "required": [],
+          "description": "Delete an existing user"
+        }
+      },
+      "required": []
+    },
+    "Query": {
+      "type": "object",
+      "properties": {
+        "node": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Node"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "$ref": "#/definitions/ID",
+                  "description": "ID of the object."
+                }
+              },
+              "required": [
+                "id"
+              ]
+            }
+          },
+          "required": [],
+          "description": "Fetches an object given its ID."
+        },
+        "nodes": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "$ref": "#/definitions/Node"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "ids": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/ID"
+                  },
+                  "description": "The list of node IDs."
+                }
+              },
+              "required": [
+                "ids"
+              ]
+            }
+          },
+          "required": [],
+          "description": "Lookup nodes by a list of IDs."
+        },
+        "apiKeys": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/ApiKeyConnection"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "after": {
+                  "$ref": "#/definitions/Cursor",
+                  "description": "Returns the elements in the list that come after the specified cursor."
+                },
+                "first": {
+                  "$ref": "#/definitions/Int",
+                  "description": "Returns the first _n_ elements from the list."
+                },
+                "before": {
+                  "$ref": "#/definitions/Cursor",
+                  "description": "Returns the elements in the list that come before the specified cursor."
+                },
+                "last": {
+                  "$ref": "#/definitions/Int",
+                  "description": "Returns the last _n_ elements from the list."
+                },
+                "orderBy": {
+                  "$ref": "#/definitions/ApiKeyOrder",
+                  "description": "Ordering options for ApiKeys returned from the connection."
+                },
+                "where": {
+                  "$ref": "#/definitions/ApiKeyWhereInput",
+                  "description": "Filtering options for ApiKeys returned from the connection."
+                }
+              },
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "comments": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/CommentConnection"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "after": {
+                  "$ref": "#/definitions/Cursor",
+                  "description": "Returns the elements in the list that come after the specified cursor."
+                },
+                "first": {
+                  "$ref": "#/definitions/Int",
+                  "description": "Returns the first _n_ elements from the list."
+                },
+                "before": {
+                  "$ref": "#/definitions/Cursor",
+                  "description": "Returns the elements in the list that come before the specified cursor."
+                },
+                "last": {
+                  "$ref": "#/definitions/Int",
+                  "description": "Returns the last _n_ elements from the list."
+                },
+                "orderBy": {
+                  "$ref": "#/definitions/CommentOrder",
+                  "description": "Ordering options for Comments returned from the connection."
+                },
+                "where": {
+                  "$ref": "#/definitions/CommentWhereInput",
+                  "description": "Filtering options for Comments returned from the connection."
+                }
+              },
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "posts": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/PostConnection"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "after": {
+                  "$ref": "#/definitions/Cursor",
+                  "description": "Returns the elements in the list that come after the specified cursor."
+                },
+                "first": {
+                  "$ref": "#/definitions/Int",
+                  "description": "Returns the first _n_ elements from the list."
+                },
+                "before": {
+                  "$ref": "#/definitions/Cursor",
+                  "description": "Returns the elements in the list that come before the specified cursor."
+                },
+                "last": {
+                  "$ref": "#/definitions/Int",
+                  "description": "Returns the last _n_ elements from the list."
+                },
+                "orderBy": {
+                  "$ref": "#/definitions/PostOrder",
+                  "description": "Ordering options for Posts returned from the connection."
+                },
+                "where": {
+                  "$ref": "#/definitions/PostWhereInput",
+                  "description": "Filtering options for Posts returned from the connection."
+                }
+              },
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "postCategories": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/PostCategoryConnection"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "after": {
+                  "$ref": "#/definitions/Cursor",
+                  "description": "Returns the elements in the list that come after the specified cursor."
+                },
+                "first": {
+                  "$ref": "#/definitions/Int",
+                  "description": "Returns the first _n_ elements from the list."
+                },
+                "before": {
+                  "$ref": "#/definitions/Cursor",
+                  "description": "Returns the elements in the list that come before the specified cursor."
+                },
+                "last": {
+                  "$ref": "#/definitions/Int",
+                  "description": "Returns the last _n_ elements from the list."
+                },
+                "orderBy": {
+                  "$ref": "#/definitions/PostCategoryOrder",
+                  "description": "Ordering options for PostCategories returned from the connection."
+                },
+                "where": {
+                  "$ref": "#/definitions/PostCategoryWhereInput",
+                  "description": "Filtering options for PostCategories returned from the connection."
+                }
+              },
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "users": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/UserConnection"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "after": {
+                  "$ref": "#/definitions/Cursor",
+                  "description": "Returns the elements in the list that come after the specified cursor."
+                },
+                "first": {
+                  "$ref": "#/definitions/Int",
+                  "description": "Returns the first _n_ elements from the list."
+                },
+                "before": {
+                  "$ref": "#/definitions/Cursor",
+                  "description": "Returns the elements in the list that come before the specified cursor."
+                },
+                "last": {
+                  "$ref": "#/definitions/Int",
+                  "description": "Returns the last _n_ elements from the list."
+                },
+                "orderBy": {
+                  "$ref": "#/definitions/UserOrder",
+                  "description": "Ordering options for Users returned from the connection."
+                },
+                "where": {
+                  "$ref": "#/definitions/UserWhereInput",
+                  "description": "Filtering options for Users returned from the connection."
+                }
+              },
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "adminUserSearch": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/UserSearchResult"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "query": {
+                  "$ref": "#/definitions/String",
+                  "description": "Search query"
+                }
+              },
+              "required": [
+                "query"
+              ]
+            }
+          },
+          "required": [],
+          "description": "Search across User objects"
+        },
+        "apiKey": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/ApiKey"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "$ref": "#/definitions/ID",
+                  "description": "ID of the apiKey"
+                }
+              },
+              "required": [
+                "id"
+              ]
+            }
+          },
+          "required": [],
+          "description": "Look up apiKey by ID"
+        },
+        "comment": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Comment"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "$ref": "#/definitions/ID",
+                  "description": "ID of the comment"
+                }
+              },
+              "required": [
+                "id"
+              ]
+            }
+          },
+          "required": [],
+          "description": "Look up comment by ID"
+        },
+        "post": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Post"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "$ref": "#/definitions/ID",
+                  "description": "ID of the post"
+                }
+              },
+              "required": [
+                "id"
+              ]
+            }
+          },
+          "required": [],
+          "description": "Look up post by ID"
+        },
+        "postCategory": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/PostCategory"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "$ref": "#/definitions/ID",
+                  "description": "ID of the postCategory"
+                }
+              },
+              "required": [
+                "id"
+              ]
+            }
+          },
+          "required": [],
+          "description": "Look up postCategory by ID"
+        },
+        "userSearch": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/UserSearchResult"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "query": {
+                  "$ref": "#/definitions/String",
+                  "description": "Search query"
+                }
+              },
+              "required": [
+                "query"
+              ]
+            }
+          },
+          "required": [],
+          "description": "Search across User objects"
+        },
+        "search": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/SearchResultConnection"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "query": {
+                  "$ref": "#/definitions/String",
+                  "description": "Search query"
+                }
+              },
+              "required": [
+                "query"
+              ]
+            }
+          },
+          "required": [],
+          "description": "Search across all objects"
+        },
+        "adminSearch": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/SearchResultConnection"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "query": {
+                  "$ref": "#/definitions/String",
+                  "description": "Search query"
+                }
+              },
+              "required": [
+                "query"
+              ]
+            }
+          },
+          "required": [],
+          "description": "Admin search across all objects"
+        },
+        "user": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/User"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "$ref": "#/definitions/ID",
+                  "description": "ID of the user"
+                }
+              },
+              "required": [
+                "id"
+              ]
+            }
+          },
+          "required": [],
+          "description": "Look up user by ID"
+        },
+        "me": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/User"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        }
+      },
+      "required": []
+    }
+  },
+  "definitions": {
+    "ApiKeyCreatePayload": {
+      "type": "object",
+      "properties": {
+        "apiKey": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/ApiKey"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Created apiKey"
+        }
+      },
+      "required": [
+        "apiKey"
+      ],
+      "description": "Return response for createApiKey mutation"
+    },
+    "ApiKeyUpdatePayload": {
+      "type": "object",
+      "properties": {
+        "apiKey": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/ApiKey"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Updated apiKey"
+        }
+      },
+      "required": [
+        "apiKey"
+      ],
+      "description": "Return response for updateApiKey mutation"
+    },
+    "ApiKeyDeletePayload": {
+      "type": "object",
+      "properties": {
+        "deletedID": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/ID"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Deleted apiKey ID"
+        }
+      },
+      "required": [
+        "deletedID"
+      ],
+      "description": "Return response for deleteApiKey mutation"
+    },
+    "ID": {
+      "type": "string",
+      "title": "ID",
+      "description": "The `ID` scalar type represents a unique identifier, often used to refetch an object or as key for a cache. The ID type appears in a JSON response as a String; however, it is not intended to be human-readable. When expected as an input type, any string (such as `\"4\"`) or integer (such as `4`) input value will be accepted as an ID."
+    },
+    "ApiKeyBulkCreatePayload": {
+      "type": "object",
+      "properties": {
+        "apiKeys": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ApiKey"
+              }
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Created apiKeys"
+        }
+      },
+      "required": [],
+      "description": "Return response for createBulkApiKey mutation"
+    },
+    "CommentCreatePayload": {
+      "type": "object",
+      "properties": {
+        "comment": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Comment"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Created comment"
+        }
+      },
+      "required": [
+        "comment"
+      ],
+      "description": "Return response for createComment mutation"
+    },
+    "CommentUpdatePayload": {
+      "type": "object",
+      "properties": {
+        "comment": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Comment"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Updated comment"
+        }
+      },
+      "required": [
+        "comment"
+      ],
+      "description": "Return response for updateComment mutation"
+    },
+    "CommentDeletePayload": {
+      "type": "object",
+      "properties": {
+        "deletedID": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/ID"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Deleted comment ID"
+        }
+      },
+      "required": [
+        "deletedID"
+      ],
+      "description": "Return response for deleteComment mutation"
+    },
+    "CommentBulkCreatePayload": {
+      "type": "object",
+      "properties": {
+        "comments": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Comment"
+              }
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Created comments"
+        }
+      },
+      "required": [],
+      "description": "Return response for createBulkComment mutation"
+    },
+    "Time": {
+      "type": "object",
+      "title": "Time"
+    },
+    "Duration": {
+      "type": "object",
+      "title": "Duration"
+    },
+    "UUID": {
+      "type": "object",
+      "title": "UUID"
+    },
+    "Upload": {
+      "type": "object",
+      "title": "Upload"
+    },
+    "Boolean": {
+      "type": "boolean",
+      "title": "Boolean",
+      "description": "The `Boolean` scalar type represents `true` or `false`."
+    },
+    "ApiKey": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/ID"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "updatedAt": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Time"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "createdAt": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Time"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "apiKey": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/String"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "expiresOn": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Time"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "user": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/User"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        }
+      },
+      "required": [
+        "id",
+        "updatedAt",
+        "createdAt",
+        "apiKey",
+        "expiresOn"
+      ]
+    },
+    "String": {
+      "type": "string",
+      "title": "String",
+      "description": "The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text."
+    },
+    "ApiKeyConnection": {
+      "type": "object",
+      "properties": {
+        "edges": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "$ref": "#/definitions/ApiKeyEdge"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "A list of edges."
+        },
+        "pageInfo": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/PageInfo"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Information to aid in pagination."
+        },
+        "totalCount": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Int"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Identifies the total count of items in the connection."
+        }
+      },
+      "required": [
+        "pageInfo",
+        "totalCount"
+      ],
+      "description": "A connection to a list of items."
+    },
+    "Int": {
+      "type": "number",
+      "title": "Int",
+      "description": "The `Int` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1."
+    },
+    "ApiKeyEdge": {
+      "type": "object",
+      "properties": {
+        "node": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/ApiKey"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "The item at the end of the edge."
+        },
+        "cursor": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Cursor"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "A cursor for use in pagination."
+        }
+      },
+      "required": [
+        "cursor"
+      ],
+      "description": "An edge in a connection."
+    },
+    "ApiKeyOrder": {
+      "type": "object",
+      "properties": {
+        "direction": {
+          "$ref": "#/definitions/OrderDirection",
+          "default": "ASC",
+          "description": "The ordering direction."
+        },
+        "field": {
+          "$ref": "#/definitions/ApiKeyOrderField",
+          "description": "The field by which to order ApiKeys."
+        }
+      },
+      "required": [
+        "direction",
+        "field"
+      ],
+      "description": "Ordering options for ApiKey connections"
+    },
+    "ApiKeyOrderField": {
+      "type": "string",
+      "anyOf": [
+        {
+          "enum": [
+            "ID"
+          ],
+          "title": "ID"
+        },
+        {
+          "enum": [
+            "UPDATED_AT"
+          ],
+          "title": "UPDATED_AT"
+        },
+        {
+          "enum": [
+            "CREATED_AT"
+          ],
+          "title": "CREATED_AT"
+        }
+      ],
+      "description": "Properties by which ApiKey connections can be ordered."
+    },
+    "ApiKeyWhereInput": {
+      "type": "object",
+      "properties": {
+        "not": {
+          "$ref": "#/definitions/ApiKeyWhereInput"
+        },
+        "and": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ApiKeyWhereInput"
+          }
+        },
+        "or": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ApiKeyWhereInput"
+          }
+        },
+        "id": {
+          "$ref": "#/definitions/ID",
+          "description": "id field predicates"
+        },
+        "idNEQ": {
+          "$ref": "#/definitions/ID"
+        },
+        "idIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ID"
+          }
+        },
+        "idNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ID"
+          }
+        },
+        "idGT": {
+          "$ref": "#/definitions/ID"
+        },
+        "idGTE": {
+          "$ref": "#/definitions/ID"
+        },
+        "idLT": {
+          "$ref": "#/definitions/ID"
+        },
+        "idLTE": {
+          "$ref": "#/definitions/ID"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/Time",
+          "description": "updated_at field predicates"
+        },
+        "updatedAtNEQ": {
+          "$ref": "#/definitions/Time"
+        },
+        "updatedAtIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Time"
+          }
+        },
+        "updatedAtNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Time"
+          }
+        },
+        "updatedAtGT": {
+          "$ref": "#/definitions/Time"
+        },
+        "updatedAtGTE": {
+          "$ref": "#/definitions/Time"
+        },
+        "updatedAtLT": {
+          "$ref": "#/definitions/Time"
+        },
+        "updatedAtLTE": {
+          "$ref": "#/definitions/Time"
+        },
+        "createdAt": {
+          "$ref": "#/definitions/Time",
+          "description": "created_at field predicates"
+        },
+        "createdAtNEQ": {
+          "$ref": "#/definitions/Time"
+        },
+        "createdAtIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Time"
+          }
+        },
+        "createdAtNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Time"
+          }
+        },
+        "createdAtGT": {
+          "$ref": "#/definitions/Time"
+        },
+        "createdAtGTE": {
+          "$ref": "#/definitions/Time"
+        },
+        "createdAtLT": {
+          "$ref": "#/definitions/Time"
+        },
+        "createdAtLTE": {
+          "$ref": "#/definitions/Time"
+        },
+        "apiKey": {
+          "$ref": "#/definitions/String",
+          "description": "api_key field predicates"
+        },
+        "apiKeyNEQ": {
+          "$ref": "#/definitions/String"
+        },
+        "apiKeyIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/String"
+          }
+        },
+        "apiKeyNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/String"
+          }
+        },
+        "apiKeyGT": {
+          "$ref": "#/definitions/String"
+        },
+        "apiKeyGTE": {
+          "$ref": "#/definitions/String"
+        },
+        "apiKeyLT": {
+          "$ref": "#/definitions/String"
+        },
+        "apiKeyLTE": {
+          "$ref": "#/definitions/String"
+        },
+        "apiKeyContains": {
+          "$ref": "#/definitions/String"
+        },
+        "apiKeyHasPrefix": {
+          "$ref": "#/definitions/String"
+        },
+        "apiKeyHasSuffix": {
+          "$ref": "#/definitions/String"
+        },
+        "apiKeyEqualFold": {
+          "$ref": "#/definitions/String"
+        },
+        "apiKeyContainsFold": {
+          "$ref": "#/definitions/String"
+        },
+        "expiresOn": {
+          "$ref": "#/definitions/Time",
+          "description": "expires_on field predicates"
+        },
+        "expiresOnNEQ": {
+          "$ref": "#/definitions/Time"
+        },
+        "expiresOnIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Time"
+          }
+        },
+        "expiresOnNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Time"
+          }
+        },
+        "expiresOnGT": {
+          "$ref": "#/definitions/Time"
+        },
+        "expiresOnGTE": {
+          "$ref": "#/definitions/Time"
+        },
+        "expiresOnLT": {
+          "$ref": "#/definitions/Time"
+        },
+        "expiresOnLTE": {
+          "$ref": "#/definitions/Time"
+        },
+        "hasUser": {
+          "$ref": "#/definitions/Boolean",
+          "description": "user edge predicates"
+        },
+        "hasUserWith": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UserWhereInput"
+          }
+        }
+      },
+      "required": [],
+      "description": "ApiKeyWhereInput is used for filtering ApiKey objects.\nInput was generated by ent."
+    },
+    "Comment": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/ID"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "updatedAt": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Time"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "createdAt": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Time"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "deletedAt": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Time"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "deletedBy": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/String"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "content": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/String"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "author": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/User"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "post": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Post"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        }
+      },
+      "required": [
+        "id",
+        "updatedAt",
+        "createdAt",
+        "content"
+      ]
+    },
+    "CommentConnection": {
+      "type": "object",
+      "properties": {
+        "edges": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "$ref": "#/definitions/CommentEdge"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "A list of edges."
+        },
+        "pageInfo": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/PageInfo"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Information to aid in pagination."
+        },
+        "totalCount": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Int"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Identifies the total count of items in the connection."
+        }
+      },
+      "required": [
+        "pageInfo",
+        "totalCount"
+      ],
+      "description": "A connection to a list of items."
+    },
+    "CommentEdge": {
+      "type": "object",
+      "properties": {
+        "node": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Comment"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "The item at the end of the edge."
+        },
+        "cursor": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Cursor"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "A cursor for use in pagination."
+        }
+      },
+      "required": [
+        "cursor"
+      ],
+      "description": "An edge in a connection."
+    },
+    "CommentOrder": {
+      "type": "object",
+      "properties": {
+        "direction": {
+          "$ref": "#/definitions/OrderDirection",
+          "default": "ASC",
+          "description": "The ordering direction."
+        },
+        "field": {
+          "$ref": "#/definitions/CommentOrderField",
+          "description": "The field by which to order Comments."
+        }
+      },
+      "required": [
+        "direction",
+        "field"
+      ],
+      "description": "Ordering options for Comment connections"
+    },
+    "CommentOrderField": {
+      "type": "string",
+      "anyOf": [
+        {
+          "enum": [
+            "ID"
+          ],
+          "title": "ID"
+        },
+        {
+          "enum": [
+            "UPDATED_AT"
+          ],
+          "title": "UPDATED_AT"
+        },
+        {
+          "enum": [
+            "CREATED_AT"
+          ],
+          "title": "CREATED_AT"
+        }
+      ],
+      "description": "Properties by which Comment connections can be ordered."
+    },
+    "CommentWhereInput": {
+      "type": "object",
+      "properties": {
+        "not": {
+          "$ref": "#/definitions/CommentWhereInput"
+        },
+        "and": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CommentWhereInput"
+          }
+        },
+        "or": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CommentWhereInput"
+          }
+        },
+        "id": {
+          "$ref": "#/definitions/ID",
+          "description": "id field predicates"
+        },
+        "idNEQ": {
+          "$ref": "#/definitions/ID"
+        },
+        "idIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ID"
+          }
+        },
+        "idNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ID"
+          }
+        },
+        "idGT": {
+          "$ref": "#/definitions/ID"
+        },
+        "idGTE": {
+          "$ref": "#/definitions/ID"
+        },
+        "idLT": {
+          "$ref": "#/definitions/ID"
+        },
+        "idLTE": {
+          "$ref": "#/definitions/ID"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/Time",
+          "description": "updated_at field predicates"
+        },
+        "updatedAtNEQ": {
+          "$ref": "#/definitions/Time"
+        },
+        "updatedAtIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Time"
+          }
+        },
+        "updatedAtNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Time"
+          }
+        },
+        "updatedAtGT": {
+          "$ref": "#/definitions/Time"
+        },
+        "updatedAtGTE": {
+          "$ref": "#/definitions/Time"
+        },
+        "updatedAtLT": {
+          "$ref": "#/definitions/Time"
+        },
+        "updatedAtLTE": {
+          "$ref": "#/definitions/Time"
+        },
+        "createdAt": {
+          "$ref": "#/definitions/Time",
+          "description": "created_at field predicates"
+        },
+        "createdAtNEQ": {
+          "$ref": "#/definitions/Time"
+        },
+        "createdAtIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Time"
+          }
+        },
+        "createdAtNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Time"
+          }
+        },
+        "createdAtGT": {
+          "$ref": "#/definitions/Time"
+        },
+        "createdAtGTE": {
+          "$ref": "#/definitions/Time"
+        },
+        "createdAtLT": {
+          "$ref": "#/definitions/Time"
+        },
+        "createdAtLTE": {
+          "$ref": "#/definitions/Time"
+        },
+        "deletedAt": {
+          "$ref": "#/definitions/Time",
+          "description": "deleted_at field predicates"
+        },
+        "deletedAtNEQ": {
+          "$ref": "#/definitions/Time"
+        },
+        "deletedAtIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Time"
+          }
+        },
+        "deletedAtNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Time"
+          }
+        },
+        "deletedAtGT": {
+          "$ref": "#/definitions/Time"
+        },
+        "deletedAtGTE": {
+          "$ref": "#/definitions/Time"
+        },
+        "deletedAtLT": {
+          "$ref": "#/definitions/Time"
+        },
+        "deletedAtLTE": {
+          "$ref": "#/definitions/Time"
+        },
+        "deletedAtIsNil": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "deletedAtNotNil": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "deletedBy": {
+          "$ref": "#/definitions/String",
+          "description": "deleted_by field predicates"
+        },
+        "deletedByNEQ": {
+          "$ref": "#/definitions/String"
+        },
+        "deletedByIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/String"
+          }
+        },
+        "deletedByNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/String"
+          }
+        },
+        "deletedByGT": {
+          "$ref": "#/definitions/String"
+        },
+        "deletedByGTE": {
+          "$ref": "#/definitions/String"
+        },
+        "deletedByLT": {
+          "$ref": "#/definitions/String"
+        },
+        "deletedByLTE": {
+          "$ref": "#/definitions/String"
+        },
+        "deletedByContains": {
+          "$ref": "#/definitions/String"
+        },
+        "deletedByHasPrefix": {
+          "$ref": "#/definitions/String"
+        },
+        "deletedByHasSuffix": {
+          "$ref": "#/definitions/String"
+        },
+        "deletedByIsNil": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "deletedByNotNil": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "deletedByEqualFold": {
+          "$ref": "#/definitions/String"
+        },
+        "deletedByContainsFold": {
+          "$ref": "#/definitions/String"
+        },
+        "content": {
+          "$ref": "#/definitions/String",
+          "description": "content field predicates"
+        },
+        "contentNEQ": {
+          "$ref": "#/definitions/String"
+        },
+        "contentIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/String"
+          }
+        },
+        "contentNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/String"
+          }
+        },
+        "contentGT": {
+          "$ref": "#/definitions/String"
+        },
+        "contentGTE": {
+          "$ref": "#/definitions/String"
+        },
+        "contentLT": {
+          "$ref": "#/definitions/String"
+        },
+        "contentLTE": {
+          "$ref": "#/definitions/String"
+        },
+        "contentContains": {
+          "$ref": "#/definitions/String"
+        },
+        "contentHasPrefix": {
+          "$ref": "#/definitions/String"
+        },
+        "contentHasSuffix": {
+          "$ref": "#/definitions/String"
+        },
+        "contentEqualFold": {
+          "$ref": "#/definitions/String"
+        },
+        "contentContainsFold": {
+          "$ref": "#/definitions/String"
+        },
+        "hasAuthor": {
+          "$ref": "#/definitions/Boolean",
+          "description": "author edge predicates"
+        },
+        "hasAuthorWith": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UserWhereInput"
+          }
+        },
+        "hasPost": {
+          "$ref": "#/definitions/Boolean",
+          "description": "post edge predicates"
+        },
+        "hasPostWith": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PostWhereInput"
+          }
+        }
+      },
+      "required": [],
+      "description": "CommentWhereInput is used for filtering Comment objects.\nInput was generated by ent."
+    },
+    "CreateApiKeyInput": {
+      "type": "object",
+      "properties": {
+        "apiKey": {
+          "$ref": "#/definitions/String"
+        },
+        "expiresOn": {
+          "$ref": "#/definitions/Time"
+        },
+        "userID": {
+          "$ref": "#/definitions/ID"
+        }
+      },
+      "required": [
+        "apiKey",
+        "expiresOn"
+      ],
+      "description": "CreateApiKeyInput is used for create ApiKey object.\nInput was generated by ent."
+    },
+    "CreateCommentInput": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "$ref": "#/definitions/String"
+        },
+        "authorID": {
+          "$ref": "#/definitions/ID"
+        },
+        "postID": {
+          "$ref": "#/definitions/ID"
+        }
+      },
+      "required": [
+        "content"
+      ],
+      "description": "CreateCommentInput is used for create Comment object.\nInput was generated by ent."
+    },
+    "CreatePostCategoryInput": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "$ref": "#/definitions/PostCategoryCategory"
+        },
+        "postID": {
+          "$ref": "#/definitions/ID"
+        }
+      },
+      "required": [
+        "category"
+      ],
+      "description": "CreatePostCategoryInput is used for create PostCategory object.\nInput was generated by ent."
+    },
+    "CreatePostInput": {
+      "type": "object",
+      "properties": {
+        "pinned": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "title": {
+          "$ref": "#/definitions/String"
+        },
+        "content": {
+          "$ref": "#/definitions/String"
+        },
+        "link": {
+          "$ref": "#/definitions/String"
+        },
+        "moderationComment": {
+          "$ref": "#/definitions/String"
+        },
+        "isModerated": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "authorID": {
+          "$ref": "#/definitions/ID"
+        },
+        "commentIDs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ID"
+          }
+        },
+        "savedByIDs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ID"
+          }
+        },
+        "likedByIDs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ID"
+          }
+        },
+        "categoryIDs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ID"
+          }
+        },
+        "createWithEdges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PostCategoryCategory"
+          }
+        }
+      },
+      "required": [
+        "title",
+        "link"
+      ],
+      "description": "CreatePostInput is used for create Post object.\nInput was generated by ent."
+    },
+    "CreateUserInput": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "$ref": "#/definitions/String"
+        },
+        "displayName": {
+          "$ref": "#/definitions/String"
+        },
+        "alias": {
+          "$ref": "#/definitions/String",
+          "description": "the alias of the user is shown alongside the display name"
+        },
+        "profileImage": {
+          "$ref": "#/definitions/String"
+        },
+        "authProvider": {
+          "$ref": "#/definitions/UserAuthProvider"
+        },
+        "role": {
+          "$ref": "#/definitions/UserRole",
+          "description": "the role of the user"
+        },
+        "lastSeenAt": {
+          "$ref": "#/definitions/Time",
+          "description": "the time the user was last seen"
+        },
+        "awards": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/String"
+          }
+        },
+        "savedPostIDs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ID"
+          }
+        },
+        "likedPostIDs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ID"
+          }
+        },
+        "postIDs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ID"
+          }
+        },
+        "commentIDs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ID"
+          }
+        },
+        "apiKeyID": {
+          "$ref": "#/definitions/ID"
+        }
+      },
+      "required": [
+        "email",
+        "displayName"
+      ],
+      "description": "CreateUserInput is used for create User object.\nInput was generated by ent."
+    },
+    "Cursor": {
+      "type": "object",
+      "title": "Cursor",
+      "description": "Define a Relay Cursor type:\nhttps://relay.dev/graphql/connections.htm#sec-Cursor"
+    },
+    "Node": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/ID"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "The id of the object."
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "description": "An object with an ID.\nFollows the [Relay Global Object Identification Specification](https://relay.dev/graphql/objectidentification.htm)"
+    },
+    "OrderDirection": {
+      "type": "string",
+      "anyOf": [
+        {
+          "enum": [
+            "ASC"
+          ],
+          "title": "Specifies an ascending order for a given `orderBy` argument.",
+          "description": "Specifies an ascending order for a given `orderBy` argument."
+        },
+        {
+          "enum": [
+            "DESC"
+          ],
+          "title": "Specifies a descending order for a given `orderBy` argument.",
+          "description": "Specifies a descending order for a given `orderBy` argument."
+        }
+      ],
+      "description": "Possible directions in which to order a list of items when provided an `orderBy` argument."
+    },
+    "PageInfo": {
+      "type": "object",
+      "properties": {
+        "hasNextPage": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Boolean"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "When paginating forwards, are there more items?"
+        },
+        "hasPreviousPage": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Boolean"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "When paginating backwards, are there more items?"
+        },
+        "startCursor": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Cursor"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "When paginating backwards, the cursor to continue."
+        },
+        "endCursor": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Cursor"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "When paginating forwards, the cursor to continue."
+        }
+      },
+      "required": [
+        "hasNextPage",
+        "hasPreviousPage"
+      ],
+      "description": "Information about pagination in a connection.\nhttps://relay.dev/graphql/connections.htm#sec-undefined.PageInfo"
+    },
+    "Post": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/ID"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "updatedAt": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Time"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "createdAt": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Time"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "deletedAt": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Time"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "deletedBy": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/String"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "pinned": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Boolean"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "title": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/String"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "content": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/String"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "link": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/String"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "moderationComment": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/String"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "isModerated": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Boolean"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "entityVector": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/String"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "author": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/User"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "comments": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/CommentConnection"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "after": {
+                  "$ref": "#/definitions/Cursor",
+                  "description": "Returns the elements in the list that come after the specified cursor."
+                },
+                "first": {
+                  "$ref": "#/definitions/Int",
+                  "description": "Returns the first _n_ elements from the list."
+                },
+                "before": {
+                  "$ref": "#/definitions/Cursor",
+                  "description": "Returns the elements in the list that come before the specified cursor."
+                },
+                "last": {
+                  "$ref": "#/definitions/Int",
+                  "description": "Returns the last _n_ elements from the list."
+                },
+                "orderBy": {
+                  "$ref": "#/definitions/CommentOrder",
+                  "description": "Ordering options for Comments returned from the connection."
+                },
+                "where": {
+                  "$ref": "#/definitions/CommentWhereInput",
+                  "description": "Filtering options for Comments returned from the connection."
+                }
+              },
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "savedBy": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/User"
+              }
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "likedBy": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/UserConnection"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {
+                "after": {
+                  "$ref": "#/definitions/Cursor",
+                  "description": "Returns the elements in the list that come after the specified cursor."
+                },
+                "first": {
+                  "$ref": "#/definitions/Int",
+                  "description": "Returns the first _n_ elements from the list."
+                },
+                "before": {
+                  "$ref": "#/definitions/Cursor",
+                  "description": "Returns the elements in the list that come before the specified cursor."
+                },
+                "last": {
+                  "$ref": "#/definitions/Int",
+                  "description": "Returns the last _n_ elements from the list."
+                },
+                "orderBy": {
+                  "$ref": "#/definitions/UserOrder",
+                  "description": "Ordering options for Users returned from the connection."
+                },
+                "where": {
+                  "$ref": "#/definitions/UserWhereInput",
+                  "description": "Filtering options for Users returned from the connection."
+                }
+              },
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "categories": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/PostCategory"
+              }
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "toHTML": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/String"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        }
+      },
+      "required": [
+        "id",
+        "updatedAt",
+        "createdAt",
+        "pinned",
+        "title",
+        "link",
+        "isModerated",
+        "comments",
+        "likedBy"
+      ]
+    },
+    "PostCategory": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/ID"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "updatedAt": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Time"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "createdAt": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Time"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "category": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/PostCategoryCategory"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "post": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Post"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        }
+      },
+      "required": [
+        "id",
+        "updatedAt",
+        "createdAt",
+        "category"
+      ]
+    },
+    "PostCategoryCategory": {
+      "type": "string",
+      "anyOf": [
+        {
+          "enum": [
+            "RANA"
+          ],
+          "title": "RANA"
+        },
+        {
+          "enum": [
+            "SIN_SONIDO"
+          ],
+          "title": "SIN_SONIDO"
+        },
+        {
+          "enum": [
+            "MEME_ARTESANAL"
+          ],
+          "title": "MEME_ARTESANAL"
+        },
+        {
+          "enum": [
+            "NO_SE_YO"
+          ],
+          "title": "NO_SE_YO"
+        },
+        {
+          "enum": [
+            "ORO"
+          ],
+          "title": "ORO"
+        },
+        {
+          "enum": [
+            "DIAMANTE"
+          ],
+          "title": "DIAMANTE"
+        },
+        {
+          "enum": [
+            "MEH"
+          ],
+          "title": "MEH"
+        },
+        {
+          "enum": [
+            "ALERTA_GLONETILLO"
+          ],
+          "title": "ALERTA_GLONETILLO"
+        },
+        {
+          "enum": [
+            "GRR"
+          ],
+          "title": "GRR"
+        },
+        {
+          "enum": [
+            "ENSORDECEDOR"
+          ],
+          "title": "ENSORDECEDOR"
+        },
+        {
+          "enum": [
+            "RAGUUUL"
+          ],
+          "title": "RAGUUUL"
+        }
+      ],
+      "description": "PostCategoryCategory is enum for the field category"
+    },
+    "PostCategoryConnection": {
+      "type": "object",
+      "properties": {
+        "edges": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "$ref": "#/definitions/PostCategoryEdge"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "A list of edges."
+        },
+        "pageInfo": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/PageInfo"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Information to aid in pagination."
+        },
+        "totalCount": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Int"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Identifies the total count of items in the connection."
+        }
+      },
+      "required": [
+        "pageInfo",
+        "totalCount"
+      ],
+      "description": "A connection to a list of items."
+    },
+    "PostCategoryEdge": {
+      "type": "object",
+      "properties": {
+        "node": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/PostCategory"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "The item at the end of the edge."
+        },
+        "cursor": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Cursor"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "A cursor for use in pagination."
+        }
+      },
+      "required": [
+        "cursor"
+      ],
+      "description": "An edge in a connection."
+    },
+    "PostCategoryOrder": {
+      "type": "object",
+      "properties": {
+        "direction": {
+          "$ref": "#/definitions/OrderDirection",
+          "default": "ASC",
+          "description": "The ordering direction."
+        },
+        "field": {
+          "$ref": "#/definitions/PostCategoryOrderField",
+          "description": "The field by which to order PostCategories."
+        }
+      },
+      "required": [
+        "direction",
+        "field"
+      ],
+      "description": "Ordering options for PostCategory connections"
+    },
+    "PostCategoryOrderField": {
+      "type": "string",
+      "anyOf": [
+        {
+          "enum": [
+            "ID"
+          ],
+          "title": "ID"
+        },
+        {
+          "enum": [
+            "UPDATED_AT"
+          ],
+          "title": "UPDATED_AT"
+        },
+        {
+          "enum": [
+            "CREATED_AT"
+          ],
+          "title": "CREATED_AT"
+        }
+      ],
+      "description": "Properties by which PostCategory connections can be ordered."
+    },
+    "PostCategoryWhereInput": {
+      "type": "object",
+      "properties": {
+        "not": {
+          "$ref": "#/definitions/PostCategoryWhereInput"
+        },
+        "and": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PostCategoryWhereInput"
+          }
+        },
+        "or": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PostCategoryWhereInput"
+          }
+        },
+        "id": {
+          "$ref": "#/definitions/ID",
+          "description": "id field predicates"
+        },
+        "idNEQ": {
+          "$ref": "#/definitions/ID"
+        },
+        "idIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ID"
+          }
+        },
+        "idNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ID"
+          }
+        },
+        "idGT": {
+          "$ref": "#/definitions/ID"
+        },
+        "idGTE": {
+          "$ref": "#/definitions/ID"
+        },
+        "idLT": {
+          "$ref": "#/definitions/ID"
+        },
+        "idLTE": {
+          "$ref": "#/definitions/ID"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/Time",
+          "description": "updated_at field predicates"
+        },
+        "updatedAtNEQ": {
+          "$ref": "#/definitions/Time"
+        },
+        "updatedAtIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Time"
+          }
+        },
+        "updatedAtNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Time"
+          }
+        },
+        "updatedAtGT": {
+          "$ref": "#/definitions/Time"
+        },
+        "updatedAtGTE": {
+          "$ref": "#/definitions/Time"
+        },
+        "updatedAtLT": {
+          "$ref": "#/definitions/Time"
+        },
+        "updatedAtLTE": {
+          "$ref": "#/definitions/Time"
+        },
+        "createdAt": {
+          "$ref": "#/definitions/Time",
+          "description": "created_at field predicates"
+        },
+        "createdAtNEQ": {
+          "$ref": "#/definitions/Time"
+        },
+        "createdAtIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Time"
+          }
+        },
+        "createdAtNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Time"
+          }
+        },
+        "createdAtGT": {
+          "$ref": "#/definitions/Time"
+        },
+        "createdAtGTE": {
+          "$ref": "#/definitions/Time"
+        },
+        "createdAtLT": {
+          "$ref": "#/definitions/Time"
+        },
+        "createdAtLTE": {
+          "$ref": "#/definitions/Time"
+        },
+        "category": {
+          "$ref": "#/definitions/PostCategoryCategory",
+          "description": "category field predicates"
+        },
+        "categoryNEQ": {
+          "$ref": "#/definitions/PostCategoryCategory"
+        },
+        "categoryIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PostCategoryCategory"
+          }
+        },
+        "categoryNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PostCategoryCategory"
+          }
+        },
+        "hasPost": {
+          "$ref": "#/definitions/Boolean",
+          "description": "post edge predicates"
+        },
+        "hasPostWith": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PostWhereInput"
+          }
+        }
+      },
+      "required": [],
+      "description": "PostCategoryWhereInput is used for filtering PostCategory objects.\nInput was generated by ent."
+    },
+    "PostConnection": {
+      "type": "object",
+      "properties": {
+        "edges": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "$ref": "#/definitions/PostEdge"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "A list of edges."
+        },
+        "pageInfo": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/PageInfo"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Information to aid in pagination."
+        },
+        "totalCount": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Int"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Identifies the total count of items in the connection."
+        }
+      },
+      "required": [
+        "pageInfo",
+        "totalCount"
+      ],
+      "description": "A connection to a list of items."
+    },
+    "PostEdge": {
+      "type": "object",
+      "properties": {
+        "node": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Post"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "The item at the end of the edge."
+        },
+        "cursor": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Cursor"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "A cursor for use in pagination."
+        }
+      },
+      "required": [
+        "cursor"
+      ],
+      "description": "An edge in a connection."
+    },
+    "PostOrder": {
+      "type": "object",
+      "properties": {
+        "direction": {
+          "$ref": "#/definitions/OrderDirection",
+          "default": "ASC",
+          "description": "The ordering direction."
+        },
+        "field": {
+          "$ref": "#/definitions/PostOrderField",
+          "description": "The field by which to order Posts."
+        }
+      },
+      "required": [
+        "direction",
+        "field"
+      ],
+      "description": "Ordering options for Post connections"
+    },
+    "PostOrderField": {
+      "type": "string",
+      "anyOf": [
+        {
+          "enum": [
+            "ID"
+          ],
+          "title": "ID"
+        },
+        {
+          "enum": [
+            "UPDATED_AT"
+          ],
+          "title": "UPDATED_AT"
+        },
+        {
+          "enum": [
+            "CREATED_AT"
+          ],
+          "title": "CREATED_AT"
+        },
+        {
+          "enum": [
+            "COMMENTS_COUNT"
+          ],
+          "title": "COMMENTS_COUNT"
+        },
+        {
+          "enum": [
+            "LIKED_BY_COUNT"
+          ],
+          "title": "LIKED_BY_COUNT"
+        }
+      ],
+      "description": "Properties by which Post connections can be ordered."
+    },
+    "PostWhereInput": {
+      "type": "object",
+      "properties": {
+        "not": {
+          "$ref": "#/definitions/PostWhereInput"
+        },
+        "and": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PostWhereInput"
+          }
+        },
+        "or": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PostWhereInput"
+          }
+        },
+        "id": {
+          "$ref": "#/definitions/ID",
+          "description": "id field predicates"
+        },
+        "idNEQ": {
+          "$ref": "#/definitions/ID"
+        },
+        "idIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ID"
+          }
+        },
+        "idNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ID"
+          }
+        },
+        "idGT": {
+          "$ref": "#/definitions/ID"
+        },
+        "idGTE": {
+          "$ref": "#/definitions/ID"
+        },
+        "idLT": {
+          "$ref": "#/definitions/ID"
+        },
+        "idLTE": {
+          "$ref": "#/definitions/ID"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/Time",
+          "description": "updated_at field predicates"
+        },
+        "updatedAtNEQ": {
+          "$ref": "#/definitions/Time"
+        },
+        "updatedAtIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Time"
+          }
+        },
+        "updatedAtNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Time"
+          }
+        },
+        "updatedAtGT": {
+          "$ref": "#/definitions/Time"
+        },
+        "updatedAtGTE": {
+          "$ref": "#/definitions/Time"
+        },
+        "updatedAtLT": {
+          "$ref": "#/definitions/Time"
+        },
+        "updatedAtLTE": {
+          "$ref": "#/definitions/Time"
+        },
+        "createdAt": {
+          "$ref": "#/definitions/Time",
+          "description": "created_at field predicates"
+        },
+        "createdAtNEQ": {
+          "$ref": "#/definitions/Time"
+        },
+        "createdAtIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Time"
+          }
+        },
+        "createdAtNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Time"
+          }
+        },
+        "createdAtGT": {
+          "$ref": "#/definitions/Time"
+        },
+        "createdAtGTE": {
+          "$ref": "#/definitions/Time"
+        },
+        "createdAtLT": {
+          "$ref": "#/definitions/Time"
+        },
+        "createdAtLTE": {
+          "$ref": "#/definitions/Time"
+        },
+        "deletedAt": {
+          "$ref": "#/definitions/Time",
+          "description": "deleted_at field predicates"
+        },
+        "deletedAtNEQ": {
+          "$ref": "#/definitions/Time"
+        },
+        "deletedAtIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Time"
+          }
+        },
+        "deletedAtNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Time"
+          }
+        },
+        "deletedAtGT": {
+          "$ref": "#/definitions/Time"
+        },
+        "deletedAtGTE": {
+          "$ref": "#/definitions/Time"
+        },
+        "deletedAtLT": {
+          "$ref": "#/definitions/Time"
+        },
+        "deletedAtLTE": {
+          "$ref": "#/definitions/Time"
+        },
+        "deletedAtIsNil": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "deletedAtNotNil": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "deletedBy": {
+          "$ref": "#/definitions/String",
+          "description": "deleted_by field predicates"
+        },
+        "deletedByNEQ": {
+          "$ref": "#/definitions/String"
+        },
+        "deletedByIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/String"
+          }
+        },
+        "deletedByNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/String"
+          }
+        },
+        "deletedByGT": {
+          "$ref": "#/definitions/String"
+        },
+        "deletedByGTE": {
+          "$ref": "#/definitions/String"
+        },
+        "deletedByLT": {
+          "$ref": "#/definitions/String"
+        },
+        "deletedByLTE": {
+          "$ref": "#/definitions/String"
+        },
+        "deletedByContains": {
+          "$ref": "#/definitions/String"
+        },
+        "deletedByHasPrefix": {
+          "$ref": "#/definitions/String"
+        },
+        "deletedByHasSuffix": {
+          "$ref": "#/definitions/String"
+        },
+        "deletedByIsNil": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "deletedByNotNil": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "deletedByEqualFold": {
+          "$ref": "#/definitions/String"
+        },
+        "deletedByContainsFold": {
+          "$ref": "#/definitions/String"
+        },
+        "pinned": {
+          "$ref": "#/definitions/Boolean",
+          "description": "pinned field predicates"
+        },
+        "pinnedNEQ": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "title": {
+          "$ref": "#/definitions/String",
+          "description": "title field predicates"
+        },
+        "titleNEQ": {
+          "$ref": "#/definitions/String"
+        },
+        "titleIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/String"
+          }
+        },
+        "titleNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/String"
+          }
+        },
+        "titleGT": {
+          "$ref": "#/definitions/String"
+        },
+        "titleGTE": {
+          "$ref": "#/definitions/String"
+        },
+        "titleLT": {
+          "$ref": "#/definitions/String"
+        },
+        "titleLTE": {
+          "$ref": "#/definitions/String"
+        },
+        "titleContains": {
+          "$ref": "#/definitions/String"
+        },
+        "titleHasPrefix": {
+          "$ref": "#/definitions/String"
+        },
+        "titleHasSuffix": {
+          "$ref": "#/definitions/String"
+        },
+        "titleEqualFold": {
+          "$ref": "#/definitions/String"
+        },
+        "titleContainsFold": {
+          "$ref": "#/definitions/String"
+        },
+        "content": {
+          "$ref": "#/definitions/String",
+          "description": "content field predicates"
+        },
+        "contentNEQ": {
+          "$ref": "#/definitions/String"
+        },
+        "contentIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/String"
+          }
+        },
+        "contentNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/String"
+          }
+        },
+        "contentGT": {
+          "$ref": "#/definitions/String"
+        },
+        "contentGTE": {
+          "$ref": "#/definitions/String"
+        },
+        "contentLT": {
+          "$ref": "#/definitions/String"
+        },
+        "contentLTE": {
+          "$ref": "#/definitions/String"
+        },
+        "contentContains": {
+          "$ref": "#/definitions/String"
+        },
+        "contentHasPrefix": {
+          "$ref": "#/definitions/String"
+        },
+        "contentHasSuffix": {
+          "$ref": "#/definitions/String"
+        },
+        "contentIsNil": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "contentNotNil": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "contentEqualFold": {
+          "$ref": "#/definitions/String"
+        },
+        "contentContainsFold": {
+          "$ref": "#/definitions/String"
+        },
+        "link": {
+          "$ref": "#/definitions/String",
+          "description": "link field predicates"
+        },
+        "linkNEQ": {
+          "$ref": "#/definitions/String"
+        },
+        "linkIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/String"
+          }
+        },
+        "linkNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/String"
+          }
+        },
+        "linkGT": {
+          "$ref": "#/definitions/String"
+        },
+        "linkGTE": {
+          "$ref": "#/definitions/String"
+        },
+        "linkLT": {
+          "$ref": "#/definitions/String"
+        },
+        "linkLTE": {
+          "$ref": "#/definitions/String"
+        },
+        "linkContains": {
+          "$ref": "#/definitions/String"
+        },
+        "linkHasPrefix": {
+          "$ref": "#/definitions/String"
+        },
+        "linkHasSuffix": {
+          "$ref": "#/definitions/String"
+        },
+        "linkEqualFold": {
+          "$ref": "#/definitions/String"
+        },
+        "linkContainsFold": {
+          "$ref": "#/definitions/String"
+        },
+        "moderationComment": {
+          "$ref": "#/definitions/String",
+          "description": "moderation_comment field predicates"
+        },
+        "moderationCommentNEQ": {
+          "$ref": "#/definitions/String"
+        },
+        "moderationCommentIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/String"
+          }
+        },
+        "moderationCommentNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/String"
+          }
+        },
+        "moderationCommentGT": {
+          "$ref": "#/definitions/String"
+        },
+        "moderationCommentGTE": {
+          "$ref": "#/definitions/String"
+        },
+        "moderationCommentLT": {
+          "$ref": "#/definitions/String"
+        },
+        "moderationCommentLTE": {
+          "$ref": "#/definitions/String"
+        },
+        "moderationCommentContains": {
+          "$ref": "#/definitions/String"
+        },
+        "moderationCommentHasPrefix": {
+          "$ref": "#/definitions/String"
+        },
+        "moderationCommentHasSuffix": {
+          "$ref": "#/definitions/String"
+        },
+        "moderationCommentIsNil": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "moderationCommentNotNil": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "moderationCommentEqualFold": {
+          "$ref": "#/definitions/String"
+        },
+        "moderationCommentContainsFold": {
+          "$ref": "#/definitions/String"
+        },
+        "isModerated": {
+          "$ref": "#/definitions/Boolean",
+          "description": "is_moderated field predicates"
+        },
+        "isModeratedNEQ": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "entityVector": {
+          "$ref": "#/definitions/String",
+          "description": "entity_vector field predicates"
+        },
+        "entityVectorNEQ": {
+          "$ref": "#/definitions/String"
+        },
+        "entityVectorIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/String"
+          }
+        },
+        "entityVectorNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/String"
+          }
+        },
+        "entityVectorGT": {
+          "$ref": "#/definitions/String"
+        },
+        "entityVectorGTE": {
+          "$ref": "#/definitions/String"
+        },
+        "entityVectorLT": {
+          "$ref": "#/definitions/String"
+        },
+        "entityVectorLTE": {
+          "$ref": "#/definitions/String"
+        },
+        "entityVectorContains": {
+          "$ref": "#/definitions/String"
+        },
+        "entityVectorHasPrefix": {
+          "$ref": "#/definitions/String"
+        },
+        "entityVectorHasSuffix": {
+          "$ref": "#/definitions/String"
+        },
+        "entityVectorIsNil": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "entityVectorNotNil": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "entityVectorEqualFold": {
+          "$ref": "#/definitions/String"
+        },
+        "entityVectorContainsFold": {
+          "$ref": "#/definitions/String"
+        },
+        "hasAuthor": {
+          "$ref": "#/definitions/Boolean",
+          "description": "author edge predicates"
+        },
+        "hasAuthorWith": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UserWhereInput"
+          }
+        },
+        "hasComments": {
+          "$ref": "#/definitions/Boolean",
+          "description": "comments edge predicates"
+        },
+        "hasCommentsWith": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CommentWhereInput"
+          }
+        },
+        "hasSavedBy": {
+          "$ref": "#/definitions/Boolean",
+          "description": "saved_by edge predicates"
+        },
+        "hasSavedByWith": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UserWhereInput"
+          }
+        },
+        "hasLikedBy": {
+          "$ref": "#/definitions/Boolean",
+          "description": "liked_by edge predicates"
+        },
+        "hasLikedByWith": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UserWhereInput"
+          }
+        },
+        "hasCategories": {
+          "$ref": "#/definitions/Boolean",
+          "description": "categories edge predicates"
+        },
+        "hasCategoriesWith": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PostCategoryWhereInput"
+          }
+        }
+      },
+      "required": [],
+      "description": "PostWhereInput is used for filtering Post objects.\nInput was generated by ent."
+    },
+    "UpdateApiKeyInput": {
+      "type": "object",
+      "properties": {
+        "apiKey": {
+          "$ref": "#/definitions/String"
+        },
+        "expiresOn": {
+          "$ref": "#/definitions/Time"
+        },
+        "userID": {
+          "$ref": "#/definitions/ID"
+        },
+        "clearUser": {
+          "$ref": "#/definitions/Boolean"
+        }
+      },
+      "required": [],
+      "description": "UpdateApiKeyInput is used for update ApiKey object.\nInput was generated by ent."
+    },
+    "UpdateCommentInput": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "$ref": "#/definitions/String"
+        },
+        "authorID": {
+          "$ref": "#/definitions/ID"
+        },
+        "clearAuthor": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "postID": {
+          "$ref": "#/definitions/ID"
+        },
+        "clearPost": {
+          "$ref": "#/definitions/Boolean"
+        }
+      },
+      "required": [],
+      "description": "UpdateCommentInput is used for update Comment object.\nInput was generated by ent."
+    },
+    "UpdatePostCategoryInput": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "$ref": "#/definitions/PostCategoryCategory"
+        },
+        "postID": {
+          "$ref": "#/definitions/ID"
+        },
+        "clearPost": {
+          "$ref": "#/definitions/Boolean"
+        }
+      },
+      "required": [],
+      "description": "UpdatePostCategoryInput is used for update PostCategory object.\nInput was generated by ent."
+    },
+    "UpdatePostInput": {
+      "type": "object",
+      "properties": {
+        "pinned": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "title": {
+          "$ref": "#/definitions/String"
+        },
+        "content": {
+          "$ref": "#/definitions/String"
+        },
+        "clearContent": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "link": {
+          "$ref": "#/definitions/String"
+        },
+        "moderationComment": {
+          "$ref": "#/definitions/String"
+        },
+        "clearModerationComment": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "isModerated": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "authorID": {
+          "$ref": "#/definitions/ID"
+        },
+        "clearAuthor": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "addCommentIDs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ID"
+          }
+        },
+        "removeCommentIDs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ID"
+          }
+        },
+        "clearComments": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "addSavedByIDs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ID"
+          }
+        },
+        "removeSavedByIDs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ID"
+          }
+        },
+        "clearSavedBy": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "addLikedByIDs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ID"
+          }
+        },
+        "removeLikedByIDs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ID"
+          }
+        },
+        "clearLikedBy": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "addCategoryIDs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ID"
+          }
+        },
+        "removeCategoryIDs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ID"
+          }
+        },
+        "clearCategories": {
+          "$ref": "#/definitions/Boolean"
+        }
+      },
+      "required": [],
+      "description": "UpdatePostInput is used for update Post object.\nInput was generated by ent."
+    },
+    "UpdateUserInput": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "$ref": "#/definitions/String"
+        },
+        "displayName": {
+          "$ref": "#/definitions/String"
+        },
+        "alias": {
+          "$ref": "#/definitions/String",
+          "description": "the alias of the user is shown alongside the display name"
+        },
+        "clearAlias": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "profileImage": {
+          "$ref": "#/definitions/String"
+        },
+        "clearProfileImage": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "authProvider": {
+          "$ref": "#/definitions/UserAuthProvider"
+        },
+        "role": {
+          "$ref": "#/definitions/UserRole",
+          "description": "the role of the user"
+        },
+        "lastSeenAt": {
+          "$ref": "#/definitions/Time",
+          "description": "the time the user was last seen"
+        },
+        "clearLastSeenAt": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "awards": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/String"
+          }
+        },
+        "appendAwards": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/String"
+          }
+        },
+        "clearAwards": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "addSavedPostIDs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ID"
+          }
+        },
+        "removeSavedPostIDs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ID"
+          }
+        },
+        "clearSavedPosts": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "addLikedPostIDs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ID"
+          }
+        },
+        "removeLikedPostIDs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ID"
+          }
+        },
+        "clearLikedPosts": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "addPostIDs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ID"
+          }
+        },
+        "removePostIDs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ID"
+          }
+        },
+        "clearPosts": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "addCommentIDs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ID"
+          }
+        },
+        "removeCommentIDs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ID"
+          }
+        },
+        "clearComments": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "apiKeyID": {
+          "$ref": "#/definitions/ID"
+        },
+        "clearAPIKey": {
+          "$ref": "#/definitions/Boolean"
+        }
+      },
+      "required": [],
+      "description": "UpdateUserInput is used for update User object.\nInput was generated by ent."
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/ID"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "updatedAt": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Time"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "createdAt": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Time"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "deletedAt": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Time"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "deletedBy": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/String"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "email": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/String"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "displayName": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/String"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "alias": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/String"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "the alias of the user is shown alongside the display name"
+        },
+        "profileImage": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/String"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "authProvider": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/UserAuthProvider"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "role": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/UserRole"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "the role of the user"
+        },
+        "lastSeenAt": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Time"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "the time the user was last seen"
+        },
+        "awards": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/String"
+              }
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "savedPosts": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Post"
+              }
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "likedPosts": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Post"
+              }
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "posts": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Post"
+              }
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "comments": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Comment"
+              }
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "apiKey": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/ApiKey"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        }
+      },
+      "required": [
+        "id",
+        "updatedAt",
+        "createdAt",
+        "email",
+        "displayName",
+        "authProvider",
+        "role"
+      ]
+    },
+    "UserAuthProvider": {
+      "type": "string",
+      "anyOf": [
+        {
+          "enum": [
+            "TWITCH"
+          ],
+          "title": "TWITCH"
+        }
+      ],
+      "description": "UserAuthProvider is enum for the field auth_provider"
+    },
+    "UserConnection": {
+      "type": "object",
+      "properties": {
+        "edges": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "$ref": "#/definitions/UserEdge"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "A list of edges."
+        },
+        "pageInfo": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/PageInfo"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Information to aid in pagination."
+        },
+        "totalCount": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Int"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Identifies the total count of items in the connection."
+        }
+      },
+      "required": [
+        "pageInfo",
+        "totalCount"
+      ],
+      "description": "A connection to a list of items."
+    },
+    "UserEdge": {
+      "type": "object",
+      "properties": {
+        "node": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/User"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "The item at the end of the edge."
+        },
+        "cursor": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Cursor"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "A cursor for use in pagination."
+        }
+      },
+      "required": [
+        "cursor"
+      ],
+      "description": "An edge in a connection."
+    },
+    "UserOrder": {
+      "type": "object",
+      "properties": {
+        "direction": {
+          "$ref": "#/definitions/OrderDirection",
+          "default": "ASC",
+          "description": "The ordering direction."
+        },
+        "field": {
+          "$ref": "#/definitions/UserOrderField",
+          "description": "The field by which to order Users."
+        }
+      },
+      "required": [
+        "direction",
+        "field"
+      ],
+      "description": "Ordering options for User connections"
+    },
+    "UserOrderField": {
+      "type": "string",
+      "anyOf": [
+        {
+          "enum": [
+            "ID"
+          ],
+          "title": "ID"
+        },
+        {
+          "enum": [
+            "UPDATED_AT"
+          ],
+          "title": "UPDATED_AT"
+        },
+        {
+          "enum": [
+            "CREATED_AT"
+          ],
+          "title": "CREATED_AT"
+        }
+      ],
+      "description": "Properties by which User connections can be ordered."
+    },
+    "UserRole": {
+      "type": "string",
+      "anyOf": [
+        {
+          "enum": [
+            "GUEST"
+          ],
+          "title": "GUEST"
+        },
+        {
+          "enum": [
+            "USER"
+          ],
+          "title": "USER"
+        },
+        {
+          "enum": [
+            "ADMIN"
+          ],
+          "title": "ADMIN"
+        },
+        {
+          "enum": [
+            "MODERATOR"
+          ],
+          "title": "MODERATOR"
+        }
+      ],
+      "description": "UserRole is enum for the field role"
+    },
+    "UserWhereInput": {
+      "type": "object",
+      "properties": {
+        "not": {
+          "$ref": "#/definitions/UserWhereInput"
+        },
+        "and": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UserWhereInput"
+          }
+        },
+        "or": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UserWhereInput"
+          }
+        },
+        "id": {
+          "$ref": "#/definitions/ID",
+          "description": "id field predicates"
+        },
+        "idNEQ": {
+          "$ref": "#/definitions/ID"
+        },
+        "idIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ID"
+          }
+        },
+        "idNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ID"
+          }
+        },
+        "idGT": {
+          "$ref": "#/definitions/ID"
+        },
+        "idGTE": {
+          "$ref": "#/definitions/ID"
+        },
+        "idLT": {
+          "$ref": "#/definitions/ID"
+        },
+        "idLTE": {
+          "$ref": "#/definitions/ID"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/Time",
+          "description": "updated_at field predicates"
+        },
+        "updatedAtNEQ": {
+          "$ref": "#/definitions/Time"
+        },
+        "updatedAtIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Time"
+          }
+        },
+        "updatedAtNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Time"
+          }
+        },
+        "updatedAtGT": {
+          "$ref": "#/definitions/Time"
+        },
+        "updatedAtGTE": {
+          "$ref": "#/definitions/Time"
+        },
+        "updatedAtLT": {
+          "$ref": "#/definitions/Time"
+        },
+        "updatedAtLTE": {
+          "$ref": "#/definitions/Time"
+        },
+        "createdAt": {
+          "$ref": "#/definitions/Time",
+          "description": "created_at field predicates"
+        },
+        "createdAtNEQ": {
+          "$ref": "#/definitions/Time"
+        },
+        "createdAtIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Time"
+          }
+        },
+        "createdAtNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Time"
+          }
+        },
+        "createdAtGT": {
+          "$ref": "#/definitions/Time"
+        },
+        "createdAtGTE": {
+          "$ref": "#/definitions/Time"
+        },
+        "createdAtLT": {
+          "$ref": "#/definitions/Time"
+        },
+        "createdAtLTE": {
+          "$ref": "#/definitions/Time"
+        },
+        "deletedAt": {
+          "$ref": "#/definitions/Time",
+          "description": "deleted_at field predicates"
+        },
+        "deletedAtNEQ": {
+          "$ref": "#/definitions/Time"
+        },
+        "deletedAtIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Time"
+          }
+        },
+        "deletedAtNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Time"
+          }
+        },
+        "deletedAtGT": {
+          "$ref": "#/definitions/Time"
+        },
+        "deletedAtGTE": {
+          "$ref": "#/definitions/Time"
+        },
+        "deletedAtLT": {
+          "$ref": "#/definitions/Time"
+        },
+        "deletedAtLTE": {
+          "$ref": "#/definitions/Time"
+        },
+        "deletedAtIsNil": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "deletedAtNotNil": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "deletedBy": {
+          "$ref": "#/definitions/String",
+          "description": "deleted_by field predicates"
+        },
+        "deletedByNEQ": {
+          "$ref": "#/definitions/String"
+        },
+        "deletedByIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/String"
+          }
+        },
+        "deletedByNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/String"
+          }
+        },
+        "deletedByGT": {
+          "$ref": "#/definitions/String"
+        },
+        "deletedByGTE": {
+          "$ref": "#/definitions/String"
+        },
+        "deletedByLT": {
+          "$ref": "#/definitions/String"
+        },
+        "deletedByLTE": {
+          "$ref": "#/definitions/String"
+        },
+        "deletedByContains": {
+          "$ref": "#/definitions/String"
+        },
+        "deletedByHasPrefix": {
+          "$ref": "#/definitions/String"
+        },
+        "deletedByHasSuffix": {
+          "$ref": "#/definitions/String"
+        },
+        "deletedByIsNil": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "deletedByNotNil": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "deletedByEqualFold": {
+          "$ref": "#/definitions/String"
+        },
+        "deletedByContainsFold": {
+          "$ref": "#/definitions/String"
+        },
+        "email": {
+          "$ref": "#/definitions/String",
+          "description": "email field predicates"
+        },
+        "emailNEQ": {
+          "$ref": "#/definitions/String"
+        },
+        "emailIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/String"
+          }
+        },
+        "emailNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/String"
+          }
+        },
+        "emailGT": {
+          "$ref": "#/definitions/String"
+        },
+        "emailGTE": {
+          "$ref": "#/definitions/String"
+        },
+        "emailLT": {
+          "$ref": "#/definitions/String"
+        },
+        "emailLTE": {
+          "$ref": "#/definitions/String"
+        },
+        "emailContains": {
+          "$ref": "#/definitions/String"
+        },
+        "emailHasPrefix": {
+          "$ref": "#/definitions/String"
+        },
+        "emailHasSuffix": {
+          "$ref": "#/definitions/String"
+        },
+        "emailEqualFold": {
+          "$ref": "#/definitions/String"
+        },
+        "emailContainsFold": {
+          "$ref": "#/definitions/String"
+        },
+        "displayName": {
+          "$ref": "#/definitions/String",
+          "description": "display_name field predicates"
+        },
+        "displayNameNEQ": {
+          "$ref": "#/definitions/String"
+        },
+        "displayNameIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/String"
+          }
+        },
+        "displayNameNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/String"
+          }
+        },
+        "displayNameGT": {
+          "$ref": "#/definitions/String"
+        },
+        "displayNameGTE": {
+          "$ref": "#/definitions/String"
+        },
+        "displayNameLT": {
+          "$ref": "#/definitions/String"
+        },
+        "displayNameLTE": {
+          "$ref": "#/definitions/String"
+        },
+        "displayNameContains": {
+          "$ref": "#/definitions/String"
+        },
+        "displayNameHasPrefix": {
+          "$ref": "#/definitions/String"
+        },
+        "displayNameHasSuffix": {
+          "$ref": "#/definitions/String"
+        },
+        "displayNameEqualFold": {
+          "$ref": "#/definitions/String"
+        },
+        "displayNameContainsFold": {
+          "$ref": "#/definitions/String"
+        },
+        "alias": {
+          "$ref": "#/definitions/String",
+          "description": "alias field predicates"
+        },
+        "aliasNEQ": {
+          "$ref": "#/definitions/String"
+        },
+        "aliasIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/String"
+          }
+        },
+        "aliasNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/String"
+          }
+        },
+        "aliasGT": {
+          "$ref": "#/definitions/String"
+        },
+        "aliasGTE": {
+          "$ref": "#/definitions/String"
+        },
+        "aliasLT": {
+          "$ref": "#/definitions/String"
+        },
+        "aliasLTE": {
+          "$ref": "#/definitions/String"
+        },
+        "aliasContains": {
+          "$ref": "#/definitions/String"
+        },
+        "aliasHasPrefix": {
+          "$ref": "#/definitions/String"
+        },
+        "aliasHasSuffix": {
+          "$ref": "#/definitions/String"
+        },
+        "aliasIsNil": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "aliasNotNil": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "aliasEqualFold": {
+          "$ref": "#/definitions/String"
+        },
+        "aliasContainsFold": {
+          "$ref": "#/definitions/String"
+        },
+        "profileImage": {
+          "$ref": "#/definitions/String",
+          "description": "profile_image field predicates"
+        },
+        "profileImageNEQ": {
+          "$ref": "#/definitions/String"
+        },
+        "profileImageIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/String"
+          }
+        },
+        "profileImageNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/String"
+          }
+        },
+        "profileImageGT": {
+          "$ref": "#/definitions/String"
+        },
+        "profileImageGTE": {
+          "$ref": "#/definitions/String"
+        },
+        "profileImageLT": {
+          "$ref": "#/definitions/String"
+        },
+        "profileImageLTE": {
+          "$ref": "#/definitions/String"
+        },
+        "profileImageContains": {
+          "$ref": "#/definitions/String"
+        },
+        "profileImageHasPrefix": {
+          "$ref": "#/definitions/String"
+        },
+        "profileImageHasSuffix": {
+          "$ref": "#/definitions/String"
+        },
+        "profileImageIsNil": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "profileImageNotNil": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "profileImageEqualFold": {
+          "$ref": "#/definitions/String"
+        },
+        "profileImageContainsFold": {
+          "$ref": "#/definitions/String"
+        },
+        "authProvider": {
+          "$ref": "#/definitions/UserAuthProvider",
+          "description": "auth_provider field predicates"
+        },
+        "authProviderNEQ": {
+          "$ref": "#/definitions/UserAuthProvider"
+        },
+        "authProviderIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UserAuthProvider"
+          }
+        },
+        "authProviderNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UserAuthProvider"
+          }
+        },
+        "role": {
+          "$ref": "#/definitions/UserRole",
+          "description": "role field predicates"
+        },
+        "roleNEQ": {
+          "$ref": "#/definitions/UserRole"
+        },
+        "roleIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UserRole"
+          }
+        },
+        "roleNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UserRole"
+          }
+        },
+        "lastSeenAt": {
+          "$ref": "#/definitions/Time",
+          "description": "last_seen_at field predicates"
+        },
+        "lastSeenAtNEQ": {
+          "$ref": "#/definitions/Time"
+        },
+        "lastSeenAtIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Time"
+          }
+        },
+        "lastSeenAtNotIn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Time"
+          }
+        },
+        "lastSeenAtGT": {
+          "$ref": "#/definitions/Time"
+        },
+        "lastSeenAtGTE": {
+          "$ref": "#/definitions/Time"
+        },
+        "lastSeenAtLT": {
+          "$ref": "#/definitions/Time"
+        },
+        "lastSeenAtLTE": {
+          "$ref": "#/definitions/Time"
+        },
+        "lastSeenAtIsNil": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "lastSeenAtNotNil": {
+          "$ref": "#/definitions/Boolean"
+        },
+        "hasSavedPosts": {
+          "$ref": "#/definitions/Boolean",
+          "description": "saved_posts edge predicates"
+        },
+        "hasSavedPostsWith": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PostWhereInput"
+          }
+        },
+        "hasLikedPosts": {
+          "$ref": "#/definitions/Boolean",
+          "description": "liked_posts edge predicates"
+        },
+        "hasLikedPostsWith": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PostWhereInput"
+          }
+        },
+        "hasPosts": {
+          "$ref": "#/definitions/Boolean",
+          "description": "posts edge predicates"
+        },
+        "hasPostsWith": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PostWhereInput"
+          }
+        },
+        "hasComments": {
+          "$ref": "#/definitions/Boolean",
+          "description": "comments edge predicates"
+        },
+        "hasCommentsWith": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CommentWhereInput"
+          }
+        },
+        "hasAPIKey": {
+          "$ref": "#/definitions/Boolean",
+          "description": "api_key edge predicates"
+        },
+        "hasAPIKeyWith": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ApiKeyWhereInput"
+          }
+        }
+      },
+      "required": [],
+      "description": "UserWhereInput is used for filtering User objects.\nInput was generated by ent."
+    },
+    "PostCreatePayload": {
+      "type": "object",
+      "properties": {
+        "post": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Post"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Created post"
+        }
+      },
+      "required": [
+        "post"
+      ],
+      "description": "Return response for createPost mutation"
+    },
+    "PostUpdatePayload": {
+      "type": "object",
+      "properties": {
+        "post": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Post"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Updated post"
+        }
+      },
+      "required": [
+        "post"
+      ],
+      "description": "Return response for updatePost mutation"
+    },
+    "PostDeletePayload": {
+      "type": "object",
+      "properties": {
+        "deletedID": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/ID"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Deleted post ID"
+        }
+      },
+      "required": [
+        "deletedID"
+      ],
+      "description": "Return response for deletePost mutation"
+    },
+    "PostBulkCreatePayload": {
+      "type": "object",
+      "properties": {
+        "posts": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Post"
+              }
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Created posts"
+        }
+      },
+      "required": [],
+      "description": "Return response for createBulkPost mutation"
+    },
+    "PostCategoryCreatePayload": {
+      "type": "object",
+      "properties": {
+        "postCategory": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/PostCategory"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Created postCategory"
+        }
+      },
+      "required": [
+        "postCategory"
+      ],
+      "description": "Return response for createPostCategory mutation"
+    },
+    "PostCategoryUpdatePayload": {
+      "type": "object",
+      "properties": {
+        "postCategory": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/PostCategory"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Updated postCategory"
+        }
+      },
+      "required": [
+        "postCategory"
+      ],
+      "description": "Return response for updatePostCategory mutation"
+    },
+    "PostCategoryDeletePayload": {
+      "type": "object",
+      "properties": {
+        "deletedID": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/ID"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Deleted postCategory ID"
+        }
+      },
+      "required": [
+        "deletedID"
+      ],
+      "description": "Return response for deletePostCategory mutation"
+    },
+    "PostCategoryBulkCreatePayload": {
+      "type": "object",
+      "properties": {
+        "postCategories": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/PostCategory"
+              }
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Created postCategorys"
+        }
+      },
+      "required": [],
+      "description": "Return response for createBulkPostCategory mutation"
+    },
+    "SearchResult": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/UserSearchResult"
+        }
+      ]
+    },
+    "SearchResultConnection": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/PageInfo"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Information to aid in pagination."
+        },
+        "totalCount": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/Int"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Identifies the total count of items in the connection."
+        },
+        "nodes": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/SearchResult"
+              }
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "A list of nodes with results."
+        }
+      },
+      "required": [
+        "page",
+        "totalCount",
+        "nodes"
+      ]
+    },
+    "UserSearchResult": {
+      "type": "object",
+      "properties": {
+        "users": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/User"
+              }
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": []
+        }
+      },
+      "required": []
+    },
+    "UserCreatePayload": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/User"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Created user"
+        }
+      },
+      "required": [
+        "user"
+      ],
+      "description": "Return response for createUser mutation"
+    },
+    "UserUpdatePayload": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/User"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Updated user"
+        }
+      },
+      "required": [
+        "user"
+      ],
+      "description": "Return response for updateUser mutation"
+    },
+    "UserDeletePayload": {
+      "type": "object",
+      "properties": {
+        "deletedID": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "$ref": "#/definitions/ID"
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Deleted user ID"
+        }
+      },
+      "required": [
+        "deletedID"
+      ],
+      "description": "Return response for deleteUser mutation"
+    },
+    "UserBulkCreatePayload": {
+      "type": "object",
+      "properties": {
+        "users": {
+          "type": "object",
+          "properties": {
+            "return": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/User"
+              }
+            },
+            "arguments": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [],
+          "description": "Created users"
+        }
+      },
+      "required": [],
+      "description": "Return response for createBulkUser mutation"
+    }
+  }
+}

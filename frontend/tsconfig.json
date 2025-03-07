@@ -1,0 +1,43 @@
+{
+  "include": [
+    "src/**/*",
+    "types/**/*",
+    "**/*.d.ts"
+  ],
+  "compilerOptions": {
+    "types": [],
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ESNext"
+    ],
+    "skipLibCheck": true,
+    "allowJs": false,
+    "strict": false,
+    // react-hook-form
+    "strictNullChecks": true,
+    "forceConsistentCasingInFileNames": true,
+    "verbatimModuleSyntax": false,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "noErrorTruncation": true,
+    "baseUrl": ".",
+    "sourceMap": true,
+    "allowUnreachableCode": true,
+    "noUncheckedIndexedAccess": true,
+    "suppressImplicitAnyIndexErrors": false,
+    // "paths": {
+    //   "@operationAuth": [
+    //     "operationAuth.gen.json"
+    //   ],
+    // },
+  },
+}

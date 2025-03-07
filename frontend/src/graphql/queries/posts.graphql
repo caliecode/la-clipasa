@@ -1,0 +1,99 @@
+fragment Post on Post {
+  id
+  title
+  content
+  link
+  owner {
+    id
+    alias
+    displayName
+    awards
+    profileImage
+  }
+  likedBy {
+    totalCount
+  }
+  comments {
+    totalCount
+  }
+  isModerated
+  moderationComment
+  categories {
+    # example: with category multiselect, we may have 2 categories already.
+    # we click to delete one, and then we add another.
+    # it's easier if we execute these atomically with a small debounce instead of Post.addCategoryIDs, etc
+    #   - createPostCategory(category: PostCategoryCategory!, postID: ID)
+    #   - deletePostCategory(id)
+    # we still need to validate the array before executing (no more than 1 unique category, etc...)
+    # if it fails, createPostCategory or deletePostCategory won't be executed
+    id
+    category
+  }
+  createdAt
+  updatedAt
+}
+
+query Posts($after: Cursor, $first: Int, $before: Cursor, $last: Int, $where: PostWhereInput, $orderBy: PostOrder) {
+  posts(after: $after, first: $first, before: $before, last: $last, where: $where, orderBy: $orderBy) {
+    pageInfo {
+      ...PaginationFragment
+    }
+    edges {
+      cursor
+      node {
+        ...Post
+      }
+    }
+    totalCount
+  }
+}
+
+query PinnedPosts {
+  posts(where: { pinned: true }) {
+    pageInfo {
+      ...PaginationFragment
+    }
+    edges {
+      cursor
+      node {
+        ...Post
+      }
+    }
+  }
+}
+
+mutation UpdatePost($id: ID!, $input: UpdatePostInput!) {
+  updatePost(id: $id, input: $input) {
+    post {
+      ...Post
+    }
+  }
+}
+mutation CreatePost($input: CreatePostInput!) {
+  createPost(input: $input) {
+    post {
+      ...Post
+    }
+  }
+}
+
+mutation CreatePostCategory($input: CreatePostCategoryInput!) {
+  createPostCategory(input: $input) {
+    postCategory {
+      id
+      category
+    }
+  }
+}
+
+mutation DeletePostCategory($id: ID!) {
+  deletePostCategory(id: $id) {
+    deletedID
+  }
+}
+
+mutation DeletePost($deletePostId: ID!) {
+  deletePost(id: $deletePostId) {
+    deletedID
+  }
+}

@@ -1,0 +1,110 @@
+* {
+  font-family: 'Exo 2', sans-serif !important;
+}
+
+:root {
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+/** no flashes when theme is dark in LS */
+body {
+  background-color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-7));
+  overflow-y: hidden;
+  height: 100%;
+}
+
+.disable-select {
+  -webkit-touch-callout: none !important;
+  -webkit-user-select: none !important;
+  -khtml-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+}
+
+/* TODO: hide if empty input */
+.label-focused {
+  transform: translateY(rem(-25px));
+  font-size: calc(0.65rem * var(--mantine-scale));
+  color: light-dark(var(--mantine-color-blue-9), var(--mantine-color-blue-5));
+}
+
+.input-focused {
+  border-bottom-color: var(--mantine-color-blue-5);
+  border-width: 1px;
+}
+
+.mrt-table thead tr th {
+  border-bottom: 1px solid light-dark(var(--mantine-primary-color-5), var(--mantine-primary-color-5));
+  padding-bottom: rem(10px);
+  border-width: rem(2px) !important;
+}
+
+.mrt-table tbody tr:nth-of-type(odd) {
+  background-color: light-dark(var(--mantine-color-blue-0), var(--mantine-color-dark-8));
+}
+
+.mrt-table {
+  .mrt-filter-text-input:focus-within {
+    border-bottom: 1px solid light-dark(var(--mantine-primary-color-5), var(--mantine-primary-color-5));
+    border-width: rem(2px) !important;
+  }
+}
+
+/* this way we can have a single empty or nonempty badge that doesn't break alignment */
+.mrt-filter-range-fields {
+  width: 100%;
+}
+
+/* needs its own declaration when using has
+*/
+.mrt-filter-range-fields:has(.date-filter-badge) {
+  align-self: center;
+}
+
+.date-filter-badge {
+  align-self: center;
+}
+
+div:has([aria-label='Change filter mode']) {
+  justify-content: space-between;
+}
+
+[aria-label='Change filter mode'] {
+  justify-self: stretch;
+  align-self: flex-start;
+}
+/*
+workaround - maybe worth it to have opt upstream since showChangeModeButton
+is tied to both filter button and label
+https://github.com/KevinVandy/mantine-react-table/blob/v2/packages/mantine-react-table/src/components/head/MRT_TableHeadCellFilterContainer.tsx
+*/
+[class*='filter-mode-label'] {
+  display: none;
+}
+
+.mrt-table .mantine-ActionIcon-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.mrt-table-head-cell-labels,
+.mrt-table-head-cell-content .mantine-ActionIcon-icon {
+  color: light-dark(var(--mantine-primary-color-9), var(--mantine-primary-color-6));
+}
+
+.hideOnLarge {
+  @media (min-width: 1200px) {
+    display: none;
+  }
+}
+
+.showOnLargeOnly {
+  @media (max-width: 1200px) {
+    display: none;
+  }
+}

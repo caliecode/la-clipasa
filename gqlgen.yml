@@ -1,0 +1,52 @@
+schema:
+  - internal/gql/schema/*.graphql
+
+exec:
+  filename: internal/gql/generated.go
+  package: gql
+
+model:
+  filename: internal/gql/model/models_gen.go
+  package: model
+
+resolver:
+  layout: follow-schema
+  dir: internal/gql
+  package: gql
+  filename_template: "{name}.resolver.go"
+  omit_template_comment: false
+
+omit_gqlgen_file_notice: true
+struct_tag: json
+
+# so that we may use ent models in generated resolver interfaces instead of having a duplicate in gqlgen models
+autobind:
+  # Fix binding for the `Field` interface.
+  - github.com/99designs/gqlgen/graphql/introspection
+  - github.com/laclipasa/la-clipasa/internal/ent/generated
+  # autobind role
+  - github.com/laclipasa/la-clipasa/internal/ent/generated/user
+  # autobind categories
+  - github.com/laclipasa/la-clipasa/internal/ent/generated/postcategory
+
+
+models:
+  # some fields are injected, like Time: https://github.com/99designs/gqlgen/blob/master/codegen/config/config.go#L846
+  ID:
+    model:
+      - github.com/laclipasa/la-clipasa/internal/ent/schema/uuidgql.UUID
+  UUID:
+    model:
+      - github.com/laclipasa/la-clipasa/internal/ent/schema/uuidgql.UUID
+  Duration:
+    model:
+      - github.com/laclipasa/la-clipasa/internal/ent/schema/durationgql.Duration
+  Int:
+    model:
+      - github.com/99designs/gqlgen/graphql.Int
+      - github.com/99designs/gqlgen/graphql.Int64
+      - github.com/99designs/gqlgen/graphql.Int32
+  Node:
+    model:
+      - github.com/laclipasa/la-clipasa/internal/ent/generated.Noder
+

@@ -1,0 +1,14 @@
+type UserTwitchInfo {
+  isSubscriber: Boolean
+  isFollower: Boolean
+  isBroadcaster: Boolean
+  isBanned: Boolean
+}
+
+extend type User {
+  twitchInfo: UserTwitchInfo
+}
+
+extend type Query {
+  me: User
+}

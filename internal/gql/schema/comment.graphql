@@ -1,0 +1,103 @@
+extend type Query {
+    """
+    Look up comment by ID
+    """
+     comment(
+        """
+        ID of the comment
+        """
+        id: ID!
+    ):  Comment!
+}
+
+extend type Mutation{
+    """
+    Create a new comment
+    """
+    createComment(
+        """
+        values of the comment
+        """
+        input: CreateCommentInput!
+    ): CommentCreatePayload!
+    """
+    Create multiple new comments
+    """
+    createBulkComment(
+        """
+        values of the comment
+        """
+        input: [CreateCommentInput!]
+    ): CommentBulkCreatePayload!
+    """
+    Create multiple new comments via file upload
+    """
+    createBulkCSVComment(
+        """
+        csv file containing values of the comment
+        """
+        input: Upload!
+    ): CommentBulkCreatePayload!
+    """
+    Update an existing comment
+    """
+    updateComment(
+        """
+        ID of the comment
+        """
+        id: ID!
+        """
+        New values for the comment
+        """
+        input: UpdateCommentInput!
+    ): CommentUpdatePayload!
+    """
+    Delete an existing comment
+    """
+    deleteComment(
+        """
+        ID of the comment
+        """
+        id: ID!
+    ): CommentDeletePayload!
+}
+
+"""
+Return response for createComment mutation
+"""
+type CommentCreatePayload {
+    """
+    Created comment
+    """
+    comment: Comment!
+}
+
+"""
+Return response for updateComment mutation
+"""
+type CommentUpdatePayload {
+    """
+    Updated comment
+    """
+    comment: Comment!
+}
+
+"""
+Return response for deleteComment mutation
+"""
+type CommentDeletePayload {
+    """
+    Deleted comment ID
+    """
+    deletedID: ID!
+}
+
+"""
+Return response for createBulkComment mutation
+"""
+type CommentBulkCreatePayload {
+    """
+    Created comments
+    """
+    comments: [Comment!]
+}

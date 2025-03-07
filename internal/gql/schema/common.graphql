@@ -1,0 +1,13 @@
+# implemented in hasRoleDirective
+directive @hasRole(role: UserRole!) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION | INPUT_OBJECT | OBJECT
+
+# we define manually because entgql doesnt generate it to output schema if its found, therefore
+# every other gen it skips generating it because it thinks its already defined, but it was defined in its own gen
+scalar Time
+scalar Duration
+scalar UUID
+scalar Upload
+
+type Mutation {
+  _m: Boolean
+}

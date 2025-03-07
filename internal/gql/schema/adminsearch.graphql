@@ -1,0 +1,11 @@
+extend type Query{
+    """
+    Search across User objects
+    """
+    adminUserSearch(
+        """
+        Search query
+        """
+        query: String!
+    ): UserSearchResult
+}
