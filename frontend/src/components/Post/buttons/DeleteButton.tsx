@@ -18,7 +18,6 @@ export default function DeleteButton({}: DeleteButtonButtonProps) {
   const { post } = usePostContext()
   const [, deletePost] = useDeletePostMutation()
   const queryClient = useQueryClient()
-  const { addCategoryFilter, removeCategoryFilter, getPostsQueryParams } = usePostsSlice()
   const { user, isAuthenticated } = useAuthenticatedUser()
   const theme = useMantineTheme()
   const [deleteButtonLoading, setDeleteButtonLoading] = useState(false)

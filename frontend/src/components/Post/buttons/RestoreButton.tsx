@@ -10,7 +10,6 @@ interface RestoreButtonProps {
 
 export default function RestoreButton({ postId }: RestoreButtonProps) {
   const queryClient = useQueryClient()
-  const { addCategoryFilter, removeCategoryFilter, getPostsQueryParams } = usePostsSlice()
 
   return (
     <Tooltip label="Restore" arrowPosition="center" withArrow>

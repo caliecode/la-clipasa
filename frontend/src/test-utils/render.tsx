@@ -1,7 +1,6 @@
 import { render as testingLibraryRender } from '@testing-library/react'
 import { MantineProvider } from '@mantine/core'
 import { queryClient } from 'src/react-query'
-import { persister } from 'src/idb'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { QueryClientProvider } from '@tanstack/react-query'
 import userEvent from '@testing-library/user-event'

@@ -14,7 +14,6 @@ interface ModerateButtonProps {}
 export default function ModerateButton({}: ModerateButtonProps) {
   const { post } = usePostContext()
   const queryClient = useQueryClient()
-  const { addCategoryFilter, removeCategoryFilter, getPostsQueryParams } = usePostsSlice()
   const [updatePostState, updatePost] = useUpdatePostMutation()
 
   const [moderateButtonLoading, setModerateButtonLoading] = useState(false)

@@ -16,7 +16,6 @@ interface LikeButtonProps {}
 export default function LikeButton({}: LikeButtonProps) {
   const theme = useMantineTheme()
   const { post } = usePostContext()
-  const { addCategoryFilter, removeCategoryFilter, getPostsQueryParams } = usePostsSlice()
 
   const [, updateUser] = useUpdateUserMutation()
   const [likeBeacon, setLikeBeacon] = useState(false)

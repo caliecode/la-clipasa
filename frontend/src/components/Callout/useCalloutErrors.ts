@@ -70,7 +70,7 @@ export const useCalloutErrors = (formName: string) => {
           return unknownError
         }
         const error = calloutError.response?.data as ApiHTTPError
-        switch (error.type) {
+        switch (error.error) {
           case 'RequestValidation':
             return error.title
           case 'Unauthenticated':

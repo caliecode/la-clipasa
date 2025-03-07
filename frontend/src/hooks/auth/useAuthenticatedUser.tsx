@@ -7,7 +7,6 @@ import { useEffect, useRef, useState } from 'react'
 import { AxiosApiError, AXIOS_INSTANCE, UrqlApiError } from 'src/api/backend-mutator'
 import { useMeQuery } from 'src/graphql/gen'
 import useRenders from 'src/hooks/utils/useRenders'
-import { persister } from 'src/idb'
 import { useAuthSlice } from 'src/slices/auth'
 import { LOGIN_COOKIE_KEY, UI_SLICE_PERSIST_KEY, useUISlice } from 'src/slices/ui'
 import AxiosInterceptors from 'src/utils/axios'
@@ -93,7 +92,6 @@ export default function useAuthenticatedUser() {
 
 // TODO doesnt seem to clear react query
 export async function logUserOut(queryClient: QueryClient) {
-  await persister.removeClient() // delete indexed db
   Cookies.remove(LOGIN_COOKIE_KEY, {
     expires: 365,
     sameSite: 'none',

@@ -13,7 +13,6 @@ interface SaveButtonProps {}
 
 export default function SaveButton({}: SaveButtonProps) {
   const { post } = usePostContext()
-  const { addCategoryFilter, removeCategoryFilter, getPostsQueryParams } = usePostsSlice()
 
   const [, updateUser] = useUpdateUserMutation()
   const [saveBeacon, setSaveBeacon] = useState(false)

@@ -32,22 +32,13 @@ jobs:
 
       - name: Copy environment file
         run: |
-          cp secrets-repo/la-clipasa/.env .
-
-          if [ -f .env ]; then
-            echo ".env file successfully copied from secrets repository"
-            echo "Variables included (values hidden):"
-            grep -v '^#' .env | cut -d'=' -f1 | sort
-          else
-            echo "Error: .env file not found!"
-            exit 1
-          fi
+          cp secrets-repo/la-clipasa/.env .env.prod
 
       - uses: superfly/flyctl-actions/setup-flyctl@master
 
       - name: Deploy to Fly.io
         run: |
-          flyctl secrets import < .env
+          flyctl secrets import < .env.prod
           flyctl deploy --remote-only --wait-timeout=100
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
@@ -61,10 +52,14 @@ jobs:
       - name: Checkout main repository
         uses: actions/checkout@v4
 
+      - name: Build frontend
+        run: |
+          project build.frontend
+
       - name: Deploy to Cloudflare
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           command: |
-            pages project list
-            pages deploy frontend/build
+            # pages project list
+            pages deploy ./frontend/build
