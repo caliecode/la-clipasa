@@ -43,23 +43,22 @@ func main() {
 	}
 	// Migrate diff options.
 	opts := []schema.MigrateOption{
-		schema.WithDir(dir), // provide migration directory
-		// schema.WithMigrationMode(schema.ModeReplay),
-		schema.WithMigrationMode(schema.ModeInspect), // provide migration mode
-		schema.WithDialect(dialect.Postgres),         // Ent dialect to use
-		schema.WithDropColumn(true),                  // drop column support
-		schema.WithDropIndex(true),                   // drop index support
+		schema.WithDir(dir), // migration directory
+		schema.WithMigrationMode(schema.ModeReplay),
+		schema.WithDialect(dialect.Postgres),
+		schema.WithDropColumn(true),
+		schema.WithDropIndex(true),
 		schema.WithFormatter(atlas.DefaultFormatter),
 	}
 	if len(os.Args) != 2 {
-		log.Fatalln("migration name is required. Use: 'go run -mod=mod ent/migrate/main.go <name>'")
+		log.Fatalln("migration name is required. Usage: 'go run -mod=mod ent/migrate/main.go <name>'")
 	}
 
 	dsn := url.URL{
 		Scheme: "postgres",
 		User:   url.UserPassword(cfg.Postgres.User, cfg.Postgres.Password),
 		Host:   net.JoinHostPort(cfg.Postgres.Server, cfg.Postgres.Port),
-		Path:   cfg.Postgres.DB,
+		Path:   os.Getenv("GEN_POSTGRES_DB"), // for replay mode we just need an empty db
 	}
 
 	err = migrate.NamedDiff(ctx, dsn.String()+"?sslmode=disable", os.Args[1], opts...)

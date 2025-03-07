@@ -42,7 +42,7 @@ readonly MAX_FNAME_LOG_LEN=13
 
 readonly TMP="${TMPDIR:-"/tmp"}"
 
-GEN_POSTGRES_DB="gen_db"
+export GEN_POSTGRES_DB="gen_db"
 
 failed_tool_build_marker="$TMP/failed_tool_build_marker"
 rm -f "$failed_tool_build_marker"
@@ -712,6 +712,9 @@ x.ent.generate-migration() {
     name="${tmp,,}"
     test -z $name && err "Please provide a migration name"
     x.ent.rehash-migrations
+
+    docker.postgres.create_db "$GEN_POSTGRES_DB"
+
     go run -mod=vendor internal/ent/migrate/main.go "$name"
   } 2>&4 | xlog >&3; } 4>&1 | xerr >&3; } 3>&1
 }
