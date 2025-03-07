@@ -79,7 +79,6 @@ func (a *Authentication) GetOrRegisterUserFromUserInfo(c *gin.Context, userinfo 
 	if !userinfo.EmailVerified {
 		role = defaultRole
 	}
-	fmt.Printf("userinfo.Email: %v\n", userinfo.Email)
 
 	u, err := entclt.User.Query().Where(user.ExternalID(userinfo.Subject)).Only(ctx)
 	if err != nil && !generated.IsNotFound(err) {
