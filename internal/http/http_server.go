@@ -409,6 +409,7 @@ func Run(env string) (<-chan error, error) {
 		case internal.AppEnvDev, internal.AppEnvCI:
 			err = srv.Httpsrv.ListenAndServeTLS("certificates/localhost.pem", "certificates/localhost-key.pem")
 		case internal.AppEnvProd, internal.AppEnvE2E:
+			err = srv.Httpsrv.ListenAndServe()
 		default:
 			err = fmt.Errorf("unknown APP_ENV: %s", env)
 		}
