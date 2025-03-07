@@ -47,16 +47,7 @@ jobs:
 
       - name: Deploy to Fly.io
         run: |
-          while IFS= read -r line || [ -n "$line" ]; do
-            if [[ ! "$line" =~ ^# && "$line" =~ .*=.* ]]; then
-              VAR_NAME=$(echo "$line" | cut -d '=' -f 1)
-              VAR_VALUE=$(echo "$line" | cut -d '=' -f 2-)
-
-              echo "Setting $VAR_NAME to $VAR_VALUE"
-              flyctl secrets set "$VAR_NAME=$VAR_VALUE" --app laclipasa-backend
-            fi
-          done <".env"
-
+          flyctl secrets import < .env
           flyctl deploy --remote-only --wait-timeout=100
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
