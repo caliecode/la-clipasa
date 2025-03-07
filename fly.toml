@@ -1,21 +1,16 @@
-# fly.toml app configuration file generated for la-clipasa-go on 2024-10-26T13:00:45+02:00
+# fly.toml app configuration file generated for laclipasa-backend on 2025-03-07T19:22:59+01:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'la-clipasa-go'
+app = 'laclipasa-backend'
 primary_region = 'mad'
 
 [build]
-[build.args]
-GO_VERSION = '1.23.2'
 
-# TODO: fly secrets.
-# TODO: go:embed migration and postmigration files and run m.Up()
 [env]
-PORT = '8180'
 APP_ENV = 'prod'
-JWT_SECRET = 'YOUR_JWT_SECRET_KEY'
+PORT = '8180'
 
 [http_service]
 internal_port = 8180
@@ -26,6 +21,6 @@ min_machines_running = 0
 processes = ['app']
 
 [[vm]]
-memory = '256MB'    # IMPORTANT:$2.13/month, so we could even have 2 before $5
+memory = '256MB'
 cpu_kind = 'shared'
 cpus = 1
