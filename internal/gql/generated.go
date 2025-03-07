@@ -288,7 +288,6 @@ type ComplexityRoot struct {
 		DeletedAt          func(childComplexity int) int
 		DeletedBy          func(childComplexity int) int
 		DisplayName        func(childComplexity int) int
-		Email              func(childComplexity int) int
 		ID                 func(childComplexity int) int
 		LastPostSeenCursor func(childComplexity int) int
 		LastSeenAt         func(childComplexity int) int
@@ -1563,13 +1562,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.User.DisplayName(childComplexity), true
-
-	case "User.email":
-		if e.complexity.User.Email == nil {
-			break
-		}
-
-		return e.complexity.User.Email(childComplexity), true
 
 	case "User.id":
 		if e.complexity.User.ID == nil {
@@ -4624,8 +4616,6 @@ func (ec *executionContext) fieldContext_ApiKey_owner(_ context.Context, field g
 				return ec.fieldContext_User_deletedAt(ctx, field)
 			case "deletedBy":
 				return ec.fieldContext_User_deletedBy(ctx, field)
-			case "email":
-				return ec.fieldContext_User_email(ctx, field)
 			case "displayName":
 				return ec.fieldContext_User_displayName(ctx, field)
 			case "alias":
@@ -5535,8 +5525,6 @@ func (ec *executionContext) fieldContext_Comment_owner(_ context.Context, field 
 				return ec.fieldContext_User_deletedAt(ctx, field)
 			case "deletedBy":
 				return ec.fieldContext_User_deletedBy(ctx, field)
-			case "email":
-				return ec.fieldContext_User_email(ctx, field)
 			case "displayName":
 				return ec.fieldContext_User_displayName(ctx, field)
 			case "alias":
@@ -8376,8 +8364,6 @@ func (ec *executionContext) fieldContext_Post_owner(_ context.Context, field gra
 				return ec.fieldContext_User_deletedAt(ctx, field)
 			case "deletedBy":
 				return ec.fieldContext_User_deletedBy(ctx, field)
-			case "email":
-				return ec.fieldContext_User_email(ctx, field)
 			case "displayName":
 				return ec.fieldContext_User_displayName(ctx, field)
 			case "alias":
@@ -8522,8 +8508,6 @@ func (ec *executionContext) fieldContext_Post_savedBy(_ context.Context, field g
 				return ec.fieldContext_User_deletedAt(ctx, field)
 			case "deletedBy":
 				return ec.fieldContext_User_deletedBy(ctx, field)
-			case "email":
-				return ec.fieldContext_User_email(ctx, field)
 			case "displayName":
 				return ec.fieldContext_User_displayName(ctx, field)
 			case "alias":
@@ -11068,8 +11052,6 @@ func (ec *executionContext) fieldContext_Query_user(ctx context.Context, field g
 				return ec.fieldContext_User_deletedAt(ctx, field)
 			case "deletedBy":
 				return ec.fieldContext_User_deletedBy(ctx, field)
-			case "email":
-				return ec.fieldContext_User_email(ctx, field)
 			case "displayName":
 				return ec.fieldContext_User_displayName(ctx, field)
 			case "alias":
@@ -11162,8 +11144,6 @@ func (ec *executionContext) fieldContext_Query_me(_ context.Context, field graph
 				return ec.fieldContext_User_deletedAt(ctx, field)
 			case "deletedBy":
 				return ec.fieldContext_User_deletedBy(ctx, field)
-			case "email":
-				return ec.fieldContext_User_email(ctx, field)
 			case "displayName":
 				return ec.fieldContext_User_displayName(ctx, field)
 			case "alias":
@@ -11674,50 +11654,6 @@ func (ec *executionContext) _User_deletedBy(ctx context.Context, field graphql.C
 }
 
 func (ec *executionContext) fieldContext_User_deletedBy(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "User",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _User_email(ctx context.Context, field graphql.CollectedField, obj *generated.User) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_User_email(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Email, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_User_email(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
@@ -12548,8 +12484,6 @@ func (ec *executionContext) fieldContext_UserBulkCreatePayload_users(_ context.C
 				return ec.fieldContext_User_deletedAt(ctx, field)
 			case "deletedBy":
 				return ec.fieldContext_User_deletedBy(ctx, field)
-			case "email":
-				return ec.fieldContext_User_email(ctx, field)
 			case "displayName":
 				return ec.fieldContext_User_displayName(ctx, field)
 			case "alias":
@@ -12779,8 +12713,6 @@ func (ec *executionContext) fieldContext_UserCreatePayload_user(_ context.Contex
 				return ec.fieldContext_User_deletedAt(ctx, field)
 			case "deletedBy":
 				return ec.fieldContext_User_deletedBy(ctx, field)
-			case "email":
-				return ec.fieldContext_User_email(ctx, field)
 			case "displayName":
 				return ec.fieldContext_User_displayName(ctx, field)
 			case "alias":
@@ -12906,8 +12838,6 @@ func (ec *executionContext) fieldContext_UserEdge_node(_ context.Context, field 
 				return ec.fieldContext_User_deletedAt(ctx, field)
 			case "deletedBy":
 				return ec.fieldContext_User_deletedBy(ctx, field)
-			case "email":
-				return ec.fieldContext_User_email(ctx, field)
 			case "displayName":
 				return ec.fieldContext_User_displayName(ctx, field)
 			case "alias":
@@ -13033,8 +12963,6 @@ func (ec *executionContext) fieldContext_UserSearchResult_users(_ context.Contex
 				return ec.fieldContext_User_deletedAt(ctx, field)
 			case "deletedBy":
 				return ec.fieldContext_User_deletedBy(ctx, field)
-			case "email":
-				return ec.fieldContext_User_email(ctx, field)
 			case "displayName":
 				return ec.fieldContext_User_displayName(ctx, field)
 			case "alias":
@@ -13283,8 +13211,6 @@ func (ec *executionContext) fieldContext_UserUpdatePayload_user(_ context.Contex
 				return ec.fieldContext_User_deletedAt(ctx, field)
 			case "deletedBy":
 				return ec.fieldContext_User_deletedBy(ctx, field)
-			case "email":
-				return ec.fieldContext_User_email(ctx, field)
 			case "displayName":
 				return ec.fieldContext_User_displayName(ctx, field)
 			case "alias":
@@ -16511,20 +16437,13 @@ func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"email", "displayName", "alias", "profileImage", "authProvider", "role", "lastSeenAt", "lastPostSeenCursor", "awards", "savedPostIDs", "likedPostIDs", "publishedPostIDs", "commentIDs", "apiKeyID"}
+	fieldsInOrder := [...]string{"displayName", "alias", "profileImage", "authProvider", "role", "lastSeenAt", "lastPostSeenCursor", "awards", "savedPostIDs", "likedPostIDs", "publishedPostIDs", "commentIDs", "apiKeyID"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "email":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Email = data
 		case "displayName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("displayName"))
 			data, err := ec.unmarshalNString2string(ctx, v)
@@ -18286,20 +18205,13 @@ func (ec *executionContext) unmarshalInputUpdateUserInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"email", "displayName", "alias", "clearAlias", "profileImage", "clearProfileImage", "authProvider", "role", "lastSeenAt", "clearLastSeenAt", "lastPostSeenCursor", "clearLastPostSeenCursor", "awards", "appendAwards", "clearAwards", "addSavedPostIDs", "removeSavedPostIDs", "clearSavedPosts", "addLikedPostIDs", "removeLikedPostIDs", "clearLikedPosts", "addPublishedPostIDs", "removePublishedPostIDs", "clearPublishedPosts", "addCommentIDs", "removeCommentIDs", "clearComments", "apiKeyID", "clearAPIKey"}
+	fieldsInOrder := [...]string{"displayName", "alias", "clearAlias", "profileImage", "clearProfileImage", "authProvider", "role", "lastSeenAt", "clearLastSeenAt", "lastPostSeenCursor", "clearLastPostSeenCursor", "awards", "appendAwards", "clearAwards", "addSavedPostIDs", "removeSavedPostIDs", "clearSavedPosts", "addLikedPostIDs", "removeLikedPostIDs", "clearLikedPosts", "addPublishedPostIDs", "removePublishedPostIDs", "clearPublishedPosts", "addCommentIDs", "removeCommentIDs", "clearComments", "apiKeyID", "clearAPIKey"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "email":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Email = data
 		case "displayName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("displayName"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
@@ -18571,7 +18483,7 @@ func (ec *executionContext) unmarshalInputUserWhereInput(ctx context.Context, ob
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "updatedAt", "updatedAtNEQ", "updatedAtIn", "updatedAtNotIn", "updatedAtGT", "updatedAtGTE", "updatedAtLT", "updatedAtLTE", "createdAt", "createdAtNEQ", "createdAtIn", "createdAtNotIn", "createdAtGT", "createdAtGTE", "createdAtLT", "createdAtLTE", "deletedAt", "deletedAtNEQ", "deletedAtIn", "deletedAtNotIn", "deletedAtGT", "deletedAtGTE", "deletedAtLT", "deletedAtLTE", "deletedAtIsNil", "deletedAtNotNil", "deletedBy", "deletedByNEQ", "deletedByIn", "deletedByNotIn", "deletedByGT", "deletedByGTE", "deletedByLT", "deletedByLTE", "deletedByContains", "deletedByHasPrefix", "deletedByHasSuffix", "deletedByIsNil", "deletedByNotNil", "deletedByEqualFold", "deletedByContainsFold", "email", "emailNEQ", "emailIn", "emailNotIn", "emailGT", "emailGTE", "emailLT", "emailLTE", "emailContains", "emailHasPrefix", "emailHasSuffix", "emailEqualFold", "emailContainsFold", "displayName", "displayNameNEQ", "displayNameIn", "displayNameNotIn", "displayNameGT", "displayNameGTE", "displayNameLT", "displayNameLTE", "displayNameContains", "displayNameHasPrefix", "displayNameHasSuffix", "displayNameEqualFold", "displayNameContainsFold", "alias", "aliasNEQ", "aliasIn", "aliasNotIn", "aliasGT", "aliasGTE", "aliasLT", "aliasLTE", "aliasContains", "aliasHasPrefix", "aliasHasSuffix", "aliasIsNil", "aliasNotNil", "aliasEqualFold", "aliasContainsFold", "profileImage", "profileImageNEQ", "profileImageIn", "profileImageNotIn", "profileImageGT", "profileImageGTE", "profileImageLT", "profileImageLTE", "profileImageContains", "profileImageHasPrefix", "profileImageHasSuffix", "profileImageIsNil", "profileImageNotNil", "profileImageEqualFold", "profileImageContainsFold", "authProvider", "authProviderNEQ", "authProviderIn", "authProviderNotIn", "role", "roleNEQ", "roleIn", "roleNotIn", "lastSeenAt", "lastSeenAtNEQ", "lastSeenAtIn", "lastSeenAtNotIn", "lastSeenAtGT", "lastSeenAtGTE", "lastSeenAtLT", "lastSeenAtLTE", "lastSeenAtIsNil", "lastSeenAtNotNil", "lastPostSeenCursor", "lastPostSeenCursorNEQ", "lastPostSeenCursorIn", "lastPostSeenCursorNotIn", "lastPostSeenCursorGT", "lastPostSeenCursorGTE", "lastPostSeenCursorLT", "lastPostSeenCursorLTE", "lastPostSeenCursorContains", "lastPostSeenCursorHasPrefix", "lastPostSeenCursorHasSuffix", "lastPostSeenCursorIsNil", "lastPostSeenCursorNotNil", "lastPostSeenCursorEqualFold", "lastPostSeenCursorContainsFold", "hasSavedPosts", "hasSavedPostsWith", "hasLikedPosts", "hasLikedPostsWith", "hasPublishedPosts", "hasPublishedPostsWith", "hasComments", "hasCommentsWith", "hasAPIKey", "hasAPIKeyWith"}
+	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "updatedAt", "updatedAtNEQ", "updatedAtIn", "updatedAtNotIn", "updatedAtGT", "updatedAtGTE", "updatedAtLT", "updatedAtLTE", "createdAt", "createdAtNEQ", "createdAtIn", "createdAtNotIn", "createdAtGT", "createdAtGTE", "createdAtLT", "createdAtLTE", "deletedAt", "deletedAtNEQ", "deletedAtIn", "deletedAtNotIn", "deletedAtGT", "deletedAtGTE", "deletedAtLT", "deletedAtLTE", "deletedAtIsNil", "deletedAtNotNil", "deletedBy", "deletedByNEQ", "deletedByIn", "deletedByNotIn", "deletedByGT", "deletedByGTE", "deletedByLT", "deletedByLTE", "deletedByContains", "deletedByHasPrefix", "deletedByHasSuffix", "deletedByIsNil", "deletedByNotNil", "deletedByEqualFold", "deletedByContainsFold", "displayName", "displayNameNEQ", "displayNameIn", "displayNameNotIn", "displayNameGT", "displayNameGTE", "displayNameLT", "displayNameLTE", "displayNameContains", "displayNameHasPrefix", "displayNameHasSuffix", "displayNameEqualFold", "displayNameContainsFold", "alias", "aliasNEQ", "aliasIn", "aliasNotIn", "aliasGT", "aliasGTE", "aliasLT", "aliasLTE", "aliasContains", "aliasHasPrefix", "aliasHasSuffix", "aliasIsNil", "aliasNotNil", "aliasEqualFold", "aliasContainsFold", "profileImage", "profileImageNEQ", "profileImageIn", "profileImageNotIn", "profileImageGT", "profileImageGTE", "profileImageLT", "profileImageLTE", "profileImageContains", "profileImageHasPrefix", "profileImageHasSuffix", "profileImageIsNil", "profileImageNotNil", "profileImageEqualFold", "profileImageContainsFold", "authProvider", "authProviderNEQ", "authProviderIn", "authProviderNotIn", "role", "roleNEQ", "roleIn", "roleNotIn", "lastSeenAt", "lastSeenAtNEQ", "lastSeenAtIn", "lastSeenAtNotIn", "lastSeenAtGT", "lastSeenAtGTE", "lastSeenAtLT", "lastSeenAtLTE", "lastSeenAtIsNil", "lastSeenAtNotNil", "lastPostSeenCursor", "lastPostSeenCursorNEQ", "lastPostSeenCursorIn", "lastPostSeenCursorNotIn", "lastPostSeenCursorGT", "lastPostSeenCursorGTE", "lastPostSeenCursorLT", "lastPostSeenCursorLTE", "lastPostSeenCursorContains", "lastPostSeenCursorHasPrefix", "lastPostSeenCursorHasSuffix", "lastPostSeenCursorIsNil", "lastPostSeenCursorNotNil", "lastPostSeenCursorEqualFold", "lastPostSeenCursorContainsFold", "hasSavedPosts", "hasSavedPostsWith", "hasLikedPosts", "hasLikedPostsWith", "hasPublishedPosts", "hasPublishedPostsWith", "hasComments", "hasCommentsWith", "hasAPIKey", "hasAPIKeyWith"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -18942,97 +18854,6 @@ func (ec *executionContext) unmarshalInputUserWhereInput(ctx context.Context, ob
 				return it, err
 			}
 			it.DeletedByContainsFold = data
-		case "email":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Email = data
-		case "emailNEQ":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("emailNEQ"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.EmailNEQ = data
-		case "emailIn":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("emailIn"))
-			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.EmailIn = data
-		case "emailNotIn":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("emailNotIn"))
-			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.EmailNotIn = data
-		case "emailGT":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("emailGT"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.EmailGT = data
-		case "emailGTE":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("emailGTE"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.EmailGTE = data
-		case "emailLT":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("emailLT"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.EmailLT = data
-		case "emailLTE":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("emailLTE"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.EmailLTE = data
-		case "emailContains":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("emailContains"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.EmailContains = data
-		case "emailHasPrefix":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("emailHasPrefix"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.EmailHasPrefix = data
-		case "emailHasSuffix":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("emailHasSuffix"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.EmailHasSuffix = data
-		case "emailEqualFold":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("emailEqualFold"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.EmailEqualFold = data
-		case "emailContainsFold":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("emailContainsFold"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.EmailContainsFold = data
 		case "displayName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("displayName"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
@@ -22047,11 +21868,6 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._User_deletedAt(ctx, field, obj)
 		case "deletedBy":
 			out.Values[i] = ec._User_deletedBy(ctx, field, obj)
-		case "email":
-			out.Values[i] = ec._User_email(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "displayName":
 			out.Values[i] = ec._User_displayName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

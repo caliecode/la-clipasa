@@ -123,7 +123,6 @@ func main() {
 	adminUser.Update().
 		SetDisplayName("admin").
 		SetRole(user.RoleADMIN).
-		SetEmail(internal.Config.SuperAdmin.Email).
 		SaveX(ctx)
 	logger.Debug("created dev admin user")
 
@@ -145,7 +144,6 @@ func main() {
 				SetExternalID(fmt.Sprintf("reddit:%s", rPost.Author)).
 				SetDisplayName(rPost.Author + " (Reddit)").
 				SetProfileImage("/reddit.svg").
-				SetEmail(fmt.Sprintf("%s@reddit-migration.local", rPost.Author)).
 				Save(internal.SetUserCtx(ctx, adminUser))
 			if err != nil {
 				logger.Fatalf("Failed to create Reddit user %s: %s", rPost.Author, err)

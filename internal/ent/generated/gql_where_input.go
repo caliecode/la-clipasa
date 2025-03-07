@@ -1730,21 +1730,6 @@ type UserWhereInput struct {
 	DeletedByEqualFold    *string  `json:"deletedByEqualFold,omitempty"`
 	DeletedByContainsFold *string  `json:"deletedByContainsFold,omitempty"`
 
-	// "email" field predicates.
-	Email             *string  `json:"email,omitempty"`
-	EmailNEQ          *string  `json:"emailNEQ,omitempty"`
-	EmailIn           []string `json:"emailIn,omitempty"`
-	EmailNotIn        []string `json:"emailNotIn,omitempty"`
-	EmailGT           *string  `json:"emailGT,omitempty"`
-	EmailGTE          *string  `json:"emailGTE,omitempty"`
-	EmailLT           *string  `json:"emailLT,omitempty"`
-	EmailLTE          *string  `json:"emailLTE,omitempty"`
-	EmailContains     *string  `json:"emailContains,omitempty"`
-	EmailHasPrefix    *string  `json:"emailHasPrefix,omitempty"`
-	EmailHasSuffix    *string  `json:"emailHasSuffix,omitempty"`
-	EmailEqualFold    *string  `json:"emailEqualFold,omitempty"`
-	EmailContainsFold *string  `json:"emailContainsFold,omitempty"`
-
 	// "display_name" field predicates.
 	DisplayName             *string  `json:"displayName,omitempty"`
 	DisplayNameNEQ          *string  `json:"displayNameNEQ,omitempty"`
@@ -2073,45 +2058,6 @@ func (i *UserWhereInput) P() (predicate.User, error) {
 	}
 	if i.DeletedByContainsFold != nil {
 		predicates = append(predicates, user.DeletedByContainsFold(*i.DeletedByContainsFold))
-	}
-	if i.Email != nil {
-		predicates = append(predicates, user.EmailEQ(*i.Email))
-	}
-	if i.EmailNEQ != nil {
-		predicates = append(predicates, user.EmailNEQ(*i.EmailNEQ))
-	}
-	if len(i.EmailIn) > 0 {
-		predicates = append(predicates, user.EmailIn(i.EmailIn...))
-	}
-	if len(i.EmailNotIn) > 0 {
-		predicates = append(predicates, user.EmailNotIn(i.EmailNotIn...))
-	}
-	if i.EmailGT != nil {
-		predicates = append(predicates, user.EmailGT(*i.EmailGT))
-	}
-	if i.EmailGTE != nil {
-		predicates = append(predicates, user.EmailGTE(*i.EmailGTE))
-	}
-	if i.EmailLT != nil {
-		predicates = append(predicates, user.EmailLT(*i.EmailLT))
-	}
-	if i.EmailLTE != nil {
-		predicates = append(predicates, user.EmailLTE(*i.EmailLTE))
-	}
-	if i.EmailContains != nil {
-		predicates = append(predicates, user.EmailContains(*i.EmailContains))
-	}
-	if i.EmailHasPrefix != nil {
-		predicates = append(predicates, user.EmailHasPrefix(*i.EmailHasPrefix))
-	}
-	if i.EmailHasSuffix != nil {
-		predicates = append(predicates, user.EmailHasSuffix(*i.EmailHasSuffix))
-	}
-	if i.EmailEqualFold != nil {
-		predicates = append(predicates, user.EmailEqualFold(*i.EmailEqualFold))
-	}
-	if i.EmailContainsFold != nil {
-		predicates = append(predicates, user.EmailContainsFold(*i.EmailContainsFold))
 	}
 	if i.DisplayName != nil {
 		predicates = append(predicates, user.DisplayNameEQ(*i.DisplayName))

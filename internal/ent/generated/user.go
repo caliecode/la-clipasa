@@ -28,8 +28,6 @@ type User struct {
 	DeletedAt time.Time `json:"deleted_at,omitempty"`
 	// DeletedBy holds the value of the "deleted_by" field.
 	DeletedBy string `json:"deleted_by,omitempty"`
-	// Email holds the value of the "email" field.
-	Email string `json:"email,omitempty"`
 	// DisplayName holds the value of the "display_name" field.
 	DisplayName string `json:"display_name,omitempty"`
 	// the alias of the user is shown alongside the display name
@@ -132,7 +130,7 @@ func (*User) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case user.FieldAwards:
 			values[i] = new([]byte)
-		case user.FieldDeletedBy, user.FieldEmail, user.FieldDisplayName, user.FieldAlias, user.FieldProfileImage, user.FieldExternalID, user.FieldAuthProvider, user.FieldRole, user.FieldLastPostSeenCursor:
+		case user.FieldDeletedBy, user.FieldDisplayName, user.FieldAlias, user.FieldProfileImage, user.FieldExternalID, user.FieldAuthProvider, user.FieldRole, user.FieldLastPostSeenCursor:
 			values[i] = new(sql.NullString)
 		case user.FieldUpdatedAt, user.FieldCreatedAt, user.FieldDeletedAt, user.FieldLastSeenAt:
 			values[i] = new(sql.NullTime)
@@ -182,12 +180,6 @@ func (u *User) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field deleted_by", values[i])
 			} else if value.Valid {
 				u.DeletedBy = value.String
-			}
-		case user.FieldEmail:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field email", values[i])
-			} else if value.Valid {
-				u.Email = value.String
 			}
 		case user.FieldDisplayName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -320,9 +312,6 @@ func (u *User) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("deleted_by=")
 	builder.WriteString(u.DeletedBy)
-	builder.WriteString(", ")
-	builder.WriteString("email=")
-	builder.WriteString(u.Email)
 	builder.WriteString(", ")
 	builder.WriteString("display_name=")
 	builder.WriteString(u.DisplayName)

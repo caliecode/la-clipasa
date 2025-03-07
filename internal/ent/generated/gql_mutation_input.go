@@ -322,7 +322,6 @@ func (c *PostCategoryUpdateOne) SetInput(i UpdatePostCategoryInput) *PostCategor
 
 // CreateUserInput represents a mutation input for creating users.
 type CreateUserInput struct {
-	Email              string
 	DisplayName        string
 	Alias              *string
 	ProfileImage       *string
@@ -340,7 +339,6 @@ type CreateUserInput struct {
 
 // Mutate applies the CreateUserInput on the UserMutation builder.
 func (i *CreateUserInput) Mutate(m *UserMutation) {
-	m.SetEmail(i.Email)
 	m.SetDisplayName(i.DisplayName)
 	if v := i.Alias; v != nil {
 		m.SetAlias(*v)
@@ -388,7 +386,6 @@ func (c *UserCreate) SetInput(i CreateUserInput) *UserCreate {
 
 // UpdateUserInput represents a mutation input for updating users.
 type UpdateUserInput struct {
-	Email                   *string
 	DisplayName             *string
 	ClearAlias              bool
 	Alias                   *string
@@ -421,9 +418,6 @@ type UpdateUserInput struct {
 
 // Mutate applies the UpdateUserInput on the UserMutation builder.
 func (i *UpdateUserInput) Mutate(m *UserMutation) {
-	if v := i.Email; v != nil {
-		m.SetEmail(*v)
-	}
 	if v := i.DisplayName; v != nil {
 		m.SetDisplayName(*v)
 	}

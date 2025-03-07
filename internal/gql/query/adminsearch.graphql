@@ -4,7 +4,6 @@ query AdminSearch($query: String!) {
       ... on UserSearchResult {
         users {
           deletedBy
-          email
           displayName
           alias
           profileImage

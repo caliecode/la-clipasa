@@ -115,8 +115,8 @@ func NewAppConfig() error {
 		TwitchOIDC: TwitchOidcConfig{
 			Domain:            "id.twitch.tv",
 			Issuer:            "https://id.twitch.tv/oauth2",
-			BroadcasterScopes: "openid user:read:subscriptions user:read:follows user:read:email moderation:read",
-			UserScopes:        "openid user:read:subscriptions user:read:follows user:read:email",
+			BroadcasterScopes: "openid user:read:subscriptions user:read:follows moderation:read",
+			UserScopes:        "openid user:read:subscriptions user:read:follows",
 		},
 	}
 

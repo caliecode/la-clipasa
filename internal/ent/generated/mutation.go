@@ -3323,7 +3323,6 @@ type UserMutation struct {
 	created_at             *time.Time
 	deleted_at             *time.Time
 	deleted_by             *string
-	email                  *string
 	display_name           *string
 	alias                  *string
 	profile_image          *string
@@ -3626,42 +3625,6 @@ func (m *UserMutation) DeletedByCleared() bool {
 func (m *UserMutation) ResetDeletedBy() {
 	m.deleted_by = nil
 	delete(m.clearedFields, user.FieldDeletedBy)
-}
-
-// SetEmail sets the "email" field.
-func (m *UserMutation) SetEmail(s string) {
-	m.email = &s
-}
-
-// Email returns the value of the "email" field in the mutation.
-func (m *UserMutation) Email() (r string, exists bool) {
-	v := m.email
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldEmail returns the old "email" field's value of the User entity.
-// If the User object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UserMutation) OldEmail(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldEmail is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldEmail requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldEmail: %w", err)
-	}
-	return oldValue.Email, nil
-}
-
-// ResetEmail resets all changes to the "email" field.
-func (m *UserMutation) ResetEmail() {
-	m.email = nil
 }
 
 // SetDisplayName sets the "display_name" field.
@@ -4358,7 +4321,7 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 14)
+	fields := make([]string, 0, 13)
 	if m.updated_at != nil {
 		fields = append(fields, user.FieldUpdatedAt)
 	}
@@ -4370,9 +4333,6 @@ func (m *UserMutation) Fields() []string {
 	}
 	if m.deleted_by != nil {
 		fields = append(fields, user.FieldDeletedBy)
-	}
-	if m.email != nil {
-		fields = append(fields, user.FieldEmail)
 	}
 	if m.display_name != nil {
 		fields = append(fields, user.FieldDisplayName)
@@ -4417,8 +4377,6 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.DeletedAt()
 	case user.FieldDeletedBy:
 		return m.DeletedBy()
-	case user.FieldEmail:
-		return m.Email()
 	case user.FieldDisplayName:
 		return m.DisplayName()
 	case user.FieldAlias:
@@ -4454,8 +4412,6 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldDeletedAt(ctx)
 	case user.FieldDeletedBy:
 		return m.OldDeletedBy(ctx)
-	case user.FieldEmail:
-		return m.OldEmail(ctx)
 	case user.FieldDisplayName:
 		return m.OldDisplayName(ctx)
 	case user.FieldAlias:
@@ -4510,13 +4466,6 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDeletedBy(v)
-		return nil
-	case user.FieldEmail:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetEmail(v)
 		return nil
 	case user.FieldDisplayName:
 		v, ok := value.(string)
@@ -4686,9 +4635,6 @@ func (m *UserMutation) ResetField(name string) error {
 		return nil
 	case user.FieldDeletedBy:
 		m.ResetDeletedBy()
-		return nil
-	case user.FieldEmail:
-		m.ResetEmail()
 		return nil
 	case user.FieldDisplayName:
 		m.ResetDisplayName()

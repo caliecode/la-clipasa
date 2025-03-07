@@ -377,7 +377,6 @@ export type CreateUserInput = {
   awards?: InputMaybe<Array<Scalars['String']['input']>>
   commentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   displayName: Scalars['String']['input']
-  email: Scalars['String']['input']
   /** cursor for last post seen */
   lastPostSeenCursor?: InputMaybe<Scalars['String']['input']>
   /** the time the user was last seen */
@@ -1186,7 +1185,6 @@ export type UpdateUserInput = {
   clearPublishedPosts?: InputMaybe<Scalars['Boolean']['input']>
   clearSavedPosts?: InputMaybe<Scalars['Boolean']['input']>
   displayName?: InputMaybe<Scalars['String']['input']>
-  email?: InputMaybe<Scalars['String']['input']>
   /** cursor for last post seen */
   lastPostSeenCursor?: InputMaybe<Scalars['String']['input']>
   /** the time the user was last seen */
@@ -1212,7 +1210,6 @@ export type User = Node & {
   deletedAt?: Maybe<Scalars['Time']['output']>
   deletedBy?: Maybe<Scalars['String']['output']>
   displayName: Scalars['String']['output']
-  email: Scalars['String']['output']
   id: Scalars['ID']['output']
   /** cursor for last post seen */
   lastPostSeenCursor?: Maybe<Scalars['String']['output']>
@@ -1383,20 +1380,6 @@ export type UserWhereInput = {
   displayNameLTE?: InputMaybe<Scalars['String']['input']>
   displayNameNEQ?: InputMaybe<Scalars['String']['input']>
   displayNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  /** email field predicates */
-  email?: InputMaybe<Scalars['String']['input']>
-  emailContains?: InputMaybe<Scalars['String']['input']>
-  emailContainsFold?: InputMaybe<Scalars['String']['input']>
-  emailEqualFold?: InputMaybe<Scalars['String']['input']>
-  emailGT?: InputMaybe<Scalars['String']['input']>
-  emailGTE?: InputMaybe<Scalars['String']['input']>
-  emailHasPrefix?: InputMaybe<Scalars['String']['input']>
-  emailHasSuffix?: InputMaybe<Scalars['String']['input']>
-  emailIn?: InputMaybe<Array<Scalars['String']['input']>>
-  emailLT?: InputMaybe<Scalars['String']['input']>
-  emailLTE?: InputMaybe<Scalars['String']['input']>
-  emailNEQ?: InputMaybe<Scalars['String']['input']>
-  emailNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   /** api_key edge predicates */
   hasAPIKey?: InputMaybe<Scalars['Boolean']['input']>
   hasAPIKeyWith?: InputMaybe<Array<ApiKeyWhereInput>>

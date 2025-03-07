@@ -79,17 +79,7 @@ func (a *Authentication) GetOrRegisterUserFromUserInfo(c *gin.Context, userinfo 
 	if !userinfo.EmailVerified {
 		role = defaultRole
 	}
-
-	cfg := internal.Config
-
-	// superAdmin is registered without id since an account needs to exist beforehand (created via initial-data, for any env)
-	if userinfo.Email == cfg.SuperAdmin.Email {
-		superAdmin, err := entclt.User.Query().Where(user.Email(cfg.SuperAdmin.Email)).Only(ctx)
-		if err != nil {
-			return nil, internal.WrapErrorf(err, internal.ErrorCodePrivate, "could not get admin user %s", cfg.SuperAdmin.Email)
-		}
-		return superAdmin, nil
-	}
+	fmt.Printf("userinfo.Email: %v\n", userinfo.Email)
 
 	u, err := entclt.User.Query().Where(user.ExternalID(userinfo.Subject)).Only(ctx)
 	if err != nil && !generated.IsNotFound(err) {
@@ -106,7 +96,6 @@ func (a *Authentication) GetOrRegisterUserFromUserInfo(c *gin.Context, userinfo 
 	// create user on first login
 	if u == nil {
 		u, err = entclt.User.Create().
-			SetEmail(userinfo.Email).
 			SetExternalID(userinfo.Subject).
 			SetProfileImage(profileImage).
 			SetDisplayName(userinfo.PreferredUsername).
@@ -121,9 +110,7 @@ func (a *Authentication) GetOrRegisterUserFromUserInfo(c *gin.Context, userinfo 
 		userUpdate.SetRole(user.RoleUSER)
 	}
 	// update out of sync non editable fields
-	if u.Email != userinfo.Email {
-		userUpdate.SetEmail(userinfo.Email)
-	}
+	// userinfo.Email is empty for some reason with user:read:email scope
 	if u.DisplayName != userinfo.PreferredUsername {
 		userUpdate.SetDisplayName(userinfo.PreferredUsername)
 	}
@@ -141,7 +128,6 @@ func (a *Authentication) GetOrRegisterUserFromUserInfo(c *gin.Context, userinfo 
 func (a *Authentication) CreateAccessTokenForUser(ctx context.Context, user *generated.User) (string, error) {
 	cfg := internal.Config
 	claims := AppClaims{
-		Email:    user.Email,
 		Username: user.DisplayName,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(7 * 24 * time.Hour)), // mandatory

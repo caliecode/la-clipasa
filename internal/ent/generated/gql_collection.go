@@ -848,11 +848,6 @@ func (u *UserQuery) collectField(ctx context.Context, oneNode bool, opCtx *graph
 				selectedFields = append(selectedFields, user.FieldDeletedBy)
 				fieldSeen[user.FieldDeletedBy] = struct{}{}
 			}
-		case "email":
-			if _, ok := fieldSeen[user.FieldEmail]; !ok {
-				selectedFields = append(selectedFields, user.FieldEmail)
-				fieldSeen[user.FieldEmail] = struct{}{}
-			}
 		case "displayName":
 			if _, ok := fieldSeen[user.FieldDisplayName]; !ok {
 				selectedFields = append(selectedFields, user.FieldDisplayName)

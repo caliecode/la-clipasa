@@ -13,6 +13,7 @@ import (
 
 	_ "github.com/laclipasa/la-clipasa/internal/ent/generated/runtime"
 
+	atlas "ariga.io/atlas/sql/migrate"
 	"ariga.io/atlas/sql/sqltool"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql/schema"
@@ -46,6 +47,9 @@ func main() {
 		// schema.WithMigrationMode(schema.ModeReplay),
 		schema.WithMigrationMode(schema.ModeInspect), // provide migration mode
 		schema.WithDialect(dialect.Postgres),         // Ent dialect to use
+		schema.WithDropColumn(true),                  // drop column support
+		schema.WithDropIndex(true),                   // drop index support
+		schema.WithFormatter(atlas.DefaultFormatter),
 	}
 	if len(os.Args) != 2 {
 		log.Fatalln("migration name is required. Use: 'go run -mod=mod ent/migrate/main.go <name>'")

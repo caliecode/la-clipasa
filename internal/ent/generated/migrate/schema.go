@@ -165,7 +165,6 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "deleted_by", Type: field.TypeString, Nullable: true},
-		{Name: "email", Type: field.TypeString, Unique: true},
 		{Name: "display_name", Type: field.TypeString},
 		{Name: "alias", Type: field.TypeString, Nullable: true},
 		{Name: "profile_image", Type: field.TypeString, Nullable: true},

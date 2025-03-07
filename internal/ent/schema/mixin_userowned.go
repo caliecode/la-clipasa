@@ -104,7 +104,10 @@ func (userOwned UserOwnedMixin) Indexes() []ent.Index {
 	}
 
 	return []ent.Index{
-		index.Fields("owner_id").Annotations(entsql.IndexWhere("deleted_at is NULL")),
+		// FIXME: even matching the where clause string in it is still regenerated.
+		// see https://github.com/ent/ent/issues/3925
+		// SELECT tablename, indexname, indexdef FROM pg_indexes WHERE schemaname = 'public' and indexdef ilike '%deleted_at%'
+		index.Fields("owner_id").Annotations(entsql.IndexWhere("(deleted_at IS NULL)")),
 	}
 }
 
