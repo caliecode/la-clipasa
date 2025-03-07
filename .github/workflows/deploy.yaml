@@ -39,6 +39,7 @@ jobs:
         run: |
           source .envrc
 
+          cd frontend && pnpm install
           project build.frontend
 
       - name: Deploy frontend
@@ -46,5 +47,4 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           command: |
-            # pages project list
             pages deploy ./frontend/build

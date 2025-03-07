@@ -18,10 +18,6 @@ compatibility_flags = ["nodejs_compat_v2"]
 # Note: Use secrets to store sensitive data.
 # - https://developers.cloudflare.com/pages/functions/bindings/#secrets
 [vars]
-DOMAIN = "laclipasa.pages.dev"
-BACKEND_URL = "https://laclipasa-backend.fly.dev"
-APP_ENV = "prod"
-API_KEY = "development"
 
 
 # Bind the Workers AI model catalog. Run machine learning models, powered by serverless GPUs, on Cloudflare’s global network
