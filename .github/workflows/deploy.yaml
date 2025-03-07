@@ -57,7 +57,7 @@ jobs:
             fi
           done <".env"
 
-          flyctl deploy --remote-only --wait-timeout=300
+          flyctl deploy --remote-only --wait-timeout=100
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 

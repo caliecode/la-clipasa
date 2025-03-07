@@ -66,12 +66,12 @@ func (h *TwitchHandlers) refreshTwitchToken(c *gin.Context, tokenInfo *models.Tw
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to refresh twitch token: %w", err)
+		return nil, fmt.Errorf("request failed: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, errors.New("failed to refresh twitch token")
+		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
 	var newToken models.TwitchTokenInfo
@@ -116,7 +116,7 @@ func (h *TwitchHandlers) makeUserTwitchRequest(c *gin.Context, endpoint string, 
 		tokenInfo, err = h.refreshTwitchToken(c, tokenInfo)
 		if err != nil {
 			httputil.SignOutUser(c)
-			return nil, fmt.Errorf("failed to refresh twitch token: %w", err)
+			return nil, fmt.Errorf("error refreshing twitch token: %w", err)
 		}
 	}
 
