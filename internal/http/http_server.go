@@ -171,13 +171,12 @@ func NewServer(ctx context.Context, conf Config, opts ...ServerOption) (*Server,
 	}))
 	router.Use(ginzap.RecoveryWithZap(conf.Logger.Desugar(), true))
 
-	frontendDomain := "https://localhost:" + cfg.FrontendPort
 	backendDomain := internal.BuildAPIURL()
 
 	router.Use(cors.New(cors.Config{
-		AllowWildcard: false,
+		AllowWildcard: true,
 		// should be appConfig env struct
-		AllowOrigins: []string{backendDomain, frontendDomain},
+		AllowOrigins: []string{backendDomain, "https://localhost:" + cfg.FrontendPort, "https://laclipasa.pages.dev", "https://*.laclipasa.pages.dev"},
 		AllowMethods: []string{
 			"GET",
 			"POST",
