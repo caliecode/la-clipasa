@@ -3,10 +3,10 @@ package rule
 import (
 	"context"
 
-	"github.com/laclipasa/la-clipasa/internal"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/predicate"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/privacy"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/user"
+	"github.com/caliecode/la-clipasa/internal"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/predicate"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/privacy"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
 )
 
 // AllowMutationAfterApplyingOwnerFilter defines a privacy rule for mutations in the context of an owner filter

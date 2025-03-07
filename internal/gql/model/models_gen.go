@@ -5,7 +5,7 @@ package model
 import (
 	"entgo.io/contrib/entgql"
 	"github.com/google/uuid"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated"
+	"github.com/caliecode/la-clipasa/internal/ent/generated"
 )
 
 type SearchResult interface {

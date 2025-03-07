@@ -10,8 +10,8 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/apikey"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/user"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/apikey"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
 )
 
 // ApiKey is the model entity for the ApiKey schema.

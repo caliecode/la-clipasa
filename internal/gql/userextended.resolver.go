@@ -8,10 +8,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/laclipasa/la-clipasa/internal"
-	"github.com/laclipasa/la-clipasa/internal/client"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated"
-	"github.com/laclipasa/la-clipasa/internal/gql/model"
+	"github.com/caliecode/la-clipasa/internal"
+	"github.com/caliecode/la-clipasa/internal/client"
+	"github.com/caliecode/la-clipasa/internal/ent/generated"
+	"github.com/caliecode/la-clipasa/internal/gql/model"
 )
 
 // Me is the resolver for the me field.

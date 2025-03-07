@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/laclipasa/la-clipasa/internal/testutil"
+	"github.com/caliecode/la-clipasa/internal/testutil"
 
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jackc/pgx/v5/pgxpool"

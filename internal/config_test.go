@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/laclipasa/la-clipasa/internal/utils/pointers"
+	"github.com/caliecode/la-clipasa/internal/utils/pointers"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

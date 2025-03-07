@@ -5,8 +5,8 @@ import (
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
-	"github.com/laclipasa/la-clipasa/internal/ent/interceptors"
-	"github.com/laclipasa/la-clipasa/internal/ent/schema/mixins"
+	"github.com/caliecode/la-clipasa/internal/ent/interceptors"
+	"github.com/caliecode/la-clipasa/internal/ent/schema/mixins"
 )
 
 // Comment holds the schema definition for the Comment entity.

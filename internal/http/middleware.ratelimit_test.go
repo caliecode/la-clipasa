@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/time/rate"
 
-	"github.com/laclipasa/la-clipasa/internal/testutil"
+	"github.com/caliecode/la-clipasa/internal/testutil"
 )
 
 func TestRateLimitMiddleware(t *testing.T) {

@@ -2,7 +2,7 @@ package annotations
 
 import (
 	"entgo.io/contrib/entgql"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/user"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
 	"github.com/vektah/gqlparser/v2/ast"
 )
 

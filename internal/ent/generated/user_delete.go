@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/predicate"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/user"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/predicate"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
 )
 
 // UserDelete is the builder for deleting a User entity.

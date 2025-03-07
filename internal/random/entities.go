@@ -5,10 +5,10 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/laclipasa/la-clipasa/internal"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/postcategory"
-	"github.com/laclipasa/la-clipasa/internal/testutil"
+	"github.com/caliecode/la-clipasa/internal"
+	"github.com/caliecode/la-clipasa/internal/ent/generated"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/postcategory"
+	"github.com/caliecode/la-clipasa/internal/testutil"
 )
 
 var (

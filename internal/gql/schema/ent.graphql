@@ -380,7 +380,7 @@ scalar JSON
 An object with an ID.
 Follows the [Relay Global Object Identification Specification](https://relay.dev/graphql/objectidentification.htm)
 """
-interface Node @goModel(model: "github.com/laclipasa/la-clipasa/internal/ent/generated.Noder") {
+interface Node @goModel(model: "github.com/caliecode/la-clipasa/internal/ent/generated.Noder") {
   """
   The id of the object.
   """
@@ -510,7 +510,7 @@ type PostCategory implements Node {
 """
 PostCategoryCategory is enum for the field category
 """
-enum PostCategoryCategory @goModel(model: "github.com/laclipasa/la-clipasa/internal/ent/generated/postcategory.Category") {
+enum PostCategoryCategory @goModel(model: "github.com/caliecode/la-clipasa/internal/ent/generated/postcategory.Category") {
   RANA
   SIN_SONIDO
   MEME_ARTESANAL
@@ -1184,7 +1184,7 @@ type User implements Node {
 """
 UserAuthProvider is enum for the field auth_provider
 """
-enum UserAuthProvider @goModel(model: "github.com/laclipasa/la-clipasa/internal/ent/generated/user.AuthProvider") {
+enum UserAuthProvider @goModel(model: "github.com/caliecode/la-clipasa/internal/ent/generated/user.AuthProvider") {
   TWITCH
 }
 """
@@ -1241,7 +1241,7 @@ enum UserOrderField {
 """
 UserRole is enum for the field role
 """
-enum UserRole @goModel(model: "github.com/laclipasa/la-clipasa/internal/ent/generated/user.Role") {
+enum UserRole @goModel(model: "github.com/caliecode/la-clipasa/internal/ent/generated/user.Role") {
   GUEST
   USER
   ADMIN

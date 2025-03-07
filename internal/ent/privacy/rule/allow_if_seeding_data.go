@@ -4,7 +4,7 @@ import (
 	"context"
 	"os"
 
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/privacy"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/privacy"
 )
 
 func AllowIfSeedingData() privacy.QueryMutationRule {

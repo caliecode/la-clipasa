@@ -1,7 +1,7 @@
 package logger
 
 import (
-	"github.com/laclipasa/la-clipasa/internal"
+	"github.com/caliecode/la-clipasa/internal"
 	"go.uber.org/zap"
 )
 

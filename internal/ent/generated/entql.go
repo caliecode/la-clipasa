@@ -3,12 +3,12 @@
 package generated
 
 import (
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/apikey"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/comment"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/post"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/postcategory"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/predicate"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/user"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/apikey"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/comment"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/post"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/postcategory"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/predicate"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

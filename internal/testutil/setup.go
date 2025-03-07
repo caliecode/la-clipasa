@@ -9,8 +9,8 @@ import (
 	"runtime"
 	"sync"
 
-	"github.com/laclipasa/la-clipasa/internal"
-	"github.com/laclipasa/la-clipasa/internal/envvar"
+	"github.com/caliecode/la-clipasa/internal"
+	"github.com/caliecode/la-clipasa/internal/envvar"
 )
 
 // Returns the directory of the file this function lives in.

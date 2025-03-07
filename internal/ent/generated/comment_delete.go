@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/comment"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/predicate"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/comment"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/predicate"
 )
 
 // CommentDelete is the builder for deleting a Comment entity.

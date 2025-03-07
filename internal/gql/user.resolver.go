@@ -5,9 +5,9 @@ import (
 	"errors"
 
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/caliecode/la-clipasa/internal/ent/generated"
+	"github.com/caliecode/la-clipasa/internal/gql/model"
 	"github.com/google/uuid"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated"
-	"github.com/laclipasa/la-clipasa/internal/gql/model"
 )
 
 // CreateUser is the resolver for the createUser field.

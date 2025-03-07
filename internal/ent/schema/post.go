@@ -10,8 +10,8 @@ import (
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 
-	"github.com/laclipasa/la-clipasa/internal/ent/interceptors"
-	"github.com/laclipasa/la-clipasa/internal/ent/schema/mixins"
+	"github.com/caliecode/la-clipasa/internal/ent/interceptors"
+	"github.com/caliecode/la-clipasa/internal/ent/schema/mixins"
 )
 
 // Post holds the schema definition for the Post entity.

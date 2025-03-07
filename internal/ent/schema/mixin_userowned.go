@@ -19,11 +19,11 @@ import (
 	"entgo.io/ent/schema/mixin"
 	"github.com/google/uuid"
 
-	"github.com/laclipasa/la-clipasa/internal"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/intercept"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/privacy"
-	"github.com/laclipasa/la-clipasa/internal/ent/interceptors"
+	"github.com/caliecode/la-clipasa/internal"
+	"github.com/caliecode/la-clipasa/internal/ent/generated"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/intercept"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/privacy"
+	"github.com/caliecode/la-clipasa/internal/ent/interceptors"
 )
 
 const (

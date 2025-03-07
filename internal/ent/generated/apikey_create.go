@@ -11,8 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/apikey"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/user"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/apikey"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
 )
 
 // ApiKeyCreate is the builder for creating a ApiKey entity.

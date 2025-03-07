@@ -5,8 +5,8 @@ import (
 	"errors"
 
 	"entgo.io/contrib/entgql"
+	"github.com/caliecode/la-clipasa/internal/ent/generated"
 	"github.com/google/uuid"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated"
 )
 
 // Node is the resolver for the node field.

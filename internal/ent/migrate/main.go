@@ -11,16 +11,16 @@ import (
 
 	_ "github.com/lib/pq"
 
-	_ "github.com/laclipasa/la-clipasa/internal/ent/generated/runtime"
+	_ "github.com/caliecode/la-clipasa/internal/ent/generated/runtime"
 
 	atlas "ariga.io/atlas/sql/migrate"
 	"ariga.io/atlas/sql/sqltool"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql/schema"
 
-	"github.com/laclipasa/la-clipasa/internal"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/migrate"
-	"github.com/laclipasa/la-clipasa/internal/envvar"
+	"github.com/caliecode/la-clipasa/internal"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/migrate"
+	"github.com/caliecode/la-clipasa/internal/envvar"
 )
 
 // Usage: go run -mod=mod ent/migrate/main.go <name>

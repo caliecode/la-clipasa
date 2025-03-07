@@ -11,9 +11,9 @@ import (
 	"entgo.io/contrib/entgql"
 	"entgo.io/ent/entc"
 	"entgo.io/ent/entc/gen"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
+	"github.com/caliecode/la-clipasa/internal/ent/schema/annotations"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/user"
-	"github.com/laclipasa/la-clipasa/internal/ent/schema/annotations"
 	"github.com/theopenlane/entx"
 	"github.com/theopenlane/entx/genhooks"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -74,7 +74,7 @@ func main() {
 	if err := entc.Generate("./internal/ent/schema", &gen.Config{
 		Target:    "./internal/ent/generated",
 		Templates: entgql.AllTemplates,
-		Package:   "github.com/laclipasa/la-clipasa/internal/ent/generated",
+		Package:   "github.com/caliecode/la-clipasa/internal/ent/generated",
 		Hooks: []gen.Hook{
 			genhooks.GenSchema("./internal/gql/schema/"),
 			genhooks.GenQuery("./internal/gql/query/"),

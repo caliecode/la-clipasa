@@ -6,10 +6,10 @@ import (
 	"entgo.io/ent/entql"
 	"github.com/theopenlane/entx"
 
-	"github.com/laclipasa/la-clipasa/internal"
-	"github.com/laclipasa/la-clipasa/internal/auth"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/privacy"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/user"
+	"github.com/caliecode/la-clipasa/internal"
+	"github.com/caliecode/la-clipasa/internal/auth"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/privacy"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
 )
 
 // AllowIfRole determines whether a query or mutation operation should be allowed

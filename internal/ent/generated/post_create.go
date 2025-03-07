@@ -11,10 +11,10 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/comment"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/post"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/postcategory"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/user"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/comment"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/post"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/postcategory"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
 )
 
 // PostCreate is the builder for creating a Post entity.

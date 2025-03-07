@@ -13,16 +13,16 @@ import (
 
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
-	"github.com/laclipasa/la-clipasa/internal"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/postcategory"
-	_ "github.com/laclipasa/la-clipasa/internal/ent/generated/runtime"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/user"
-	"github.com/laclipasa/la-clipasa/internal/envvar"
-	postgresql "github.com/laclipasa/la-clipasa/internal/postgres"
-	"github.com/laclipasa/la-clipasa/internal/random"
-	"github.com/laclipasa/la-clipasa/internal/utils/logger"
-	"github.com/laclipasa/la-clipasa/internal/utils/slices"
+	"github.com/caliecode/la-clipasa/internal"
+	"github.com/caliecode/la-clipasa/internal/ent/generated"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/postcategory"
+	_ "github.com/caliecode/la-clipasa/internal/ent/generated/runtime"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
+	"github.com/caliecode/la-clipasa/internal/envvar"
+	postgresql "github.com/caliecode/la-clipasa/internal/postgres"
+	"github.com/caliecode/la-clipasa/internal/random"
+	"github.com/caliecode/la-clipasa/internal/utils/logger"
+	"github.com/caliecode/la-clipasa/internal/utils/slices"
 )
 
 // RedditPost represents the structure of our JSON files

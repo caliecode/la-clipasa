@@ -12,9 +12,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/laclipasa/la-clipasa/internal"
-	"github.com/laclipasa/la-clipasa/internal/http/httputil"
-	"github.com/laclipasa/la-clipasa/internal/models"
+	"github.com/caliecode/la-clipasa/internal"
+	"github.com/caliecode/la-clipasa/internal/http/httputil"
+	"github.com/caliecode/la-clipasa/internal/models"
 )
 
 const (

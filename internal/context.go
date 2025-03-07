@@ -6,8 +6,8 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/caliecode/la-clipasa/internal/ent/generated"
 	"github.com/gin-gonic/gin"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated"
 	"github.com/zitadel/oidc/v3/pkg/oidc"
 	"go.uber.org/zap"
 )

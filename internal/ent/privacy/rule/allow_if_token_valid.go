@@ -6,8 +6,8 @@ import (
 
 	"entgo.io/ent/entql"
 
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/privacy"
-	"github.com/laclipasa/la-clipasa/internal/ent/privacy/token"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/privacy"
+	"github.com/caliecode/la-clipasa/internal/ent/privacy/token"
 )
 
 // AllowIfContextHasPrivacyTokenOfType allows a mutation

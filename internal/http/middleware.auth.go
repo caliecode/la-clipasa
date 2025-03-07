@@ -3,9 +3,9 @@ package http
 import (
 	"strings"
 
+	"github.com/caliecode/la-clipasa/internal"
+	"github.com/caliecode/la-clipasa/internal/auth"
 	"github.com/gin-gonic/gin"
-	"github.com/laclipasa/la-clipasa/internal"
-	"github.com/laclipasa/la-clipasa/internal/auth"
 	"go.uber.org/zap"
 )
 

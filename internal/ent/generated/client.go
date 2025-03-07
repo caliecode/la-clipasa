@@ -10,18 +10,18 @@ import (
 	"reflect"
 
 	"github.com/google/uuid"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/migrate"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/migrate"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/apikey"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/comment"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/post"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/postcategory"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/user"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/apikey"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/comment"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/post"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/postcategory"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
 	"go.uber.org/zap"
 )
 

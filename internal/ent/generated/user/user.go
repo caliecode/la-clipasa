@@ -131,7 +131,7 @@ func ValidColumn(column string) bool {
 // package on the initialization of the application. Therefore,
 // it should be imported in the main as follows:
 //
-//	import _ "github.com/laclipasa/la-clipasa/internal/ent/generated/runtime"
+//	import _ "github.com/caliecode/la-clipasa/internal/ent/generated/runtime"
 var (
 	Hooks        [3]ent.Hook
 	Interceptors [1]ent.Interceptor

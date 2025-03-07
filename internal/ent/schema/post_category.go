@@ -6,7 +6,7 @@ import (
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
-	"github.com/laclipasa/la-clipasa/internal/ent/schema/mixins"
+	"github.com/caliecode/la-clipasa/internal/ent/schema/mixins"
 )
 
 // PostCategory holds the schema definition for the PostCategory entity.

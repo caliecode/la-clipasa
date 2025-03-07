@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/caliecode/la-clipasa/internal"
+	"github.com/caliecode/la-clipasa/internal/utils/pointers"
 	"github.com/gin-gonic/gin"
-	"github.com/laclipasa/la-clipasa/internal"
-	"github.com/laclipasa/la-clipasa/internal/utils/pointers"
 )
 
 // HTTPError represents an error message response.

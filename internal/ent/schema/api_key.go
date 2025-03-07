@@ -4,8 +4,8 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/field"
-	"github.com/laclipasa/la-clipasa/internal/ent/interceptors"
-	"github.com/laclipasa/la-clipasa/internal/ent/schema/mixins"
+	"github.com/caliecode/la-clipasa/internal/ent/interceptors"
+	"github.com/caliecode/la-clipasa/internal/ent/schema/mixins"
 )
 
 // ApiKey holds the schema definition for the ApiKey entity.

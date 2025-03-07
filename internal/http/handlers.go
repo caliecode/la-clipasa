@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"net/http"
 
+	"github.com/caliecode/la-clipasa/internal/auth"
 	"github.com/gin-gonic/gin"
-	"github.com/laclipasa/la-clipasa/internal/auth"
 	"github.com/zitadel/oidc/v3/pkg/client/rp"
 	"go.uber.org/zap"
 )

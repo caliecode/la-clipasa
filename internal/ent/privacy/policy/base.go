@@ -3,7 +3,7 @@ package policy
 import (
 	"entgo.io/ent"
 
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/privacy"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/privacy"
 )
 
 // prePolicy is executed before privacy policy

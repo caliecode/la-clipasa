@@ -5,11 +5,11 @@ import (
 	"fmt"
 
 	"entgo.io/ent"
+	"github.com/caliecode/la-clipasa/internal/ent/generated"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/hook"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/post"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/postcategory"
 	"github.com/google/uuid"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/hook"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/post"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/postcategory"
 )
 
 func PostCategoryExclusiveCheck() ent.Hook {

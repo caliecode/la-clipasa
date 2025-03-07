@@ -5,8 +5,8 @@ import (
 
 	"entgo.io/ent"
 
-	"github.com/laclipasa/la-clipasa/internal"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/privacy"
+	"github.com/caliecode/la-clipasa/internal"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/privacy"
 )
 
 // DenyQueryIfNotAuthenticated denies a query if the user is not authenticated

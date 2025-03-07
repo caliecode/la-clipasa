@@ -5,12 +5,12 @@ package enttest
 import (
 	"context"
 
-	"github.com/laclipasa/la-clipasa/internal/ent/generated"
+	"github.com/caliecode/la-clipasa/internal/ent/generated"
 	// required by schema hooks.
-	_ "github.com/laclipasa/la-clipasa/internal/ent/generated/runtime"
+	_ "github.com/caliecode/la-clipasa/internal/ent/generated/runtime"
 
 	"entgo.io/ent/dialect/sql/schema"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/migrate"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/migrate"
 )
 
 type (

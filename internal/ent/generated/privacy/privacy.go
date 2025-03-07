@@ -5,7 +5,7 @@ package privacy
 import (
 	"context"
 
-	"github.com/laclipasa/la-clipasa/internal/ent/generated"
+	"github.com/caliecode/la-clipasa/internal/ent/generated"
 
 	"entgo.io/ent/entql"
 	"entgo.io/ent/privacy"

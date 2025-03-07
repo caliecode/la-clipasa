@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/laclipasa/la-clipasa/internal/gql/model"
+	"github.com/caliecode/la-clipasa/internal/gql/model"
 )
 
 // AdminUserSearch is the resolver for the adminUserSearch field.

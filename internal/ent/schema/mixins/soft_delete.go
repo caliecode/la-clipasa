@@ -18,10 +18,10 @@ import (
 	"entgo.io/ent/schema/mixin"
 	"github.com/theopenlane/entx"
 
-	"github.com/laclipasa/la-clipasa/internal"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/hook"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/intercept"
+	"github.com/caliecode/la-clipasa/internal"
+	"github.com/caliecode/la-clipasa/internal/ent/generated"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/hook"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/intercept"
 )
 
 // SoftDeleteMixin implements the soft delete pattern for schemas.

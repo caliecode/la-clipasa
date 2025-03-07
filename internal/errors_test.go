@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/laclipasa/la-clipasa/internal"
+	"github.com/caliecode/la-clipasa/internal"
 )
 
 func TestErrorCause(t *testing.T) {

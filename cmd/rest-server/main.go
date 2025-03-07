@@ -6,11 +6,11 @@ import (
 	"log"
 	"strings"
 
-	_ "github.com/laclipasa/la-clipasa/internal/ent/generated/runtime"
+	_ "github.com/caliecode/la-clipasa/internal/ent/generated/runtime"
 
-	"github.com/laclipasa/la-clipasa/internal"
-	"github.com/laclipasa/la-clipasa/internal/http"
-	"github.com/laclipasa/la-clipasa/internal/utils/format/colors"
+	"github.com/caliecode/la-clipasa/internal"
+	"github.com/caliecode/la-clipasa/internal/http"
+	"github.com/caliecode/la-clipasa/internal/utils/format/colors"
 )
 
 func main() {
@@ -22,7 +22,9 @@ func main() {
 
 	var errs []string
 
-	if env == "" {
+	cfg := internal.Config
+
+	if env == "" && cfg.AppEnv != internal.AppEnvProd {
 		errs = append(errs, "    - env is required but unset")
 	}
 

@@ -15,14 +15,14 @@ import (
 	"sync"
 	"time"
 
+	"github.com/caliecode/la-clipasa/internal"
+	postgresql "github.com/caliecode/la-clipasa/internal/postgres"
+	postgresqlutils "github.com/caliecode/la-clipasa/internal/utils/postgresql"
 	"github.com/golang-migrate/migrate/v4"
 	migratepostgres "github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/iancoleman/strcase"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/laclipasa/la-clipasa/internal"
-	postgresql "github.com/laclipasa/la-clipasa/internal/postgres"
-	postgresqlutils "github.com/laclipasa/la-clipasa/internal/utils/postgresql"
 	"go.uber.org/zap"
 
 	_ "github.com/golang-migrate/migrate/v4/source/file"

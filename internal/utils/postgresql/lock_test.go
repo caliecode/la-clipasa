@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/laclipasa/la-clipasa/internal/testutil"
-	"github.com/laclipasa/la-clipasa/internal/utils/postgresql"
+	"github.com/caliecode/la-clipasa/internal/testutil"
+	"github.com/caliecode/la-clipasa/internal/utils/postgresql"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

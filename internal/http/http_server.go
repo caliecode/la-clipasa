@@ -40,17 +40,17 @@ import (
 	httphelper "github.com/zitadel/oidc/v3/pkg/http"
 	"go.uber.org/zap"
 
-	laclipasa "github.com/laclipasa/la-clipasa"
-	"github.com/laclipasa/la-clipasa/internal"
-	"github.com/laclipasa/la-clipasa/internal/auth"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated"
-	"github.com/laclipasa/la-clipasa/internal/envvar"
-	"github.com/laclipasa/la-clipasa/internal/gql"
-	postgresql "github.com/laclipasa/la-clipasa/internal/postgres"
-	"github.com/laclipasa/la-clipasa/internal/utils/format"
-	"github.com/laclipasa/la-clipasa/internal/utils/format/colors"
-	"github.com/laclipasa/la-clipasa/internal/utils/logger"
-	postgresqlutils "github.com/laclipasa/la-clipasa/internal/utils/postgresql"
+	laclipasa "github.com/caliecode/la-clipasa"
+	"github.com/caliecode/la-clipasa/internal"
+	"github.com/caliecode/la-clipasa/internal/auth"
+	"github.com/caliecode/la-clipasa/internal/ent/generated"
+	"github.com/caliecode/la-clipasa/internal/envvar"
+	"github.com/caliecode/la-clipasa/internal/gql"
+	postgresql "github.com/caliecode/la-clipasa/internal/postgres"
+	"github.com/caliecode/la-clipasa/internal/utils/format"
+	"github.com/caliecode/la-clipasa/internal/utils/format/colors"
+	"github.com/caliecode/la-clipasa/internal/utils/logger"
+	postgresqlutils "github.com/caliecode/la-clipasa/internal/utils/postgresql"
 )
 
 const (

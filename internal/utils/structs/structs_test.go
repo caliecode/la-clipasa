@@ -3,8 +3,8 @@ package structs_test
 import (
 	"testing"
 
+	"github.com/caliecode/la-clipasa/internal/utils/structs"
 	"github.com/google/go-cmp/cmp"
-	"github.com/laclipasa/la-clipasa/internal/utils/structs"
 )
 
 func TestGetKeys(t *testing.T) {

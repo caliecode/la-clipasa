@@ -1,4 +1,4 @@
-module github.com/laclipasa/la-clipasa
+module github.com/caliecode/la-clipasa
 
 go 1.23.5
 

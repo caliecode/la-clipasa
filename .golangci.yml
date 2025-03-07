@@ -71,11 +71,11 @@ linters-settings:
     sections:
       - standard
       - default
-      - prefix(github.com/laclipasa/la-clipasa)
+      - prefix(github.com/caliecode/la-clipasa)
     skip-generated: true
   exhaustruct:
     include:
-      - "github.com/laclipasa/la-clipasa/internal.*Params"
+      - "github.com/caliecode/la-clipasa/internal.*Params"
   ireturn:
     allow:
       - error
@@ -114,7 +114,7 @@ linters-settings:
       - .WithMessagef(
       - .WithStack(
     ignorePackageGlobs:
-      - github.com/laclipasa/la-clipasa/*
+      - github.com/caliecode/la-clipasa/*
 issues:
   exclude-files:
     - ".*\\.xo\\.go$"

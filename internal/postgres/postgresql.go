@@ -21,9 +21,9 @@ import (
 	"github.com/jackc/pgx/v5/stdlib"
 
 	// to open with "pgx" driver.
+	"github.com/caliecode/la-clipasa/internal"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jackc/pgx/v5/tracelog"
-	"github.com/laclipasa/la-clipasa/internal"
 	"go.uber.org/zap"
 )
 

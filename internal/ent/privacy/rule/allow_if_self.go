@@ -7,9 +7,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/theopenlane/entx"
 
-	"github.com/laclipasa/la-clipasa/internal"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/privacy"
+	"github.com/caliecode/la-clipasa/internal"
+	"github.com/caliecode/la-clipasa/internal/ent/generated"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/privacy"
 )
 
 // AllowIfSelf determines whether a query or mutation operation should be allowed based on whether the requested data is for the viewer

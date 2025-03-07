@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/laclipasa/la-clipasa/internal/ent/generated"
+	"github.com/caliecode/la-clipasa/internal/ent/generated"
 )
 
 // The ApiKeyFunc type is an adapter to allow the use of ordinary

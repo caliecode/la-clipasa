@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/caliecode/la-clipasa/internal/gql/model"
 	lru "github.com/hashicorp/golang-lru/v2"
-	"github.com/laclipasa/la-clipasa/internal/gql/model"
 )
 
 type CacheEntry struct {

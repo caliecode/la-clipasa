@@ -17,11 +17,11 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
 	"github.com/google/uuid"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/postcategory"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/user"
-	"github.com/laclipasa/la-clipasa/internal/ent/schema/uuidgql"
-	"github.com/laclipasa/la-clipasa/internal/gql/model"
+	"github.com/caliecode/la-clipasa/internal/ent/generated"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/postcategory"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
+	"github.com/caliecode/la-clipasa/internal/ent/schema/uuidgql"
+	"github.com/caliecode/la-clipasa/internal/gql/model"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -4581,7 +4581,7 @@ func (ec *executionContext) _ApiKey_owner(ctx context.Context, field graphql.Col
 		if data, ok := tmp.(*generated.User); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/laclipasa/la-clipasa/internal/ent/generated.User`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/caliecode/la-clipasa/internal/ent/generated.User`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4692,7 +4692,7 @@ func (ec *executionContext) _ApiKeyBulkCreatePayload_apiKeys(ctx context.Context
 		if data, ok := tmp.([]*generated.ApiKey); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/laclipasa/la-clipasa/internal/ent/generated.ApiKey`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/caliecode/la-clipasa/internal/ent/generated.ApiKey`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4919,7 +4919,7 @@ func (ec *executionContext) _ApiKeyCreatePayload_apiKey(ctx context.Context, fie
 		if data, ok := tmp.(*generated.ApiKey); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/laclipasa/la-clipasa/internal/ent/generated.ApiKey`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/caliecode/la-clipasa/internal/ent/generated.ApiKey`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5048,7 +5048,7 @@ func (ec *executionContext) _ApiKeyEdge_node(ctx context.Context, field graphql.
 		if data, ok := tmp.(*generated.ApiKey); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/laclipasa/la-clipasa/internal/ent/generated.ApiKey`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/caliecode/la-clipasa/internal/ent/generated.ApiKey`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5174,7 +5174,7 @@ func (ec *executionContext) _ApiKeyUpdatePayload_apiKey(ctx context.Context, fie
 		if data, ok := tmp.(*generated.ApiKey); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/laclipasa/la-clipasa/internal/ent/generated.ApiKey`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/caliecode/la-clipasa/internal/ent/generated.ApiKey`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10537,7 +10537,7 @@ func (ec *executionContext) _Query_apiKey(ctx context.Context, field graphql.Col
 		if data, ok := tmp.(*generated.ApiKey); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/laclipasa/la-clipasa/internal/ent/generated.ApiKey`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/caliecode/la-clipasa/internal/ent/generated.ApiKey`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12346,7 +12346,7 @@ func (ec *executionContext) _User_apiKey(ctx context.Context, field graphql.Coll
 		if data, ok := tmp.(*generated.ApiKey); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/laclipasa/la-clipasa/internal/ent/generated.ApiKey`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/caliecode/la-clipasa/internal/ent/generated.ApiKey`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -16500,7 +16500,7 @@ func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, o
 			} else if tmp == nil {
 				it.Role = nil
 			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/laclipasa/la-clipasa/internal/ent/generated/user.Role`, tmp)
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/caliecode/la-clipasa/internal/ent/generated/user.Role`, tmp)
 				return it, graphql.ErrorOnPath(ctx, err)
 			}
 		case "lastSeenAt":
@@ -18282,7 +18282,7 @@ func (ec *executionContext) unmarshalInputUpdateUserInput(ctx context.Context, o
 			} else if tmp == nil {
 				it.Role = nil
 			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/laclipasa/la-clipasa/internal/ent/generated/user.Role`, tmp)
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/caliecode/la-clipasa/internal/ent/generated/user.Role`, tmp)
 				return it, graphql.ErrorOnPath(ctx, err)
 			}
 		case "lastSeenAt":

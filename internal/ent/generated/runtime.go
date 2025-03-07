@@ -2,4 +2,4 @@
 
 package generated
 
-// The schema-stitching logic is generated in github.com/laclipasa/la-clipasa/internal/ent/generated/runtime/runtime.go
+// The schema-stitching logic is generated in github.com/caliecode/la-clipasa/internal/ent/generated/runtime/runtime.go

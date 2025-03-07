@@ -14,10 +14,10 @@ import (
 	"github.com/zitadel/oidc/v3/pkg/client/rp"
 	"github.com/zitadel/oidc/v3/pkg/oidc"
 
-	"github.com/laclipasa/la-clipasa/internal"
-	"github.com/laclipasa/la-clipasa/internal/ent/privacy/token"
-	"github.com/laclipasa/la-clipasa/internal/http/httputil"
-	"github.com/laclipasa/la-clipasa/internal/models"
+	"github.com/caliecode/la-clipasa/internal"
+	"github.com/caliecode/la-clipasa/internal/ent/privacy/token"
+	"github.com/caliecode/la-clipasa/internal/http/httputil"
+	"github.com/caliecode/la-clipasa/internal/models"
 )
 
 const (

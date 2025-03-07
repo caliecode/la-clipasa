@@ -6,8 +6,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/caliecode/la-clipasa/internal/testutil"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/laclipasa/la-clipasa/internal/testutil"
 )
 
 const (

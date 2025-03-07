@@ -13,8 +13,8 @@ import (
 	"github.com/lib/pq"
 	"github.com/rs/zerolog/log"
 
-	"github.com/laclipasa/la-clipasa/internal/ent/generated"
-	"github.com/laclipasa/la-clipasa/internal/ent/generated/privacy"
+	"github.com/caliecode/la-clipasa/internal/ent/generated"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/privacy"
 )
 
 var (

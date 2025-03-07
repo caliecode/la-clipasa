@@ -1,6 +1,6 @@
 package auth
 
-import "github.com/laclipasa/la-clipasa/internal/ent/generated/user"
+import "github.com/caliecode/la-clipasa/internal/ent/generated/user"
 
 // Role ranks by user role.
 type roleRank struct {
