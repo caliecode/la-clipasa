@@ -21,4 +21,3 @@ docker
 docker-compose.*
 
 **/node_modules
-**/build

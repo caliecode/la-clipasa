@@ -13,6 +13,7 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"syscall"
@@ -162,25 +163,32 @@ func NewServer(ctx context.Context, conf Config, opts ...ServerOption) (*Server,
 
 	router := gin.Default()
 
-	SetupUIRoutes(router)
+	apiRouter := router.Group(cfg.APIVersion)
 
 	// Add a ginzap middleware, which:
 	// - Logs all requests, like a combined access and error log.
 	// - Logs to stdout.
 	// - RFC3339 with UTC time format.
-	router.Use(ginzap.GinzapWithConfig(conf.Logger.Desugar(), &ginzap.Config{
+	apiRouter.Use(ginzap.GinzapWithConfig(conf.Logger.Desugar(), &ginzap.Config{
 		TimeFormat: time.RFC3339,
 		UTC:        true,
 		// SkipPaths:  []string{"/no_log"},
 	}))
-	router.Use(ginzap.RecoveryWithZap(conf.Logger.Desugar(), true))
+	apiRouter.Use(ginzap.RecoveryWithZap(conf.Logger.Desugar(), true))
 
-	backendDomain := internal.BuildAPIURL()
+	var host string
+	switch cfg.AppEnv {
+	case internal.AppEnvProd, internal.AppEnvE2E:
+		host = cfg.Domain
+	default:
+		host = cfg.Domain + ":" + cfg.APIPort
+	}
+	host = "https://" + host
 
-	router.Use(cors.New(cors.Config{
+	apiRouter.Use(cors.New(cors.Config{
 		AllowWildcard: true,
 		// should be appConfig env struct
-		AllowOrigins: []string{backendDomain, "https://localhost:" + cfg.FrontendPort, "https://laclipasa.pages.dev", "https://*.laclipasa.pages.dev"},
+		AllowOrigins: []string{host, "https://localhost:" + cfg.FrontendPort, "https://laclipasa.pages.dev", "https://*.laclipasa.pages.dev"},
 		AllowMethods: []string{
 			"GET",
 			"POST",
@@ -218,14 +226,14 @@ func NewServer(ctx context.Context, conf Config, opts ...ServerOption) (*Server,
 		MaxAge: 12 * time.Hour,
 	}))
 
-	// router.Use(GinContextToContextMiddleware())
+	// apiRouter.Use(GinContextToContextMiddleware())
 
 	if cfg.AppEnv == internal.AppEnvDev {
-		pprof.Register(router, "dev/pprof")
+		pprof.Register(apiRouter, "dev/pprof")
 	}
 	entclient := generated.FromContext(ctx)
 
-	router.Use(func(c *gin.Context) {
+	apiRouter.Use(func(c *gin.Context) {
 		requestCtx := context.WithValue(c.Request.Context(), ginCtxKey, c)
 		requestCtx = internal.SetLoggerCtx(requestCtx, conf.Logger)
 		requestCtx = generated.NewContext(requestCtx, entclient)
@@ -234,10 +242,8 @@ func NewServer(ctx context.Context, conf Config, opts ...ServerOption) (*Server,
 	})
 
 	for _, mw := range srv.middlewares {
-		router.Use(mw)
+		apiRouter.Use(mw)
 	}
-
-	vg := router.Group(cfg.APIVersion)
 
 	userScopes := strings.Split(cfg.TwitchOIDC.UserScopes, " ")
 	broadcasterScopes := strings.Split(cfg.TwitchOIDC.BroadcasterScopes, " ")
@@ -286,12 +292,12 @@ func NewServer(ctx context.Context, conf Config, opts ...ServerOption) (*Server,
 	switch cfg.AppEnv {
 	case internal.AppEnvProd, internal.AppEnvE2E:
 		rlMw := newRateLimitMiddleware(conf.Logger, 15, 5)
-		vg.Use(rlMw.Limit())
+		apiRouter.Use(rlMw.Limit())
 	case internal.AppEnvDev, internal.AppEnvCI:
 		rlMw := newRateLimitMiddleware(conf.Logger, 15, 5)
 		if os.Getenv("IS_TESTING") == "" {
-			vg.Use(rlMw.Limit())
-			vg.Use(LogResponseMiddleware(os.Stdout))
+			apiRouter.Use(rlMw.Limit())
+			apiRouter.Use(LogResponseMiddleware(os.Stdout))
 		}
 	default:
 		panic("unknown app env: " + cfg.AppEnv)
@@ -299,16 +305,40 @@ func NewServer(ctx context.Context, conf Config, opts ...ServerOption) (*Server,
 
 	entClient := generated.FromContext(ctx)
 
-	authg := vg.Group("/auth")
+	authg := apiRouter.Group("/auth")
 	authg.GET("/twitch/login", handlers.twitchLogin)
 	authg.GET("/twitch/callback", handlers.codeExchange, handlers.twitchCallback)
 
-	vg.GET("/gql-apollo", gin.WrapH(playground.ApolloSandboxHandler("GraphQL", vg.BasePath()+"/graphql")))
-	vg.GET("/gql-altair", gin.WrapH(playground.AltairHandler("GraphQL", vg.BasePath()+"/graphql", map[string]any{})))
+	apiRouter.GET("/gql-apollo", gin.WrapH(playground.ApolloSandboxHandler("GraphQL", apiRouter.BasePath()+"/graphql")))
+	apiRouter.GET("/gql-altair", gin.WrapH(playground.AltairHandler("GraphQL", apiRouter.BasePath()+"/graphql", map[string]any{})))
 
-	vg.Use(handlers.authmw.TryAuthentication())
+	apiRouter.Use(handlers.authmw.TryAuthentication())
 
-	vg.POST("/graphql", graphqlHandler(entClient))
+	apiRouter.POST("/graphql", graphqlHandler(entClient))
+
+	// have to define before serving static assets.
+	router.GET("/", func(c *gin.Context) {
+		c.Redirect(http.StatusMovedPermanently, "/ui")
+	})
+
+	router.Use(static.Serve("/", newStaticFileSystem())) // does show at broken routes eg https://localhost:8090/ui/fds
+
+	// Client-side routing fallback
+	router.NoRoute(func(c *gin.Context) {
+		if !strings.HasPrefix(c.Request.RequestURI, "/api") {
+			indexFile, err := laclipasa.FrontendBuildFS.Open("frontend/build/index.html")
+			if err != nil {
+				fmt.Printf("err: %v\n", err)
+				c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+			defer indexFile.Close()
+
+			// will load assets via static.Serve at /
+			c.DataFromReader(http.StatusOK, -1, "text/html", indexFile, nil)
+		}
+		// default 404 page not found
+	})
 
 	srv.Httpsrv = &http.Server{
 		Handler: router,
@@ -518,43 +548,43 @@ func GinContextFromCtx(ctx context.Context) (*gin.Context, error) {
 	return ginCtx, nil
 }
 
-func SetupUIRoutes(router *gin.Engine) {
-	static.Serve("/ui/*", newStaticFileSystem())
-
-	router.GET("/", func(c *gin.Context) {
-		c.Redirect(http.StatusFound, "/ui")
-	})
-}
-
+/** frontend build */
 type staticFileSystem struct {
-	http.FileSystem
+	httpFs http.FileSystem
 }
-
-var _ static.ServeFileSystem = (*staticFileSystem)(nil)
 
 func newStaticFileSystem() *staticFileSystem {
-	sub, err := fs.Sub(laclipasa.FrontendBuildFS, "frontend/build") // does have all files
+	sub, err := fs.Sub(laclipasa.FrontendBuildFS, "frontend/build")
 	if err != nil {
 		panic(err)
 	}
 
 	return &staticFileSystem{
-		FileSystem: http.FS(sub),
+		httpFs: http.FS(sub), // Convert fs.FS to http.FileSystem
 	}
 }
 
+func (s *staticFileSystem) Open(name string) (http.File, error) {
+	return s.httpFs.Open(strings.TrimPrefix(name, "/"))
+}
+
 func (s *staticFileSystem) Exists(prefix string, path string) bool {
-	buildpath := fmt.Sprintf("build%s", path)
+	cleanPath := strings.TrimPrefix(path, prefix)
+	cleanPath = strings.TrimPrefix(cleanPath, "/")
 
-	if strings.HasSuffix(path, "/") {
-		_, err := laclipasa.FrontendBuildFS.ReadDir(strings.TrimSuffix(buildpath, "/"))
-		return err == nil
+	f, err := s.httpFs.Open(cleanPath)
+	if err != nil {
+		// Check if directory with index.html exists
+		if entries, err := fs.ReadDir(laclipasa.FrontendBuildFS, filepath.Join("frontend/build", cleanPath)); err == nil {
+			for _, entry := range entries {
+				if entry.Name() == "index.html" {
+					return true
+				}
+			}
+		}
+		return false
 	}
+	defer f.Close()
 
-	f, err := laclipasa.FrontendBuildFS.Open(buildpath)
-	if f != nil {
-		_ = f.Close()
-	}
-
-	return err == nil
+	return true
 }
