@@ -38,15 +38,15 @@ jobs:
       - name: Build frontend
         run: |
           source .envrc
-
-          cd frontend/cloudflare-proxy
-          npm install
-          npm run build
-          cd ..
-
+          cd frontend
           pnpm install
           project build.frontend --x-env=prod
-          cp cloudflare-proxy/dist/index.js build/_worker.js
+
+          # worker as function
+          # cd cloudflare-proxy
+          # npm install
+          # npm run build
+          # cp cloudflare-proxy/dist/index.js build/_worker.js
 
       - name: Deploy frontend
         uses: cloudflare/wrangler-action@v3
