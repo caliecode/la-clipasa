@@ -28,7 +28,7 @@ export default function BroadcasterTokenModal({ isOpen, onClose, onConfirm }: Br
             features and should be kept private.
           </Text>
 
-          <Text weight={500}>Do you want to proceed?</Text>
+          <Text fw={500}>Do you want to proceed?</Text>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
             <Button variant="subtle" onClick={close}>

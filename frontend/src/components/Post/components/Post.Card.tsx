@@ -117,11 +117,11 @@ export const PostCard = ({ post, className, backgroundImage, ...htmlProps }: Pos
             </Flex>
             <Flex justify="center" align="center">
               <Text
-                weight={700}
+                fw={700}
                 mt="xs"
                 size="sm"
                 style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                dangerouslySetInnerHTML={{ __html: emotesTextToHtml(truncate(post.title, { length: 60 }), 16) }}
+                dangerouslySetInnerHTML={{ __html: emotesTextToHtml(truncate(post.title, { length: 60 }), 16) || '' }}
               />
             </Flex>
           </Flex>

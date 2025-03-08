@@ -42,7 +42,7 @@ export default function DynamicFormErrorCallout() {
   const errors = concat(
     extractCalloutErrors(),
     entries(rhfErrors).map(([schemaKey, error], _) => {
-      let message = lowerFirst(error.message) // lowerCase breaks regexes
+      let message = String(lowerFirst(error.message)) // lowerCase breaks regexes
       schemaKey = schemaKey.replace(/\.\d+$/, '') as SchemaKey // TODO: in flattener instead
 
       const itemName = options.labels[schemaKey] || ''

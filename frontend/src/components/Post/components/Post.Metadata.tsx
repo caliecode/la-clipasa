@@ -20,7 +20,7 @@ export const PostMetadata = () => {
         {nameInitials(post.owner?.displayName || '')}
       </Avatar>
       <Flex direction="column" justify="center" gap={0}>
-        <Text size="sm" weight={500}>
+        <Text size="sm" fw={500}>
           {post.owner?.displayName}
         </Text>
         <Text size="xs" c="dimmed">

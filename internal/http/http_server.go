@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"log"
 	"net"
 	"net/http"
@@ -28,6 +29,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/pprof"
 	ginzap "github.com/gin-contrib/zap"
+	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -159,6 +161,8 @@ func NewServer(ctx context.Context, conf Config, opts ...ServerOption) (*Server,
 	cfg := internal.Config
 
 	router := gin.Default()
+
+	SetupUIRoutes(router)
 
 	// Add a ginzap middleware, which:
 	// - Logs all requests, like a combined access and error log.
@@ -432,8 +436,6 @@ func migrateUp(logger *zap.SugaredLogger, pool *pgxpool.Pool) {
 		RawQuery: "sslmode=disable",
 	}
 
-	fmt.Printf("debug dsn: %+v\n", dsn.String()) // ipv6 works here but not in migrate cli. alt: have our own
-
 	migrationsLockID, _ := strconv.ParseInt(dbName, 10, 32)
 
 	lock, err := postgresqlutils.NewAdvisoryLock(pool, int(migrationsLockID))
@@ -514,4 +516,45 @@ func GinContextFromCtx(ctx context.Context) (*gin.Context, error) {
 		return nil, fmt.Errorf("failed to get gin context from request context")
 	}
 	return ginCtx, nil
+}
+
+func SetupUIRoutes(router *gin.Engine) {
+	static.Serve("/ui/*", newStaticFileSystem())
+
+	router.GET("/", func(c *gin.Context) {
+		c.Redirect(http.StatusFound, "/ui")
+	})
+}
+
+type staticFileSystem struct {
+	http.FileSystem
+}
+
+var _ static.ServeFileSystem = (*staticFileSystem)(nil)
+
+func newStaticFileSystem() *staticFileSystem {
+	sub, err := fs.Sub(laclipasa.FrontendBuildFS, "frontend/build") // does have all files
+	if err != nil {
+		panic(err)
+	}
+
+	return &staticFileSystem{
+		FileSystem: http.FS(sub),
+	}
+}
+
+func (s *staticFileSystem) Exists(prefix string, path string) bool {
+	buildpath := fmt.Sprintf("build%s", path)
+
+	if strings.HasSuffix(path, "/") {
+		_, err := laclipasa.FrontendBuildFS.ReadDir(strings.TrimSuffix(buildpath, "/"))
+		return err == nil
+	}
+
+	f, err := laclipasa.FrontendBuildFS.Open(buildpath)
+	if f != nil {
+		_ = f.Close()
+	}
+
+	return err == nil
 }

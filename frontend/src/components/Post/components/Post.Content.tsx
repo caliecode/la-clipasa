@@ -14,9 +14,9 @@ export const PostContent = ({ truncateLength = 500 }: PostContentProps) => {
     <>
       <Flex direction="column">
         <Text
-          weight={700}
+          fw={700}
           mt="xs"
-          dangerouslySetInnerHTML={{ __html: emotesTextToHtml(truncate(post.title, { length: 100 }), 28) }}
+          dangerouslySetInnerHTML={{ __html: emotesTextToHtml(truncate(post.title, { length: 100 }), 28) || '' }}
         />
         <Space mb={10} />
         <Button
@@ -33,7 +33,7 @@ export const PostContent = ({ truncateLength = 500 }: PostContentProps) => {
         <Text
           size="sm"
           dangerouslySetInnerHTML={{
-            __html: emotesTextToHtml(truncate(post.content || '', { length: truncateLength }), 20),
+            __html: emotesTextToHtml(truncate(post.content || '', { length: truncateLength }), 20) || '',
           }}
         />
       </Flex>

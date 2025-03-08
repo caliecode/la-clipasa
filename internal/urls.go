@@ -11,7 +11,11 @@ import (
 func BuildAPIURL(subpaths ...string) string {
 	cfg := Config
 
-	elems := []string{cfg.ReverseProxyAPIPrefix, cfg.APIVersion}
+	elems := []string{}
+	if cfg.ReverseProxyAPIPrefix != nil {
+		elems = append(elems, *cfg.ReverseProxyAPIPrefix)
+	}
+	elems = append(elems, cfg.APIVersion)
 	elems = append(elems, subpaths...)
 
 	path, err := url.JoinPath(
