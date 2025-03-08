@@ -156,7 +156,7 @@ func (h *Handlers) twitchCallback(c *gin.Context) {
 		Secure:   true,
 		HttpOnly: false, // must access via JS
 		Domain:   internal.Config.CookieDomain,
-		SameSite: http.SameSiteLaxMode,
+		SameSite: http.SameSiteNoneMode,
 	})
 
 	userinfo, err := internal.GetUserInfoFromCtx(c)
@@ -185,7 +185,7 @@ func (h *Handlers) twitchCallback(c *gin.Context) {
 		Domain:   internal.Config.CookieDomain,
 		Secure:   true,
 		HttpOnly: false, // must access via JS
-		SameSite: http.SameSiteLaxMode,
+		SameSite: http.SameSiteNoneMode,
 	})
 
 	c.String(200, "Successfully logged in")
@@ -214,7 +214,7 @@ func (h *Handlers) twitchLogin(c *gin.Context) {
 		Domain:   internal.Config.CookieDomain,
 		Secure:   true,
 		HttpOnly: false,
-		SameSite: http.SameSiteLaxMode,
+		SameSite: http.SameSiteNoneMode,
 	})
 
 	http.SetCookie(c.Writer, &http.Cookie{
@@ -225,7 +225,7 @@ func (h *Handlers) twitchLogin(c *gin.Context) {
 		Domain:   internal.Config.CookieDomain,
 		Secure:   true,
 		HttpOnly: false,
-		SameSite: http.SameSiteLaxMode,
+		SameSite: http.SameSiteNoneMode,
 	})
 
 	gin.WrapH(rp.AuthURLHandler(state, h.oauth2Providers[loginMode]))(c)
