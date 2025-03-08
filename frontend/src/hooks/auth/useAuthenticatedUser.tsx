@@ -94,7 +94,7 @@ export default function useAuthenticatedUser() {
 export async function logUserOut(queryClient: QueryClient) {
   Cookies.remove(LOGIN_COOKIE_KEY, {
     expires: 365,
-    sameSite: 'none',
+    sameSite: 'Lax',
     secure: true,
   })
   await queryClient.cancelQueries()
