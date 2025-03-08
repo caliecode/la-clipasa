@@ -432,6 +432,8 @@ func migrateUp(logger *zap.SugaredLogger, pool *pgxpool.Pool) {
 		RawQuery: "sslmode=disable",
 	}
 
+	fmt.Printf("debug dsn: %+v\n", dsn.String()) // ipv6 works here but not in migrate cli. alt: have our own
+
 	migrationsLockID, _ := strconv.ParseInt(dbName, 10, 32)
 
 	lock, err := postgresqlutils.NewAdvisoryLock(pool, int(migrationsLockID))
