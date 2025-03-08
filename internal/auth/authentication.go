@@ -85,8 +85,7 @@ func (a *Authentication) GetOrRegisterUserFromUserInfo(c *gin.Context, userinfo 
 		return nil, internal.WrapErrorf(err, internal.ErrorCodePrivate, "could not query user %s", userinfo.PreferredUsername)
 	}
 
-	ginCtx, _ := ctx.Value("GinContextKey").(*gin.Context)
-	twitchUser, err := a.twitch.GetUser(ginCtx)
+	twitchUser, err := a.twitch.GetUser(c)
 	if err != nil {
 		return nil, err
 	}

@@ -57,7 +57,7 @@ func (h *Handlers) codeExchange(c *gin.Context) {
 	defer rbw.writeResponse()
 	cv, err := c.Cookie(loginModeCookieKey)
 	if err != nil {
-		httputil.RenderError(c, "OIDC", internal.WrapErrorf(err, internal.ErrorCodeOIDC, "could not get login mode cookie"))
+		httputil.RenderError(c, "OIDC", internal.WrapErrorf(err, internal.ErrorCodeOIDC, "code exchange: could not get login mode cookie"))
 		return
 	}
 	loginMode := OAuth2LoginMode(cv)
@@ -119,7 +119,7 @@ func (h *Handlers) codeExchange(c *gin.Context) {
 func (h *Handlers) twitchCallback(c *gin.Context) {
 	cv, err := c.Cookie(loginModeCookieKey)
 	if err != nil {
-		httputil.RenderError(c, "OIDC", internal.WrapErrorf(err, internal.ErrorCodeOIDC, "could not get login mode cookie"))
+		httputil.RenderError(c, "OIDC", internal.WrapErrorf(err, internal.ErrorCodeOIDC, "twitch callback: could not get login mode cookie"))
 		return
 	}
 	loginMode := OAuth2LoginMode(cv)
