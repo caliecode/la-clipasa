@@ -30,7 +30,6 @@ func NewUser(ctx context.Context) *generated.User {
 	client := generated.FromContext(ctx)
 
 	return client.User.Create().
-		SetEmail(testutil.RandomEmail()).
 		SetDisplayName(testutil.RandomFirstName()).
 		SetExternalID(testutil.RandomString(20)).
 		SaveX(ctx)
