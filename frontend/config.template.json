@@ -2,6 +2,7 @@
   "APP_ENV": "",
   "DOMAIN": "",
   "API_VERSION": "",
+  "REVERSE_PROXY_API_PREFIX": "",
   "API_PORT": "",
   "FRONTEND_PORT": "",
   "BUILD_VERSION": "",
