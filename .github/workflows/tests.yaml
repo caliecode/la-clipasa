@@ -60,7 +60,8 @@ jobs:
 
           go vet ./...
           go install golang.org/x/tools/go/analysis/passes/nilness/cmd/nilness@latest
-          nilness ./...
+          # due to gqlgen generated files in pkg
+          nilness $(go list ./... | grep -v "github.com/caliecode/la-clipasa/internal/gql")
 
       - name: Test backend
         run: |

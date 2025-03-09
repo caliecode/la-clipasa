@@ -126,9 +126,6 @@ func New(logger *zap.SugaredLogger, options ...Option) (*pgxpool.Pool, *sql.DB, 
 	}
 
 	sqlDb := stdlib.OpenDBFromPool(pgxPool)
-	if err != nil {
-		return nil, nil, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "sql.Open")
-	}
 
 	for !atLeastOneConnInPool.Load() {
 		time.Sleep(50 * time.Millisecond)
