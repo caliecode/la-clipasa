@@ -162,19 +162,16 @@ func NewServer(ctx context.Context, conf Config, opts ...ServerOption) (*Server,
 	cfg := internal.Config
 
 	router := gin.Default()
-
-	apiRouter := router.Group(cfg.APIVersion)
-
 	// Add a ginzap middleware, which:
 	// - Logs all requests, like a combined access and error log.
 	// - Logs to stdout.
 	// - RFC3339 with UTC time format.
-	apiRouter.Use(ginzap.GinzapWithConfig(conf.Logger.Desugar(), &ginzap.Config{
+	router.Use(ginzap.GinzapWithConfig(conf.Logger.Desugar(), &ginzap.Config{
 		TimeFormat: time.RFC3339,
 		UTC:        true,
 		// SkipPaths:  []string{"/no_log"},
 	}))
-	apiRouter.Use(ginzap.RecoveryWithZap(conf.Logger.Desugar(), true))
+	router.Use(ginzap.RecoveryWithZap(conf.Logger.Desugar(), true))
 
 	var host string
 	switch cfg.AppEnv {
@@ -185,7 +182,7 @@ func NewServer(ctx context.Context, conf Config, opts ...ServerOption) (*Server,
 	}
 	host = "https://" + host
 
-	apiRouter.Use(cors.New(cors.Config{
+	router.Use(cors.New(cors.Config{
 		AllowWildcard: true,
 		// should be appConfig env struct
 		AllowOrigins: []string{host, "https://localhost:" + cfg.FrontendPort, "https://laclipasa.pages.dev", "https://*.laclipasa.pages.dev"},
@@ -227,6 +224,8 @@ func NewServer(ctx context.Context, conf Config, opts ...ServerOption) (*Server,
 	}))
 
 	// apiRouter.Use(GinContextToContextMiddleware())
+
+	apiRouter := router.Group(cfg.APIVersion)
 
 	if cfg.AppEnv == internal.AppEnvDev {
 		pprof.Register(apiRouter, "dev/pprof")
