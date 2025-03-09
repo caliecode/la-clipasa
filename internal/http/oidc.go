@@ -2,8 +2,12 @@ package http
 
 import (
 	"bytes"
+	"crypto/hmac"
+	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -31,8 +35,58 @@ const (
 	twitchAuthInfoCtxKey   = "twitch_auth_info"
 )
 
-func state() string {
-	return uuid.New().String()
+type AuthState struct {
+	Nonce       string          `json:"nonce"`
+	LoginMode   OAuth2LoginMode `json:"login_mode"`
+	RedirectURI string          `json:"redirect_uri"`
+	Signature   string          `json:"signature"`
+}
+
+func generateState(loginMode OAuth2LoginMode, redirectURI string) (string, error) {
+	state := AuthState{
+		Nonce:       uuid.New().String(),
+		LoginMode:   loginMode,
+		RedirectURI: redirectURI,
+	}
+
+	mac := hmac.New(sha256.New, []byte(internal.Config.TwitchOIDC.ClientSecret))
+	_, err := mac.Write([]byte(fmt.Sprintf("%s|%s|%s", state.Nonce, state.LoginMode, state.RedirectURI)))
+	if err != nil {
+		return "", err
+	}
+	state.Signature = hex.EncodeToString(mac.Sum(nil))
+
+	jsonState, err := json.Marshal(state)
+	if err != nil {
+		return "", err
+	}
+
+	return base64.URLEncoding.EncodeToString(jsonState), nil
+}
+
+func parseState(encodedState string) (*AuthState, error) {
+	jsonState, err := base64.URLEncoding.DecodeString(encodedState)
+	if err != nil {
+		return nil, err
+	}
+
+	var state AuthState
+	if err := json.Unmarshal(jsonState, &state); err != nil {
+		return nil, err
+	}
+
+	mac := hmac.New(sha256.New, []byte(internal.Config.TwitchOIDC.ClientSecret))
+	_, err = mac.Write([]byte(fmt.Sprintf("%s|%s|%s", state.Nonce, state.LoginMode, state.RedirectURI)))
+	if err != nil {
+		return nil, err
+	}
+	expectedSignature := hex.EncodeToString(mac.Sum(nil))
+
+	if !hmac.Equal([]byte(state.Signature), []byte(expectedSignature)) {
+		return nil, errors.New("invalid state signature")
+	}
+
+	return &state, nil
 }
 
 func marshalToken(w http.ResponseWriter, r *http.Request, tokens *oidc.Tokens[*oidc.IDTokenClaims], state string, rp rp.RelyingParty) {
@@ -55,14 +109,18 @@ func (h *Handlers) codeExchange(c *gin.Context) {
 
 	c.Writer = rbw
 	defer rbw.writeResponse()
-	cv, err := c.Cookie(loginModeCookieKey)
+
+	stateParam := c.Query("state")
+	state, err := parseState(stateParam)
 	if err != nil {
-		httputil.RenderError(c, "OIDC", internal.WrapErrorf(err, internal.ErrorCodeOIDC, "code exchange: could not get login mode cookie"))
+		httputil.RenderError(c, "OIDC", internal.WrapErrorf(err, internal.ErrorCodeOIDC, "invalid state"))
 		return
 	}
-	loginMode := OAuth2LoginMode(cv)
 
-	rp.CodeExchangeHandler(marshalToken, h.oauth2Providers[loginMode]).ServeHTTP(rbw, c.Request)
+	// Store state in context for later use
+	c.Set("auth_state", state)
+
+	rp.CodeExchangeHandler(marshalToken, h.oauth2Providers[state.LoginMode]).ServeHTTP(rbw, c.Request)
 
 	oauth2TokenRes := rbw.body.Bytes()
 
@@ -72,7 +130,7 @@ func (h *Handlers) codeExchange(c *gin.Context) {
 		return
 	}
 
-	if loginMode == OAuth2LoginModeBroadcaster {
+	if state.LoginMode == OAuth2LoginModeBroadcaster {
 		c.Set(broadCasterTokenCtxKey, oauth2TokenRes)
 
 		return
@@ -117,17 +175,17 @@ func (h *Handlers) codeExchange(c *gin.Context) {
 }
 
 func (h *Handlers) twitchCallback(c *gin.Context) {
-	cv, err := c.Cookie(loginModeCookieKey)
-	if err != nil {
-		httputil.RenderError(c, "OIDC", internal.WrapErrorf(err, internal.ErrorCodeOIDC, "twitch callback: could not get login mode cookie"))
+	stateVal, exists := c.Get("auth_state")
+	if !exists {
+		httputil.RenderError(c, "OIDC", internal.WrapErrorf(nil, internal.ErrorCodeOIDC, "missing auth state"))
 		return
 	}
-	loginMode := OAuth2LoginMode(cv)
+	state, _ := stateVal.(*AuthState)
 
 	// TODO: for refresh token setup for streamer, the login request will return tokens as string from where we can hardcode the refresh token which shouldnt expire,
 	// why we may need twitch tokens on the backend -> we cannot use a normal user twitch token to check some info from streamer channel, for example, or read the chat.
 	// otherwise, we can use client_credentials flow to get server-server tokens if we just need generic twitch information
-	if loginMode == OAuth2LoginModeBroadcaster {
+	if state.LoginMode == OAuth2LoginModeBroadcaster {
 		tokenBytes, exists := c.Get(broadCasterTokenCtxKey)
 		if !exists {
 			c.AbortWithError(500, fmt.Errorf("broadcast tokens not found in context"))
@@ -190,8 +248,8 @@ func (h *Handlers) twitchCallback(c *gin.Context) {
 
 	c.String(200, "Successfully logged in")
 
-	redirectURI, err := c.Cookie(authRedirectCookieKey)
-	if err != nil {
+	redirectURI := state.RedirectURI
+	if redirectURI == "" {
 		redirectURI = internal.BuildAPIURL("docs")
 	}
 
@@ -206,27 +264,11 @@ func (h *Handlers) twitchLogin(c *gin.Context) {
 		loginMode = OAuth2LoginModeUser
 	}
 
-	http.SetCookie(c.Writer, &http.Cookie{
-		Name:     authRedirectCookieKey,
-		Value:    authRedirectUri,
-		Path:     "/",
-		MaxAge:   3600 * 24 * 7,
-		Domain:   internal.Config.CookieDomain,
-		Secure:   true,
-		HttpOnly: false,
-		SameSite: http.SameSiteNoneMode,
-	})
+	state, err := generateState(loginMode, authRedirectUri)
+	if err != nil {
+		httputil.RenderError(c, "OIDC", internal.WrapErrorf(err, internal.ErrorCodeOIDC, "failed to generate state"))
+		return
+	}
 
-	http.SetCookie(c.Writer, &http.Cookie{
-		Name:     loginModeCookieKey,
-		Value:    string(loginMode),
-		Path:     "/",
-		MaxAge:   3600 * 24 * 7,
-		Domain:   internal.Config.CookieDomain,
-		Secure:   true,
-		HttpOnly: false,
-		SameSite: http.SameSiteNoneMode,
-	})
-
-	gin.WrapH(rp.AuthURLHandler(state, h.oauth2Providers[loginMode]))(c)
+	gin.WrapH(rp.AuthURLHandler(func() string { return state }, h.oauth2Providers[loginMode]))(c)
 }

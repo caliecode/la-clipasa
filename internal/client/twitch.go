@@ -29,23 +29,26 @@ func NewTwitchHandlers() *TwitchHandlers {
 	return &TwitchHandlers{}
 }
 
-func (h *TwitchHandlers) getTwitchTokenFromCookie(c *gin.Context) (*models.TwitchTokenInfo, error) {
-	cookieVal, err := c.Cookie(internal.Config.Twitch.AuthInfoCookieKey)
-	if err != nil {
-		httputil.SignOutUser(c)
-		return nil, fmt.Errorf("failed to get twitch token cookie: %w", err)
+func (h *TwitchHandlers) getTwitchToken(c *gin.Context) (*models.TwitchTokenInfo, error) {
+	tokenJSON, exists := c.Get("twitch_auth_info")
+	if !exists {
+		// for calls not part of oidc flow
+		cookieVal, err := c.Cookie(internal.Config.Twitch.AuthInfoCookieKey)
+		if err != nil {
+			httputil.SignOutUser(c)
+			return nil, fmt.Errorf("failed to get twitch token cookie: %w", err)
+		}
+		tokenJSON, err = base64.URLEncoding.DecodeString(cookieVal)
+		if err != nil {
+			httputil.SignOutUser(c) // migrated cookie structure, etc
+			return nil, fmt.Errorf("failed to decode twitch token cookie: %w", err)
+		}
 	}
-	var tokenInfo models.TwitchTokenInfo
-	cookie, err := base64.URLEncoding.DecodeString(cookieVal)
-	if err != nil {
-		httputil.SignOutUser(c) // migrated cookie structure, etc
-		return nil, fmt.Errorf("failed to decode twitch token cookie: %w", err)
+	var twitchTokenInfo models.TwitchTokenInfo
+	if err := json.Unmarshal(tokenJSON.([]byte), &twitchTokenInfo); err != nil {
+		return nil, fmt.Errorf("could not unmarshal twitch token: %w", err)
 	}
-	if err := json.Unmarshal([]byte(cookie), &tokenInfo); err != nil {
-		httputil.SignOutUser(c) // migrated cookie structure, etc
-		return nil, fmt.Errorf("failed to unmarshal twitch token cookie: %w", err)
-	}
-	return &tokenInfo, nil
+	return &twitchTokenInfo, nil
 }
 
 // see https://dev.twitch.tv/docs/authentication/refresh-tokens/
@@ -96,7 +99,7 @@ func (h *TwitchHandlers) refreshTwitchToken(c *gin.Context, tokenInfo *models.Tw
 }
 
 func (h *TwitchHandlers) makeUserTwitchRequest(c *gin.Context, endpoint string, queryParams map[string]string) (*http.Response, error) {
-	tokenInfo, err := h.getTwitchTokenFromCookie(c)
+	tokenInfo, err := h.getTwitchToken(c)
 	if err != nil {
 		return nil, err
 	}
@@ -213,7 +216,7 @@ func (h *TwitchHandlers) GetUserFollower(c *gin.Context, twitchUserID string) (m
 }
 
 func (h *TwitchHandlers) ValidateTwitchToken(c *gin.Context) (models.TwitchTokenValidateResponse, error) {
-	tokenInfo, err := h.getTwitchTokenFromCookie(c)
+	tokenInfo, err := h.getTwitchToken(c)
 	if err != nil {
 		return models.TwitchTokenValidateResponse{}, err
 	}
