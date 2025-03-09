@@ -30,7 +30,7 @@ const initialState: Omit<PostsState, 'postActions'> = {
   sort: 'creationDate',
   queryParams: {
     where: { isModerated: true },
-    orderBy: { field: 'CREATED_AT', direction: 'ASC' },
+    orderBy: { field: 'CREATED_AT', direction: 'DESC' },
     first: 10,
   },
 }
