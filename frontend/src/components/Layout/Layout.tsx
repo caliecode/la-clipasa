@@ -86,8 +86,6 @@ export default function Layout({ children }: LayoutProps) {
     </Tabs.Tab>
   ))
 
-  const [notify, setNotify] = useState<boolean>(false)
-  const { showTestNotification } = useNotificationAPI()
   const [logo, setLogo] = useState<string>(colorScheme === 'dark' ? logoDark : logoLight)
   const ui = useUISlice()
   const title = burgerOpened ? 'Close navigation' : 'Open navigation'
@@ -96,13 +94,6 @@ export default function Layout({ children }: LayoutProps) {
   useEffect(() => {
     setLogo(colorScheme === 'dark' ? logoDark : logoLight)
   }, [colorScheme])
-
-  useEffect(() => {
-    if (user && notify) {
-      showTestNotification(user.displayName)
-      setNotify(false)
-    }
-  }, [user, showTestNotification, notify])
 
   const onLogout = async () => {
     ui.setIsLoggingOut(true)
@@ -194,9 +185,6 @@ export default function Layout({ children }: LayoutProps) {
               >
                 <Menu.Target>{renderAvatarMenu()}</Menu.Target>
                 <Menu.Dropdown classNames={{ dropdown: styles.menuDropdown }}>
-                  <Menu.Item onClick={() => setNotify(true)} leftSection={<IconHeart size={20} />}>
-                    <Text fz="s">Test desktop notification</Text>
-                  </Menu.Item>
                   <Menu.Divider />
                   <Menu.Item
                     onClick={() =>

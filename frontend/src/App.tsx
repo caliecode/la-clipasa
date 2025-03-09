@@ -63,16 +63,6 @@ const routes = Object.freeze({
 } satisfies Readonly<Record<UiRoutes, React.ReactNode>>)
 
 export default function App() {
-  const { verifyNotificationPermission } = useNotificationAPI()
-  const [notificationWarningSent, setNotificationWarningSent] = useState(false)
-
-  useEffect(() => {
-    if (!notificationWarningSent) {
-      verifyNotificationPermission()
-      setNotificationWarningSent(true)
-    }
-  }, [verifyNotificationPermission, notificationWarningSent])
-
   return (
     <>
       <Provider value={createUrqlClient()}>
