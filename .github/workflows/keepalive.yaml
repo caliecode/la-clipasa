@@ -18,5 +18,7 @@ jobs:
 
       - name: Run keepalive
         run: |
-          pnpm i puppeteer
+          npx playwright install-deps chromium
+          npx playwright install
+
           node bin/scripts/keepalive.js
