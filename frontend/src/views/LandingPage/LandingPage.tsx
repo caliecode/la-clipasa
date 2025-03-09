@@ -62,7 +62,7 @@ export default function LandingPage() {
           }}
         >
           <LoadingOverlay
-            zIndex={10000}
+            zIndex={10}
             visible={isFetchingMore}
             overlayProps={{ radius: 'sm', blur: 2 }}
             loaderProps={{
