@@ -1,3 +1,1 @@
-[submodule "frontend/cloudflare-proxy"]
-	path = frontend/cloudflare-proxy
-	url = https://github.com/caliecode/cloudflare-proxy
+
