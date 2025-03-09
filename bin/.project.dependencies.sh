@@ -56,30 +56,6 @@ install.bin.column() {
   } 2>&4 | xlog >&3; } 4>&1 | xerr >&3; } 3>&1
 }
 
-check.bin.protoc() {
-  { { {
-    vers=$(protoc --version)
-    minver="libprotoc 3"
-    if [[ "$vers" = *$minver* ]]; then
-      report_success
-    else
-      report_failure "$@"
-    fi
-  } 2>&4 | xlog >&3; } 4>&1 | xerr >&3; } 3>&1
-}
-
-install.bin.protoc() {
-  { { {
-    VERSION=3.19.4
-    id="protoc-$VERSION-linux-x86_64"
-    wget --tries=10 https://github.com/protocolbuffers/protobuf/releases/download/v"$VERSION"/$id.zip
-    unzip -q "$id".zip -d "$id"
-    mv "$id"/bin/protoc ./bin/tools/
-    rm -rf "$id"
-    rm -f "$id".zip
-  } 2>&4 | xlog >&3; } 4>&1 | xerr >&3; } 3>&1
-}
-
 check.bin.curl() {
   { { {
     local -a vers_arr

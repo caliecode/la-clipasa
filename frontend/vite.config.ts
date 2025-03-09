@@ -34,6 +34,7 @@ export default ({ mode }) => {
       //   protocol: 'wss',
       //   clientPort: 9443,
       // },
+      // https://github.com/vitest-dev/vitest/issues/4187
       ...(process.env.APP_ENV === 'dev' && {
         https: {
           key: '../certificates/localhost-key.pem',
