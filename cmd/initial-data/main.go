@@ -110,27 +110,106 @@ func main() {
 	ctx := generated.NewContext(context.Background(), entClient)
 	ctx = internal.SetLoggerCtx(ctx, logger)
 
-	redditPosts, err := loadRedditPostsSample("./flair-posts")
-	if err != nil {
-		logger.Fatalf("Couldn't load Reddit posts: %s", err)
-	}
-
 	adminUser := random.NewUser(ctx)
-	entClient.ApiKey.Create().
-		SetAPIKey("supersecret").
-		SetExpiresOn(time.Now().Add(time.Hour * 99999)).
-		SaveX(internal.SetUserCtx(ctx, adminUser))
 	adminUser.Update().
 		SetDisplayName("admin").
 		SetRole(user.RoleADMIN).
 		SaveX(ctx)
 	logger.Debug("created dev admin user")
 
+	redditUsers := make(map[string]*generated.User)
+	redditPostsDir := "./flair-posts"
+
+	if internal.Config.AppEnv == internal.AppEnvProd {
+		files, err := os.ReadDir(redditPostsDir)
+		for _, file := range files {
+			if err != nil {
+				fmt.Printf("error reading directory: %w", err)
+				continue
+			}
+			if !strings.HasSuffix(file.Name(), ".json") {
+				continue
+			}
+
+			data, err := os.ReadFile(filepath.Join(redditPostsDir, file.Name()))
+			if err != nil {
+				fmt.Printf("error reading file %s: %w", file.Name(), err)
+				continue
+			}
+
+			var rPost RedditPost
+			if err := json.Unmarshal(data, &rPost); err != nil {
+				fmt.Printf("error unmarshaling JSON from %s: %w", file.Name(), err)
+				continue
+			}
+
+			if rPost.URL == "" {
+				_ = os.Remove(fmt.Sprintf("./flair-posts/%s.json", rPost.ID))
+				continue
+			}
+			redditUser, exists := redditUsers[rPost.Author]
+			if !exists {
+				var err error
+				redditUser, err = entClient.User.Create().
+					SetExternalID(fmt.Sprintf("reddit:%s", rPost.Author)).
+					SetDisplayName(rPost.Author + " (Reddit)").
+					SetProfileImage("/reddit.svg").
+					Save(internal.SetUserCtx(ctx, adminUser))
+				if err != nil {
+					if !generated.IsConstraintError(err) {
+						fmt.Printf("Failed to create Reddit user %s: %s\n", rPost.Author, err)
+						continue
+					}
+					redditUser, err = entClient.User.Query().Where(user.DisplayName(rPost.Author + " (Reddit)")).First(ctx)
+					if err != nil {
+						fmt.Printf("Failed to retrieve Reddit user %s: %s\n", rPost.Author, err)
+						continue
+					}
+				}
+				redditUsers[rPost.Author] = redditUser
+			}
+
+			ctx = internal.SetUserCtx(ctx, redditUser)
+			categ, err := entClient.PostCategory.Create().
+				SetCategory(rPost.LinkFlairText).
+				Save(ctx)
+			if err != nil {
+				fmt.Printf("could not created category: %v\n", err)
+				continue
+			}
+			post, err := entClient.Post.Create().
+				SetTitle(rPost.Title).
+				SetIsModerated(true).
+				SetLink(rPost.URL).
+				SetOwner(redditUser).
+				AddCategories(
+					categ,
+				).
+				Save(ctx)
+			if err != nil {
+				fmt.Printf("could not created post: %v\n", err)
+				continue
+			}
+
+			_, err = pool.Exec(ctx, "UPDATE posts SET created_at = $1 WHERE id = $2", time.Unix(rPost.CreatedUTC, 0), post.ID)
+			if err != nil {
+				logger.Fatalf("Failed to set created_at for Reddit post %s: %s\n", post.ID, err)
+			}
+
+			fmt.Printf("created post %v\n", post.Link)
+		}
+
+		return
+	}
+
 	uu := []*generated.User{adminUser}
 	pp := []*generated.Post{}
 	cc := []*generated.Comment{}
 
-	redditUsers := make(map[string]*generated.User)
+	redditPosts, err := loadRedditPostsSample(redditPostsDir)
+	if err != nil {
+		logger.Fatalf("Couldn't load Reddit posts: %s", err)
+	}
 
 	for _, rPost := range redditPosts {
 		if rPost.URL == "" {
