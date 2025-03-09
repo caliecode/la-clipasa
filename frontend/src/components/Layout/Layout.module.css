@@ -1,6 +1,12 @@
 :root {
-  --footer-height: 55px;
+  --footer-height: 60px;
   --header-height: 60px;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --header-height: 45px;
+  }
 }
 
 .sticky {
@@ -37,12 +43,6 @@
   @media (max-width: var(--mantine-breakpoint-sm)) {
     flex-direction: column;
   }
-}
-
-.banner {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
 }
 
 .main {
