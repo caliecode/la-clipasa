@@ -1,5 +1,4 @@
 import type { DeepPartial, GetKeys, RecursiveKeyOf, RecursiveKeyOfArray, PathType } from 'src/types/utils'
-import DynamicForm from 'src/utils/formGeneration'
 import { parseSchemaFields, type SchemaField } from 'src/utils/jsonSchema'
 import { describe, expect, test, vitest } from 'vitest'
 import {
@@ -22,7 +21,6 @@ import { fullFormats } from 'ajv-formats/dist/formats'
 import { Group, Avatar, Space, Flex, MantineProvider } from '@mantine/core'
 import { nameInitials } from 'src/utils/strings'
 import { JSONSchemaType } from 'ajv'
-import { selectOptionsBuilder } from 'src/utils/formGeneration.context'
 import { JSONSchema } from 'json-schema-to-ts'
 import userEvent from '@testing-library/user-event'
 import { VirtuosoMockContext } from 'react-virtuoso'

@@ -44,7 +44,6 @@ import { sentenceCase } from 'src/utils/strings'
 import _, { lowerCase } from 'lodash'
 import { MRT_Localization_EN } from 'mantine-react-table/locales/en/index.esm.mjs'
 import dayjs from 'dayjs'
-import { render } from 'react-dom'
 import { createRoot } from 'react-dom/client'
 
 const FILTER_OPTIONS: MRT_InternalFilterOption[] = [
