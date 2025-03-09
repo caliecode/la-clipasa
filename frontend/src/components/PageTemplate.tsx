@@ -13,7 +13,7 @@ const PageTemplate = ({ children, minWidth, maxWidth, sidePanel }: PageTemplateP
   const { colorScheme } = useMantineColorScheme()
 
   return (
-    <Container fluid style={{ display: 'flex', gap: '1rem', overflow: 'visible' }}>
+    <Container fluid className={styles.container}>
       <div
         style={{
           flex: 1,
@@ -22,7 +22,7 @@ const PageTemplate = ({ children, minWidth, maxWidth, sidePanel }: PageTemplateP
         }}
       >
         <Paper
-          p="md"
+          p="xs"
           shadow="lg"
           c={theme.primaryColor}
           bg={colorScheme === 'dark' ? theme.colors.gray[8] : theme.colors.gray[0]}

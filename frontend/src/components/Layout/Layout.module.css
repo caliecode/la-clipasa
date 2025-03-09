@@ -50,6 +50,10 @@
   flex-direction: column;
   overflow: auto;
   position: relative;
+
+  @media (max-width: 768px) {
+    padding: 0;
+  }
 }
 
 .links {
