@@ -5,8 +5,7 @@ const { chromium } = require('playwright');
   const page = await browser.newPage();
 
   for (const url of [
-    "https://la-clipasa.fly.dev/ui",
-    "https://laclipasa.fly.dev/api",
+    "https://laclipasa.fly.dev/ui",
   ]) {
     try {
       await page.goto(url, {

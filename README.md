@@ -2,7 +2,7 @@
 
 Subreddit replacement for `r/caliebre`
 
-Visit at https://la-clipasa.fly.dev/
+Visit at https://laclipasa.fly.dev/
 
 ## FIXME:
 
