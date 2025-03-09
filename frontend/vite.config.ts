@@ -34,10 +34,12 @@ export default ({ mode }) => {
       //   protocol: 'wss',
       //   clientPort: 9443,
       // },
-      https: {
-        key: '../certificates/localhost-key.pem',
-        cert: '../certificates/localhost.pem',
-      },
+      ...(process.env.APP_ENV === 'dev' && {
+        https: {
+          key: '../certificates/localhost-key.pem',
+          cert: '../certificates/localhost.pem',
+        },
+      }),
     },
     optimizeDeps: {
       exclude: ['react-hook-form'],
