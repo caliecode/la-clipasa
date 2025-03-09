@@ -930,7 +930,7 @@ vite_config_template_setup() {
   case "$X_ENV" in
   dev) frontend_env="development" ;;
   prod) frontend_env="production" ;;
-  ci) frontend_env="ci" ;;
+  ci) frontend_env="staging" ;;
   *) err "Unhandled frontend environment: $X_ENV" ;;
   esac
   local env_file="$dir/.env.$frontend_env"
