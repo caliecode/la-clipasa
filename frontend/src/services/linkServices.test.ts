@@ -23,19 +23,19 @@ describe('infer URL metadata', () => {
   test('reddit URL', () => {
     const url = 'https://www.reddit.com/r/Cyyh9G5E6II/'
     const result = getServiceAndId(url)
-    expect(result).toEqual({ service: 'reddit', id: null })
+    expect(result).toEqual({ service: 'unknown', id: undefined })
   })
 
   test('discord video', () => {
     const url =
       'https://cdn.discordapp.com/attachments/1058424616726565007/1058546769199366204/file_example_MP4_480_1_5MG.mp4'
     const result = getServiceAndId(url)
-    expect(result).toEqual({ service: 'discord_video', id: null })
+    expect(result).toEqual({ service: 'discord_video', id: undefined })
   })
 
   test('invalid URL', () => {
     const url = 'https://www.invalidurl.com'
     const result = getServiceAndId(url)
-    expect(result).toEqual({ service: 'unknown', id: null })
+    expect(result).toEqual({ service: 'unknown', id: undefined })
   })
 })

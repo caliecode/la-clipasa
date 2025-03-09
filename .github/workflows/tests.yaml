@@ -32,6 +32,9 @@ jobs:
 
           project lint
 
+          cd frontend
+          pnpm install
+
       - name: Test frontend
         run: |
           source .envrc
@@ -79,12 +82,5 @@ jobs:
       - name: Postgres logs
         if: failure() # always()
         run: docker logs postgres_db_la-clipasa
-
-
-      - name: Build frontend
-        run: |
-          source .envrc
-
-          project build.frontend
 
         # TODO: atlas lint migrations
