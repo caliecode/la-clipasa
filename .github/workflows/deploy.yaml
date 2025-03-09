@@ -37,6 +37,7 @@ jobs:
 
       - name: Deploy backend
         run: |
+          flyctl apps list
           flyctl secrets import < .env.prod
           flyctl deploy --remote-only --wait-timeout=100
         env:
