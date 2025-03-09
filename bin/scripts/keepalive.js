@@ -5,7 +5,8 @@ const puppeteer = require("puppeteer");
   const page = await browser.newPage();
 
   for (const url of [
-    // TODO: frontend home and backend ping with dummy db insert via backend (direct call to supabase doesnt seem to count)
+    "https://la-clipasa.fly.dev/ui",
+    "https://laclipasa.fly.dev/api",
   ]) {
     try {
       await page.goto(url, {
