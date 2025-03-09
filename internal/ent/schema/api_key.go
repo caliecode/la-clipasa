@@ -26,7 +26,7 @@ func (ApiKey) Edges() []ent.Edge {
 }
 
 func (ApiKey) Annotations() []schema.Annotation {
-	return append(baseGqlAnnotations)
+	return baseGqlAnnotations
 }
 
 func (ApiKey) Mixin() []ent.Mixin {

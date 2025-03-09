@@ -9,7 +9,7 @@ COPY go.mod go.sum ./
 RUN go mod download && go mod verify
 COPY --exclude=**/dist --exclude=**/build --exclude=**/node_modules  . ./
 COPY ./frontend/build ./frontend/build
-RUN go build -v -o /run-app ./cmd/rest-server/main.go
+RUN go build -tags frontendbuild -v -o /run-app ./cmd/rest-server/main.go
 
 
 FROM debian:bookworm

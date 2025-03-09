@@ -1,3 +1,6 @@
+//go:build !frontendbuild
+// +build !frontendbuild
+
 package laclipasa
 
 import (
@@ -9,4 +12,4 @@ import (
 var Migrations embed.FS
 
 //go:embed frontend/build/*
-var FrontendBuildFS embed.FS
+var FrontendBuildFS embed.FS // will fail if empty

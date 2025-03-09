@@ -33,7 +33,7 @@ func (Comment) Edges() []ent.Edge {
 }
 
 func (Comment) Annotations() []schema.Annotation {
-	return append(baseGqlAnnotations)
+	return baseGqlAnnotations
 }
 
 func (Comment) Indexes() []ent.Index {

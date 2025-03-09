@@ -35,7 +35,7 @@ func (PostCategory) Indexes() []ent.Index {
 }
 
 func (PostCategory) Annotations() []schema.Annotation {
-	return append(baseGqlAnnotations)
+	return baseGqlAnnotations
 }
 
 func (PostCategory) Hooks() []ent.Hook {

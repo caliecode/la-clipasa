@@ -83,7 +83,7 @@ func (User) Edges() []ent.Edge {
 }
 
 func (User) Annotations() []schema.Annotation {
-	return append(baseGqlAnnotations)
+	return baseGqlAnnotations
 }
 
 func (User) Mixin() []ent.Mixin {

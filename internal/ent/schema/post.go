@@ -71,9 +71,7 @@ func (Post) Edges() []ent.Edge {
 }
 
 func (Post) Annotations() []schema.Annotation {
-	return append(
-		baseGqlAnnotations,
-	)
+	return baseGqlAnnotations
 }
 
 func (Post) Mixin() []ent.Mixin {
