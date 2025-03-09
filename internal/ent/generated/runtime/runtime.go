@@ -6,13 +6,13 @@ import (
 	"context"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/apikey"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/comment"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/post"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/postcategory"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
 	"github.com/caliecode/la-clipasa/internal/ent/schema"
+	"github.com/google/uuid"
 
 	"entgo.io/ent"
 	"entgo.io/ent/privacy"

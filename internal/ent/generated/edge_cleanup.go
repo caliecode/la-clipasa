@@ -5,10 +5,10 @@ package generated
 import (
 	"context"
 
-	uuid "github.com/google/uuid"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/apikey"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/post"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
+	uuid "github.com/google/uuid"
 )
 
 func ApiKeyEdgeCleanup(ctx context.Context, id uuid.UUID) error {

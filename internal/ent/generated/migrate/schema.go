@@ -68,7 +68,7 @@ var (
 				Unique:  false,
 				Columns: []*schema.Column{CommentsColumns[7]},
 				Annotation: &entsql.IndexAnnotation{
-					Where: "deleted_at is NULL",
+					Where: "(deleted_at IS NULL)",
 				},
 			},
 		},
@@ -108,7 +108,7 @@ var (
 				Unique:  false,
 				Columns: []*schema.Column{PostsColumns[12]},
 				Annotation: &entsql.IndexAnnotation{
-					Where: "deleted_at is NULL",
+					Where: "(deleted_at IS NULL)",
 				},
 			},
 			{

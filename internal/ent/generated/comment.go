@@ -9,10 +9,10 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/google/uuid"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/comment"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/post"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
+	"github.com/google/uuid"
 )
 
 // Comment is the model entity for the Comment schema.

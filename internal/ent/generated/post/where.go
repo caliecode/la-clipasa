@@ -7,8 +7,8 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/google/uuid"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/predicate"
+	"github.com/google/uuid"
 )
 
 // ID filters vertices based on their ID field.

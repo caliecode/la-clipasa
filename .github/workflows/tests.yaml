@@ -35,6 +35,8 @@ jobs:
           cd frontend
           pnpm install
 
+          project test.backend.setup
+
       - name: Test frontend
         run: |
           source .envrc

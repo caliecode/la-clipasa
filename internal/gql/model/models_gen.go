@@ -4,8 +4,8 @@ package model
 
 import (
 	"entgo.io/contrib/entgql"
-	"github.com/google/uuid"
 	"github.com/caliecode/la-clipasa/internal/ent/generated"
+	"github.com/google/uuid"
 )
 
 type SearchResult interface {

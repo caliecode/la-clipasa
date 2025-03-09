@@ -124,7 +124,7 @@ func main() {
 		files, err := os.ReadDir(redditPostsDir)
 		for _, file := range files {
 			if err != nil {
-				fmt.Printf("error reading directory: %w", err)
+				fmt.Printf("error reading directory: %v", err)
 				continue
 			}
 			if !strings.HasSuffix(file.Name(), ".json") {
@@ -133,13 +133,13 @@ func main() {
 
 			data, err := os.ReadFile(filepath.Join(redditPostsDir, file.Name()))
 			if err != nil {
-				fmt.Printf("error reading file %s: %w", file.Name(), err)
+				fmt.Printf("error reading file %s: %v", file.Name(), err)
 				continue
 			}
 
 			var rPost RedditPost
-			if err := json.Unmarshal(data, &rPost); err != nil {
-				fmt.Printf("error unmarshaling JSON from %s: %w", file.Name(), err)
+			if err = json.Unmarshal(data, &rPost); err != nil {
+				fmt.Printf("error unmarshaling JSON from %s: %v", file.Name(), err)
 				continue
 			}
 
@@ -149,7 +149,6 @@ func main() {
 			}
 			redditUser, exists := redditUsers[rPost.Author]
 			if !exists {
-				var err error
 				redditUser, err = entClient.User.Create().
 					SetExternalID(fmt.Sprintf("reddit:%s", rPost.Author)).
 					SetDisplayName(rPost.Author + " (Reddit)").

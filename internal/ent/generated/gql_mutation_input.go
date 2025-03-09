@@ -5,9 +5,9 @@ package generated
 import (
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/postcategory"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
+	"github.com/google/uuid"
 )
 
 // CreateApiKeyInput represents a mutation input for creating apikeys.
