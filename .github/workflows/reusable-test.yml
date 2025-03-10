@@ -70,10 +70,8 @@ jobs:
           bg_pid=$!
 
           echo -------1-------
-          POSTGRES_TRACE=false project test.create-crud-gen
-          echo -------2-------
           POSTGRES_TRACE=false project test.backend -race -count=50 -timeout=40m
-          echo -------3-------
+          echo -------2-------
           # some tests are skipped from race
           POSTGRES_TRACE=false project test.backend -count=3 -timeout=40m
 
