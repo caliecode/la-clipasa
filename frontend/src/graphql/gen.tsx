@@ -354,7 +354,6 @@ export type CreatePostInput = {
   categoryIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   commentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   content?: InputMaybe<Scalars['String']['input']>
-  createWithEdges?: InputMaybe<Array<PostCategoryCategory>>
   isModerated?: InputMaybe<Scalars['Boolean']['input']>
   likedByIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   link: Scalars['String']['input']
@@ -363,6 +362,11 @@ export type CreatePostInput = {
   pinned?: InputMaybe<Scalars['Boolean']['input']>
   savedByIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   title: Scalars['String']['input']
+}
+
+export type CreatePostWithCategoriesInput = {
+  base: CreatePostInput
+  categories?: InputMaybe<Array<PostCategoryCategory>>
 }
 
 /**
@@ -420,6 +424,7 @@ export type Mutation = {
   createPost: PostCreatePayload
   /** Create a new postCategory */
   createPostCategory: PostCategoryCreatePayload
+  createPostWithCategories: PostCreatePayload
   /** Create a new user */
   createUser: UserCreatePayload
   /** Delete an existing apiKey */
@@ -498,6 +503,10 @@ export type MutationCreatePostArgs = {
 
 export type MutationCreatePostCategoryArgs = {
   input: CreatePostCategoryInput
+}
+
+export type MutationCreatePostWithCategoriesArgs = {
+  input: CreatePostWithCategoriesInput
 }
 
 export type MutationCreateUserArgs = {
@@ -1634,12 +1643,12 @@ export type UpdatePostMutation = {
 }
 
 export type CreatePostMutationVariables = Exact<{
-  input: CreatePostInput
+  input: CreatePostWithCategoriesInput
 }>
 
 export type CreatePostMutation = {
   __typename?: 'Mutation'
-  createPost: {
+  createPostWithCategories: {
     __typename?: 'PostCreatePayload'
     post: {
       __typename?: 'Post'
@@ -1927,8 +1936,8 @@ export function useUpdatePostMutation() {
   return Urql.useMutation<UpdatePostMutation, UpdatePostMutationVariables>(UpdatePostDocument)
 }
 export const CreatePostDocument = gql`
-  mutation CreatePost($input: CreatePostInput!) {
-    createPost(input: $input) {
+  mutation CreatePost($input: CreatePostWithCategoriesInput!) {
+    createPostWithCategories(input: $input) {
       post {
         ...Post
       }

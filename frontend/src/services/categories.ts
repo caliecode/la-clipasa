@@ -24,6 +24,15 @@ export const PostCategoryNames: Record<PostCategoryCategory, string> = {
   RAGUUUL: 'RAGUUUL',
 }
 
+export const PostCategoryNamesOnCreate: Partial<typeof PostCategoryNames> = {
+  SIN_SONIDO: 'SIN SONIDO',
+  MEME_ARTESANAL: 'MEME ARTESANAL',
+  ALERTA_GLONETILLO: 'ALERTA GLONETILLO',
+  GRR: 'GRR',
+  ENSORDECEDOR: 'ENSORDECEDOR',
+  RAGUUUL: 'RAGUUUL',
+}
+
 // must be subset of PostCategoryCategory
 export type UniqueCategories = Record<Extract<PostCategoryCategory, 'DIAMANTE' | 'RANA' | 'ORO'>, string>
 

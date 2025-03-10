@@ -10,7 +10,11 @@ import (
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 
+	"github.com/caliecode/la-clipasa/internal/ent/generated/privacy"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
 	"github.com/caliecode/la-clipasa/internal/ent/interceptors"
+	"github.com/caliecode/la-clipasa/internal/ent/privacy/policy"
+	"github.com/caliecode/la-clipasa/internal/ent/privacy/rule"
 	"github.com/caliecode/la-clipasa/internal/ent/schema/mixins"
 )
 
@@ -100,4 +104,26 @@ func (Post) Indexes() []ent.Index {
 				entsql.IndexType("GIN"),
 			),
 	}
+}
+
+func (Post) Policy() ent.Policy {
+	return policy.NewPolicy(
+		policy.WithQueryRules(
+			// interceptors are setup to filter users outside of the organization
+			privacy.AlwaysAllowRule(),
+		),
+		policy.WithOnMutationRules(
+			// the user hook has update operations on user create so we need to allow email
+			// token sign up for update operations as well
+			ent.OpCreate|ent.OpUpdateOne,
+			rule.AllowIfSelf(),
+			rule.AllowIfRole(user.RoleMODERATOR),
+			rule.AllowIfSeedingData(),
+		),
+		policy.WithOnMutationRules(
+			ent.OpUpdate|ent.OpDeleteOne|ent.OpDelete,
+			rule.AllowIfRole(user.RoleADMIN),
+			rule.AllowIfSelf(),
+		),
+	)
 }

@@ -1,6 +1,7 @@
 package http
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/caliecode/la-clipasa/internal"
@@ -32,8 +33,10 @@ func (m *authMiddleware) TryAuthentication() gin.HandlerFunc {
 		if apiKey != "" {
 			u, err := m.authn.GetUserFromAPIKey(c.Request.Context(), apiKey) // includes caller joins
 			if err != nil || u == nil {
+				fmt.Printf("err uaaaa: %v\n", err)
 				return
 			}
+			fmt.Printf("uaaaa: %v\n", u)
 
 			c.Request = c.Request.WithContext(internal.SetUserCtx(c.Request.Context(), u))
 

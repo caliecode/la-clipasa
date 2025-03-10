@@ -69,8 +69,9 @@ mutation UpdatePost($id: ID!, $input: UpdatePostInput!) {
     }
   }
 }
-mutation CreatePost($input: CreatePostInput!) {
-  createPost(input: $input) {
+
+mutation CreatePost($input: CreatePostWithCategoriesInput!) {
+  createPostWithCategories(input: $input) {
     post {
       ...Post
     }

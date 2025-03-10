@@ -5,6 +5,8 @@ import (
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/field"
 	"github.com/caliecode/la-clipasa/internal/ent/interceptors"
+	"github.com/caliecode/la-clipasa/internal/ent/privacy/policy"
+	"github.com/caliecode/la-clipasa/internal/ent/privacy/rule"
 	"github.com/caliecode/la-clipasa/internal/ent/schema/mixins"
 )
 
@@ -38,4 +40,26 @@ func (ApiKey) Mixin() []ent.Mixin {
 			SkipInterceptor: interceptors.SkipAll,
 		},
 	}
+}
+
+func (ApiKey) Policy() ent.Policy {
+	return policy.NewPolicy(
+		policy.WithQueryRules(
+			// interceptors are setup to filter users outside of the organization
+			rule.AllowIfSelf(), // FIXME: it fails for system check itself in auth mw. have policy skip
+		),
+		policy.WithOnMutationRules(
+			// the user hook has update operations on user create so we need to allow email
+			// token sign up for update operations as well
+			ent.OpCreate|ent.OpUpdateOne,
+			rule.AllowIfSelf(),
+			rule.AllowIfRole("ADMIN"),
+			rule.AllowIfSeedingData(),
+		),
+		policy.WithOnMutationRules(
+			ent.OpUpdate|ent.OpDeleteOne|ent.OpDelete,
+			rule.AllowIfRole("ADMIN"),
+			rule.AllowIfSelf(),
+		),
+	)
 }

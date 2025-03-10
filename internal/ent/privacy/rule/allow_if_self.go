@@ -8,7 +8,6 @@ import (
 	"github.com/theopenlane/entx"
 
 	"github.com/caliecode/la-clipasa/internal"
-	"github.com/caliecode/la-clipasa/internal/ent/generated"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/privacy"
 )
 
@@ -20,14 +19,14 @@ func AllowIfSelf() privacy.QueryMutationRule {
 			WhereID(entql.StringP)
 		}
 
-		// UserIDFilter is used for the user_setting table
+		// UserIDFilter is used for the user_setting table. Use entql.ValueP since we use uuids and not strings (entql.StringP)
 		type UserIDFilter interface {
-			WhereUserID(entql.StringP)
+			WhereUserID(entql.ValueP)
 		}
 
-		// OwnerIDFilter is used on user owned entities
+		// OwnerIDFilter is used on user owned entities. Use entql.ValueP since we use uuids and not strings (entql.StringP)
 		type OwnerIDFilter interface {
-			WhereOwnerID(entql.StringP)
+			WhereOwnerID(entql.ValueP)
 		}
 
 		// if the user setting is being deleted, allow it
@@ -45,14 +44,12 @@ func AllowIfSelf() privacy.QueryMutationRule {
 
 		switch actualFilter := f.(type) {
 		case UserIDFilter:
-			actualFilter.WhereUserID(entql.StringEQ(userID))
-		case OwnerIDFilter:
-			actualFilter.WhereOwnerID(entql.StringEQ(userID))
+			actualFilter.WhereUserID(entql.ValueEQ(uuid.MustParse(userID)))
+		case OwnerIDFilter: //
+			actualFilter.WhereOwnerID(entql.ValueEQ(uuid.MustParse(userID)))
 			// always check this at the end because every schema has an ID field
 		case IDFilter:
 			actualFilter.WhereID(entql.StringEQ(userID))
-		case *generated.UserFilter:
-			actualFilter.WhereID(entql.ValueEQ(uuid.MustParse(userID)))
 		default:
 			return privacy.Denyf("unexpected filter type %T", f)
 		}

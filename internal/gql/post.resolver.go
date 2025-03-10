@@ -14,7 +14,7 @@ import (
 
 // CreatePost is the resolver for the createPost field.
 func (r *mutationResolver) CreatePost(ctx context.Context, input generated.CreatePostInput) (*model.PostCreatePayload, error) {
-	r.ent.Logger.Infof("CreatePost: %v", input)
+	r.ent.Logger.Infof("CreatePost: %+v", input)
 
 	u := internal.GetUserFromCtx(ctx)
 	p, err := r.ent.Post.Create().SetInput(input).SetOwner(u).Save(ctx)

@@ -4,6 +4,7 @@ package generated
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math"
 
@@ -367,6 +368,12 @@ func (akq *ApiKeyQuery) prepareQuery(ctx context.Context) error {
 			return err
 		}
 		akq.sql = prev
+	}
+	if apikey.Policy == nil {
+		return errors.New("generated: uninitialized apikey.Policy (forgotten import generated/runtime?)")
+	}
+	if err := apikey.Policy.EvalQuery(ctx, akq); err != nil {
+		return err
 	}
 	return nil
 }

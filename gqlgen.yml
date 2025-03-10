@@ -24,6 +24,7 @@ autobind:
   # Fix binding for the `Field` interface.
   - github.com/99designs/gqlgen/graphql/introspection
   - github.com/caliecode/la-clipasa/internal/ent/generated
+  - github.com/caliecode/la-clipasa/internal/gql
   # autobind role
   - github.com/caliecode/la-clipasa/internal/ent/generated/user
   # autobind categories

@@ -50,7 +50,6 @@ type ResolverRoot interface {
 	Post() PostResolver
 	Query() QueryResolver
 	User() UserResolver
-	CreatePostInput() CreatePostInputResolver
 }
 
 type DirectiveRoot struct {
@@ -147,6 +146,7 @@ type ComplexityRoot struct {
 		CreateComment             func(childComplexity int, input generated.CreateCommentInput) int
 		CreatePost                func(childComplexity int, input generated.CreatePostInput) int
 		CreatePostCategory        func(childComplexity int, input generated.CreatePostCategoryInput) int
+		CreatePostWithCategories  func(childComplexity int, input model.CreatePostWithCategoriesInput) int
 		CreateUser                func(childComplexity int, input generated.CreateUserInput) int
 		DeleteAPIKey              func(childComplexity int, id uuid.UUID) int
 		DeleteComment             func(childComplexity int, id uuid.UUID) int
@@ -361,6 +361,7 @@ type MutationResolver interface {
 	CreateBulkCSVPostCategory(ctx context.Context, input graphql.Upload) (*model.PostCategoryBulkCreatePayload, error)
 	UpdatePostCategory(ctx context.Context, id uuid.UUID, input generated.UpdatePostCategoryInput) (*model.PostCategoryUpdatePayload, error)
 	DeletePostCategory(ctx context.Context, id uuid.UUID) (*model.PostCategoryDeletePayload, error)
+	CreatePostWithCategories(ctx context.Context, input model.CreatePostWithCategoriesInput) (*model.PostCreatePayload, error)
 	CreateUser(ctx context.Context, input generated.CreateUserInput) (*model.UserCreatePayload, error)
 	CreateBulkUser(ctx context.Context, input []*generated.CreateUserInput) (*model.UserBulkCreatePayload, error)
 	CreateBulkCSVUser(ctx context.Context, input graphql.Upload) (*model.UserBulkCreatePayload, error)
@@ -392,10 +393,6 @@ type QueryResolver interface {
 }
 type UserResolver interface {
 	TwitchInfo(ctx context.Context, obj *generated.User) (*model.UserTwitchInfo, error)
-}
-
-type CreatePostInputResolver interface {
-	CreateWithEdges(ctx context.Context, obj *generated.CreatePostInput, data []postcategory.Category) error
 }
 
 type executableSchema struct {
@@ -808,6 +805,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreatePostCategory(childComplexity, args["input"].(generated.CreatePostCategoryInput)), true
+
+	case "Mutation.createPostWithCategories":
+		if e.complexity.Mutation.CreatePostWithCategories == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createPostWithCategories_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreatePostWithCategories(childComplexity, args["input"].(model.CreatePostWithCategoriesInput)), true
 
 	case "Mutation.createUser":
 		if e.complexity.Mutation.CreateUser == nil {
@@ -1747,6 +1756,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateCommentInput,
 		ec.unmarshalInputCreatePostCategoryInput,
 		ec.unmarshalInputCreatePostInput,
+		ec.unmarshalInputCreatePostWithCategoriesInput,
 		ec.unmarshalInputCreateUserInput,
 		ec.unmarshalInputPostCategoryOrder,
 		ec.unmarshalInputPostCategoryWhereInput,
@@ -2274,6 +2284,34 @@ func (ec *executionContext) field_Mutation_createPostCategory_argsInput(
 	}
 
 	var zeroVal generated.CreatePostCategoryInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_createPostWithCategories_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_createPostWithCategories_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_createPostWithCategories_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (model.CreatePostWithCategoriesInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal model.CreatePostWithCategoriesInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNCreatePostWithCategoriesInput2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋmodelᚐCreatePostWithCategoriesInput(ctx, tmp)
+	}
+
+	var zeroVal model.CreatePostWithCategoriesInput
 	return zeroVal, nil
 }
 
@@ -7331,6 +7369,65 @@ func (ec *executionContext) fieldContext_Mutation_deletePostCategory(ctx context
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_deletePostCategory_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_createPostWithCategories(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createPostWithCategories(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreatePostWithCategories(rctx, fc.Args["input"].(model.CreatePostWithCategoriesInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.PostCreatePayload)
+	fc.Result = res
+	return ec.marshalNPostCreatePayload2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋmodelᚐPostCreatePayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createPostWithCategories(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "post":
+				return ec.fieldContext_PostCreatePayload_post(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PostCreatePayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createPostWithCategories_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -16331,7 +16428,7 @@ func (ec *executionContext) unmarshalInputCreatePostInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"pinned", "title", "content", "link", "moderationComment", "isModerated", "ownerID", "commentIDs", "savedByIDs", "likedByIDs", "categoryIDs", "createWithEdges"}
+	fieldsInOrder := [...]string{"pinned", "title", "content", "link", "moderationComment", "isModerated", "ownerID", "commentIDs", "savedByIDs", "likedByIDs", "categoryIDs"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -16415,15 +16512,40 @@ func (ec *executionContext) unmarshalInputCreatePostInput(ctx context.Context, o
 				return it, err
 			}
 			it.CategoryIDs = data
-		case "createWithEdges":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createWithEdges"))
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputCreatePostWithCategoriesInput(ctx context.Context, obj any) (model.CreatePostWithCategoriesInput, error) {
+	var it model.CreatePostWithCategoriesInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"base", "categories"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "base":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("base"))
+			data, err := ec.unmarshalNCreatePostInput2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐCreatePostInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Base = data
+		case "categories":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("categories"))
 			data, err := ec.unmarshalOPostCategoryCategory2ᚕgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚋpostcategoryᚐCategoryᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			if err = ec.resolvers.CreatePostInput().CreateWithEdges(ctx, &it, data); err != nil {
-				return it, err
-			}
+			it.Categories = data
 		}
 	}
 
@@ -20385,6 +20507,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "createPostWithCategories":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createPostWithCategories(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "createUser":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createUser(ctx, field)
@@ -23030,6 +23159,11 @@ func (ec *executionContext) unmarshalNCreatePostInput2githubᚗcomᚋcaliecode�
 func (ec *executionContext) unmarshalNCreatePostInput2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐCreatePostInput(ctx context.Context, v any) (*generated.CreatePostInput, error) {
 	res, err := ec.unmarshalInputCreatePostInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNCreatePostWithCategoriesInput2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋmodelᚐCreatePostWithCategoriesInput(ctx context.Context, v any) (model.CreatePostWithCategoriesInput, error) {
+	res, err := ec.unmarshalInputCreatePostWithCategoriesInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNCreateUserInput2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐCreateUserInput(ctx context.Context, v any) (generated.CreateUserInput, error) {

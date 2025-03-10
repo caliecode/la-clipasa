@@ -101,12 +101,8 @@ func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 // User returns UserResolver implementation.
 func (r *Resolver) User() UserResolver { return &userResolver{r} }
 
-// CreatePostInput returns CreatePostInputResolver implementation.
-func (r *Resolver) CreatePostInput() CreatePostInputResolver { return &createPostInputResolver{r} }
-
 type (
-	postResolver            struct{ *Resolver }
-	queryResolver           struct{ *Resolver }
-	userResolver            struct{ *Resolver }
-	createPostInputResolver struct{ *Resolver }
+	postResolver  struct{ *Resolver }
+	queryResolver struct{ *Resolver }
+	userResolver  struct{ *Resolver }
 )

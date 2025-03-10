@@ -10,6 +10,7 @@ import {
   Modal,
   Popover,
   Select,
+  Space,
   Text,
   TextInput,
   Textarea,
@@ -31,6 +32,7 @@ import { useUISlice } from 'src/slices/ui'
 import styles from './HomeSideActions.module.css'
 import {
   CreatePostInput,
+  CreatePostWithCategoriesInput,
   PostCategory,
   PostCategoryCategory,
   PostOrder,
@@ -40,19 +42,14 @@ import {
 import { isValidURL } from 'src/utils/urls'
 import ErrorCallout from 'src/components/Callout/ErrorCallout'
 import ProtectedComponent from 'src/components/Permissions/ProtectedComponent'
-import { PostCategoryNames } from 'src/services/categories'
+import { PostCategoryNames, PostCategoryNamesOnCreate } from 'src/services/categories'
 import { sanitizeContentEditableInputBeforeSubmit } from 'src/utils/strings'
 import { getCaretCoordinates } from 'src/utils/input'
+import { CategoriesSelect } from 'src/components/CategorySelect'
+import { keys } from 'src/utils/object'
 
 const tooltipWithPx = 40
 const EMOJI_SIZE = 24
-const NEW_POST_FORM_KEY = 'newPostForm'
-let storedNewPostForm: any = {}
-try {
-  storedNewPostForm = JSON.parse(localStorage.getItem(NEW_POST_FORM_KEY) || '{}')
-} catch (error) {
-  console.log(error)
-}
 
 type HomeSideActionsProps = HTMLProps<HTMLDivElement>
 
@@ -73,26 +70,34 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
   const textQuery = usePostsSlice((state) => state.queryParams.where?.titleContains)
   const theme = useMantineTheme()
 
-  const postCreateForm = useForm<CreatePostInput>({
+  const postCreateForm = useForm<CreatePostWithCategoriesInput>({
     initialValues: {
-      ...storedNewPostForm,
+      base: {} as CreatePostInput,
+      categories: [],
     },
     validate: {
-      title: (value) =>
-        !value || value.trim() === '' || value.trim() === '<br>'
-          ? 'Title cannot be empty'
-          : value?.length > 150
-            ? 'Title can have at most 150 characters.'
-            : null,
-      link: (value) =>
-        !isValidURL(value)
-          ? 'Link is not a valid URL'
-          : value?.length > 250
-            ? 'Link can have at most 250 characters.'
-            : null,
-      content: (value) => (value && value.length > 400 ? 'Message can have at most 400 characters.' : null),
+      base: {
+        title: (value) =>
+          !value || value.trim() === '' || value.trim() === '<br>'
+            ? 'Title cannot be empty'
+            : value?.length > 150
+              ? 'Title can have at most 150 characters.'
+              : null,
+        link: (value) =>
+          !isValidURL(value)
+            ? 'Link is not a valid URL'
+            : value?.length > 250
+              ? 'Link can have at most 250 characters.'
+              : null,
+        content: (value) => (value && value.length > 400 ? 'Message can have at most 400 characters.' : null),
+      },
+      categories: (value) => (value?.length === 0 ? 'At least one category is required' : null),
     },
   })
+
+  useEffect(() => {
+    user && postCreateForm.setFieldValue('base.ownerID', user.id)
+  }, [user, postCreateForm])
 
   useEffect(() => {
     if (awaitEmoteCompletion && emoteTooltipRef.current) {
@@ -108,10 +113,6 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
     }
   }, [awaitEmoteCompletion])
 
-  useEffect(() => {
-    localStorage.setItem(NEW_POST_FORM_KEY, JSON.stringify(postCreateForm.values))
-  }, [postCreateForm.values])
-
   const handleSubmit = postCreateForm.onSubmit(async (values) => {
     const onPostSubmitSuccess = (resData: any, variables: any, context: any) => {
       setNewPostModalOpened(false)
@@ -126,7 +127,7 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
       })
     }
 
-    values.title = sanitizeContentEditableInputBeforeSubmit(values.title)
+    values.base.title = sanitizeContentEditableInputBeforeSubmit(values.base.title)
     await createPost({ input: values })
   })
 
@@ -201,7 +202,7 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
           <Popover.Target>
             <div>
               <Textarea
-                {...postCreateForm.getInputProps('title')}
+                {...postCreateForm.getInputProps('base.title')}
                 ref={titleInputRef}
                 data-autofocus
                 withAsterisk
@@ -233,17 +234,22 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
           <Popover.Dropdown>
             <div
               dangerouslySetInnerHTML={{
-                __html: emotesTextToHtml(postCreateForm.values['title'], EMOJI_SIZE) || '',
+                __html: emotesTextToHtml(postCreateForm.values.base.title, EMOJI_SIZE) || '',
               }}
             ></div>
           </Popover.Dropdown>
         </Popover>
-        <TextInput withAsterisk label="Link" {...postCreateForm.getInputProps('link')} />
-        <TextInput label="Content" {...postCreateForm.getInputProps('content')} />
+        <TextInput withAsterisk label="Link" {...postCreateForm.getInputProps('base.link')} />
+        <TextInput label="Content" {...postCreateForm.getInputProps('base.content')} />
         <Text size="xs" opacity={0.6}>
           Leave message empty to show link by default.
         </Text>
-        <Group align="right" mt="md">
+        <CategoriesSelect
+          selectedCategories={postCreateForm.values.categories || []}
+          onCategoriesChange={(categories) => postCreateForm.setFieldValue('categories', categories)}
+          allowedCategories={keys(PostCategoryNamesOnCreate)}
+        />
+        <Group justify="end" mt="md">
           <Button
             variant="gradient"
             gradient={{ from: '#1864ab', to: '#326798', deg: 225 }}

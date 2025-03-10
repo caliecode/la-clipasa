@@ -23,8 +23,18 @@ import (
 // to their package variables.
 func init() {
 	apikeyMixin := schema.ApiKey{}.Mixin()
+	apikey.Policy = privacy.NewPolicies(schema.ApiKey{})
+	apikey.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if err := apikey.Policy.EvalMutation(ctx, m); err != nil {
+				return nil, err
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
 	apikeyMixinHooks2 := apikeyMixin[2].Hooks()
-	apikey.Hooks[0] = apikeyMixinHooks2[0]
+
+	apikey.Hooks[1] = apikeyMixinHooks2[0]
 	apikeyMixinInters2 := apikeyMixin[2].Interceptors()
 	apikey.Interceptors[0] = apikeyMixinInters2[0]
 	apikeyMixinFields0 := apikeyMixin[0].Fields()
@@ -81,10 +91,21 @@ func init() {
 	// comment.DefaultID holds the default value on creation for the id field.
 	comment.DefaultID = commentDescID.Default.(func() uuid.UUID)
 	postMixin := schema.Post{}.Mixin()
+	post.Policy = privacy.NewPolicies(schema.Post{})
+	post.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if err := post.Policy.EvalMutation(ctx, m); err != nil {
+				return nil, err
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
 	postMixinHooks2 := postMixin[2].Hooks()
 	postMixinHooks3 := postMixin[3].Hooks()
-	post.Hooks[0] = postMixinHooks2[0]
-	post.Hooks[1] = postMixinHooks3[0]
+
+	post.Hooks[1] = postMixinHooks2[0]
+
+	post.Hooks[2] = postMixinHooks3[0]
 	postMixinInters2 := postMixin[2].Interceptors()
 	postMixinInters3 := postMixin[3].Interceptors()
 	post.Interceptors[0] = postMixinInters2[0]

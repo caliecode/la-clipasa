@@ -12,6 +12,7 @@ import (
 	"github.com/caliecode/la-clipasa/internal/ent/generated"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/hook"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/privacy"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
 	"github.com/caliecode/la-clipasa/internal/ent/privacy/policy"
 	"github.com/caliecode/la-clipasa/internal/ent/privacy/rule"
 	"github.com/caliecode/la-clipasa/internal/ent/privacy/token"
@@ -123,12 +124,12 @@ func (User) Policy() ent.Policy {
 			ent.OpCreate|ent.OpUpdateOne,
 			rule.AllowIfContextHasPrivacyTokenOfType(&token.Oauth2Token{}),
 			rule.AllowIfSelf(),
-			rule.AllowIfRole("ADMIN"),
+			rule.AllowIfRole(user.RoleADMIN),
 			rule.AllowIfSeedingData(),
 		),
 		policy.WithOnMutationRules(
 			ent.OpUpdate|ent.OpDeleteOne|ent.OpDelete,
-			rule.AllowIfRole("ADMIN"),
+			rule.AllowIfRole(user.RoleADMIN),
 			rule.AllowIfSelf(),
 		),
 	)
