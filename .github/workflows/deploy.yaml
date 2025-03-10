@@ -4,9 +4,14 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
-  setup:
+  test:
+    uses: ./.github/workflows/reusable-test.yml
+
+  deploy:
+    needs: test
     concurrency: deploy-group
     runs-on: ubuntu-latest
     steps:
