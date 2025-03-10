@@ -124,6 +124,7 @@ export default function Layout({ children }: LayoutProps) {
       <LoginButton />
     )
   }
+  const [isBannerHidden, setIsBannerHidden] = useState(false)
 
   return (
     <Fragment>
@@ -133,12 +134,19 @@ export default function Layout({ children }: LayoutProps) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Helmet>
-      <ScrollArea.Autosize type="scroll">
-        <Banner ref={bannerRef} />
+      <ScrollArea.Autosize
+        type="scroll"
+        onScrollPositionChange={(pos) => {
+          setIsBannerHidden(true)
+        }}
+        styles={{ scrollbar: { zIndex: 200 } }}
+      >
+        <Banner ref={bannerRef} hidden={isBannerHidden} />
         <AppShell
           style={{
             overflow: 'visible',
-            height: `calc(100vh - var(--header-height) - var(--footer-height))`, // ignore banner, allow scrolling banner down
+            // transition: 'height 0.3s ease-out', // TODO: doesnt match
+            height: isBannerHidden ? '100%' : `calc(100vh - var(--header-height) - var(--footer-height))`,
           }}
           className={styles.appShell}
           header={{ height: 'var(--header-height)' }}
@@ -328,7 +336,9 @@ export default function Layout({ children }: LayoutProps) {
   )
 }
 
-function Banner({ ref }: { ref: RefObject<HTMLImageElement> }) {
+function Banner({ ref, hidden }: { ref: RefObject<HTMLImageElement>; hidden: boolean }) {
+  const [displayNone, setDisplayNone] = useState(hidden)
+
   return (
     <Image
       alt="la clipasa"
@@ -336,11 +346,13 @@ function Banner({ ref }: { ref: RefObject<HTMLImageElement> }) {
       src={banner}
       className={`showOnLargeOnly`}
       style={{
-        height: '100%',
-        transition: 'all 0.3s ease-in-out',
+        height: hidden ? '0' : 'var(--banner-height)',
         width: '100%',
+        display: displayNone ? 'none' : 'inherit',
         backgroundImage: `url(${banner})`,
+        animation: `${hidden ? 'slideOut' : 'slideIn'} 0.3s forwards`,
       }}
+      onAnimationEnd={() => hidden && setDisplayNone(true)}
     />
   )
 }
