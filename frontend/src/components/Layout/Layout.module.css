@@ -1,7 +1,10 @@
 :root {
   --footer-height: 60px;
   --header-height: 60px;
-  --banner-height: 200px;
+  --banner-height: 100%;
+  @media (max-width: 768px) {
+    --banner-height: 10vh;
+  }
 }
 
 @media (max-width: 768px) {
