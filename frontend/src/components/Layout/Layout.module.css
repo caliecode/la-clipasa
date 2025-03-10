@@ -1,18 +1,27 @@
 :root {
-  --footer-height: 55px;
+  --footer-height: 60px;
   --header-height: 60px;
+  --banner-height: 100%;
+  @media (max-width: 768px) {
+    --banner-height: 10vh;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --header-height: 45px;
+  }
 }
 
 .sticky {
   position: sticky;
+  max-height: var(--header-height);
   top: 0;
 }
 
 .footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
   width: 100%;
+  max-height: var(--footer-height);
   z-index: 400;
 }
 
@@ -37,12 +46,6 @@
   @media (max-width: var(--mantine-breakpoint-sm)) {
     flex-direction: column;
   }
-}
-
-.banner {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
 }
 
 .main {

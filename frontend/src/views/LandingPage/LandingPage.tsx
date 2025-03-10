@@ -47,7 +47,7 @@ export default function LandingPage() {
     <PageTemplate minWidth={'60vw'} sidePanel={<HomeSideActions />}>
       <>
         <ScrollArea.Autosize
-          mah={2 * itemHeight + 100}
+          h={3 * itemHeight + 100}
           type="scroll"
           viewportRef={viewportRef}
           onMouseDown={(event) => event.preventDefault()}
