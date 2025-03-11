@@ -1,11 +1,11 @@
 package http
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/caliecode/la-clipasa/internal"
 	"github.com/caliecode/la-clipasa/internal/auth"
+	"github.com/caliecode/la-clipasa/internal/ent/privacy/token"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -30,27 +30,28 @@ func (m *authMiddleware) TryAuthentication() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		apiKey := c.Request.Header.Get(ApiKeyHeaderKey)
 		auth := c.Request.Header.Get(AuthorizationHeaderKey)
+		ctx := c.Request.Context()
+
 		if apiKey != "" {
-			u, err := m.authn.GetUserFromAPIKey(c.Request.Context(), apiKey) // includes caller joins
+			ctx = token.NewContextWithSystemCallToken(ctx)
+			u, err := m.authn.GetUserFromAPIKey(ctx, apiKey) // includes caller joins
 			if err != nil || u == nil {
-				fmt.Printf("err uaaaa: %v\n", err)
 				return
 			}
-			fmt.Printf("uaaaa: %v\n", u)
 
-			c.Request = c.Request.WithContext(internal.SetUserCtx(c.Request.Context(), u))
+			c.Request = c.Request.WithContext(internal.SetUserCtx(ctx, u))
 
 			c.Next() // executes the pending handlers. What goes below is cleanup after the complete request.
 
 			return
 		}
 		if strings.HasPrefix(auth, "Bearer ") {
-			u, err := m.authn.GetUserFromAccessToken(c.Request.Context(), strings.Split(auth, "Bearer ")[1]) // includes caller joins
+			u, err := m.authn.GetUserFromAccessToken(ctx, strings.Split(auth, "Bearer ")[1]) // includes caller joins
 			if err != nil || u == nil {
 				return
 			}
 
-			c.Request = c.Request.WithContext(internal.SetUserCtx(c.Request.Context(), u))
+			c.Request = c.Request.WithContext(internal.SetUserCtx(ctx, u))
 
 			c.Next() // executes the pending handlers. What goes below is cleanup after the complete request.
 

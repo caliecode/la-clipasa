@@ -7,6 +7,7 @@ import (
 	"github.com/caliecode/la-clipasa/internal/ent/interceptors"
 	"github.com/caliecode/la-clipasa/internal/ent/privacy/policy"
 	"github.com/caliecode/la-clipasa/internal/ent/privacy/rule"
+	"github.com/caliecode/la-clipasa/internal/ent/privacy/token"
 	"github.com/caliecode/la-clipasa/internal/ent/schema/mixins"
 )
 
@@ -46,12 +47,16 @@ func (ApiKey) Policy() ent.Policy {
 	return policy.NewPolicy(
 		policy.WithQueryRules(
 			// interceptors are setup to filter users outside of the organization
-			rule.AllowIfSelf(), // FIXME: it fails for system check itself in auth mw. have policy skip
+			// system call token required since we have to query the api keys themselves to
+			// authenticate the user and check it's the owner
+			rule.AllowIfContextHasPrivacyTokenOfType(&token.SystemCallToken{}),
+			rule.AllowIfSelf(),
 		),
 		policy.WithOnMutationRules(
 			// the user hook has update operations on user create so we need to allow email
 			// token sign up for update operations as well
 			ent.OpCreate|ent.OpUpdateOne,
+			rule.AllowIfContextHasPrivacyTokenOfType(&token.SystemCallToken{}),
 			rule.AllowIfSelf(),
 			rule.AllowIfRole("ADMIN"),
 			rule.AllowIfSeedingData(),
