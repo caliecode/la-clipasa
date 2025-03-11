@@ -4236,35 +4236,8 @@ func (ec *executionContext) _ApiKey_id(ctx context.Context, field graphql.Collec
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		directive0 := func(rctx context.Context) (any, error) {
-			ctx = rctx // use context from middleware stack in children
-			return obj.ID, nil
-		}
-
-		directive1 := func(ctx context.Context) (any, error) {
-			role, err := ec.unmarshalNUserRole2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚋuserᚐRole(ctx, "ADMIN")
-			if err != nil {
-				var zeroVal uuid.UUID
-				return zeroVal, err
-			}
-			if ec.directives.HasRole == nil {
-				var zeroVal uuid.UUID
-				return zeroVal, errors.New("directive hasRole is not implemented")
-			}
-			return ec.directives.HasRole(ctx, obj, directive0, role)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(uuid.UUID); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/google/uuid.UUID`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4307,35 +4280,8 @@ func (ec *executionContext) _ApiKey_updatedAt(ctx context.Context, field graphql
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		directive0 := func(rctx context.Context) (any, error) {
-			ctx = rctx // use context from middleware stack in children
-			return obj.UpdatedAt, nil
-		}
-
-		directive1 := func(ctx context.Context) (any, error) {
-			role, err := ec.unmarshalNUserRole2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚋuserᚐRole(ctx, "ADMIN")
-			if err != nil {
-				var zeroVal time.Time
-				return zeroVal, err
-			}
-			if ec.directives.HasRole == nil {
-				var zeroVal time.Time
-				return zeroVal, errors.New("directive hasRole is not implemented")
-			}
-			return ec.directives.HasRole(ctx, obj, directive0, role)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(time.Time); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be time.Time`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4378,35 +4324,8 @@ func (ec *executionContext) _ApiKey_createdAt(ctx context.Context, field graphql
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		directive0 := func(rctx context.Context) (any, error) {
-			ctx = rctx // use context from middleware stack in children
-			return obj.CreatedAt, nil
-		}
-
-		directive1 := func(ctx context.Context) (any, error) {
-			role, err := ec.unmarshalNUserRole2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚋuserᚐRole(ctx, "ADMIN")
-			if err != nil {
-				var zeroVal time.Time
-				return zeroVal, err
-			}
-			if ec.directives.HasRole == nil {
-				var zeroVal time.Time
-				return zeroVal, errors.New("directive hasRole is not implemented")
-			}
-			return ec.directives.HasRole(ctx, obj, directive0, role)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(time.Time); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be time.Time`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4449,35 +4368,8 @@ func (ec *executionContext) _ApiKey_apiKey(ctx context.Context, field graphql.Co
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		directive0 := func(rctx context.Context) (any, error) {
-			ctx = rctx // use context from middleware stack in children
-			return obj.APIKey, nil
-		}
-
-		directive1 := func(ctx context.Context) (any, error) {
-			role, err := ec.unmarshalNUserRole2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚋuserᚐRole(ctx, "ADMIN")
-			if err != nil {
-				var zeroVal string
-				return zeroVal, err
-			}
-			if ec.directives.HasRole == nil {
-				var zeroVal string
-				return zeroVal, errors.New("directive hasRole is not implemented")
-			}
-			return ec.directives.HasRole(ctx, obj, directive0, role)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(string); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return obj.APIKey, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4520,35 +4412,8 @@ func (ec *executionContext) _ApiKey_expiresOn(ctx context.Context, field graphql
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		directive0 := func(rctx context.Context) (any, error) {
-			ctx = rctx // use context from middleware stack in children
-			return obj.ExpiresOn, nil
-		}
-
-		directive1 := func(ctx context.Context) (any, error) {
-			role, err := ec.unmarshalNUserRole2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚋuserᚐRole(ctx, "ADMIN")
-			if err != nil {
-				var zeroVal time.Time
-				return zeroVal, err
-			}
-			if ec.directives.HasRole == nil {
-				var zeroVal time.Time
-				return zeroVal, errors.New("directive hasRole is not implemented")
-			}
-			return ec.directives.HasRole(ctx, obj, directive0, role)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(time.Time); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be time.Time`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return obj.ExpiresOn, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4591,35 +4456,8 @@ func (ec *executionContext) _ApiKey_owner(ctx context.Context, field graphql.Col
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		directive0 := func(rctx context.Context) (any, error) {
-			ctx = rctx // use context from middleware stack in children
-			return obj.Owner(ctx)
-		}
-
-		directive1 := func(ctx context.Context) (any, error) {
-			role, err := ec.unmarshalNUserRole2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚋuserᚐRole(ctx, "ADMIN")
-			if err != nil {
-				var zeroVal *generated.User
-				return zeroVal, err
-			}
-			if ec.directives.HasRole == nil {
-				var zeroVal *generated.User
-				return zeroVal, errors.New("directive hasRole is not implemented")
-			}
-			return ec.directives.HasRole(ctx, obj, directive0, role)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*generated.User); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/caliecode/la-clipasa/internal/ent/generated.User`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return obj.Owner(ctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4702,35 +4540,8 @@ func (ec *executionContext) _ApiKeyBulkCreatePayload_apiKeys(ctx context.Context
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		directive0 := func(rctx context.Context) (any, error) {
-			ctx = rctx // use context from middleware stack in children
-			return obj.APIKeys, nil
-		}
-
-		directive1 := func(ctx context.Context) (any, error) {
-			role, err := ec.unmarshalNUserRole2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚋuserᚐRole(ctx, "ADMIN")
-			if err != nil {
-				var zeroVal []*generated.ApiKey
-				return zeroVal, err
-			}
-			if ec.directives.HasRole == nil {
-				var zeroVal []*generated.ApiKey
-				return zeroVal, errors.New("directive hasRole is not implemented")
-			}
-			return ec.directives.HasRole(ctx, obj, directive0, role)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.([]*generated.ApiKey); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/caliecode/la-clipasa/internal/ent/generated.ApiKey`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return obj.APIKeys, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4929,35 +4740,8 @@ func (ec *executionContext) _ApiKeyCreatePayload_apiKey(ctx context.Context, fie
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		directive0 := func(rctx context.Context) (any, error) {
-			ctx = rctx // use context from middleware stack in children
-			return obj.APIKey, nil
-		}
-
-		directive1 := func(ctx context.Context) (any, error) {
-			role, err := ec.unmarshalNUserRole2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚋuserᚐRole(ctx, "ADMIN")
-			if err != nil {
-				var zeroVal *generated.ApiKey
-				return zeroVal, err
-			}
-			if ec.directives.HasRole == nil {
-				var zeroVal *generated.ApiKey
-				return zeroVal, errors.New("directive hasRole is not implemented")
-			}
-			return ec.directives.HasRole(ctx, obj, directive0, role)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*generated.ApiKey); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/caliecode/la-clipasa/internal/ent/generated.ApiKey`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return obj.APIKey, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5058,35 +4842,8 @@ func (ec *executionContext) _ApiKeyEdge_node(ctx context.Context, field graphql.
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		directive0 := func(rctx context.Context) (any, error) {
-			ctx = rctx // use context from middleware stack in children
-			return obj.Node, nil
-		}
-
-		directive1 := func(ctx context.Context) (any, error) {
-			role, err := ec.unmarshalNUserRole2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚋuserᚐRole(ctx, "ADMIN")
-			if err != nil {
-				var zeroVal *generated.ApiKey
-				return zeroVal, err
-			}
-			if ec.directives.HasRole == nil {
-				var zeroVal *generated.ApiKey
-				return zeroVal, errors.New("directive hasRole is not implemented")
-			}
-			return ec.directives.HasRole(ctx, obj, directive0, role)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*generated.ApiKey); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/caliecode/la-clipasa/internal/ent/generated.ApiKey`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return obj.Node, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5184,35 +4941,8 @@ func (ec *executionContext) _ApiKeyUpdatePayload_apiKey(ctx context.Context, fie
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		directive0 := func(rctx context.Context) (any, error) {
-			ctx = rctx // use context from middleware stack in children
-			return obj.APIKey, nil
-		}
-
-		directive1 := func(ctx context.Context) (any, error) {
-			role, err := ec.unmarshalNUserRole2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚋuserᚐRole(ctx, "ADMIN")
-			if err != nil {
-				var zeroVal *generated.ApiKey
-				return zeroVal, err
-			}
-			if ec.directives.HasRole == nil {
-				var zeroVal *generated.ApiKey
-				return zeroVal, errors.New("directive hasRole is not implemented")
-			}
-			return ec.directives.HasRole(ctx, obj, directive0, role)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*generated.ApiKey); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/caliecode/la-clipasa/internal/ent/generated.ApiKey`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return obj.APIKey, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10606,35 +10336,8 @@ func (ec *executionContext) _Query_apiKey(ctx context.Context, field graphql.Col
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		directive0 := func(rctx context.Context) (any, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().APIKey(rctx, fc.Args["id"].(uuid.UUID))
-		}
-
-		directive1 := func(ctx context.Context) (any, error) {
-			role, err := ec.unmarshalNUserRole2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚋuserᚐRole(ctx, "ADMIN")
-			if err != nil {
-				var zeroVal *generated.ApiKey
-				return zeroVal, err
-			}
-			if ec.directives.HasRole == nil {
-				var zeroVal *generated.ApiKey
-				return zeroVal, errors.New("directive hasRole is not implemented")
-			}
-			return ec.directives.HasRole(ctx, nil, directive0, role)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*generated.ApiKey); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/caliecode/la-clipasa/internal/ent/generated.ApiKey`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().APIKey(rctx, fc.Args["id"].(uuid.UUID))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12415,35 +12118,8 @@ func (ec *executionContext) _User_apiKeys(ctx context.Context, field graphql.Col
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		directive0 := func(rctx context.Context) (any, error) {
-			ctx = rctx // use context from middleware stack in children
-			return obj.APIKeys(ctx)
-		}
-
-		directive1 := func(ctx context.Context) (any, error) {
-			role, err := ec.unmarshalNUserRole2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚋuserᚐRole(ctx, "ADMIN")
-			if err != nil {
-				var zeroVal []*generated.ApiKey
-				return zeroVal, err
-			}
-			if ec.directives.HasRole == nil {
-				var zeroVal []*generated.ApiKey
-				return zeroVal, errors.New("directive hasRole is not implemented")
-			}
-			return ec.directives.HasRole(ctx, obj, directive0, role)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.([]*generated.ApiKey); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/caliecode/la-clipasa/internal/ent/generated.ApiKey`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return obj.APIKeys(ctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -16250,67 +15926,20 @@ func (ec *executionContext) unmarshalInputCreateApiKeyInput(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"apiKey", "expiresOn"}
+	fieldsInOrder := [...]string{"expiresOn"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "apiKey":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("apiKey"))
-			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNString2string(ctx, v) }
-
-			directive1 := func(ctx context.Context) (any, error) {
-				role, err := ec.unmarshalNUserRole2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚋuserᚐRole(ctx, "ADMIN")
-				if err != nil {
-					var zeroVal string
-					return zeroVal, err
-				}
-				if ec.directives.HasRole == nil {
-					var zeroVal string
-					return zeroVal, errors.New("directive hasRole is not implemented")
-				}
-				return ec.directives.HasRole(ctx, obj, directive0, role)
-			}
-
-			tmp, err := directive1(ctx)
-			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
-			if data, ok := tmp.(string); ok {
-				it.APIKey = data
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
 		case "expiresOn":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expiresOn"))
-			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNTime2timeᚐTime(ctx, v) }
-
-			directive1 := func(ctx context.Context) (any, error) {
-				role, err := ec.unmarshalNUserRole2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚋuserᚐRole(ctx, "ADMIN")
-				if err != nil {
-					var zeroVal time.Time
-					return zeroVal, err
-				}
-				if ec.directives.HasRole == nil {
-					var zeroVal time.Time
-					return zeroVal, errors.New("directive hasRole is not implemented")
-				}
-				return ec.directives.HasRole(ctx, obj, directive0, role)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalNTime2timeᚐTime(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(time.Time); ok {
-				it.ExpiresOn = data
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be time.Time`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.ExpiresOn = data
 		}
 	}
 
@@ -17971,71 +17600,20 @@ func (ec *executionContext) unmarshalInputUpdateApiKeyInput(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"apiKey", "expiresOn"}
+	fieldsInOrder := [...]string{"expiresOn"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "apiKey":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("apiKey"))
-			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOString2ᚖstring(ctx, v) }
-
-			directive1 := func(ctx context.Context) (any, error) {
-				role, err := ec.unmarshalNUserRole2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚋuserᚐRole(ctx, "ADMIN")
-				if err != nil {
-					var zeroVal *string
-					return zeroVal, err
-				}
-				if ec.directives.HasRole == nil {
-					var zeroVal *string
-					return zeroVal, errors.New("directive hasRole is not implemented")
-				}
-				return ec.directives.HasRole(ctx, obj, directive0, role)
-			}
-
-			tmp, err := directive1(ctx)
-			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
-			if data, ok := tmp.(*string); ok {
-				it.APIKey = data
-			} else if tmp == nil {
-				it.APIKey = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *string`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
 		case "expiresOn":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expiresOn"))
-			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v) }
-
-			directive1 := func(ctx context.Context) (any, error) {
-				role, err := ec.unmarshalNUserRole2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚋuserᚐRole(ctx, "ADMIN")
-				if err != nil {
-					var zeroVal *time.Time
-					return zeroVal, err
-				}
-				if ec.directives.HasRole == nil {
-					var zeroVal *time.Time
-					return zeroVal, errors.New("directive hasRole is not implemented")
-				}
-				return ec.directives.HasRole(ctx, obj, directive0, role)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*time.Time); ok {
-				it.ExpiresOn = data
-			} else if tmp == nil {
-				it.ExpiresOn = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *time.Time`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.ExpiresOn = data
 		}
 	}
 

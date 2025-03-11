@@ -12,13 +12,11 @@ import (
 
 // CreateApiKeyInput represents a mutation input for creating apikeys.
 type CreateApiKeyInput struct {
-	APIKey    string
 	ExpiresOn time.Time
 }
 
 // Mutate applies the CreateApiKeyInput on the ApiKeyMutation builder.
 func (i *CreateApiKeyInput) Mutate(m *ApiKeyMutation) {
-	m.SetAPIKey(i.APIKey)
 	m.SetExpiresOn(i.ExpiresOn)
 }
 
@@ -30,15 +28,11 @@ func (c *ApiKeyCreate) SetInput(i CreateApiKeyInput) *ApiKeyCreate {
 
 // UpdateApiKeyInput represents a mutation input for updating apikeys.
 type UpdateApiKeyInput struct {
-	APIKey    *string
 	ExpiresOn *time.Time
 }
 
 // Mutate applies the UpdateApiKeyInput on the ApiKeyMutation builder.
 func (i *UpdateApiKeyInput) Mutate(m *ApiKeyMutation) {
-	if v := i.APIKey; v != nil {
-		m.SetAPIKey(*v)
-	}
 	if v := i.ExpiresOn; v != nil {
 		m.SetExpiresOn(*v)
 	}

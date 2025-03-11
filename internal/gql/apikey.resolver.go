@@ -12,7 +12,7 @@ import (
 
 // CreateAPIKey is the resolver for the createApiKey field.
 func (r *mutationResolver) CreateAPIKey(ctx context.Context, input generated.CreateApiKeyInput) (*model.APIKeyCreatePayload, error) {
-	ak, err := r.ent.ApiKey.Create().SetInput(input).Save(ctx)
+	ak, err := r.ent.ApiKey.Create().SetAPIKey("api-key-" + uuid.New().String()).SetInput(input).Save(ctx)
 	if err != nil {
 		return nil, parseRequestError(err, action{action: ActionCreate, object: "api key"})
 	}

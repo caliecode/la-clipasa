@@ -1,6 +1,7 @@
 package schema
 
 import (
+	"entgo.io/contrib/entgql"
 	"entgo.io/ent"
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/field"
@@ -19,7 +20,9 @@ type ApiKey struct {
 // Fields of the ApiKey.
 func (ApiKey) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("api_key"),
+		field.String("api_key").Unique().Annotations(
+			entgql.Skip(entgql.SkipMutationCreateInput, entgql.SkipMutationUpdateInput),
+		),
 		field.Time("expires_on"),
 	}
 }

@@ -55,14 +55,14 @@ func main() {
 					},
 				},
 			},
-			"ApiKey": {
-				{
-					Targets: []DirectiveTarget{TypeObjectTarget, CreateInputObjectTarget, UpdateInputObjectTarget},
-					Directives: []entgql.Directive{
-						annotations.HasRoleDirective(user.RoleADMIN),
-					},
-				},
-			},
+			// "ApiKey": {
+			// 	{
+			// 		Targets: []DirectiveTarget{TypeObjectTarget, CreateInputObjectTarget, UpdateInputObjectTarget},
+			// 		Directives: []entgql.Directive{
+			// 			annotations.HasRoleDirective(user.RoleADMIN),
+			// 		},
+			// 	},
+			// },
 		})),
 		entgql.WithSchemaHook(xExt.GQLSchemaHooks()...),
 	)

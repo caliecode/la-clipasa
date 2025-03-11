@@ -2,7 +2,6 @@ package gql
 
 import (
 	"context"
-	"errors"
 
 	"entgo.io/contrib/entgql"
 	"github.com/caliecode/la-clipasa/internal/ent/generated"
@@ -21,7 +20,20 @@ func (r *queryResolver) Nodes(ctx context.Context, ids []uuid.UUID) ([]generated
 
 // APIKeys is the resolver for the apiKeys field.
 func (r *queryResolver) APIKeys(ctx context.Context, after *entgql.Cursor[uuid.UUID], first *int, before *entgql.Cursor[uuid.UUID], last *int, orderBy *generated.ApiKeyOrder, where *generated.ApiKeyWhereInput) (*generated.ApiKeyConnection, error) {
-	return nil, errors.New("not implemented: APIKeys - apiKeys")
+	res, err := r.ent.ApiKey.Query().Paginate(
+		ctx,
+		after,
+		first,
+		before,
+		last,
+		generated.WithApiKeyOrder(orderBy),
+		generated.WithApiKeyFilter(where.Filter),
+	)
+	if err != nil {
+		return nil, parseRequestError(err, action{action: ActionGet, object: "api key"})
+	}
+
+	return res, nil
 }
 
 // Comments is the resolver for the comments field.
@@ -33,7 +45,8 @@ func (r *queryResolver) Comments(ctx context.Context, after *entgql.Cursor[uuid.
 		before,
 		last,
 		generated.WithCommentOrder(orderBy),
-		generated.WithCommentFilter(where.Filter))
+		generated.WithCommentFilter(where.Filter),
+	)
 	if err != nil {
 		return nil, parseRequestError(err, action{action: ActionGet, object: "comment"})
 	}
@@ -50,7 +63,8 @@ func (r *queryResolver) Posts(ctx context.Context, after *entgql.Cursor[uuid.UUI
 		before,
 		last,
 		generated.WithPostOrder(orderBy),
-		generated.WithPostFilter(where.Filter))
+		generated.WithPostFilter(where.Filter),
+	)
 	if err != nil {
 		return nil, parseRequestError(err, action{action: ActionGet, object: "post"})
 	}
@@ -67,7 +81,8 @@ func (r *queryResolver) PostCategories(ctx context.Context, after *entgql.Cursor
 		before,
 		last,
 		generated.WithPostCategoryOrder(orderBy),
-		generated.WithPostCategoryFilter(where.Filter))
+		generated.WithPostCategoryFilter(where.Filter),
+	)
 	if err != nil {
 		return nil, parseRequestError(err, action{action: ActionGet, object: "post category"})
 	}
@@ -84,7 +99,8 @@ func (r *queryResolver) Users(ctx context.Context, after *entgql.Cursor[uuid.UUI
 		before,
 		last,
 		generated.WithUserOrder(orderBy),
-		generated.WithUserFilter(where.Filter))
+		generated.WithUserFilter(where.Filter),
+	)
 	if err != nil {
 		return nil, parseRequestError(err, action{action: ActionGet, object: "user"})
 	}

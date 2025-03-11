@@ -33,8 +33,8 @@ func (m *authMiddleware) TryAuthentication() gin.HandlerFunc {
 		ctx := c.Request.Context()
 
 		if apiKey != "" {
-			ctx = token.NewContextWithSystemCallToken(ctx)
-			u, err := m.authn.GetUserFromAPIKey(ctx, apiKey) // includes caller joins
+			// only execute related queries to get api key with system call token bypass.
+			u, err := m.authn.GetUserFromAPIKey(token.NewContextWithSystemCallToken(ctx), apiKey) // includes caller joins
 			if err != nil {
 				logger := internal.GetLoggerFromCtx(ctx)
 				logger.Errorf("failed to get user from api key: %s", err.Error())

@@ -14,7 +14,7 @@ var (
 		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "created_at", Type: field.TypeTime},
-		{Name: "api_key", Type: field.TypeString},
+		{Name: "api_key", Type: field.TypeString, Unique: true},
 		{Name: "expires_on", Type: field.TypeTime},
 		{Name: "owner_id", Type: field.TypeUUID},
 	}
