@@ -1,30 +1,22 @@
-import { useState } from 'react'
-import { ActionIcon, Box, Button, Stack, Text, Textarea, Tooltip } from '@mantine/core'
-import { useForm } from '@mantine/form'
-import { IconCheck, IconPlus } from '@tabler/icons-react'
+import { useEffect, useState } from 'react'
+import { ActionIcon, Popover } from '@mantine/core'
+import { IconPlus } from '@tabler/icons-react'
 import ProtectedComponent from 'src/components/Permissions/ProtectedComponent'
 import { usePostContext } from 'src/components/Post/Post.context'
 import ErrorCallout from 'src/components/Callout/ErrorCallout'
 import { useMantineColorScheme } from '@mantine/core'
-import {
-  PostCategoryCategory,
-  useCreatePostCategoryMutation,
-  useDeletePostCategoryMutation,
-  useUpdatePostMutation,
-} from 'src/graphql/gen'
+import { PostCategoryCategory, useCreatePostCategoryMutation, useDeletePostCategoryMutation } from 'src/graphql/gen'
 import { extractGqlErrors } from 'src/utils/errors'
 import useAuthenticatedUser from 'src/hooks/auth/useAuthenticatedUser'
 import styles from './buttons.module.css'
 import { CategoriesSelect } from 'src/components/CategorySelect'
 import { PostCategoryNames } from 'src/services/categories'
-import { useClickOutside } from '@mantine/hooks'
 import { keys } from 'src/utils/object'
 
 export default function CategoryEditButton() {
   const user = useAuthenticatedUser()
   const { post, setPost } = usePostContext()
   const { colorScheme } = useMantineColorScheme()
-  const [, updatePost] = useUpdatePostMutation()
   const [, createPostCategory] = useCreatePostCategoryMutation()
   const [, deletePostCategory] = useDeletePostCategoryMutation()
 
@@ -38,8 +30,6 @@ export default function CategoryEditButton() {
 
     if (r.error) {
       setErrors(extractGqlErrors(r.error.graphQLErrors))
-      // TODO:close categoery selection
-
       return
     }
     setErrors([])
@@ -76,41 +66,53 @@ export default function CategoryEditButton() {
     post.categories?.filter((pc) => !newCategories.includes(pc.category)).forEach((pc) => handleCategoryRemoved(pc.id))
   }
 
+  const [errorNotifier, setErrorNotifier] = useState(0)
+
+  useEffect(() => {
+    errors.length > 0 && setErrorNotifier((prev) => prev + 1)
+  }, [errors])
+
   return (
     <ProtectedComponent requiredRole="MODERATOR">
-      <Tooltip
-        className={styles.categoryEditTooltip}
+      <Popover
         opened={popoverOpened}
-        onClick={(e) => e.stopPropagation()}
-        w={400}
-        withArrow
+        onChange={(opened) => {
+          // setPopoverOpened(opened)
+          if (opened) setErrors([])
+        }}
         position="bottom"
-        label={
-          <>
-            <ErrorCallout title="Error updating post" errors={errors} />
-            <CategoriesSelect
-              selectedCategories={post.categories?.map((c) => c.category) || []}
-              onCategoriesChange={handleCategoriesChange}
-              allowedCategories={keys(PostCategoryNames)}
-            />
-          </>
-        }
+        withArrow
+        width={400}
+        trapFocus
+        // clickOutsideEvents={['mousedown', 'touchstart']}
       >
-        <ActionIcon
-          radius="xl"
-          size={22}
-          onClick={(e) => {
-            e.stopPropagation()
-            setPopoverOpened(!popoverOpened)
-          }}
-        >
-          <IconPlus
-            color={colorScheme === 'light' ? 'var(--mantine-color-dark-6)' : 'var(--mantine-color-gray-1)'}
-            size={12}
-            stroke={2.5}
+        <Popover.Target>
+          <ActionIcon
+            radius="xl"
+            size={22}
+            onClick={(e) => {
+              e.stopPropagation()
+              setPopoverOpened((o) => !o)
+            }}
+          >
+            <IconPlus
+              color={colorScheme === 'light' ? 'var(--mantine-color-dark-6)' : 'var(--mantine-color-gray-1)'}
+              size={12}
+              stroke={2.5}
+            />
+          </ActionIcon>
+        </Popover.Target>
+
+        <Popover.Dropdown onClick={(e) => e.stopPropagation()}>
+          <ErrorCallout title="Error updating post" errors={errors} />
+          <CategoriesSelect
+            selectedCategories={post.categories?.map((c) => c.category) || []}
+            onCategoriesChange={handleCategoriesChange}
+            allowedCategories={keys(PostCategoryNames)}
+            errorOccurred={errorNotifier}
           />
-        </ActionIcon>
-      </Tooltip>
+        </Popover.Dropdown>
+      </Popover>
     </ProtectedComponent>
   )
 }

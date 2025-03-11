@@ -1,23 +1,15 @@
-import { useState } from 'react'
-import {
-  ActionIcon,
-  Box,
-  Combobox,
-  Pill,
-  PillsInput,
-  Popover,
-  Text,
-  useCombobox,
-  useMantineColorScheme,
-} from '@mantine/core'
+import { Combobox, Pill, PillsInput, Text, useCombobox, Box, useMantineColorScheme } from '@mantine/core'
 import { IconCheck } from '@tabler/icons'
 import { PostCategoryCategory } from 'src/graphql/gen'
 import { categoryEmojis, emojiInversion, PostCategoryNames, EMOJI_SIZE } from 'src/services/categories'
+import { useEffect, useRef } from 'react'
 
 interface CategoriesSelectProps {
   selectedCategories: PostCategoryCategory[]
   onCategoriesChange: (categories: PostCategoryCategory[]) => void
   allowedCategories: PostCategoryCategory[]
+  optionsVisible?: boolean
+  errorOccurred?: number // This will be a counter or timestamp that changes when error occurs
 }
 
 function CategoryPill({ value, onRemove }: { value: PostCategoryCategory; onRemove: () => void }) {
@@ -43,13 +35,27 @@ function CategoryPill({ value, onRemove }: { value: PostCategoryCategory; onRemo
   )
 }
 
-export function CategoriesSelect({ selectedCategories, onCategoriesChange, allowedCategories }: CategoriesSelectProps) {
+export function CategoriesSelect({
+  selectedCategories,
+  onCategoriesChange,
+  allowedCategories,
+  optionsVisible = true,
+  errorOccurred = 0,
+}: CategoriesSelectProps) {
   const { colorScheme } = useMantineColorScheme()
-  const [popoverOpened, setPopoverOpened] = useState(false)
   const combobox = useCombobox({
     onDropdownClose: () => combobox.resetSelectedOption(),
     onDropdownOpen: () => combobox.updateSelectedOptionIndex('active'),
   })
+
+  const prevErrorRef = useRef(errorOccurred)
+
+  useEffect(() => {
+    if (errorOccurred !== prevErrorRef.current) {
+      combobox.closeDropdown()
+    }
+    prevErrorRef.current = errorOccurred
+  }, [errorOccurred, combobox])
 
   const handleCategoryToggle = (val: PostCategoryCategory) => {
     const newCategories = selectedCategories.includes(val)
@@ -86,34 +92,23 @@ export function CategoriesSelect({ selectedCategories, onCategoriesChange, allow
   })
 
   return (
-    <Popover
-      opened={popoverOpened}
-      onChange={setPopoverOpened}
-      position="bottom"
-      closeOnClickOutside
-      withArrow
-      width="target"
-      trapFocus
-    >
-      <Popover.Target>
+    <Combobox store={combobox} onOptionSubmit={(val) => handleCategoryToggle(val as PostCategoryCategory)}>
+      <Combobox.Target>
         <PillsInput
           label="Categories"
           pointer
           onClick={(e) => {
             e.stopPropagation()
-            setPopoverOpened(true)
-            combobox.openDropdown()
+            combobox.toggleDropdown()
           }}
         >
           <Pill.Group>{values.length > 0 ? values : <PillsInput.Field placeholder="Select categories" />}</Pill.Group>
         </PillsInput>
-      </Popover.Target>
+      </Combobox.Target>
 
-      <Popover.Dropdown>
-        <Combobox store={combobox} onOptionSubmit={(val) => handleCategoryToggle(val as PostCategoryCategory)}>
-          <Combobox.Options>{options}</Combobox.Options>
-        </Combobox>
-      </Popover.Dropdown>
-    </Popover>
+      <Combobox.Dropdown>
+        <Combobox.Options>{optionsVisible ? options : null}</Combobox.Options>
+      </Combobox.Dropdown>
+    </Combobox>
   )
 }
