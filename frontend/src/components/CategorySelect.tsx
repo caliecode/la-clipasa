@@ -10,14 +10,37 @@ import {
   useCombobox,
   useMantineColorScheme,
 } from '@mantine/core'
-import { IconCheck, IconPlus } from '@tabler/icons'
+import { IconCheck } from '@tabler/icons'
 import { PostCategoryCategory } from 'src/graphql/gen'
-import { categoryEmojis, emojiInversion } from 'src/services/categories'
+import { categoryEmojis, emojiInversion, PostCategoryNames, EMOJI_SIZE } from 'src/services/categories'
 
 interface CategoriesSelectProps {
   selectedCategories: PostCategoryCategory[]
   onCategoriesChange: (categories: PostCategoryCategory[]) => void
   allowedCategories: PostCategoryCategory[]
+}
+
+function CategoryPill({ value, onRemove }: { value: PostCategoryCategory; onRemove: () => void }) {
+  const { colorScheme } = useMantineColorScheme()
+
+  return (
+    <Pill withRemoveButton onRemove={onRemove}>
+      <Box style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        {categoryEmojis[value] && (
+          <img
+            style={{
+              filter: emojiInversion[value] && colorScheme === 'dark' ? 'invert(100%)' : undefined,
+            }}
+            src={categoryEmojis[value]}
+            height={EMOJI_SIZE}
+            width={EMOJI_SIZE}
+            alt=""
+          />
+        )}
+        <Text size="sm">{PostCategoryNames[value]}</Text>
+      </Box>
+    </Pill>
+  )
 }
 
 export function CategoriesSelect({ selectedCategories, onCategoriesChange, allowedCategories }: CategoriesSelectProps) {
@@ -36,38 +59,48 @@ export function CategoriesSelect({ selectedCategories, onCategoriesChange, allow
   }
 
   const values = selectedCategories.map((category) => (
-    <Pill key={category} withRemoveButton onRemove={() => handleCategoryToggle(category)}>
-      {category}
-    </Pill>
+    <CategoryPill key={category} value={category} onRemove={() => handleCategoryToggle(category)} />
   ))
 
-  const options = allowedCategories.map((category) => (
-    <Combobox.Option value={category} key={category} active={selectedCategories.includes(category)}>
-      <Box style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        {selectedCategories.includes(category) && <IconCheck size={16} stroke={2.5} />}
-        {categoryEmojis[category] && (
-          <img
-            style={{
-              filter: emojiInversion[category] && colorScheme === 'dark' ? 'invert(100%)' : undefined,
-            }}
-            src={categoryEmojis[category]}
-            height={24}
-            width={24}
-            alt=""
-          />
-        )}
-        <Text>{category}</Text>
-      </Box>
-    </Combobox.Option>
-  ))
+  const options = allowedCategories.map((category) => {
+    const isSelected = selectedCategories.includes(category)
+    return (
+      <Combobox.Option value={category} key={category} active={isSelected}>
+        <Box style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {isSelected && <IconCheck size={16} stroke={2.5} />}
+          {categoryEmojis[category] && (
+            <img
+              style={{
+                filter: emojiInversion[category] && colorScheme === 'dark' ? 'invert(100%)' : undefined,
+              }}
+              src={categoryEmojis[category]}
+              height={EMOJI_SIZE}
+              width={EMOJI_SIZE}
+              alt=""
+            />
+          )}
+          <Text>{PostCategoryNames[category]}</Text>
+        </Box>
+      </Combobox.Option>
+    )
+  })
 
   return (
-    <Popover opened={popoverOpened} onChange={setPopoverOpened} position="bottom" closeOnClickOutside withArrow>
+    <Popover
+      opened={popoverOpened}
+      onChange={setPopoverOpened}
+      position="bottom"
+      closeOnClickOutside
+      withArrow
+      width="target"
+      trapFocus
+    >
       <Popover.Target>
         <PillsInput
           label="Categories"
           pointer
-          onClick={() => {
+          onClick={(e) => {
+            e.stopPropagation()
             setPopoverOpened(true)
             combobox.openDropdown()
           }}
