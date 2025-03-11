@@ -53,15 +53,15 @@ func (a *Authentication) GetUserFromAccessToken(ctx context.Context, token strin
 // GetUserFromAPIKey returns a user from an api key.
 func (a *Authentication) GetUserFromAPIKey(ctx context.Context, key string) (*generated.User, error) {
 	entclt := generated.FromContext(ctx)
-	u, err := entclt.User.Query().Where(user.HasAPIKeyWith(apikey.APIKey(key))).WithAPIKey().Only(ctx)
+	u, err := entclt.User.Query().Where(user.HasAPIKeysWith(apikey.APIKey(key))).WithAPIKeys().Only(ctx)
 	if err != nil {
 		return nil, internal.WrapErrorf(err, internal.ErrorCodeNotFound, "user from api key not found")
 	}
-	ak, err := u.Edges.APIKeyOrErr()
+	ak, err := u.Edges.APIKeysOrErr()
 	if err != nil {
 		return nil, internal.WrapErrorf(err, internal.ErrorCodeNotFound, "api key edge")
 	}
-	if ak.ExpiresOn.Before(time.Now()) {
+	if ak[0].ExpiresOn.Before(time.Now()) {
 		return nil, internal.WrapErrorf(err, internal.ErrorCodeUnauthorized, "api key expired")
 	}
 

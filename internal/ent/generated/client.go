@@ -372,7 +372,7 @@ func (c *ApiKeyClient) QueryOwner(ak *ApiKey) *UserQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(apikey.Table, apikey.FieldID, id),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, apikey.OwnerTable, apikey.OwnerColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, apikey.OwnerTable, apikey.OwnerColumn),
 		)
 		fromV = sqlgraph.Neighbors(ak.driver.Dialect(), step)
 		return fromV, nil
@@ -1110,15 +1110,15 @@ func (c *UserClient) QueryComments(u *User) *CommentQuery {
 	return query
 }
 
-// QueryAPIKey queries the api_key edge of a User.
-func (c *UserClient) QueryAPIKey(u *User) *ApiKeyQuery {
+// QueryAPIKeys queries the api_keys edge of a User.
+func (c *UserClient) QueryAPIKeys(u *User) *ApiKeyQuery {
 	query := (&ApiKeyClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := u.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, id),
 			sqlgraph.To(apikey.Table, apikey.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, user.APIKeyTable, user.APIKeyColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.APIKeysTable, user.APIKeysColumn),
 		)
 		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
 		return fromV, nil

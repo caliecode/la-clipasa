@@ -34,6 +34,7 @@ const (
 // must make sure we dont have duplicate edge Ref, else foreign-key was
 // not found for edge "owner" of type
 // since Ref if already used by another edge.
+// It is skipped in entgql.
 type UserOwnedMixin struct {
 	mixin.Schema
 	// Ref table for the id
@@ -89,6 +90,12 @@ func (userOwned UserOwnedMixin) Edges() []ent.Edge {
 	if !userOwned.AllowUpdate {
 		ownerEdge.Annotations(
 			entgql.Skip(entgql.SkipMutationUpdateInput),
+		)
+	}
+
+	if userOwned.SkipOASGeneration {
+		ownerEdge.Annotations(
+			entgql.Skip(entgql.SkipMutationCreateInput, entgql.SkipMutationUpdateInput),
 		)
 	}
 
@@ -161,7 +168,7 @@ func (userOwned UserOwnedMixin) Interceptors() []ent.Interceptor {
 
 	return []ent.Interceptor{
 		intercept.TraverseFunc(func(ctx context.Context, q intercept.Query) error {
-			// Skip the interceptor for all queries if BypassInterceptor flag is set
+			// Skip the interceptor for all queries if SkipInterceptor flag is set
 			// This is needed for schemas that are never authorized users such as email verification tokens
 			if userOwned.SkipInterceptor == interceptors.SkipAll {
 				return nil
@@ -172,7 +179,7 @@ func (userOwned UserOwnedMixin) Interceptors() []ent.Interceptor {
 				ctxQuery := ent.QueryFromContext(ctx)
 
 				// Skip the interceptor if the query is for a single entity
-				// and the BypassInterceptor flag is set for Only queries
+				// and the SkipInterceptor flag is set for Only queries
 				if userOwned.SkipInterceptor == interceptors.SkipOnlyQuery && ctxQuery.Op == "Only" {
 					return nil
 				}

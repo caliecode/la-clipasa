@@ -126,7 +126,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 	graph.MustAddE(
 		"owner",
 		&sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   apikey.OwnerTable,
 			Columns: []string{apikey.OwnerColumn},
@@ -280,12 +280,12 @@ var schemaGraph = func() *sqlgraph.Schema {
 		"Comment",
 	)
 	graph.MustAddE(
-		"api_key",
+		"api_keys",
 		&sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.APIKeyTable,
-			Columns: []string{user.APIKeyColumn},
+			Table:   user.APIKeysTable,
+			Columns: []string{user.APIKeysColumn},
 			Bidi:    false,
 		},
 		"User",
@@ -877,14 +877,14 @@ func (f *UserFilter) WhereHasCommentsWith(preds ...predicate.Comment) {
 	})))
 }
 
-// WhereHasAPIKey applies a predicate to check if query has an edge api_key.
-func (f *UserFilter) WhereHasAPIKey() {
-	f.Where(entql.HasEdge("api_key"))
+// WhereHasAPIKeys applies a predicate to check if query has an edge api_keys.
+func (f *UserFilter) WhereHasAPIKeys() {
+	f.Where(entql.HasEdge("api_keys"))
 }
 
-// WhereHasAPIKeyWith applies a predicate to check if query has an edge api_key with a given conditions (other predicates).
-func (f *UserFilter) WhereHasAPIKeyWith(preds ...predicate.ApiKey) {
-	f.Where(entql.HasEdgeWith("api_key", sqlgraph.WrapFunc(func(s *sql.Selector) {
+// WhereHasAPIKeysWith applies a predicate to check if query has an edge api_keys with a given conditions (other predicates).
+func (f *UserFilter) WhereHasAPIKeysWith(preds ...predicate.ApiKey) {
+	f.Where(entql.HasEdgeWith("api_keys", sqlgraph.WrapFunc(func(s *sql.Selector) {
 		for _, p := range preds {
 			p(s)
 		}

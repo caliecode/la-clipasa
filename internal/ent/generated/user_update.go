@@ -286,23 +286,19 @@ func (uu *UserUpdate) AddComments(c ...*Comment) *UserUpdate {
 	return uu.AddCommentIDs(ids...)
 }
 
-// SetAPIKeyID sets the "api_key" edge to the ApiKey entity by ID.
-func (uu *UserUpdate) SetAPIKeyID(id uuid.UUID) *UserUpdate {
-	uu.mutation.SetAPIKeyID(id)
+// AddAPIKeyIDs adds the "api_keys" edge to the ApiKey entity by IDs.
+func (uu *UserUpdate) AddAPIKeyIDs(ids ...uuid.UUID) *UserUpdate {
+	uu.mutation.AddAPIKeyIDs(ids...)
 	return uu
 }
 
-// SetNillableAPIKeyID sets the "api_key" edge to the ApiKey entity by ID if the given value is not nil.
-func (uu *UserUpdate) SetNillableAPIKeyID(id *uuid.UUID) *UserUpdate {
-	if id != nil {
-		uu = uu.SetAPIKeyID(*id)
+// AddAPIKeys adds the "api_keys" edges to the ApiKey entity.
+func (uu *UserUpdate) AddAPIKeys(a ...*ApiKey) *UserUpdate {
+	ids := make([]uuid.UUID, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
 	}
-	return uu
-}
-
-// SetAPIKey sets the "api_key" edge to the ApiKey entity.
-func (uu *UserUpdate) SetAPIKey(a *ApiKey) *UserUpdate {
-	return uu.SetAPIKeyID(a.ID)
+	return uu.AddAPIKeyIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -394,10 +390,25 @@ func (uu *UserUpdate) RemoveComments(c ...*Comment) *UserUpdate {
 	return uu.RemoveCommentIDs(ids...)
 }
 
-// ClearAPIKey clears the "api_key" edge to the ApiKey entity.
-func (uu *UserUpdate) ClearAPIKey() *UserUpdate {
-	uu.mutation.ClearAPIKey()
+// ClearAPIKeys clears all "api_keys" edges to the ApiKey entity.
+func (uu *UserUpdate) ClearAPIKeys() *UserUpdate {
+	uu.mutation.ClearAPIKeys()
 	return uu
+}
+
+// RemoveAPIKeyIDs removes the "api_keys" edge to ApiKey entities by IDs.
+func (uu *UserUpdate) RemoveAPIKeyIDs(ids ...uuid.UUID) *UserUpdate {
+	uu.mutation.RemoveAPIKeyIDs(ids...)
+	return uu
+}
+
+// RemoveAPIKeys removes "api_keys" edges to ApiKey entities.
+func (uu *UserUpdate) RemoveAPIKeys(a ...*ApiKey) *UserUpdate {
+	ids := make([]uuid.UUID, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return uu.RemoveAPIKeyIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -724,12 +735,12 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if uu.mutation.APIKeyCleared() {
+	if uu.mutation.APIKeysCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.APIKeyTable,
-			Columns: []string{user.APIKeyColumn},
+			Table:   user.APIKeysTable,
+			Columns: []string{user.APIKeysColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(apikey.FieldID, field.TypeUUID),
@@ -737,12 +748,28 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uu.mutation.APIKeyIDs(); len(nodes) > 0 {
+	if nodes := uu.mutation.RemovedAPIKeysIDs(); len(nodes) > 0 && !uu.mutation.APIKeysCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.APIKeyTable,
-			Columns: []string{user.APIKeyColumn},
+			Table:   user.APIKeysTable,
+			Columns: []string{user.APIKeysColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(apikey.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.APIKeysIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.APIKeysTable,
+			Columns: []string{user.APIKeysColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(apikey.FieldID, field.TypeUUID),
@@ -1027,23 +1054,19 @@ func (uuo *UserUpdateOne) AddComments(c ...*Comment) *UserUpdateOne {
 	return uuo.AddCommentIDs(ids...)
 }
 
-// SetAPIKeyID sets the "api_key" edge to the ApiKey entity by ID.
-func (uuo *UserUpdateOne) SetAPIKeyID(id uuid.UUID) *UserUpdateOne {
-	uuo.mutation.SetAPIKeyID(id)
+// AddAPIKeyIDs adds the "api_keys" edge to the ApiKey entity by IDs.
+func (uuo *UserUpdateOne) AddAPIKeyIDs(ids ...uuid.UUID) *UserUpdateOne {
+	uuo.mutation.AddAPIKeyIDs(ids...)
 	return uuo
 }
 
-// SetNillableAPIKeyID sets the "api_key" edge to the ApiKey entity by ID if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableAPIKeyID(id *uuid.UUID) *UserUpdateOne {
-	if id != nil {
-		uuo = uuo.SetAPIKeyID(*id)
+// AddAPIKeys adds the "api_keys" edges to the ApiKey entity.
+func (uuo *UserUpdateOne) AddAPIKeys(a ...*ApiKey) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
 	}
-	return uuo
-}
-
-// SetAPIKey sets the "api_key" edge to the ApiKey entity.
-func (uuo *UserUpdateOne) SetAPIKey(a *ApiKey) *UserUpdateOne {
-	return uuo.SetAPIKeyID(a.ID)
+	return uuo.AddAPIKeyIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -1135,10 +1158,25 @@ func (uuo *UserUpdateOne) RemoveComments(c ...*Comment) *UserUpdateOne {
 	return uuo.RemoveCommentIDs(ids...)
 }
 
-// ClearAPIKey clears the "api_key" edge to the ApiKey entity.
-func (uuo *UserUpdateOne) ClearAPIKey() *UserUpdateOne {
-	uuo.mutation.ClearAPIKey()
+// ClearAPIKeys clears all "api_keys" edges to the ApiKey entity.
+func (uuo *UserUpdateOne) ClearAPIKeys() *UserUpdateOne {
+	uuo.mutation.ClearAPIKeys()
 	return uuo
+}
+
+// RemoveAPIKeyIDs removes the "api_keys" edge to ApiKey entities by IDs.
+func (uuo *UserUpdateOne) RemoveAPIKeyIDs(ids ...uuid.UUID) *UserUpdateOne {
+	uuo.mutation.RemoveAPIKeyIDs(ids...)
+	return uuo
+}
+
+// RemoveAPIKeys removes "api_keys" edges to ApiKey entities.
+func (uuo *UserUpdateOne) RemoveAPIKeys(a ...*ApiKey) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return uuo.RemoveAPIKeyIDs(ids...)
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -1495,12 +1533,12 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if uuo.mutation.APIKeyCleared() {
+	if uuo.mutation.APIKeysCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.APIKeyTable,
-			Columns: []string{user.APIKeyColumn},
+			Table:   user.APIKeysTable,
+			Columns: []string{user.APIKeysColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(apikey.FieldID, field.TypeUUID),
@@ -1508,12 +1546,28 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uuo.mutation.APIKeyIDs(); len(nodes) > 0 {
+	if nodes := uuo.mutation.RemovedAPIKeysIDs(); len(nodes) > 0 && !uuo.mutation.APIKeysCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.APIKeyTable,
-			Columns: []string{user.APIKeyColumn},
+			Table:   user.APIKeysTable,
+			Columns: []string{user.APIKeysColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(apikey.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.APIKeysIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.APIKeysTable,
+			Columns: []string{user.APIKeysColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(apikey.FieldID, field.TypeUUID),

@@ -279,7 +279,7 @@ type ComplexityRoot struct {
 	}
 
 	User struct {
-		APIKey             func(childComplexity int) int
+		APIKeys            func(childComplexity int) int
 		Alias              func(childComplexity int) int
 		AuthProvider       func(childComplexity int) int
 		Awards             func(childComplexity int) int
@@ -1509,12 +1509,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SearchResultConnection.TotalCount(childComplexity), true
 
-	case "User.apiKey":
-		if e.complexity.User.APIKey == nil {
+	case "User.apiKeys":
+		if e.complexity.User.APIKeys == nil {
 			break
 		}
 
-		return e.complexity.User.APIKey(childComplexity), true
+		return e.complexity.User.APIKeys(childComplexity), true
 
 	case "User.alias":
 		if e.complexity.User.Alias == nil {
@@ -4678,8 +4678,8 @@ func (ec *executionContext) fieldContext_ApiKey_owner(_ context.Context, field g
 				return ec.fieldContext_User_publishedPosts(ctx, field)
 			case "comments":
 				return ec.fieldContext_User_comments(ctx, field)
-			case "apiKey":
-				return ec.fieldContext_User_apiKey(ctx, field)
+			case "apiKeys":
+				return ec.fieldContext_User_apiKeys(ctx, field)
 			case "twitchInfo":
 				return ec.fieldContext_User_twitchInfo(ctx, field)
 			}
@@ -5587,8 +5587,8 @@ func (ec *executionContext) fieldContext_Comment_owner(_ context.Context, field 
 				return ec.fieldContext_User_publishedPosts(ctx, field)
 			case "comments":
 				return ec.fieldContext_User_comments(ctx, field)
-			case "apiKey":
-				return ec.fieldContext_User_apiKey(ctx, field)
+			case "apiKeys":
+				return ec.fieldContext_User_apiKeys(ctx, field)
 			case "twitchInfo":
 				return ec.fieldContext_User_twitchInfo(ctx, field)
 			}
@@ -8485,8 +8485,8 @@ func (ec *executionContext) fieldContext_Post_owner(_ context.Context, field gra
 				return ec.fieldContext_User_publishedPosts(ctx, field)
 			case "comments":
 				return ec.fieldContext_User_comments(ctx, field)
-			case "apiKey":
-				return ec.fieldContext_User_apiKey(ctx, field)
+			case "apiKeys":
+				return ec.fieldContext_User_apiKeys(ctx, field)
 			case "twitchInfo":
 				return ec.fieldContext_User_twitchInfo(ctx, field)
 			}
@@ -8629,8 +8629,8 @@ func (ec *executionContext) fieldContext_Post_savedBy(_ context.Context, field g
 				return ec.fieldContext_User_publishedPosts(ctx, field)
 			case "comments":
 				return ec.fieldContext_User_comments(ctx, field)
-			case "apiKey":
-				return ec.fieldContext_User_apiKey(ctx, field)
+			case "apiKeys":
+				return ec.fieldContext_User_apiKeys(ctx, field)
 			case "twitchInfo":
 				return ec.fieldContext_User_twitchInfo(ctx, field)
 			}
@@ -11173,8 +11173,8 @@ func (ec *executionContext) fieldContext_Query_user(ctx context.Context, field g
 				return ec.fieldContext_User_publishedPosts(ctx, field)
 			case "comments":
 				return ec.fieldContext_User_comments(ctx, field)
-			case "apiKey":
-				return ec.fieldContext_User_apiKey(ctx, field)
+			case "apiKeys":
+				return ec.fieldContext_User_apiKeys(ctx, field)
 			case "twitchInfo":
 				return ec.fieldContext_User_twitchInfo(ctx, field)
 			}
@@ -11265,8 +11265,8 @@ func (ec *executionContext) fieldContext_Query_me(_ context.Context, field graph
 				return ec.fieldContext_User_publishedPosts(ctx, field)
 			case "comments":
 				return ec.fieldContext_User_comments(ctx, field)
-			case "apiKey":
-				return ec.fieldContext_User_apiKey(ctx, field)
+			case "apiKeys":
+				return ec.fieldContext_User_apiKeys(ctx, field)
 			case "twitchInfo":
 				return ec.fieldContext_User_twitchInfo(ctx, field)
 			}
@@ -12402,8 +12402,8 @@ func (ec *executionContext) fieldContext_User_comments(_ context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _User_apiKey(ctx context.Context, field graphql.CollectedField, obj *generated.User) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_User_apiKey(ctx, field)
+func (ec *executionContext) _User_apiKeys(ctx context.Context, field graphql.CollectedField, obj *generated.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_apiKeys(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -12417,17 +12417,17 @@ func (ec *executionContext) _User_apiKey(ctx context.Context, field graphql.Coll
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		directive0 := func(rctx context.Context) (any, error) {
 			ctx = rctx // use context from middleware stack in children
-			return obj.APIKey(ctx)
+			return obj.APIKeys(ctx)
 		}
 
 		directive1 := func(ctx context.Context) (any, error) {
 			role, err := ec.unmarshalNUserRole2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚋuserᚐRole(ctx, "ADMIN")
 			if err != nil {
-				var zeroVal *generated.ApiKey
+				var zeroVal []*generated.ApiKey
 				return zeroVal, err
 			}
 			if ec.directives.HasRole == nil {
-				var zeroVal *generated.ApiKey
+				var zeroVal []*generated.ApiKey
 				return zeroVal, errors.New("directive hasRole is not implemented")
 			}
 			return ec.directives.HasRole(ctx, obj, directive0, role)
@@ -12440,10 +12440,10 @@ func (ec *executionContext) _User_apiKey(ctx context.Context, field graphql.Coll
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.(*generated.ApiKey); ok {
+		if data, ok := tmp.([]*generated.ApiKey); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/caliecode/la-clipasa/internal/ent/generated.ApiKey`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/caliecode/la-clipasa/internal/ent/generated.ApiKey`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12452,12 +12452,12 @@ func (ec *executionContext) _User_apiKey(ctx context.Context, field graphql.Coll
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*generated.ApiKey)
+	res := resTmp.([]*generated.ApiKey)
 	fc.Result = res
-	return ec.marshalOApiKey2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐApiKey(ctx, field.Selections, res)
+	return ec.marshalOApiKey2ᚕᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐApiKeyᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_User_apiKey(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_User_apiKeys(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
@@ -12605,8 +12605,8 @@ func (ec *executionContext) fieldContext_UserBulkCreatePayload_users(_ context.C
 				return ec.fieldContext_User_publishedPosts(ctx, field)
 			case "comments":
 				return ec.fieldContext_User_comments(ctx, field)
-			case "apiKey":
-				return ec.fieldContext_User_apiKey(ctx, field)
+			case "apiKeys":
+				return ec.fieldContext_User_apiKeys(ctx, field)
 			case "twitchInfo":
 				return ec.fieldContext_User_twitchInfo(ctx, field)
 			}
@@ -12834,8 +12834,8 @@ func (ec *executionContext) fieldContext_UserCreatePayload_user(_ context.Contex
 				return ec.fieldContext_User_publishedPosts(ctx, field)
 			case "comments":
 				return ec.fieldContext_User_comments(ctx, field)
-			case "apiKey":
-				return ec.fieldContext_User_apiKey(ctx, field)
+			case "apiKeys":
+				return ec.fieldContext_User_apiKeys(ctx, field)
 			case "twitchInfo":
 				return ec.fieldContext_User_twitchInfo(ctx, field)
 			}
@@ -12959,8 +12959,8 @@ func (ec *executionContext) fieldContext_UserEdge_node(_ context.Context, field 
 				return ec.fieldContext_User_publishedPosts(ctx, field)
 			case "comments":
 				return ec.fieldContext_User_comments(ctx, field)
-			case "apiKey":
-				return ec.fieldContext_User_apiKey(ctx, field)
+			case "apiKeys":
+				return ec.fieldContext_User_apiKeys(ctx, field)
 			case "twitchInfo":
 				return ec.fieldContext_User_twitchInfo(ctx, field)
 			}
@@ -13084,8 +13084,8 @@ func (ec *executionContext) fieldContext_UserSearchResult_users(_ context.Contex
 				return ec.fieldContext_User_publishedPosts(ctx, field)
 			case "comments":
 				return ec.fieldContext_User_comments(ctx, field)
-			case "apiKey":
-				return ec.fieldContext_User_apiKey(ctx, field)
+			case "apiKeys":
+				return ec.fieldContext_User_apiKeys(ctx, field)
 			case "twitchInfo":
 				return ec.fieldContext_User_twitchInfo(ctx, field)
 			}
@@ -13332,8 +13332,8 @@ func (ec *executionContext) fieldContext_UserUpdatePayload_user(_ context.Contex
 				return ec.fieldContext_User_publishedPosts(ctx, field)
 			case "comments":
 				return ec.fieldContext_User_comments(ctx, field)
-			case "apiKey":
-				return ec.fieldContext_User_apiKey(ctx, field)
+			case "apiKeys":
+				return ec.fieldContext_User_apiKeys(ctx, field)
 			case "twitchInfo":
 				return ec.fieldContext_User_twitchInfo(ctx, field)
 			}
@@ -16250,7 +16250,7 @@ func (ec *executionContext) unmarshalInputCreateApiKeyInput(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"apiKey", "expiresOn", "ownerID"}
+	fieldsInOrder := [...]string{"apiKey", "expiresOn"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -16309,35 +16309,6 @@ func (ec *executionContext) unmarshalInputCreateApiKeyInput(ctx context.Context,
 				it.ExpiresOn = data
 			} else {
 				err := fmt.Errorf(`unexpected type %T from directive, should be time.Time`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
-		case "ownerID":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ownerID"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				role, err := ec.unmarshalNUserRole2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚋuserᚐRole(ctx, "ADMIN")
-				if err != nil {
-					var zeroVal uuid.UUID
-					return zeroVal, err
-				}
-				if ec.directives.HasRole == nil {
-					var zeroVal uuid.UUID
-					return zeroVal, errors.New("directive hasRole is not implemented")
-				}
-				return ec.directives.HasRole(ctx, obj, directive0, role)
-			}
-
-			tmp, err := directive1(ctx)
-			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
-			if data, ok := tmp.(uuid.UUID); ok {
-				it.OwnerID = data
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be github.com/google/uuid.UUID`, tmp)
 				return it, graphql.ErrorOnPath(ctx, err)
 			}
 		}
@@ -16559,7 +16530,7 @@ func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"displayName", "alias", "profileImage", "authProvider", "role", "lastSeenAt", "lastPostSeenCursor", "awards", "savedPostIDs", "likedPostIDs", "publishedPostIDs", "commentIDs", "apiKeyID"}
+	fieldsInOrder := [...]string{"displayName", "alias", "profileImage", "authProvider", "role", "lastSeenAt", "lastPostSeenCursor", "awards", "savedPostIDs", "likedPostIDs", "publishedPostIDs", "commentIDs", "apiKeyIDs"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -16674,13 +16645,13 @@ func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, o
 				return it, err
 			}
 			it.CommentIDs = data
-		case "apiKeyID":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("apiKeyID"))
-			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
+		case "apiKeyIDs":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("apiKeyIDs"))
+			data, err := ec.unmarshalOID2ᚕgithubᚗcomᚋgoogleᚋuuidᚐUUIDᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.APIKeyID = data
+			it.APIKeyIDs = data
 		}
 	}
 
@@ -18327,7 +18298,7 @@ func (ec *executionContext) unmarshalInputUpdateUserInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"displayName", "alias", "clearAlias", "profileImage", "clearProfileImage", "authProvider", "role", "lastSeenAt", "clearLastSeenAt", "lastPostSeenCursor", "clearLastPostSeenCursor", "awards", "appendAwards", "clearAwards", "addSavedPostIDs", "removeSavedPostIDs", "clearSavedPosts", "addLikedPostIDs", "removeLikedPostIDs", "clearLikedPosts", "addPublishedPostIDs", "removePublishedPostIDs", "clearPublishedPosts", "addCommentIDs", "removeCommentIDs", "clearComments", "apiKeyID", "clearAPIKey"}
+	fieldsInOrder := [...]string{"displayName", "alias", "clearAlias", "profileImage", "clearProfileImage", "authProvider", "role", "lastSeenAt", "clearLastSeenAt", "lastPostSeenCursor", "clearLastPostSeenCursor", "awards", "appendAwards", "clearAwards", "addSavedPostIDs", "removeSavedPostIDs", "clearSavedPosts", "addLikedPostIDs", "removeLikedPostIDs", "clearLikedPosts", "addPublishedPostIDs", "removePublishedPostIDs", "clearPublishedPosts", "addCommentIDs", "removeCommentIDs", "clearComments", "addAPIKeyIDs", "removeAPIKeyIDs", "clearAPIKeys"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -18540,20 +18511,27 @@ func (ec *executionContext) unmarshalInputUpdateUserInput(ctx context.Context, o
 				return it, err
 			}
 			it.ClearComments = data
-		case "apiKeyID":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("apiKeyID"))
-			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
+		case "addAPIKeyIDs":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("addAPIKeyIDs"))
+			data, err := ec.unmarshalOID2ᚕgithubᚗcomᚋgoogleᚋuuidᚐUUIDᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.APIKeyID = data
-		case "clearAPIKey":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("clearAPIKey"))
+			it.AddAPIKeyIDs = data
+		case "removeAPIKeyIDs":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("removeAPIKeyIDs"))
+			data, err := ec.unmarshalOID2ᚕgithubᚗcomᚋgoogleᚋuuidᚐUUIDᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RemoveAPIKeyIDs = data
+		case "clearAPIKeys":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("clearAPIKeys"))
 			data, err := ec.unmarshalOBoolean2bool(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.ClearAPIKey = data
+			it.ClearAPIKeys = data
 		}
 	}
 
@@ -18605,7 +18583,7 @@ func (ec *executionContext) unmarshalInputUserWhereInput(ctx context.Context, ob
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "updatedAt", "updatedAtNEQ", "updatedAtIn", "updatedAtNotIn", "updatedAtGT", "updatedAtGTE", "updatedAtLT", "updatedAtLTE", "createdAt", "createdAtNEQ", "createdAtIn", "createdAtNotIn", "createdAtGT", "createdAtGTE", "createdAtLT", "createdAtLTE", "deletedAt", "deletedAtNEQ", "deletedAtIn", "deletedAtNotIn", "deletedAtGT", "deletedAtGTE", "deletedAtLT", "deletedAtLTE", "deletedAtIsNil", "deletedAtNotNil", "deletedBy", "deletedByNEQ", "deletedByIn", "deletedByNotIn", "deletedByGT", "deletedByGTE", "deletedByLT", "deletedByLTE", "deletedByContains", "deletedByHasPrefix", "deletedByHasSuffix", "deletedByIsNil", "deletedByNotNil", "deletedByEqualFold", "deletedByContainsFold", "displayName", "displayNameNEQ", "displayNameIn", "displayNameNotIn", "displayNameGT", "displayNameGTE", "displayNameLT", "displayNameLTE", "displayNameContains", "displayNameHasPrefix", "displayNameHasSuffix", "displayNameEqualFold", "displayNameContainsFold", "alias", "aliasNEQ", "aliasIn", "aliasNotIn", "aliasGT", "aliasGTE", "aliasLT", "aliasLTE", "aliasContains", "aliasHasPrefix", "aliasHasSuffix", "aliasIsNil", "aliasNotNil", "aliasEqualFold", "aliasContainsFold", "profileImage", "profileImageNEQ", "profileImageIn", "profileImageNotIn", "profileImageGT", "profileImageGTE", "profileImageLT", "profileImageLTE", "profileImageContains", "profileImageHasPrefix", "profileImageHasSuffix", "profileImageIsNil", "profileImageNotNil", "profileImageEqualFold", "profileImageContainsFold", "authProvider", "authProviderNEQ", "authProviderIn", "authProviderNotIn", "role", "roleNEQ", "roleIn", "roleNotIn", "lastSeenAt", "lastSeenAtNEQ", "lastSeenAtIn", "lastSeenAtNotIn", "lastSeenAtGT", "lastSeenAtGTE", "lastSeenAtLT", "lastSeenAtLTE", "lastSeenAtIsNil", "lastSeenAtNotNil", "lastPostSeenCursor", "lastPostSeenCursorNEQ", "lastPostSeenCursorIn", "lastPostSeenCursorNotIn", "lastPostSeenCursorGT", "lastPostSeenCursorGTE", "lastPostSeenCursorLT", "lastPostSeenCursorLTE", "lastPostSeenCursorContains", "lastPostSeenCursorHasPrefix", "lastPostSeenCursorHasSuffix", "lastPostSeenCursorIsNil", "lastPostSeenCursorNotNil", "lastPostSeenCursorEqualFold", "lastPostSeenCursorContainsFold", "hasSavedPosts", "hasSavedPostsWith", "hasLikedPosts", "hasLikedPostsWith", "hasPublishedPosts", "hasPublishedPostsWith", "hasComments", "hasCommentsWith", "hasAPIKey", "hasAPIKeyWith"}
+	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "updatedAt", "updatedAtNEQ", "updatedAtIn", "updatedAtNotIn", "updatedAtGT", "updatedAtGTE", "updatedAtLT", "updatedAtLTE", "createdAt", "createdAtNEQ", "createdAtIn", "createdAtNotIn", "createdAtGT", "createdAtGTE", "createdAtLT", "createdAtLTE", "deletedAt", "deletedAtNEQ", "deletedAtIn", "deletedAtNotIn", "deletedAtGT", "deletedAtGTE", "deletedAtLT", "deletedAtLTE", "deletedAtIsNil", "deletedAtNotNil", "deletedBy", "deletedByNEQ", "deletedByIn", "deletedByNotIn", "deletedByGT", "deletedByGTE", "deletedByLT", "deletedByLTE", "deletedByContains", "deletedByHasPrefix", "deletedByHasSuffix", "deletedByIsNil", "deletedByNotNil", "deletedByEqualFold", "deletedByContainsFold", "displayName", "displayNameNEQ", "displayNameIn", "displayNameNotIn", "displayNameGT", "displayNameGTE", "displayNameLT", "displayNameLTE", "displayNameContains", "displayNameHasPrefix", "displayNameHasSuffix", "displayNameEqualFold", "displayNameContainsFold", "alias", "aliasNEQ", "aliasIn", "aliasNotIn", "aliasGT", "aliasGTE", "aliasLT", "aliasLTE", "aliasContains", "aliasHasPrefix", "aliasHasSuffix", "aliasIsNil", "aliasNotNil", "aliasEqualFold", "aliasContainsFold", "profileImage", "profileImageNEQ", "profileImageIn", "profileImageNotIn", "profileImageGT", "profileImageGTE", "profileImageLT", "profileImageLTE", "profileImageContains", "profileImageHasPrefix", "profileImageHasSuffix", "profileImageIsNil", "profileImageNotNil", "profileImageEqualFold", "profileImageContainsFold", "authProvider", "authProviderNEQ", "authProviderIn", "authProviderNotIn", "role", "roleNEQ", "roleIn", "roleNotIn", "lastSeenAt", "lastSeenAtNEQ", "lastSeenAtIn", "lastSeenAtNotIn", "lastSeenAtGT", "lastSeenAtGTE", "lastSeenAtLT", "lastSeenAtLTE", "lastSeenAtIsNil", "lastSeenAtNotNil", "lastPostSeenCursor", "lastPostSeenCursorNEQ", "lastPostSeenCursorIn", "lastPostSeenCursorNotIn", "lastPostSeenCursorGT", "lastPostSeenCursorGTE", "lastPostSeenCursorLT", "lastPostSeenCursorLTE", "lastPostSeenCursorContains", "lastPostSeenCursorHasPrefix", "lastPostSeenCursorHasSuffix", "lastPostSeenCursorIsNil", "lastPostSeenCursorNotNil", "lastPostSeenCursorEqualFold", "lastPostSeenCursorContainsFold", "hasSavedPosts", "hasSavedPostsWith", "hasLikedPosts", "hasLikedPostsWith", "hasPublishedPosts", "hasPublishedPostsWith", "hasComments", "hasCommentsWith", "hasAPIKeys", "hasAPIKeysWith"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -19564,20 +19542,20 @@ func (ec *executionContext) unmarshalInputUserWhereInput(ctx context.Context, ob
 				return it, err
 			}
 			it.HasCommentsWith = data
-		case "hasAPIKey":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasAPIKey"))
+		case "hasAPIKeys":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasAPIKeys"))
 			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.HasAPIKey = data
-		case "hasAPIKeyWith":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasAPIKeyWith"))
+			it.HasAPIKeys = data
+		case "hasAPIKeysWith":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasAPIKeysWith"))
 			data, err := ec.unmarshalOApiKeyWhereInput2ᚕᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐApiKeyWhereInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.HasAPIKeyWith = data
+			it.HasAPIKeysWith = data
 		}
 	}
 
@@ -22154,7 +22132,7 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "apiKey":
+		case "apiKeys":
 			field := field
 
 			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
@@ -22163,7 +22141,7 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._User_apiKey(ctx, field, obj)
+				res = ec._User_apiKeys(ctx, field, obj)
 				return res
 			}
 

@@ -3346,8 +3346,9 @@ type UserMutation struct {
 	comments               map[uuid.UUID]struct{}
 	removedcomments        map[uuid.UUID]struct{}
 	clearedcomments        bool
-	api_key                *uuid.UUID
-	clearedapi_key         bool
+	api_keys               map[uuid.UUID]struct{}
+	removedapi_keys        map[uuid.UUID]struct{}
+	clearedapi_keys        bool
 	done                   bool
 	oldValue               func(context.Context) (*User, error)
 	predicates             []predicate.User
@@ -4248,43 +4249,58 @@ func (m *UserMutation) ResetComments() {
 	m.removedcomments = nil
 }
 
-// SetAPIKeyID sets the "api_key" edge to the ApiKey entity by id.
-func (m *UserMutation) SetAPIKeyID(id uuid.UUID) {
-	m.api_key = &id
+// AddAPIKeyIDs adds the "api_keys" edge to the ApiKey entity by ids.
+func (m *UserMutation) AddAPIKeyIDs(ids ...uuid.UUID) {
+	if m.api_keys == nil {
+		m.api_keys = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.api_keys[ids[i]] = struct{}{}
+	}
 }
 
-// ClearAPIKey clears the "api_key" edge to the ApiKey entity.
-func (m *UserMutation) ClearAPIKey() {
-	m.clearedapi_key = true
+// ClearAPIKeys clears the "api_keys" edge to the ApiKey entity.
+func (m *UserMutation) ClearAPIKeys() {
+	m.clearedapi_keys = true
 }
 
-// APIKeyCleared reports if the "api_key" edge to the ApiKey entity was cleared.
-func (m *UserMutation) APIKeyCleared() bool {
-	return m.clearedapi_key
+// APIKeysCleared reports if the "api_keys" edge to the ApiKey entity was cleared.
+func (m *UserMutation) APIKeysCleared() bool {
+	return m.clearedapi_keys
 }
 
-// APIKeyID returns the "api_key" edge ID in the mutation.
-func (m *UserMutation) APIKeyID() (id uuid.UUID, exists bool) {
-	if m.api_key != nil {
-		return *m.api_key, true
+// RemoveAPIKeyIDs removes the "api_keys" edge to the ApiKey entity by IDs.
+func (m *UserMutation) RemoveAPIKeyIDs(ids ...uuid.UUID) {
+	if m.removedapi_keys == nil {
+		m.removedapi_keys = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.api_keys, ids[i])
+		m.removedapi_keys[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedAPIKeys returns the removed IDs of the "api_keys" edge to the ApiKey entity.
+func (m *UserMutation) RemovedAPIKeysIDs() (ids []uuid.UUID) {
+	for id := range m.removedapi_keys {
+		ids = append(ids, id)
 	}
 	return
 }
 
-// APIKeyIDs returns the "api_key" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// APIKeyID instead. It exists only for internal usage by the builders.
-func (m *UserMutation) APIKeyIDs() (ids []uuid.UUID) {
-	if id := m.api_key; id != nil {
-		ids = append(ids, *id)
+// APIKeysIDs returns the "api_keys" edge IDs in the mutation.
+func (m *UserMutation) APIKeysIDs() (ids []uuid.UUID) {
+	for id := range m.api_keys {
+		ids = append(ids, id)
 	}
 	return
 }
 
-// ResetAPIKey resets all changes to the "api_key" edge.
-func (m *UserMutation) ResetAPIKey() {
-	m.api_key = nil
-	m.clearedapi_key = false
+// ResetAPIKeys resets all changes to the "api_keys" edge.
+func (m *UserMutation) ResetAPIKeys() {
+	m.api_keys = nil
+	m.clearedapi_keys = false
+	m.removedapi_keys = nil
 }
 
 // Where appends a list predicates to the UserMutation builder.
@@ -4682,8 +4698,8 @@ func (m *UserMutation) AddedEdges() []string {
 	if m.comments != nil {
 		edges = append(edges, user.EdgeComments)
 	}
-	if m.api_key != nil {
-		edges = append(edges, user.EdgeAPIKey)
+	if m.api_keys != nil {
+		edges = append(edges, user.EdgeAPIKeys)
 	}
 	return edges
 }
@@ -4716,10 +4732,12 @@ func (m *UserMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
-	case user.EdgeAPIKey:
-		if id := m.api_key; id != nil {
-			return []ent.Value{*id}
+	case user.EdgeAPIKeys:
+		ids := make([]ent.Value, 0, len(m.api_keys))
+		for id := range m.api_keys {
+			ids = append(ids, id)
 		}
+		return ids
 	}
 	return nil
 }
@@ -4738,6 +4756,9 @@ func (m *UserMutation) RemovedEdges() []string {
 	}
 	if m.removedcomments != nil {
 		edges = append(edges, user.EdgeComments)
+	}
+	if m.removedapi_keys != nil {
+		edges = append(edges, user.EdgeAPIKeys)
 	}
 	return edges
 }
@@ -4770,6 +4791,12 @@ func (m *UserMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case user.EdgeAPIKeys:
+		ids := make([]ent.Value, 0, len(m.removedapi_keys))
+		for id := range m.removedapi_keys {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
@@ -4789,8 +4816,8 @@ func (m *UserMutation) ClearedEdges() []string {
 	if m.clearedcomments {
 		edges = append(edges, user.EdgeComments)
 	}
-	if m.clearedapi_key {
-		edges = append(edges, user.EdgeAPIKey)
+	if m.clearedapi_keys {
+		edges = append(edges, user.EdgeAPIKeys)
 	}
 	return edges
 }
@@ -4807,8 +4834,8 @@ func (m *UserMutation) EdgeCleared(name string) bool {
 		return m.clearedpublished_posts
 	case user.EdgeComments:
 		return m.clearedcomments
-	case user.EdgeAPIKey:
-		return m.clearedapi_key
+	case user.EdgeAPIKeys:
+		return m.clearedapi_keys
 	}
 	return false
 }
@@ -4817,9 +4844,6 @@ func (m *UserMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *UserMutation) ClearEdge(name string) error {
 	switch name {
-	case user.EdgeAPIKey:
-		m.ClearAPIKey()
-		return nil
 	}
 	return fmt.Errorf("unknown User unique edge %s", name)
 }
@@ -4840,8 +4864,8 @@ func (m *UserMutation) ResetEdge(name string) error {
 	case user.EdgeComments:
 		m.ResetComments()
 		return nil
-	case user.EdgeAPIKey:
-		m.ResetAPIKey()
+	case user.EdgeAPIKeys:
+		m.ResetAPIKeys()
 		return nil
 	}
 	return fmt.Errorf("unknown User edge %s", name)

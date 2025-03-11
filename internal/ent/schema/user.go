@@ -76,7 +76,7 @@ func (User) Edges() []ent.Edge {
 				entx.CascadeAnnotationField("Owner"), // for edge_cleanup gen
 			),
 		edge.To("comments", Comment.Type),
-		edge.To("api_key", ApiKey.Type).Unique().
+		edge.To("api_keys", ApiKey.Type).
 			Annotations(
 				entx.CascadeAnnotationField("Owner"), // for edge_cleanup gen
 			),

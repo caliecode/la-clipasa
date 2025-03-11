@@ -10,7 +10,6 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/caliecode/la-clipasa/internal/ent/generated/apikey"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
 	"github.com/google/uuid"
 )
@@ -62,8 +61,8 @@ type UserEdges struct {
 	PublishedPosts []*Post `json:"published_posts,omitempty"`
 	// Comments holds the value of the comments edge.
 	Comments []*Comment `json:"comments,omitempty"`
-	// APIKey holds the value of the api_key edge.
-	APIKey *ApiKey `json:"api_key,omitempty"`
+	// APIKeys holds the value of the api_keys edge.
+	APIKeys []*ApiKey `json:"api_keys,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [5]bool
@@ -74,6 +73,7 @@ type UserEdges struct {
 	namedLikedPosts     map[string][]*Post
 	namedPublishedPosts map[string][]*Post
 	namedComments       map[string][]*Comment
+	namedAPIKeys        map[string][]*ApiKey
 }
 
 // SavedPostsOrErr returns the SavedPosts value or an error if the edge
@@ -112,15 +112,13 @@ func (e UserEdges) CommentsOrErr() ([]*Comment, error) {
 	return nil, &NotLoadedError{edge: "comments"}
 }
 
-// APIKeyOrErr returns the APIKey value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e UserEdges) APIKeyOrErr() (*ApiKey, error) {
-	if e.APIKey != nil {
-		return e.APIKey, nil
-	} else if e.loadedTypes[4] {
-		return nil, &NotFoundError{label: apikey.Label}
+// APIKeysOrErr returns the APIKeys value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) APIKeysOrErr() ([]*ApiKey, error) {
+	if e.loadedTypes[4] {
+		return e.APIKeys, nil
 	}
-	return nil, &NotLoadedError{edge: "api_key"}
+	return nil, &NotLoadedError{edge: "api_keys"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -273,9 +271,9 @@ func (u *User) QueryComments() *CommentQuery {
 	return NewUserClient(u.config).QueryComments(u)
 }
 
-// QueryAPIKey queries the "api_key" edge of the User entity.
-func (u *User) QueryAPIKey() *ApiKeyQuery {
-	return NewUserClient(u.config).QueryAPIKey(u)
+// QueryAPIKeys queries the "api_keys" edge of the User entity.
+func (u *User) QueryAPIKeys() *ApiKeyQuery {
+	return NewUserClient(u.config).QueryAPIKeys(u)
 }
 
 // Update returns a builder for updating this User.
@@ -442,6 +440,30 @@ func (u *User) appendNamedComments(name string, edges ...*Comment) {
 		u.Edges.namedComments[name] = []*Comment{}
 	} else {
 		u.Edges.namedComments[name] = append(u.Edges.namedComments[name], edges...)
+	}
+}
+
+// NamedAPIKeys returns the APIKeys named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (u *User) NamedAPIKeys(name string) ([]*ApiKey, error) {
+	if u.Edges.namedAPIKeys == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := u.Edges.namedAPIKeys[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (u *User) appendNamedAPIKeys(name string, edges ...*ApiKey) {
+	if u.Edges.namedAPIKeys == nil {
+		u.Edges.namedAPIKeys = make(map[string][]*ApiKey)
+	}
+	if len(edges) == 0 {
+		u.Edges.namedAPIKeys[name] = []*ApiKey{}
+	} else {
+		u.Edges.namedAPIKeys[name] = append(u.Edges.namedAPIKeys[name], edges...)
 	}
 }
 

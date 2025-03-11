@@ -505,9 +505,9 @@ func (u *User) Node(ctx context.Context) (node *Node, err error) {
 	}
 	node.Edges[4] = &Edge{
 		Type: "ApiKey",
-		Name: "api_key",
+		Name: "api_keys",
 	}
-	err = u.QueryAPIKey().
+	err = u.QueryAPIKeys().
 		Select(apikey.FieldID).
 		Scan(ctx, &node.Edges[4].IDs)
 	if err != nil {

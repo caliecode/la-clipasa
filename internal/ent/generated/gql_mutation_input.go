@@ -14,14 +14,12 @@ import (
 type CreateApiKeyInput struct {
 	APIKey    string
 	ExpiresOn time.Time
-	OwnerID   uuid.UUID
 }
 
 // Mutate applies the CreateApiKeyInput on the ApiKeyMutation builder.
 func (i *CreateApiKeyInput) Mutate(m *ApiKeyMutation) {
 	m.SetAPIKey(i.APIKey)
 	m.SetExpiresOn(i.ExpiresOn)
-	m.SetOwnerID(i.OwnerID)
 }
 
 // SetInput applies the change-set in the CreateApiKeyInput on the ApiKeyCreate builder.
@@ -334,7 +332,7 @@ type CreateUserInput struct {
 	LikedPostIDs       []uuid.UUID
 	PublishedPostIDs   []uuid.UUID
 	CommentIDs         []uuid.UUID
-	APIKeyID           *uuid.UUID
+	APIKeyIDs          []uuid.UUID
 }
 
 // Mutate applies the CreateUserInput on the UserMutation builder.
@@ -373,8 +371,8 @@ func (i *CreateUserInput) Mutate(m *UserMutation) {
 	if v := i.CommentIDs; len(v) > 0 {
 		m.AddCommentIDs(v...)
 	}
-	if v := i.APIKeyID; v != nil {
-		m.SetAPIKeyID(*v)
+	if v := i.APIKeyIDs; len(v) > 0 {
+		m.AddAPIKeyIDs(v...)
 	}
 }
 
@@ -412,8 +410,9 @@ type UpdateUserInput struct {
 	ClearComments           bool
 	AddCommentIDs           []uuid.UUID
 	RemoveCommentIDs        []uuid.UUID
-	ClearAPIKey             bool
-	APIKeyID                *uuid.UUID
+	ClearAPIKeys            bool
+	AddAPIKeyIDs            []uuid.UUID
+	RemoveAPIKeyIDs         []uuid.UUID
 }
 
 // Mutate applies the UpdateUserInput on the UserMutation builder.
@@ -496,11 +495,14 @@ func (i *UpdateUserInput) Mutate(m *UserMutation) {
 	if v := i.RemoveCommentIDs; len(v) > 0 {
 		m.RemoveCommentIDs(v...)
 	}
-	if i.ClearAPIKey {
-		m.ClearAPIKey()
+	if i.ClearAPIKeys {
+		m.ClearAPIKeys()
 	}
-	if v := i.APIKeyID; v != nil {
-		m.SetAPIKeyID(*v)
+	if v := i.AddAPIKeyIDs; len(v) > 0 {
+		m.AddAPIKeyIDs(v...)
+	}
+	if v := i.RemoveAPIKeyIDs; len(v) > 0 {
+		m.RemoveAPIKeyIDs(v...)
 	}
 }
 

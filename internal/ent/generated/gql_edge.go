@@ -162,10 +162,14 @@ func (u *User) Comments(ctx context.Context) (result []*Comment, err error) {
 	return result, err
 }
 
-func (u *User) APIKey(ctx context.Context) (*ApiKey, error) {
-	result, err := u.Edges.APIKeyOrErr()
-	if IsNotLoaded(err) {
-		result, err = u.QueryAPIKey().Only(ctx)
+func (u *User) APIKeys(ctx context.Context) (result []*ApiKey, err error) {
+	if fc := graphql.GetFieldContext(ctx); fc != nil && fc.Field.Alias != "" {
+		result, err = u.NamedAPIKeys(graphql.GetFieldContext(ctx).Field.Alias)
+	} else {
+		result, err = u.Edges.APIKeysOrErr()
 	}
-	return result, MaskNotFound(err)
+	if IsNotLoaded(err) {
+		result, err = u.QueryAPIKeys().All(ctx)
+	}
+	return result, err
 }

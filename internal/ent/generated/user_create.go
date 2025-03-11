@@ -256,23 +256,19 @@ func (uc *UserCreate) AddComments(c ...*Comment) *UserCreate {
 	return uc.AddCommentIDs(ids...)
 }
 
-// SetAPIKeyID sets the "api_key" edge to the ApiKey entity by ID.
-func (uc *UserCreate) SetAPIKeyID(id uuid.UUID) *UserCreate {
-	uc.mutation.SetAPIKeyID(id)
+// AddAPIKeyIDs adds the "api_keys" edge to the ApiKey entity by IDs.
+func (uc *UserCreate) AddAPIKeyIDs(ids ...uuid.UUID) *UserCreate {
+	uc.mutation.AddAPIKeyIDs(ids...)
 	return uc
 }
 
-// SetNillableAPIKeyID sets the "api_key" edge to the ApiKey entity by ID if the given value is not nil.
-func (uc *UserCreate) SetNillableAPIKeyID(id *uuid.UUID) *UserCreate {
-	if id != nil {
-		uc = uc.SetAPIKeyID(*id)
+// AddAPIKeys adds the "api_keys" edges to the ApiKey entity.
+func (uc *UserCreate) AddAPIKeys(a ...*ApiKey) *UserCreate {
+	ids := make([]uuid.UUID, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
 	}
-	return uc
-}
-
-// SetAPIKey sets the "api_key" edge to the ApiKey entity.
-func (uc *UserCreate) SetAPIKey(a *ApiKey) *UserCreate {
-	return uc.SetAPIKeyID(a.ID)
+	return uc.AddAPIKeyIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -525,12 +521,12 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := uc.mutation.APIKeyIDs(); len(nodes) > 0 {
+	if nodes := uc.mutation.APIKeysIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.APIKeyTable,
-			Columns: []string{user.APIKeyColumn},
+			Table:   user.APIKeysTable,
+			Columns: []string{user.APIKeysColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(apikey.FieldID, field.TypeUUID),

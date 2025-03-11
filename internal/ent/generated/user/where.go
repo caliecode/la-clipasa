@@ -858,21 +858,21 @@ func HasCommentsWith(preds ...predicate.Comment) predicate.User {
 	})
 }
 
-// HasAPIKey applies the HasEdge predicate on the "api_key" edge.
-func HasAPIKey() predicate.User {
+// HasAPIKeys applies the HasEdge predicate on the "api_keys" edge.
+func HasAPIKeys() predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, APIKeyTable, APIKeyColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, APIKeysTable, APIKeysColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasAPIKeyWith applies the HasEdge predicate on the "api_key" edge with a given conditions (other predicates).
-func HasAPIKeyWith(preds ...predicate.ApiKey) predicate.User {
+// HasAPIKeysWith applies the HasEdge predicate on the "api_keys" edge with a given conditions (other predicates).
+func HasAPIKeysWith(preds ...predicate.ApiKey) predicate.User {
 	return predicate.User(func(s *sql.Selector) {
-		step := newAPIKeyStep()
+		step := newAPIKeysStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

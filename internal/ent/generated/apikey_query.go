@@ -79,7 +79,7 @@ func (akq *ApiKeyQuery) QueryOwner() *UserQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(apikey.Table, apikey.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, apikey.OwnerTable, apikey.OwnerColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, apikey.OwnerTable, apikey.OwnerColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(akq.driver.Dialect(), step)
 		return fromU, nil

@@ -12,7 +12,14 @@ import (
 
 // CreateAPIKey is the resolver for the createApiKey field.
 func (r *mutationResolver) CreateAPIKey(ctx context.Context, input generated.CreateApiKeyInput) (*model.APIKeyCreatePayload, error) {
-	panic(errors.New("not implemented: CreateAPIKey - createApiKey"))
+	ak, err := r.ent.ApiKey.Create().SetInput(input).Save(ctx)
+	if err != nil {
+		return nil, parseRequestError(err, action{action: ActionCreate, object: "api key"})
+	}
+
+	return &model.APIKeyCreatePayload{
+		APIKey: ak,
+	}, nil
 }
 
 // CreateBulkAPIKey is the resolver for the createBulkApiKey field.
@@ -37,5 +44,10 @@ func (r *mutationResolver) DeleteAPIKey(ctx context.Context, id uuid.UUID) (*mod
 
 // APIKey is the resolver for the apiKey field.
 func (r *queryResolver) APIKey(ctx context.Context, id uuid.UUID) (*generated.ApiKey, error) {
-	panic(errors.New("not implemented: APIKey - apiKey"))
+	ak, err := r.ent.ApiKey.Get(ctx, id)
+	if err != nil {
+		return nil, parseRequestError(err, action{action: ActionGet, object: "api key"})
+	}
+
+	return ak, nil
 }

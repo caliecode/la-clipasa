@@ -33,13 +33,14 @@ type UserQuery struct {
 	withLikedPosts          *PostQuery
 	withPublishedPosts      *PostQuery
 	withComments            *CommentQuery
-	withAPIKey              *ApiKeyQuery
+	withAPIKeys             *ApiKeyQuery
 	loadTotal               []func(context.Context, []*User) error
 	modifiers               []func(*sql.Selector)
 	withNamedSavedPosts     map[string]*PostQuery
 	withNamedLikedPosts     map[string]*PostQuery
 	withNamedPublishedPosts map[string]*PostQuery
 	withNamedComments       map[string]*CommentQuery
+	withNamedAPIKeys        map[string]*ApiKeyQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -164,8 +165,8 @@ func (uq *UserQuery) QueryComments() *CommentQuery {
 	return query
 }
 
-// QueryAPIKey chains the current query on the "api_key" edge.
-func (uq *UserQuery) QueryAPIKey() *ApiKeyQuery {
+// QueryAPIKeys chains the current query on the "api_keys" edge.
+func (uq *UserQuery) QueryAPIKeys() *ApiKeyQuery {
 	query := (&ApiKeyClient{config: uq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := uq.prepareQuery(ctx); err != nil {
@@ -178,7 +179,7 @@ func (uq *UserQuery) QueryAPIKey() *ApiKeyQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(apikey.Table, apikey.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, user.APIKeyTable, user.APIKeyColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.APIKeysTable, user.APIKeysColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
 		return fromU, nil
@@ -382,7 +383,7 @@ func (uq *UserQuery) Clone() *UserQuery {
 		withLikedPosts:     uq.withLikedPosts.Clone(),
 		withPublishedPosts: uq.withPublishedPosts.Clone(),
 		withComments:       uq.withComments.Clone(),
-		withAPIKey:         uq.withAPIKey.Clone(),
+		withAPIKeys:        uq.withAPIKeys.Clone(),
 		// clone intermediate query.
 		sql:       uq.sql.Clone(),
 		path:      uq.path,
@@ -434,14 +435,14 @@ func (uq *UserQuery) WithComments(opts ...func(*CommentQuery)) *UserQuery {
 	return uq
 }
 
-// WithAPIKey tells the query-builder to eager-load the nodes that are connected to
-// the "api_key" edge. The optional arguments are used to configure the query builder of the edge.
-func (uq *UserQuery) WithAPIKey(opts ...func(*ApiKeyQuery)) *UserQuery {
+// WithAPIKeys tells the query-builder to eager-load the nodes that are connected to
+// the "api_keys" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithAPIKeys(opts ...func(*ApiKeyQuery)) *UserQuery {
 	query := (&ApiKeyClient{config: uq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	uq.withAPIKey = query
+	uq.withAPIKeys = query
 	return uq
 }
 
@@ -534,7 +535,7 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 			uq.withLikedPosts != nil,
 			uq.withPublishedPosts != nil,
 			uq.withComments != nil,
-			uq.withAPIKey != nil,
+			uq.withAPIKeys != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -586,9 +587,10 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 			return nil, err
 		}
 	}
-	if query := uq.withAPIKey; query != nil {
-		if err := uq.loadAPIKey(ctx, query, nodes, nil,
-			func(n *User, e *ApiKey) { n.Edges.APIKey = e }); err != nil {
+	if query := uq.withAPIKeys; query != nil {
+		if err := uq.loadAPIKeys(ctx, query, nodes,
+			func(n *User) { n.Edges.APIKeys = []*ApiKey{} },
+			func(n *User, e *ApiKey) { n.Edges.APIKeys = append(n.Edges.APIKeys, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -617,6 +619,13 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 		if err := uq.loadComments(ctx, query, nodes,
 			func(n *User) { n.appendNamedComments(name) },
 			func(n *User, e *Comment) { n.appendNamedComments(name, e) }); err != nil {
+			return nil, err
+		}
+	}
+	for name, query := range uq.withNamedAPIKeys {
+		if err := uq.loadAPIKeys(ctx, query, nodes,
+			func(n *User) { n.appendNamedAPIKeys(name) },
+			func(n *User, e *ApiKey) { n.appendNamedAPIKeys(name, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -811,18 +820,21 @@ func (uq *UserQuery) loadComments(ctx context.Context, query *CommentQuery, node
 	}
 	return nil
 }
-func (uq *UserQuery) loadAPIKey(ctx context.Context, query *ApiKeyQuery, nodes []*User, init func(*User), assign func(*User, *ApiKey)) error {
+func (uq *UserQuery) loadAPIKeys(ctx context.Context, query *ApiKeyQuery, nodes []*User, init func(*User), assign func(*User, *ApiKey)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[uuid.UUID]*User)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
 	}
 	if len(query.ctx.Fields) > 0 {
 		query.ctx.AppendFieldOnce(apikey.FieldOwnerID)
 	}
 	query.Where(predicate.ApiKey(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(user.APIKeyColumn), fks...))
+		s.Where(sql.InValues(s.C(user.APIKeysColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
@@ -1011,6 +1023,20 @@ func (uq *UserQuery) WithNamedComments(name string, opts ...func(*CommentQuery))
 		uq.withNamedComments = make(map[string]*CommentQuery)
 	}
 	uq.withNamedComments[name] = query
+	return uq
+}
+
+// WithNamedAPIKeys tells the query-builder to eager-load the nodes that are connected to the "api_keys"
+// edge with the given name. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithNamedAPIKeys(name string, opts ...func(*ApiKeyQuery)) *UserQuery {
+	query := (&ApiKeyClient{config: uq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	if uq.withNamedAPIKeys == nil {
+		uq.withNamedAPIKeys = make(map[string]*ApiKeyQuery)
+	}
+	uq.withNamedAPIKeys[name] = query
 	return uq
 }
 

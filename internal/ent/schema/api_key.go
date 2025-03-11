@@ -37,8 +37,9 @@ func (ApiKey) Mixin() []ent.Mixin {
 		mixins.TimeMixin{},
 		mixins.UUIDMixin{},
 		UserOwnedMixin{
-			Ref:             "api_key",
-			SkipInterceptor: interceptors.SkipAll,
+			Ref:               "api_keys",
+			SkipInterceptor:   interceptors.SkipAll,
+			SkipOASGeneration: true,
 		},
 	}
 }

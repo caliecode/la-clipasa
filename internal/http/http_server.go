@@ -500,6 +500,9 @@ func migrateUp(logger *zap.SugaredLogger, pool *pgxpool.Pool) {
 	if err = mMigrations.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
 		log.Fatalf("Couldnt' migrate up (migrations): %s\n", err)
 	}
+
+	v, dirty, _ := mMigrations.Version()
+	logger.Infof("Migrations completed: %d (dirty=%v)", v, dirty)
 }
 
 func graphqlHandler(entClient *generated.Client) gin.HandlerFunc {

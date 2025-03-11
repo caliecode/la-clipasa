@@ -818,16 +818,18 @@ func (u *UserQuery) collectField(ctx context.Context, oneNode bool, opCtx *graph
 				*wq = *query
 			})
 
-		case "apiKey":
+		case "apiKeys":
 			var (
 				alias = field.Alias
 				path  = append(path, alias)
 				query = (&ApiKeyClient{config: u.config}).Query()
 			)
-			if err := query.collectField(ctx, oneNode, opCtx, field, path, mayAddCondition(satisfies, apikeyImplementors)...); err != nil {
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, apikeyImplementors)...); err != nil {
 				return err
 			}
-			u.withAPIKey = query
+			u.WithNamedAPIKeys(alias, func(wq *ApiKeyQuery) {
+				*wq = *query
+			})
 		case "updatedAt":
 			if _, ok := fieldSeen[user.FieldUpdatedAt]; !ok {
 				selectedFields = append(selectedFields, user.FieldUpdatedAt)

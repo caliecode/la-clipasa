@@ -1836,9 +1836,9 @@ type UserWhereInput struct {
 	HasComments     *bool                `json:"hasComments,omitempty"`
 	HasCommentsWith []*CommentWhereInput `json:"hasCommentsWith,omitempty"`
 
-	// "api_key" edge predicates.
-	HasAPIKey     *bool               `json:"hasAPIKey,omitempty"`
-	HasAPIKeyWith []*ApiKeyWhereInput `json:"hasAPIKeyWith,omitempty"`
+	// "api_keys" edge predicates.
+	HasAPIKeys     *bool               `json:"hasAPIKeys,omitempty"`
+	HasAPIKeysWith []*ApiKeyWhereInput `json:"hasAPIKeysWith,omitempty"`
 }
 
 // AddPredicates adds custom predicates to the where input to be used during the filtering phase.
@@ -2360,23 +2360,23 @@ func (i *UserWhereInput) P() (predicate.User, error) {
 		}
 		predicates = append(predicates, user.HasCommentsWith(with...))
 	}
-	if i.HasAPIKey != nil {
-		p := user.HasAPIKey()
-		if !*i.HasAPIKey {
+	if i.HasAPIKeys != nil {
+		p := user.HasAPIKeys()
+		if !*i.HasAPIKeys {
 			p = user.Not(p)
 		}
 		predicates = append(predicates, p)
 	}
-	if len(i.HasAPIKeyWith) > 0 {
-		with := make([]predicate.ApiKey, 0, len(i.HasAPIKeyWith))
-		for _, w := range i.HasAPIKeyWith {
+	if len(i.HasAPIKeysWith) > 0 {
+		with := make([]predicate.ApiKey, 0, len(i.HasAPIKeysWith))
+		for _, w := range i.HasAPIKeysWith {
 			p, err := w.P()
 			if err != nil {
-				return nil, fmt.Errorf("%w: field 'HasAPIKeyWith'", err)
+				return nil, fmt.Errorf("%w: field 'HasAPIKeysWith'", err)
 			}
 			with = append(with, p)
 		}
-		predicates = append(predicates, user.HasAPIKeyWith(with...))
+		predicates = append(predicates, user.HasAPIKeysWith(with...))
 	}
 	switch len(predicates) {
 	case 0:

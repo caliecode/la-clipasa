@@ -35,10 +35,10 @@ func (m *authMiddleware) TryAuthentication() gin.HandlerFunc {
 		if apiKey != "" {
 			ctx = token.NewContextWithSystemCallToken(ctx)
 			u, err := m.authn.GetUserFromAPIKey(ctx, apiKey) // includes caller joins
-			if err != nil || u == nil {
-				return
+			if err != nil {
+				logger := internal.GetLoggerFromCtx(ctx)
+				logger.Errorf("failed to get user from api key: %s", err.Error())
 			}
-
 			c.Request = c.Request.WithContext(internal.SetUserCtx(ctx, u))
 
 			c.Next() // executes the pending handlers. What goes below is cleanup after the complete request.
@@ -47,10 +47,10 @@ func (m *authMiddleware) TryAuthentication() gin.HandlerFunc {
 		}
 		if strings.HasPrefix(auth, "Bearer ") {
 			u, err := m.authn.GetUserFromAccessToken(ctx, strings.Split(auth, "Bearer ")[1]) // includes caller joins
-			if err != nil || u == nil {
-				return
+			if err != nil {
+				logger := internal.GetLoggerFromCtx(ctx)
+				logger.Errorf("failed to get user from token: %s", err.Error())
 			}
-
 			c.Request = c.Request.WithContext(internal.SetUserCtx(ctx, u))
 
 			c.Next() // executes the pending handlers. What goes below is cleanup after the complete request.

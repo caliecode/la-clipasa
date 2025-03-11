@@ -16,7 +16,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "api_key", Type: field.TypeString},
 		{Name: "expires_on", Type: field.TypeTime},
-		{Name: "owner_id", Type: field.TypeUUID, Unique: true},
+		{Name: "owner_id", Type: field.TypeUUID},
 	}
 	// APIKeysTable holds the schema information for the "api_keys" table.
 	APIKeysTable = &schema.Table{
@@ -25,7 +25,7 @@ var (
 		PrimaryKey: []*schema.Column{APIKeysColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "api_keys_users_api_key",
+				Symbol:     "api_keys_users_api_keys",
 				Columns:    []*schema.Column{APIKeysColumns[5]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
