@@ -14,9 +14,9 @@ import (
 // AllowIfSelf determines whether a query or mutation operation should be allowed based on whether the requested data is for the viewer
 func AllowIfSelf() privacy.QueryMutationRule {
 	return privacy.FilterFunc(func(ctx context.Context, f privacy.Filter) error {
-		// IDFilter is used for the user table
+		// IDFilter is used for the user table. Use entql.ValueP since we use uuids
 		type IDFilter interface {
-			WhereID(entql.StringP)
+			WhereID(entql.ValueP)
 		}
 
 		// UserIDFilter is used for the user_setting table. Use entql.ValueP since we use uuids and not strings (entql.StringP)
@@ -49,7 +49,7 @@ func AllowIfSelf() privacy.QueryMutationRule {
 			actualFilter.WhereOwnerID(entql.ValueEQ(uuid.MustParse(userID)))
 			// always check this at the end because every schema has an ID field
 		case IDFilter:
-			actualFilter.WhereID(entql.StringEQ(userID))
+			actualFilter.WhereID(entql.ValueEQ(uuid.MustParse(userID)))
 		default:
 			return privacy.Denyf("unexpected filter type %T", f)
 		}
