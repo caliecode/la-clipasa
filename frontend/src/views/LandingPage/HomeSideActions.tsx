@@ -92,7 +92,6 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
               : null,
         content: (value) => (value && value.length > 400 ? 'Message can have at most 400 characters.' : null),
       },
-      categories: (value) => (value?.length === 0 ? 'At least one category is required' : null),
     },
   })
 
@@ -252,6 +251,7 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
           Leave message empty to show link by default.
         </Text>
         <CategoriesSelect
+          {...postCreateForm.getInputProps('categories')}
           selectedCategories={postCreateForm.values.categories || []}
           onCategoriesChange={(categories) => postCreateForm.setFieldValue('categories', categories)}
           allowedCategories={keys(PostCategoryNamesOnCreate)}

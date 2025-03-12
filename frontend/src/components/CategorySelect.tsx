@@ -2,15 +2,15 @@ import { Combobox, Pill, PillsInput, Text, useCombobox, Box, useMantineColorSche
 import { IconCheck } from '@tabler/icons'
 import { PostCategoryCategory } from 'src/graphql/gen'
 import { categoryEmojis, emojiInversion, PostCategoryNames, EMOJI_SIZE } from 'src/services/categories'
-import { useEffect, useRef } from 'react'
+import { ComponentProps, useEffect, useRef } from 'react'
 
-interface CategoriesSelectProps {
+type CategoriesSelectProps = {
   selectedCategories: PostCategoryCategory[]
   onCategoriesChange: (categories: PostCategoryCategory[]) => void
   allowedCategories: PostCategoryCategory[]
   optionsVisible?: boolean
   errorOccurred?: number // This will be a counter or timestamp that changes when error occurs
-}
+} & ComponentProps<typeof Combobox>
 
 function CategoryPill({ value, onRemove }: { value: PostCategoryCategory; onRemove: () => void }) {
   const { colorScheme } = useMantineColorScheme()
@@ -41,6 +41,7 @@ export function CategoriesSelect({
   allowedCategories,
   optionsVisible = true,
   errorOccurred = 0,
+  ...props
 }: CategoriesSelectProps) {
   const { colorScheme } = useMantineColorScheme()
   const combobox = useCombobox({
@@ -92,7 +93,7 @@ export function CategoriesSelect({
   })
 
   return (
-    <Combobox store={combobox} onOptionSubmit={(val) => handleCategoryToggle(val as PostCategoryCategory)}>
+    <Combobox {...props} store={combobox} onOptionSubmit={(val) => handleCategoryToggle(val as PostCategoryCategory)}>
       <Combobox.Target>
         <PillsInput
           label="Categories"
