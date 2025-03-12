@@ -47,6 +47,7 @@ import { sanitizeContentEditableInputBeforeSubmit } from 'src/utils/strings'
 import { getCaretCoordinates } from 'src/utils/input'
 import { CategoriesSelect } from 'src/components/CategorySelect'
 import { keys } from 'src/utils/object'
+import { extractGqlErrors } from 'src/utils/errors'
 
 const tooltipWithPx = 40
 const EMOJI_SIZE = 24
@@ -114,21 +115,24 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
   }, [awaitEmoteCompletion])
 
   const handleSubmit = postCreateForm.onSubmit(async (values) => {
-    const onPostSubmitSuccess = (resData: any, variables: any, context: any) => {
-      setNewPostModalOpened(false)
-      setBurgerOpened(false)
-      showNotification({
-        id: 'post-created',
-        title: 'Post submitted',
-        message: 'New post created successfully',
-        color: 'green',
-        icon: <IconSend size={18} />,
-        autoClose: 5000,
-      })
+    values.base.title = sanitizeContentEditableInputBeforeSubmit(values.base.title)
+    const res = await createPost({ input: values })
+
+    if (res.error) {
+      const errors = extractGqlErrors(res.error.graphQLErrors)
+      setCalloutErrors(errors)
     }
 
-    values.base.title = sanitizeContentEditableInputBeforeSubmit(values.base.title)
-    await createPost({ input: values })
+    setNewPostModalOpened(false)
+    setBurgerOpened(false)
+    showNotification({
+      id: 'post-created',
+      title: 'Post submitted',
+      message: 'Post created successfully',
+      color: 'green',
+      icon: <IconSend size={18} />,
+      autoClose: 5000,
+    })
   })
 
   function changeTitleQueryParam() {
