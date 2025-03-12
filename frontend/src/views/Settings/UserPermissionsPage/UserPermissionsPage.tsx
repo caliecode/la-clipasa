@@ -162,7 +162,6 @@ export default function UserPermissionsPage() {
       console.error(error)
       if (error.validationErrors) {
         setCalloutErrors(error.validationErrors)
-        console.log('error')
         return
       }
       if (error.graphQLErrors) {

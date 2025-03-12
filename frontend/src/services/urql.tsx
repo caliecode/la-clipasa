@@ -22,29 +22,44 @@ export const createUrqlClient = () => {
         ...options?.headers,
       }
 
-      const response = await fetch(url, {
-        ...options,
-        headers,
-        credentials: 'include',
-      })
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 5_000)
 
-      // handle non-200 responses
-      if (!response.ok) {
-        const body = await response.json().catch(() => null)
-        const error = new Error(response.statusText)
-        ;(error as any).response = response
-        ;(error as any).body = body
+      try {
+        const response = await fetch(url, {
+          ...options,
+          headers,
+          credentials: 'include',
+          signal: controller.signal,
+        })
 
-        // available as error.networkError
-        throw new UrqlApiError(error.message, body)
+        clearTimeout(timeoutId)
+
+        // handle non-200 responses
+        if (!response.ok) {
+          const body = await response.json().catch(() => null)
+          const error = new Error(response.statusText)
+          ;(error as any).response = response
+          ;(error as any).body = body
+
+          // available as error.networkError
+          throw new UrqlApiError(error.message, body)
+        }
+
+        return response
+      } catch (error) {
+        clearTimeout(timeoutId)
+
+        if (error.name === 'AbortError') throw new UrqlApiError('Request timeout')
+
+        throw error
       }
-
-      return response
     },
     exchanges: [
       retryExchange({
         maxNumberAttempts: 2,
         initialDelayMs: 1_000,
+        maxDelayMs: 4_000,
         retryIf: (error) => {
           console.log(`urql error: ${error}`)
           if (error?.response?.status === 401 || error?.response?.status === 200) {

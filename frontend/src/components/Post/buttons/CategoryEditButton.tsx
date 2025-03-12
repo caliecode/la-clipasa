@@ -30,6 +30,7 @@ export default function CategoryEditButton() {
 
     if (r.error) {
       setErrors(extractGqlErrors(r.error.graphQLErrors))
+      if (errors.length === 0) errors.push(r.error.message)
       return
     }
     setErrors([])
@@ -48,6 +49,8 @@ export default function CategoryEditButton() {
 
     if (r.error) {
       setErrors(extractGqlErrors(r.error.graphQLErrors))
+      if (errors.length === 0) errors.push(r.error.message)
+
       return
     }
     setErrors([])

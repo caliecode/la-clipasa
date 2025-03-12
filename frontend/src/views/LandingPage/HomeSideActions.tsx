@@ -120,7 +120,10 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
 
     if (res.error) {
       const errors = extractGqlErrors(res.error.graphQLErrors)
+      if (errors.length === 0) errors.push(res.error.message)
+
       setCalloutErrors(errors)
+      return
     }
 
     setNewPostModalOpened(false)
