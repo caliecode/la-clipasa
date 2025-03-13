@@ -11,6 +11,7 @@ import HomeSideActions from 'src/views/LandingPage/HomeSideActions'
 import styles from './LandingPage.module.css'
 import { useUISlice } from 'src/slices/ui'
 import { BorderSpinner } from 'react-social-media-embed'
+import { PostCore } from 'src/components/Post/Post.core'
 
 const itemHeight = 300
 const scrollablePadding = 16
@@ -41,53 +42,19 @@ export default function LandingPage() {
   }, [posts.data?.posts.edges])
 
   const fetchedPostsCount = allPosts.length
-  const viewportRef = useRef<HTMLDivElement>(null)
 
   return (
     <PageTemplate minWidth={'60vw'} sidePanel={<HomeSideActions />}>
       <>
-        <ScrollArea.Autosize
-          h={3 * itemHeight + 100}
-          type="scroll"
-          viewportRef={viewportRef}
-          onMouseDown={(event) => event.preventDefault()}
-          styles={{
-            root: {
-              overflow: 'hidden',
-            },
-            viewport: {
-              overflow: 'auto',
-              scrollBehavior: 'smooth',
-            },
-          }}
-        >
-          <LoadingOverlay
-            zIndex={10}
-            visible={isFetchingMore}
-            overlayProps={{ radius: 'sm', blur: 2 }}
-            loaderProps={{
-              children: (
-                <Group align="center">
-                  <Loader size={40} />
-                  <Text ta="center" c="dimmed">
-                    Loading more posts...
-                  </Text>
-                </Group>
-              ),
-            }}
-          ></LoadingOverlay>
+        <Group justify="center">
           <Virtuoso
             useWindowScroll
             style={{
-              height: '100%',
               width: `calc(100% - ${scrollablePadding}px)`,
-              overflow: 'visible',
-              paddingLeft: `${scrollablePadding / 2}px`,
             }}
-            customScrollParent={viewportRef.current!}
-            fixedItemHeight={itemHeight}
             data={allPosts}
-            increaseViewportBy={200}
+            computeItemKey={(index, post) => post.id}
+            fixedItemHeight={itemHeight}
             endReached={() => {
               if (fetchedPostsCount && !posts.fetching && posts.data?.posts.pageInfo.hasNextPage) {
                 console.log('bottom reached')
@@ -96,18 +63,53 @@ export default function LandingPage() {
               }
             }}
             /** overscan in pixels */
-            // overscan={itemHeight * 2}
+            overscan={{ main: 500, reverse: 300 }}
             itemContent={(index, post) => {
-              // console.log('rendering item', post?.id)
               if (!post) return null
 
               return (
-                <PostCard style={{ marginBottom: 12, maxWidth: '100px' }} key={post.id} post={post} className="post" />
+                <>
+                  <AnimatedCard post={post} />
+                  {index === fetchedPostsCount - 1 && isFetchingMore && (
+                    <Group justify="center" p={12}>
+                      <Loader size={40} />
+                    </Group>
+                  )}
+                </>
               )
             }}
           />
-        </ScrollArea.Autosize>
+        </Group>
       </>
     </PageTemplate>
+  )
+}
+
+const AnimatedCard = ({ post }) => {
+  const [isVisible, setIsVisible] = useState(false)
+  const cardRef = useRef(null)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsVisible(true)
+    }, 100)
+
+    return () => clearTimeout(timer)
+  }, [])
+
+  return (
+    <div
+      ref={cardRef}
+      className={styles.animatedCard}
+      style={{
+        transform: isVisible ? 'scale(1)' : 'scale(0.9)',
+        opacity: isVisible ? 1 : 0,
+        transition: 'transform 0.3s ease-out, opacity 0.3s ease-out',
+      }}
+    >
+      <PostCore post={post} key={post.id}>
+        <PostCard style={{ marginBottom: 12, maxWidth: '100px' }} />
+      </PostCore>
+    </div>
   )
 }

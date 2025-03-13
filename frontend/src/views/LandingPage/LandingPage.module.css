@@ -9,3 +9,16 @@
     min-width: 40%;
   }
 }
+
+.animatedCard {
+  transform: scale(0.9);
+  opacity: 0;
+  transition:
+    transform 0.3s ease-out,
+    opacity 0.3s ease-out;
+}
+
+.animatedCard.visible {
+  transform: scale(1);
+  opacity: 1;
+}

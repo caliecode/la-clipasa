@@ -24,7 +24,7 @@ import { getServiceAndId } from 'src/services/linkServices'
 import { PostEmbed } from 'src/components/Post/components/Post.Embed'
 import { truncate } from 'lodash'
 import { emotesTextToHtml } from 'src/services/twitch'
-import { PostProvider } from 'src/components/Post/Post.context'
+import { PostProvider, usePostContext } from 'src/components/Post/Post.context'
 import { useEffect, useState } from 'react'
 import {
   IconLayoutNavbarExpand,
@@ -34,14 +34,15 @@ import {
   IconX,
 } from '@tabler/icons-react'
 import { useDisclosure } from '@mantine/hooks'
+import { PostCategory, PostCategoryCategory } from 'src/graphql/gen'
 
 type PostCardProps = {
-  post: PaginatedPostResponse & { nodeId: string }
   className?: string
   backgroundImage?: string
 } & React.ComponentPropsWithoutRef<'div'>
 
-export const PostCard = ({ post, className, backgroundImage, ...htmlProps }: PostCardProps) => {
+export const PostCard = ({ className, backgroundImage, ...htmlProps }: PostCardProps) => {
+  const { post, setPost } = usePostContext()
   const { colorScheme } = useMantineColorScheme()
   const [fullScreenModal, setFullScreenModal] = useState(false)
   const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false)
@@ -49,10 +50,14 @@ export const PostCard = ({ post, className, backgroundImage, ...htmlProps }: Pos
   const uniqueCategory = post?.categories?.find((c) => uniqueCategoryBackground[c.category])
   const cardBackground: CardBackground = uniqueCategory ? uniqueCategoryBackground[uniqueCategory.category] : undefined
   const cardBackgroundImage = backgroundImage ? backgroundImage : cardBackground ? cardBackground.image : 'auto'
-  const cardBackgroundColor = backgroundImage ? 'auto' : cardBackground ? cardBackground.color(colorScheme) : 'auto'
+  const cardBackgroundColor = cardBackground
+    ? cardBackground.color(colorScheme)
+    : colorScheme === 'dark'
+      ? 'var(--mantine-color-gray-9)'
+      : 'var(--mantine-color-gray-2)'
 
   return (
-    <PostCore post={post}>
+    <>
       <div
         onClick={(e) => {
           if (getServiceAndId(post.link).service === 'unknown') {
@@ -131,6 +136,6 @@ export const PostCard = ({ post, className, backgroundImage, ...htmlProps }: Pos
           <PostEmbed inline />
         </PostProvider>
       </Modal>
-    </PostCore>
+    </>
   )
 }

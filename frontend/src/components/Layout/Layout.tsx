@@ -144,7 +144,6 @@ export default function Layout({ children }: LayoutProps) {
         <Banner ref={bannerRef} hidden={isBannerHidden} />
         <AppShell
           style={{
-            overflow: 'visible',
             // transition: 'height 0.3s ease-out', // TODO: doesnt match
             height: isBannerHidden ? '100%' : `calc(100vh - var(--header-height) - var(--footer-height))`,
           }}
@@ -250,7 +249,10 @@ export default function Layout({ children }: LayoutProps) {
           <AppShell.Main
             className={styles.main}
             style={{
-              background: `url(${homeBackground})  center/cover no-repeat`,
+              background: `url(${homeBackground}) no-repeat`,
+              backgroundAttachment: 'fixed',
+              backgroundPosition: 'center center',
+              backgroundSize: 'cover',
             }}
           >
             {user?.twitchInfo?.isBanned ? (

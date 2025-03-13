@@ -1,6 +1,7 @@
-import React, { type ReactElement } from 'react'
+import React, { type ReactElement, useEffect, useState } from 'react'
 import { Container, Paper, useMantineColorScheme, useMantineTheme } from '@mantine/core'
 import styles from './PageTemplate.module.css'
+
 type PageTemplateProps = {
   children: ReactElement
   minWidth?: string | number
@@ -17,7 +18,6 @@ const PageTemplate = ({ children, minWidth, maxWidth, sidePanel }: PageTemplateP
       <div
         style={{
           flex: 1,
-          minWidth: window.innerWidth < 768 ? '90vw' : minWidth || 'auto',
           maxWidth: maxWidth || 'auto',
         }}
       >
@@ -32,14 +32,7 @@ const PageTemplate = ({ children, minWidth, maxWidth, sidePanel }: PageTemplateP
       </div>
 
       {sidePanel && (
-        <div
-          className={'showOnLargeOnly'}
-          style={{
-            width: '30vw',
-            position: 'sticky',
-            top: 0,
-          }}
-        >
+        <aside className={styles.stickyAside}>
           <Paper
             p="md"
             shadow="lg"
@@ -49,7 +42,7 @@ const PageTemplate = ({ children, minWidth, maxWidth, sidePanel }: PageTemplateP
           >
             {sidePanel}
           </Paper>
-        </div>
+        </aside>
       )}
     </Container>
   )
