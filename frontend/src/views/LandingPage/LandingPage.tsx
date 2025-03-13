@@ -68,14 +68,14 @@ export default function LandingPage() {
               if (!post) return null
 
               return (
-                <>
+                <div key={post.id}>
                   <AnimatedCard post={post} />
                   {index === fetchedPostsCount - 1 && isFetchingMore && (
                     <Group justify="center" p={12}>
                       <Loader size={40} />
                     </Group>
                   )}
-                </>
+                </div>
               )
             }}
           />

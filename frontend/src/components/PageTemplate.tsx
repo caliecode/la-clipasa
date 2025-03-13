@@ -26,6 +26,7 @@ const PageTemplate = ({ children, minWidth, maxWidth, sidePanel }: PageTemplateP
           shadow="lg"
           c={theme.primaryColor}
           bg={colorScheme === 'dark' ? theme.colors.gray[8] : theme.colors.gray[0]}
+          h="100%"
         >
           {children}
         </Paper>
