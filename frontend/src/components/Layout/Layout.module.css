@@ -15,7 +15,6 @@
 
 .sticky {
   position: sticky;
-  max-height: var(--header-height);
   top: 0;
 }
 
@@ -49,11 +48,6 @@
 }
 
 .main {
-  display: flex;
-  flex-direction: column;
-  overflow: auto;
-  position: relative;
-
   @media (max-width: 768px) {
     padding: 0;
   }

@@ -42,7 +42,6 @@ import {
 import useAuthenticatedUser, { logUserOut } from 'src/hooks/auth/useAuthenticatedUser'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
-import { useNotificationAPI } from 'src/hooks/ui/useNotificationAPI'
 import { faUser } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import logoDark from 'src/assets/logo/two-white-clouds.svg'
@@ -192,20 +191,6 @@ export default function Layout({ children }: LayoutProps) {
               >
                 <Menu.Target>{renderAvatarMenu()}</Menu.Target>
                 <Menu.Dropdown classNames={{ dropdown: styles.menuDropdown }}>
-                  <Menu.Divider />
-                  <Menu.Item
-                    onClick={() =>
-                      Object.assign(document.createElement('a'), {
-                        target: '_blank',
-                        rel: 'noopener noreferrer',
-                        href: uiPath('/profile'),
-                      }).click()
-                    }
-                    leftSection={<FontAwesomeIcon icon={faUser} size="xl" />}
-                  >
-                    <Text fz="s">Profile</Text>
-                  </Menu.Item>
-                  <Menu.Divider />
                   <ThemeSwitcher />
                   <Menu.Divider />
                   <Menu.Label>Settings</Menu.Label>
