@@ -19,6 +19,7 @@ import {
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { showNotification } from '@mantine/notifications'
+import { useDebouncedValue } from '@mantine/hooks'
 import { IconEyeCheck, IconSearch, IconSend, IconSortAscending, IconSortDescending } from '@tabler/icons'
 import { InfiniteData, useQueryClient } from '@tanstack/react-query'
 import { isEqual, set } from 'lodash-es'
@@ -51,6 +52,7 @@ import { extractGqlErrors } from 'src/utils/errors'
 
 const tooltipWithPx = 40
 const EMOJI_SIZE = 24
+const DEBOUNCE_DELAY = 300 // milliseconds
 
 type HomeSideActionsProps = HTMLProps<HTMLDivElement>
 
@@ -69,7 +71,13 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
   const [calloutErrors, setCalloutErrors] = useState<string[]>([])
   const { isAuthenticated, user, isAuthenticating } = useAuthenticatedUser()
   const textQuery = usePostsSlice((state) => state.queryParams.where?.titleContains)
+  const [searchInputValue, setSearchInputValue] = useState(textQuery || '')
+  const [debouncedSearchValue] = useDebouncedValue(searchInputValue, DEBOUNCE_DELAY)
   const theme = useMantineTheme()
+
+  useEffect(() => {
+    postActions.setTextFilter(debouncedSearchValue || undefined)
+  }, [debouncedSearchValue, postActions])
 
   const postCreateForm = useForm<CreatePostWithCategoriesInput>({
     initialValues: {
@@ -113,6 +121,10 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
     }
   }, [awaitEmoteCompletion])
 
+  useEffect(() => {
+    setSearchInputValue(textQuery || '')
+  }, [textQuery])
+
   const handleSubmit = postCreateForm.onSubmit(async (values) => {
     values.base.title = sanitizeContentEditableInputBeforeSubmit(values.base.title)
     const res = await createPost({ input: values })
@@ -136,14 +148,6 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
       autoClose: 5000,
     })
   })
-
-  function changeTitleQueryParam() {
-    if (textQuery === '') {
-      postActions.setTextFilter(undefined)
-      return
-    }
-    postActions.setTextFilter(textQuery)
-  }
 
   function renderActiveCategoryFilters() {
     return queryParams.where?.hasCategoriesWith?.map(
@@ -310,11 +314,8 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
               id="post-search-box"
               placeholder="Search"
               rightSection={createPostMutation.fetching && <Loader size={18} />}
-              value={textQuery || ''}
-              onChange={(e) => postActions.setTextFilter(e.target.value)}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') changeTitleQueryParam()
-              }}
+              value={searchInputValue}
+              onChange={(e) => setSearchInputValue(e.target.value)}
               mb="sm"
               mt="md"
             />
