@@ -348,8 +348,8 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
               </Card.Section>
             </Menu>
           </ProtectedComponent>
-          {isAuthenticated && (
-            <Menu>
+          <Menu>
+            {isAuthenticated && (
               <Card.Section className={styles.section}>
                 <Text mt="md" className={styles.label} c="dimmed">
                   Personal filters
@@ -393,46 +393,46 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
                   </Chip>
                 </Flex>
               </Card.Section>
-              <Card.Section className={styles.section}>
-                <Text mt="md" className={styles.label} c="dimmed">
-                  SEARCH SETTINGS
-                </Text>
-                <Flex mt={10} gap="md" justify="space-between" align="center" direction="row" wrap="wrap">
-                  <Select
-                    style={{ flexGrow: 10, minWidth: '100%' }}
-                    data={sortSelectData}
-                    onChange={(value: SortSelectOption) => {
-                      postActions.setSort(value)
-                    }}
-                    rightSectionPointerEvents="all"
-                    rightSection={
-                      <Tooltip label="Toggle sort direction">
-                        <ActionIcon
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            postActions.updateOrder((order) => {
-                              order.direction = order.direction === 'ASC' ? 'DESC' : 'ASC'
-                            })
-                          }}
-                          variant="subtle"
-                          radius={0}
-                          size={36}
-                        >
-                          {sortDirection === 'ASC' ? (
-                            <IconSortAscending size={20} stroke={1.5} />
-                          ) : (
-                            <IconSortDescending size={20} stroke={1.5} />
-                          )}
-                        </ActionIcon>
-                      </Tooltip>
-                    }
-                    placeholder="Select post ordering"
-                    value={sort}
-                  />
-                </Flex>
-              </Card.Section>
-            </Menu>
-          )}
+            )}
+            <Card.Section className={styles.section}>
+              <Text mt="md" className={styles.label} c="dimmed">
+                SEARCH SETTINGS
+              </Text>
+              <Flex mt={10} gap="md" justify="space-between" align="center" direction="row" wrap="wrap">
+                <Select
+                  style={{ flexGrow: 10, minWidth: '100%' }}
+                  data={sortSelectData}
+                  onChange={(value: SortSelectOption) => {
+                    postActions.setSort(value)
+                  }}
+                  rightSectionPointerEvents="all"
+                  rightSection={
+                    <Tooltip label="Toggle sort direction">
+                      <ActionIcon
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          postActions.updateOrder((order) => {
+                            order.direction = order.direction === 'ASC' ? 'DESC' : 'ASC'
+                          })
+                        }}
+                        variant="subtle"
+                        radius={0}
+                        size={36}
+                      >
+                        {sortDirection === 'ASC' ? (
+                          <IconSortAscending size={20} stroke={1.5} />
+                        ) : (
+                          <IconSortDescending size={20} stroke={1.5} />
+                        )}
+                      </ActionIcon>
+                    </Tooltip>
+                  }
+                  placeholder="Select post ordering"
+                  value={sort}
+                />
+              </Flex>
+            </Card.Section>
+          </Menu>
           <Card.Section className={styles.section}>
             <Text mt="md" className={styles.label} c="dimmed">
               Active category filters
