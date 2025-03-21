@@ -68,9 +68,8 @@ export function UserCombobox({ onChange, value = null, label = 'User', placehold
           component="button"
           type="button"
           pointer
-          rightSection={<Combobox.Chevron />}
+          rightSection={selectedUser && <Input.ClearButton onClick={() => onChange(null)} />}
           onClick={() => combobox.toggleDropdown()}
-          rightSectionPointerEvents="none"
           multiline
         >
           {selectedUser ? (

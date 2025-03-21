@@ -42,11 +42,15 @@ export default function LandingPage() {
   }, [posts.data?.posts.edges])
 
   const fetchedPostsCount = allPosts.length
+  const totalCount = posts.data?.posts.totalCount
 
   return (
     <PageTemplate minWidth={'60vw'} sidePanel={<HomeSideActions />}>
       <>
         <Group justify="center">
+          <Text size="sm" fw={500} c="dimmed">
+            Found {totalCount} post{totalCount === 1 ? '' : 's'}
+          </Text>
           <Virtuoso
             useWindowScroll
             style={{
