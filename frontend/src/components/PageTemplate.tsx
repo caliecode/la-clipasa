@@ -34,7 +34,7 @@ const PageTemplate = ({ children, minWidth, maxWidth, sidePanel }: PageTemplateP
 
       {sidePanel && (
         <aside className={styles.stickyAside}>
-          <ScrollArea.Autosize h="100%" type="auto" offsetScrollbars>
+          <ScrollArea.Autosize h="100%" type="auto">
             <Paper
               p="md"
               shadow="lg"
