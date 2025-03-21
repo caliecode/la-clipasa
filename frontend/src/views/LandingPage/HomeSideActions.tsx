@@ -158,6 +158,7 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
           const category = cat.category!
           return (
             <CategoryBadge
+              asButton
               className={`${styles.badgeHover} disable-select`}
               key={j}
               category={category}
@@ -179,6 +180,7 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
       .map((category: PostCategoryCategory, i) => {
         return (
           <CategoryBadge
+            asButton
             className={`${styles.badgeFilter} disable-select`}
             key={i}
             category={category}

@@ -29,7 +29,7 @@ export default function useAuthenticatedUser() {
   useEffect(() => {
     actions.setIsLoading(
       currentUser.fetching ||
-        !!(currentUser.error && currentUser.error.response.status !== HttpStatus.UNAUTHORIZED_401),
+        !!(currentUser.error && currentUser.error.response?.status !== HttpStatus.UNAUTHORIZED_401),
     )
     if (!isFirstRender) {
       isFirstRender = true

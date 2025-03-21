@@ -17,23 +17,28 @@ import styles from './CategoryBadge.module.css' // Import CSS Module
 
 interface CategoryBadgeProps extends HTMLProps<HTMLElement> {
   category: PostCategoryCategory
+  asButton?: boolean
 }
 
 function CategoryBadge(props: CategoryBadgeProps) {
-  const { category, ...htmlProps } = props
+  const { category, asButton, ...htmlProps } = props
   const theme = useMantineTheme()
+
+  const categoryName = PostCategoryNames[category] ?? category
 
   return (
     <Badge
       variant="gradient"
+      component={asButton ? 'button' : 'div'}
       gradient={categoryColorGradient[category] ?? null}
       className={styles.badge} // Use CSS Module class
+      aria-label={`Filter by ${categoryName}`}
       {...(htmlProps as any)}
     >
       <div className={styles.content}>
         {renderEmoji(categoryDoubleEmojis)}
         {renderEmoji(categoryPreEmojis)}
-        <div>{PostCategoryNames[category] ?? category}</div>
+        <div>{categoryName}</div>
         {renderEmoji(categoryPostEmojis)}
         {renderEmoji(categoryDoubleEmojis)}
       </div>

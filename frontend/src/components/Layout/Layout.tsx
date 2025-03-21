@@ -123,7 +123,6 @@ export default function Layout({ children }: LayoutProps) {
       <LoginButton />
     )
   }
-  const [isBannerHidden, setIsBannerHidden] = useState(false)
 
   return (
     <Fragment>
@@ -133,199 +132,189 @@ export default function Layout({ children }: LayoutProps) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Helmet>
-      <ScrollArea.Autosize
-        type="scroll"
-        onScrollPositionChange={(pos) => {
-          setIsBannerHidden(true)
+      <Banner ref={bannerRef} />
+      <AppShell
+        style={{
+          // transition: 'height 0.3s ease-out', // TODO: doesnt match
+          height: '100%',
         }}
-        styles={{ scrollbar: { zIndex: 200 } }}
+        className={styles.appShell}
+        header={{ height: 'var(--header-height)' }}
+        footer={{ height: 'var(--footer-height)' }}
+        navbar={{
+          width: 300,
+          breakpoint: 'sm',
+          collapsed: { mobile: !avatarMenuOpened, desktop: !avatarMenuOpened },
+        }}
+        // aside={{ width: 300, breakpoint: 'md', collapsed: { desktop: false, mobile: true } }}
       >
-        <Banner ref={bannerRef} hidden={isBannerHidden} />
-        <AppShell
-          style={{
-            // transition: 'height 0.3s ease-out', // TODO: doesnt match
-            height: isBannerHidden ? '100%' : `calc(100vh - var(--header-height) - var(--footer-height))`,
-          }}
-          className={styles.appShell}
-          header={{ height: 'var(--header-height)' }}
-          footer={{ height: 'var(--footer-height)' }}
-          navbar={{
-            width: 300,
-            breakpoint: 'sm',
-            collapsed: { mobile: !avatarMenuOpened, desktop: !avatarMenuOpened },
-          }}
-          // aside={{ width: 300, breakpoint: 'md', collapsed: { desktop: false, mobile: true } }}
-        >
-          <AppShell.Header className={styles.sticky}>
-            <Group
-              h="100%"
-              w="100%"
-              px="md"
-              style={{
-                alignSelf: 'center',
-                justifyContent: 'space-between',
-              }}
-            >
-              <Burger
-                className={styles.burger}
-                size={'sm'}
-                opened={burgerOpened}
-                onClick={() => setBurgerOpened(!burgerOpened)}
-                title={title}
-              />
-              <div> </div>
-              {/* {broadcasterLive ? (
+        <AppShell.Header className={styles.sticky}>
+          <Group
+            h="100%"
+            w="100%"
+            px="md"
+            style={{
+              alignSelf: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            <Burger
+              className={styles.burger}
+              size={'sm'}
+              opened={burgerOpened}
+              onClick={() => setBurgerOpened(!burgerOpened)}
+              title={title}
+            />
+            <div> </div>
+            {/* {broadcasterLive ? (
               <LiveAvatar streamTitle={twitchBroadcasterLive?.data?.data?.[0]?.title}></LiveAvatar>
             ) : (
               <div></div>
             )} */}
 
-              <Menu
-                width={220}
-                position="bottom-end"
-                onClose={() => setUserMenuOpened(false)}
-                onOpen={() => {
-                  if (user) setUserMenuOpened(true)
-                }}
-                disabled={!user}
-              >
-                <Menu.Target>{renderAvatarMenu()}</Menu.Target>
-                <Menu.Dropdown classNames={{ dropdown: styles.menuDropdown }}>
-                  <ThemeSwitcher />
-                  <Menu.Divider />
-                  <Menu.Label>Settings</Menu.Label>
-                  <Menu.Item leftSection={<IconSettings size={14} stroke={1.5} />}>Account settings</Menu.Item>
-                  <Menu.Item
-                    onClick={() => openBroadcasterToken()}
-                    leftSection={<IconBrandTwitch size={14} stroke={1.5} />}
-                  >
-                    Broadcaster token
-                  </Menu.Item>
-                  <Menu.Divider />
-                  <Menu.Item leftSection={<IconLogout size={14} stroke={1.5} />} onClick={onLogout}>
-                    Logout
-                  </Menu.Item>
-                </Menu.Dropdown>
-              </Menu>
-            </Group>
-            <Container>
-              <Tabs
-                defaultValue="Home"
-                variant="outline"
-                classNames={{
-                  root: styles.tabs,
-                  tabSection: styles.tabsList,
-                  tab: styles.tab,
-                }}
-              >
-                <Tabs.List>{tabComponents}</Tabs.List>
-              </Tabs>
-            </Container>
-          </AppShell.Header>
-          {/* See https://ui.mantine.dev/category/navbars/ for more interesting navbars */}
-          <AppShell.Navbar p="md">
-            Navbar
-            {Array(15)
-              .fill(0)
-              .map((_, index) => (
-                <Skeleton key={index} h={28} mt="sm" animate={false} />
-              ))}
-          </AppShell.Navbar>
-          <AppShell.Main
-            className={styles.main}
-            style={{
-              background: `url(${homeBackground}) no-repeat`,
-              backgroundAttachment: 'fixed',
-              backgroundPosition: 'center center',
-              backgroundSize: 'cover',
-            }}
-          >
-            {user?.twitchInfo?.isBanned ? (
-              <ErrorPage status={HttpStatus.I_AM_A_TEAPOT_418} text="You are banned from using this service" />
-            ) : (
-              children
-            )}
-          </AppShell.Main>
-          <Drawer
-            className={styles.drawer}
-            transitionProps={{ transition: 'fade', duration: 200, timingFunction: 'ease' }}
-            opened={burgerOpened}
-            onClose={() => {
-              setBurgerOpened(false)
-            }}
-          >
-            <Flex align={'center'} direction="column">
-              <HomeSideActions />
-            </Flex>
-          </Drawer>
-          {/* <AppShell.Aside p="md">Aside</AppShell.Aside> */}
+            <Menu
+              width={220}
+              position="bottom-end"
+              onClose={() => setUserMenuOpened(false)}
+              onOpen={() => {
+                if (user) setUserMenuOpened(true)
+              }}
+              disabled={!user}
+            >
+              <Menu.Target>{renderAvatarMenu()}</Menu.Target>
+              <Menu.Dropdown classNames={{ dropdown: styles.menuDropdown }}>
+                <ThemeSwitcher />
+                <Menu.Divider />
+                <Menu.Label>Settings</Menu.Label>
+                <Menu.Item leftSection={<IconSettings size={14} stroke={1.5} />}>Account settings</Menu.Item>
+                <Menu.Item
+                  onClick={() => openBroadcasterToken()}
+                  leftSection={<IconBrandTwitch size={14} stroke={1.5} />}
+                >
+                  Broadcaster token
+                </Menu.Item>
+                <Menu.Divider />
+                <Menu.Item leftSection={<IconLogout size={14} stroke={1.5} />} onClick={onLogout}>
+                  Logout
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
+          </Group>
+          <Container>
+            <Tabs
+              defaultValue="Home"
+              variant="outline"
+              classNames={{
+                root: styles.tabs,
+                tabSection: styles.tabsList,
+                tab: styles.tab,
+              }}
+            >
+              <Tabs.List>{tabComponents}</Tabs.List>
+            </Tabs>
+          </Container>
+        </AppShell.Header>
+        {/* See https://ui.mantine.dev/category/navbars/ for more interesting navbars */}
+        <AppShell.Navbar p="md">
+          Navbar
+          {Array(15)
+            .fill(0)
+            .map((_, index) => (
+              <Skeleton key={index} h={28} mt="sm" animate={false} />
+            ))}
+        </AppShell.Navbar>
+        <AppShell.Main
+          className={styles.main}
+          style={{
+            background: `url(${homeBackground}) no-repeat`,
+            backgroundAttachment: 'fixed',
+            backgroundPosition: 'center center',
+            backgroundSize: 'cover',
+          }}
+        >
+          {user?.twitchInfo?.isBanned ? (
+            <ErrorPage status={HttpStatus.I_AM_A_TEAPOT_418} text="You are banned from using this service" />
+          ) : (
+            children
+          )}
+        </AppShell.Main>
+        <Drawer
+          className={styles.drawer}
+          transitionProps={{ transition: 'fade', duration: 200, timingFunction: 'ease' }}
+          opened={burgerOpened}
+          onClose={() => {
+            setBurgerOpened(false)
+          }}
+        >
+          <Flex align={'center'} direction="column">
+            <HomeSideActions />
+          </Flex>
+        </Drawer>
+        {/* <AppShell.Aside p="md">Aside</AppShell.Aside> */}
 
-          <BroadcasterTokenModal
-            isOpen={broadcasterTokenOpened}
-            onClose={closeBroadcasterToken}
-            onConfirm={() => redirectToBroadcasterAuthLogin()}
-          />
-          <AppShell.Footer className={styles.footer}>
-            <Container className={styles.inner}>
-              <Text fz="xs">
-                <Group gap={5} align="start" wrap="nowrap">
-                  Made with
-                  <Image src={EMOTES.calieAMOR2} width={20} height={20}></Image>
-                  for{' '}
-                  <a
-                    href="https://www.twitch.tv/caliebre"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ color: 'orange' }}
-                  >
-                    caliebre
-                  </a>
-                </Group>
-              </Text>
-
-              <Group gap={5} align="end" wrap="nowrap" className={styles.links}>
-                <Tooltip label={`Follow caliebre on Twitter`}>
-                  <ActionIcon size="lg" variant="subtle">
-                    <a href="https://www.twitter.com/caliebre" target="_blank" rel="noopener noreferrer">
-                      <IconBrandTwitter size={18} stroke={1.5} color="#2d8bb3" />
-                    </a>
-                  </ActionIcon>
-                </Tooltip>
-                <Tooltip label={`Follow caliebre on YouTube`}>
-                  <ActionIcon size="lg" variant="subtle">
-                    <a href="https://youtube.com/caliebre" target="_blank" rel="noopener noreferrer">
-                      <IconBrandYoutube size={18} stroke={1.5} color="#d63808" />
-                    </a>
-                  </ActionIcon>
-                </Tooltip>
-                <Tooltip label={`Follow caliebre on Instagram`}>
-                  <ActionIcon size="lg" variant="subtle">
-                    <a href="http://www.instagram.com/caliebre" target="_blank" rel="noopener noreferrer">
-                      <IconBrandInstagram size={18} stroke={1.5} color="#e15d16" />
-                    </a>
-                  </ActionIcon>
-                </Tooltip>
-                <Tooltip label={`Follow caliebre on Twitch`}>
-                  <ActionIcon size="lg" variant="subtle">
-                    <a href="https://www.twitch.tv/caliebre" target="_blank" rel="noopener noreferrer">
-                      <IconBrandTwitch size={18} stroke={1.5} color="#a970ff" />
-                    </a>
-                  </ActionIcon>
-                </Tooltip>
+        <BroadcasterTokenModal
+          isOpen={broadcasterTokenOpened}
+          onClose={closeBroadcasterToken}
+          onConfirm={() => redirectToBroadcasterAuthLogin()}
+        />
+        <AppShell.Footer className={styles.footer}>
+          <Container className={styles.inner}>
+            <Text fz="xs">
+              <Group gap={5} align="start" wrap="nowrap">
+                Made with
+                <Image src={EMOTES.calieAMOR2} width={20} height={20}></Image>
+                for{' '}
+                <a
+                  href="https://www.twitch.tv/caliebre"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: 'orange' }}
+                >
+                  caliebre
+                </a>
               </Group>
-            </Container>
-          </AppShell.Footer>
-        </AppShell>
-      </ScrollArea.Autosize>
+            </Text>
+
+            <Group gap={5} align="end" wrap="nowrap" className={styles.links}>
+              <Tooltip label={`Follow caliebre on Twitter`}>
+                <ActionIcon size="lg" variant="subtle">
+                  <a href="https://www.twitter.com/caliebre" target="_blank" rel="noopener noreferrer">
+                    <IconBrandTwitter size={18} stroke={1.5} color="#2d8bb3" />
+                  </a>
+                </ActionIcon>
+              </Tooltip>
+              <Tooltip label={`Follow caliebre on YouTube`}>
+                <ActionIcon size="lg" variant="subtle">
+                  <a href="https://youtube.com/caliebre" target="_blank" rel="noopener noreferrer">
+                    <IconBrandYoutube size={18} stroke={1.5} color="#d63808" />
+                  </a>
+                </ActionIcon>
+              </Tooltip>
+              <Tooltip label={`Follow caliebre on Instagram`}>
+                <ActionIcon size="lg" variant="subtle">
+                  <a href="http://www.instagram.com/caliebre" target="_blank" rel="noopener noreferrer">
+                    <IconBrandInstagram size={18} stroke={1.5} color="#e15d16" />
+                  </a>
+                </ActionIcon>
+              </Tooltip>
+              <Tooltip label={`Follow caliebre on Twitch`}>
+                <ActionIcon size="lg" variant="subtle">
+                  <a href="https://www.twitch.tv/caliebre" target="_blank" rel="noopener noreferrer">
+                    <IconBrandTwitch size={18} stroke={1.5} color="#a970ff" />
+                  </a>
+                </ActionIcon>
+              </Tooltip>
+            </Group>
+          </Container>
+        </AppShell.Footer>
+      </AppShell>
 
       {/* </ThemeProvider> */}
     </Fragment>
   )
 }
 
-function Banner({ ref, hidden }: { ref: RefObject<HTMLImageElement>; hidden: boolean }) {
-  const [displayNone, setDisplayNone] = useState(hidden)
-
+function Banner({ ref }: { ref: RefObject<HTMLImageElement> }) {
   return (
     <Image
       alt="la clipasa"
@@ -333,13 +322,11 @@ function Banner({ ref, hidden }: { ref: RefObject<HTMLImageElement>; hidden: boo
       src={banner}
       className={`showOnLargeOnly`}
       style={{
-        height: hidden ? '0' : 'var(--banner-height)',
+        height: 'var(--banner-height)',
         width: '100%',
-        display: displayNone ? 'none' : 'inherit',
         backgroundImage: `url(${banner})`,
-        animation: `${hidden ? 'slideOut' : 'slideIn'} 0.3s forwards`,
+        animation: `slideIn 0.3s ease-in-out`,
       }}
-      onAnimationEnd={() => hidden && setDisplayNone(true)}
     />
   )
 }
