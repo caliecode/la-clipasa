@@ -25,6 +25,17 @@ export default function LandingPage() {
     variables: queryParams,
   })
 
+  const whereOrderByRef = useRef(`${JSON.stringify(queryParams.where)}${JSON.stringify(queryParams.orderBy)}`)
+
+  useEffect(() => {
+    const currentWhereOrderBy = `${JSON.stringify(queryParams.where)}${JSON.stringify(queryParams.orderBy)}`
+
+    if (whereOrderByRef.current !== currentWhereOrderBy) {
+      scrollToTop()
+      whereOrderByRef.current = currentWhereOrderBy
+    }
+  }, [queryParams.where, queryParams.orderBy])
+
   useEffect(() => {
     if (posts.data?.posts.edges) {
       setAllPosts((prev) => [
@@ -116,4 +127,7 @@ const AnimatedCard = ({ post }) => {
       </PostCore>
     </div>
   )
+}
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' })
 }

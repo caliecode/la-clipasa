@@ -99,10 +99,6 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
   }, [debouncedSearchValue, postActions])
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [queryParams])
-
-  useEffect(() => {
     if (dateRange[0] || dateRange[1]) {
       postActions.updateWhere((where) => {
         if (dateRange[0]) {
