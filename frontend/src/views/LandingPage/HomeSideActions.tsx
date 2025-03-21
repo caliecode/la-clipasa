@@ -405,15 +405,26 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
           <Card.Section className={styles.section}>
             <Flex mt={10} gap="md" justify="space-between" align="center" direction="row" wrap="wrap">
               <DatePickerInput
-                type="range"
-                label="Creation date"
-                placeholder="Select date range"
-                value={dateRange}
-                onChange={setDateRange}
+                label="From date"
+                highlightToday
+                placeholder="Select start date"
+                value={dateRange?.[0] || null}
+                onChange={(value) => setDateRange([value, dateRange?.[1] || null])}
                 leftSection={<IconCalendar size={16} />}
                 clearable
                 valueFormat="YYYY-MM-DD"
-                style={{ width: '100%' }}
+                style={{ flex: 1, minWidth: '45%' }}
+              />
+              <DatePickerInput
+                label="To date"
+                highlightToday
+                placeholder="Select end date"
+                value={dateRange?.[1] || null}
+                onChange={(value) => setDateRange([dateRange?.[0] || null, value])}
+                leftSection={<IconCalendar size={16} />}
+                clearable
+                valueFormat="YYYY-MM-DD"
+                style={{ flex: 1, minWidth: '45%' }}
               />
             </Flex>
             <Flex mt={10} gap="md" justify="space-between" align="center" direction="row" wrap="wrap">
