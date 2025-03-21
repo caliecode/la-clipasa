@@ -135,8 +135,7 @@ export default function Layout({ children }: LayoutProps) {
       <Banner ref={bannerRef} />
       <AppShell
         style={{
-          // transition: 'height 0.3s ease-out', // TODO: doesnt match
-          height: '100%',
+          height: `calc(100% - var(--header-height) - var(--footer-height))`,
         }}
         className={styles.appShell}
         header={{ height: 'var(--header-height)' }}

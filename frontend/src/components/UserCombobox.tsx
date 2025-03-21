@@ -1,0 +1,110 @@
+import { useState, useEffect } from 'react'
+import { useCombobox, Combobox, InputBase, ScrollArea, Text, Space, Input } from '@mantine/core'
+import { useDebounce } from 'usehooks-ts'
+import { Virtuoso } from 'react-virtuoso'
+import { useUsersQuery } from 'src/graphql/gen'
+import UserComboboxOption from 'src/components/Combobox/UserComboboxOption'
+import InfiniteLoader from 'src/components/Loading/InfiniteLoader'
+import { IUser } from 'src/types/ui'
+
+interface UserComboboxProps {
+  onChange: (user: IUser | null) => void
+  value?: IUser | null
+  label?: string
+  placeholder?: string
+}
+
+export function UserCombobox({ onChange, value = null, label = 'User', placeholder = 'Pick user' }: UserComboboxProps) {
+  const [search, setSearch] = useState('')
+  const debouncedSearch = useDebounce(search, 300)
+  const [selectedUser, setSelectedUser] = useState<IUser | null>(value)
+
+  const [{ data, fetching }] = useUsersQuery({
+    variables: {
+      first: 20,
+      where: debouncedSearch ? { displayNameContainsFold: debouncedSearch } : undefined,
+    },
+  })
+
+  const combobox = useCombobox({
+    onDropdownClose: () => {
+      combobox.resetSelectedOption()
+      combobox.focusTarget()
+      setSearch('')
+    },
+    onDropdownOpen: () => {
+      combobox.focusSearchInput()
+    },
+  })
+
+  const options =
+    data?.users.edges
+      ?.map((edge) => {
+        const user = edge?.node
+        return user ? (
+          <Combobox.Option value={user.displayName} key={user.id} style={{ padding: '1rem 0.5rem' }}>
+            <UserComboboxOption user={user} />
+          </Combobox.Option>
+        ) : null
+      })
+      .filter(Boolean) || []
+
+  const handleOptionSelect = (displayName: string) => {
+    const user = data?.users.edges?.find((edge) => edge?.node?.displayName === displayName)?.node
+    setSelectedUser(user || null)
+    onChange(user || null)
+    combobox.closeDropdown()
+  }
+
+  useEffect(() => {
+    setSelectedUser(value)
+  }, [value])
+
+  return (
+    <Combobox store={combobox} withinPortal position="bottom-start" withArrow onOptionSubmit={handleOptionSelect}>
+      <Combobox.Target withAriaAttributes={false}>
+        <InputBase
+          label={label}
+          component="button"
+          type="button"
+          pointer
+          rightSection={<Combobox.Chevron />}
+          onClick={() => combobox.toggleDropdown()}
+          rightSectionPointerEvents="none"
+          multiline
+        >
+          {selectedUser ? (
+            <UserComboboxOption user={selectedUser} />
+          ) : (
+            <Input.Placeholder>{placeholder}</Input.Placeholder>
+          )}
+        </InputBase>
+      </Combobox.Target>
+
+      <Combobox.Dropdown>
+        <Combobox.Search
+          value={search}
+          onChange={(event) => setSearch(event.currentTarget.value)}
+          placeholder={`Search ${label.toLowerCase()}`}
+        />
+        <Combobox.Options mah={200} style={{ overflowY: 'auto' }}>
+          <ScrollArea.Autosize mah={200} type="scroll">
+            {fetching ? (
+              <InfiniteLoader />
+            ) : (
+              <Virtuoso
+                style={{ height: '200px' }}
+                totalCount={options.length}
+                itemContent={(index) => options[index]}
+              />
+            )}
+          </ScrollArea.Autosize>
+        </Combobox.Options>
+        <Space p={4} />
+        <Text size="sm">
+          Showing {options.length} of {data?.users.totalCount} results
+        </Text>
+      </Combobox.Dropdown>
+    </Combobox>
+  )
+}

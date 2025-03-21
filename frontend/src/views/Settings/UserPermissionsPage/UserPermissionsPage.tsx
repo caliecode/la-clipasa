@@ -44,10 +44,9 @@ import { AxiosApiError } from 'src/api/backend-mutator'
 import { AxiosError } from 'axios'
 import { checkAuthorization } from 'src/services/authorization'
 import { asConst } from 'json-schema-to-ts'
-import type { components, schemas } from 'src/types/schema'
 import { FormProvider, useForm, useFormContext, useWatch } from 'react-hook-form'
 import { nameInitials, sentenceCase } from 'src/utils/strings'
-import type { AppError } from 'src/types/ui'
+import type { AppError, IUser } from 'src/types/ui'
 import classes from './UserPermissionsPage.module.css'
 import UserComboboxOption from 'src/components/Combobox/UserComboboxOption'
 import { CalloutError, useFormSlice } from 'src/slices/form'
@@ -66,8 +65,7 @@ import {
 import { extractGqlErrors } from 'src/utils/errors'
 import { Virtuoso } from 'react-virtuoso'
 import { useDebounce } from 'usehooks-ts'
-
-type IUser = Pick<User, 'id' | 'displayName' | 'awards' | 'role'>
+import { UserCombobox } from 'src/components/UserCombobox'
 
 interface SelectUserItemProps extends React.ComponentPropsWithoutRef<'div'> {
   user?: IUser | null
@@ -233,18 +231,15 @@ export default function UserPermissionsPage() {
     },
   })
 
-  const comboboxOptions =
-    userOptions?.map((option) => {
-      const value = String(option.user?.displayName)
-
-      return (
-        <Combobox.Option value={value} key={value} style={{ padding: '1rem 0.5rem' }}>
-          <UserComboboxOption user={option.user} key={JSON.stringify(option.user)} />
-        </Combobox.Option>
-      )
-    }) || []
-
   if (!user) return null
+
+  const handleUserSelect = (user: User | null) => {
+    setSelectedUser(user)
+    if (user) {
+      form.setValue('id', user.id)
+      form.setValue('role', user.role)
+    }
+  }
 
   const element = (
     <FormProvider {...form}>
@@ -255,66 +250,12 @@ export default function UserPermissionsPage() {
       <Space pt={12} />
       <form onSubmit={form.handleSubmit(onRoleUpdateSubmit, handleError)}>
         <Flex direction="column">
-          {/* TODO: in v7: https://mantine.dev/combobox/?e=SelectOptionComponent */}
-          <Combobox
-            // label
-            store={combobox}
-            withinPortal={true}
-            position="bottom-start"
-            withArrow
-            onOptionSubmit={async (value) => {
-              const option = userOptions?.find((option) => String(option.user?.displayName) === value)
-              console.log({ onChangeOption: option })
-              if (!option) return
-              onDisplayNameSelectableChange(value)
-              combobox.closeDropdown()
-            }}
-          >
-            <Combobox.Target withAriaAttributes={false}>
-              <InputBase
-                label="User"
-                className={classes.select}
-                component="button"
-                type="button"
-                pointer
-                rightSection={<Combobox.Chevron />}
-                onClick={() => combobox.toggleDropdown()}
-                rightSectionPointerEvents="none"
-                multiline
-              >
-                {selectedUser ? (
-                  <UserComboboxOption user={selectedUser} key={JSON.stringify(selectedUser.displayName)} />
-                ) : (
-                  <Input.Placeholder>{`Pick user`}</Input.Placeholder>
-                )}
-              </InputBase>
-            </Combobox.Target>
-
-            <Combobox.Dropdown>
-              <Combobox.Search
-                miw={'100%'}
-                value={search}
-                onChange={(event) => setSearch(event.currentTarget.value)}
-                placeholder={`Search user`}
-              />
-              <Combobox.Options
-                mah={200} // scrollable
-                style={{ overflowY: 'auto' }}
-              >
-                <ScrollArea.Autosize mah={200} type="scroll">
-                  <Virtuoso
-                    style={{ height: '200px' }} // match height with autosize
-                    totalCount={comboboxOptions.length}
-                    itemContent={(index) => comboboxOptions[index]}
-                  />
-                </ScrollArea.Autosize>
-              </Combobox.Options>
-              <Space p={4} />
-              <Text size="sm">
-                Showing {comboboxOptions.length} of {loadedUsers.data?.users.totalCount} results
-              </Text>
-            </Combobox.Dropdown>
-          </Combobox>
+          <UserCombobox
+            onChange={handleUserSelect}
+            value={selectedUser}
+            label="Select user"
+            placeholder="Search users"
+          />
         </Flex>
         <Space pt={12} />
         {selectedUser?.displayName && (

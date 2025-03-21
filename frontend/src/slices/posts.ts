@@ -160,6 +160,11 @@ export const usePostsSlice = create<PostsState>()(
               ...state.queryParams,
               after: undefined,
               before: undefined,
+              where: {
+                ...state.queryParams.where,
+                hasOwnerWith: undefined,
+                titleContains: undefined,
+              },
             },
           }) as Omit<PostsState, 'postActions'>,
       },

@@ -9,6 +9,7 @@ import {
   Menu,
   Modal,
   Popover,
+  ScrollArea,
   Select,
   Space,
   Text,
@@ -20,7 +21,16 @@ import {
 import { useForm } from '@mantine/form'
 import { showNotification } from '@mantine/notifications'
 import { useDebouncedValue } from '@mantine/hooks'
-import { IconEyeCheck, IconSearch, IconSend, IconSortAscending, IconSortDescending, IconCalendar } from '@tabler/icons'
+import {
+  IconEyeCheck,
+  IconSearch,
+  IconSend,
+  IconSortAscending,
+  IconSortDescending,
+  IconCalendar,
+  IconHeart,
+  IconBookmark,
+} from '@tabler/icons'
 import { InfiniteData, useQueryClient } from '@tanstack/react-query'
 import { isEqual, set } from 'lodash-es'
 import { HTMLProps, useEffect, useRef, useState } from 'react'
@@ -50,6 +60,8 @@ import { CategoriesSelect } from 'src/components/CategorySelect'
 import { keys } from 'src/utils/object'
 import { extractGqlErrors } from 'src/utils/errors'
 import { DatePickerInput } from '@mantine/dates'
+import { UserCombobox } from 'src/components/UserCombobox'
+import { IUser } from 'src/types/ui'
 
 const tooltipWithPx = 40
 const EMOJI_SIZE = 24
@@ -310,6 +322,20 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
     </Modal>
   )
 
+  const [selectedUser, setSelectedUser] = useState<IUser | null>(null)
+  const handleUserSelect = (user: IUser | null) => {
+    setSelectedUser(user)
+    if (user) {
+      postActions.updateWhere((where) => {
+        where.hasOwnerWith = [{ id: user.id }]
+      })
+    } else {
+      postActions.updateWhere((where) => {
+        delete where.hasOwnerWith
+      })
+    }
+  }
+
   type SelectData<T> = { value: T; label: string }[]
   const sortDirection = queryParams.orderBy?.direction
   const sortSelectData: SelectData<SortSelectOption> = [
@@ -344,6 +370,19 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
         }}
       ></span>
       <Group className={styles.sideActions}>
+        {isAuthenticated && (
+          <Group mt="xs">
+            <Button
+              bg={theme.colors.blue[9]}
+              leftSection={<IconSend size={20} stroke={1.5} />}
+              radius="md"
+              style={{ flex: 1 }}
+              onClick={() => setNewPostModalOpened(true)}
+            >
+              Submit post
+            </Button>
+          </Group>
+        )}
         <Card radius="md" p="md" className={styles.card} w="100%">
           <Card.Section className={styles.section}>
             <TextInput
@@ -355,6 +394,12 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
               onChange={(e) => setSearchInputValue(e.target.value)}
               mb="sm"
               mt="md"
+            />
+            <UserCombobox
+              onChange={handleUserSelect}
+              value={selectedUser}
+              label="Select author"
+              placeholder="Search authors"
             />
           </Card.Section>
           <Card.Section className={styles.section}>
@@ -413,9 +458,6 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
                   Moderation filters
                 </Text>
                 <Flex mt={10} gap="md" justify="space-between" align="center" direction="row" wrap="wrap">
-                  <Text className={styles.sideLabel} c="dimmed">
-                    Status
-                  </Text>
                   <Select
                     style={{ flexGrow: 10, minWidth: '100%' }}
                     data={statusSelectData}
@@ -450,8 +492,16 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
                         where.hasLikedByWith = withLikedFilter ? [] : [{ id: user?.id }]
                       })
                     }
+                    icon={
+                      <IconBookmark
+                        size={16}
+                        stroke={1.5}
+                        color={theme.colors.yellow[6]}
+                        fill={withSavedFilter ? theme.colors.yellow[6] : theme.colors.gray[6]}
+                      />
+                    }
                   >
-                    Liked posts
+                    Liked
                   </Chip>
                   <Chip
                     variant="filled"
@@ -462,8 +512,16 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
                         where.hasSavedByWith = withSavedFilter ? [] : [{ id: user?.id }]
                       })
                     }
+                    icon={
+                      <IconHeart
+                        size={16}
+                        stroke={1.5}
+                        color={theme.colors.red[6]}
+                        fill={withSavedFilter ? theme.colors.red[6] : theme.colors.gray[6]}
+                      />
+                    }
                   >
-                    Saved posts
+                    Saved
                   </Chip>
                   <Chip
                     variant="filled"
@@ -497,19 +555,6 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
               {renderCategoryFilters()}
             </Group>
           </Card.Section>
-          {isAuthenticated && (
-            <Group mt="xs">
-              <Button
-                bg={theme.colors.blue[9]}
-                leftSection={<IconSend size={20} stroke={1.5} />}
-                radius="md"
-                style={{ flex: 1 }}
-                onClick={() => setNewPostModalOpened(true)}
-              >
-                Submit post
-              </Button>
-            </Group>
-          )}
         </Card>
       </Group>
     </div>

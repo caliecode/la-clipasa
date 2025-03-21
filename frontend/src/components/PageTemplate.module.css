@@ -12,7 +12,7 @@
 }
 
 .stickyAside {
-  max-height: 100vh; /* else can't have height up to viewport and sticky won't work */
+  max-height: calc(100vh - 150px); /* else can't have height up to viewport and sticky won't work */
   position: sticky;
   width: 30vw;
   top: calc(var(--header-height) + 15px);

@@ -1,5 +1,5 @@
 import React, { type ReactElement, useEffect, useState } from 'react'
-import { Container, Paper, useMantineColorScheme, useMantineTheme } from '@mantine/core'
+import { Container, Paper, ScrollArea, useMantineColorScheme, useMantineTheme } from '@mantine/core'
 import styles from './PageTemplate.module.css'
 
 type PageTemplateProps = {
@@ -22,7 +22,7 @@ const PageTemplate = ({ children, minWidth, maxWidth, sidePanel }: PageTemplateP
         }}
       >
         <Paper
-          p="xs"
+          p="lg"
           shadow="lg"
           c={theme.primaryColor}
           bg={colorScheme === 'dark' ? theme.colors.gray[8] : theme.colors.gray[0]}
@@ -34,15 +34,17 @@ const PageTemplate = ({ children, minWidth, maxWidth, sidePanel }: PageTemplateP
 
       {sidePanel && (
         <aside className={styles.stickyAside}>
-          <Paper
-            p="md"
-            shadow="lg"
-            w="100%"
-            c={theme.primaryColor}
-            bg={colorScheme === 'dark' ? theme.colors.gray[8] : theme.colors.gray[0]}
-          >
-            {sidePanel}
-          </Paper>
+          <ScrollArea.Autosize h="100%" type="auto" offsetScrollbars>
+            <Paper
+              p="md"
+              shadow="lg"
+              w="100%"
+              c={theme.primaryColor}
+              bg={colorScheme === 'dark' ? theme.colors.gray[8] : theme.colors.gray[0]}
+            >
+              {sidePanel}
+            </Paper>
+          </ScrollArea.Autosize>
         </aside>
       )}
     </Container>
