@@ -493,11 +493,11 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
                       })
                     }
                     icon={
-                      <IconBookmark
+                      <IconHeart
                         size={16}
                         stroke={1.5}
-                        color={theme.colors.yellow[6]}
-                        fill={withSavedFilter ? theme.colors.yellow[6] : theme.colors.gray[6]}
+                        color={theme.colors.red[6]}
+                        fill={withLikedFilter ? theme.colors.red[6] : theme.colors.gray[6]}
                       />
                     }
                   >
@@ -513,11 +513,11 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
                       })
                     }
                     icon={
-                      <IconHeart
+                      <IconBookmark
                         size={16}
                         stroke={1.5}
-                        color={theme.colors.red[6]}
-                        fill={withSavedFilter ? theme.colors.red[6] : theme.colors.gray[6]}
+                        color={theme.colors.yellow[6]}
+                        fill={withSavedFilter ? theme.colors.yellow[6] : theme.colors.gray[6]}
                       />
                     }
                   >
