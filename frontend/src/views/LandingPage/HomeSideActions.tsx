@@ -20,7 +20,7 @@ import {
 import { useForm } from '@mantine/form'
 import { showNotification } from '@mantine/notifications'
 import { useDebouncedValue } from '@mantine/hooks'
-import { IconEyeCheck, IconSearch, IconSend, IconSortAscending, IconSortDescending } from '@tabler/icons'
+import { IconEyeCheck, IconSearch, IconSend, IconSortAscending, IconSortDescending, IconCalendar } from '@tabler/icons'
 import { InfiniteData, useQueryClient } from '@tanstack/react-query'
 import { isEqual, set } from 'lodash-es'
 import { HTMLProps, useEffect, useRef, useState } from 'react'
@@ -49,6 +49,7 @@ import { getCaretCoordinates } from 'src/utils/input'
 import { CategoriesSelect } from 'src/components/CategorySelect'
 import { keys } from 'src/utils/object'
 import { extractGqlErrors } from 'src/utils/errors'
+import { DatePickerInput } from '@mantine/dates'
 
 const tooltipWithPx = 40
 const EMOJI_SIZE = 24
@@ -75,9 +76,42 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
   const [debouncedSearchValue] = useDebouncedValue(searchInputValue, DEBOUNCE_DELAY)
   const theme = useMantineTheme()
 
+  // Date range state
+  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
+    queryParams.where?.createdAtGTE ? new Date(queryParams.where.createdAtGTE) : null,
+    queryParams.where?.createdAtLTE ? new Date(queryParams.where.createdAtLTE) : null,
+  ])
+
   useEffect(() => {
     postActions.setTextFilter(debouncedSearchValue || undefined)
   }, [debouncedSearchValue, postActions])
+
+  useEffect(() => {
+    if (dateRange[0] || dateRange[1]) {
+      postActions.updateWhere((where) => {
+        if (dateRange[0]) {
+          const startDate = new Date(dateRange[0])
+          startDate.setHours(0, 0, 0, 0)
+          where.createdAtGTE = startDate.toISOString()
+        } else {
+          delete where.createdAtGTE
+        }
+
+        if (dateRange[1]) {
+          const endDate = new Date(dateRange[1])
+          endDate.setHours(23, 59, 59, 999)
+          where.createdAtLTE = endDate.toISOString()
+        } else {
+          delete where.createdAtLTE
+        }
+      })
+    } else {
+      postActions.updateWhere((where) => {
+        delete where.createdAtGTE
+        delete where.createdAtLTE
+      })
+    }
+  }, [dateRange, postActions])
 
   const postCreateForm = useForm<CreatePostWithCategoriesInput>({
     initialValues: {
@@ -313,14 +347,64 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
         <Card radius="md" p="md" className={styles.card} w="100%">
           <Card.Section className={styles.section}>
             <TextInput
+              label="Search"
               id="post-search-box"
-              placeholder="Search"
+              placeholder="Filter by title, link or content"
               rightSection={createPostMutation.fetching && <Loader size={18} />}
               value={searchInputValue}
               onChange={(e) => setSearchInputValue(e.target.value)}
               mb="sm"
               mt="md"
             />
+          </Card.Section>
+          <Card.Section className={styles.section}>
+            <Flex mt={10} gap="md" justify="space-between" align="center" direction="row" wrap="wrap">
+              <DatePickerInput
+                type="range"
+                label="Creation date"
+                placeholder="Select date range"
+                value={dateRange}
+                onChange={setDateRange}
+                leftSection={<IconCalendar size={16} />}
+                clearable
+                valueFormat="YYYY-MM-DD"
+                style={{ width: '100%' }}
+              />
+            </Flex>
+            <Flex mt={10} gap="md" justify="space-between" align="center" direction="row" wrap="wrap">
+              <Select
+                label="Sort by"
+                style={{ flexGrow: 10, minWidth: '100%' }}
+                data={sortSelectData}
+                onChange={(value: SortSelectOption) => {
+                  postActions.setSort(value)
+                }}
+                rightSectionPointerEvents="all"
+                rightSection={
+                  <Tooltip label="Toggle sort direction">
+                    <ActionIcon
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        postActions.updateOrder((order) => {
+                          order.direction = order.direction === 'ASC' ? 'DESC' : 'ASC'
+                        })
+                      }}
+                      variant="subtle"
+                      radius={0}
+                      size={36}
+                    >
+                      {sortDirection === 'ASC' ? (
+                        <IconSortAscending size={20} stroke={1.5} />
+                      ) : (
+                        <IconSortDescending size={20} stroke={1.5} />
+                      )}
+                    </ActionIcon>
+                  </Tooltip>
+                }
+                placeholder="Select post ordering"
+                value={sort}
+              />
+            </Flex>
           </Card.Section>
           <ProtectedComponent requiredRole="MODERATOR">
             <Menu>
@@ -396,44 +480,6 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
                 </Flex>
               </Card.Section>
             )}
-            <Card.Section className={styles.section}>
-              <Text mt="md" className={styles.label} c="dimmed">
-                SEARCH SETTINGS
-              </Text>
-              <Flex mt={10} gap="md" justify="space-between" align="center" direction="row" wrap="wrap">
-                <Select
-                  style={{ flexGrow: 10, minWidth: '100%' }}
-                  data={sortSelectData}
-                  onChange={(value: SortSelectOption) => {
-                    postActions.setSort(value)
-                  }}
-                  rightSectionPointerEvents="all"
-                  rightSection={
-                    <Tooltip label="Toggle sort direction">
-                      <ActionIcon
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          postActions.updateOrder((order) => {
-                            order.direction = order.direction === 'ASC' ? 'DESC' : 'ASC'
-                          })
-                        }}
-                        variant="subtle"
-                        radius={0}
-                        size={36}
-                      >
-                        {sortDirection === 'ASC' ? (
-                          <IconSortAscending size={20} stroke={1.5} />
-                        ) : (
-                          <IconSortDescending size={20} stroke={1.5} />
-                        )}
-                      </ActionIcon>
-                    </Tooltip>
-                  }
-                  placeholder="Select post ordering"
-                  value={sort}
-                />
-              </Flex>
-            </Card.Section>
           </Menu>
           <Card.Section className={styles.section}>
             <Text mt="md" className={styles.label} c="dimmed">
