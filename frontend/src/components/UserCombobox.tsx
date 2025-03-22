@@ -12,9 +12,16 @@ interface UserComboboxProps {
   value?: IUser | null
   label?: string
   placeholder?: string
+  disabled?: boolean
 }
 
-export function UserCombobox({ onChange, value = null, label = 'User', placeholder = 'Pick user' }: UserComboboxProps) {
+export function UserCombobox({
+  onChange,
+  value = null,
+  label = 'User',
+  placeholder = 'Pick user',
+  disabled,
+}: UserComboboxProps) {
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search, 300)
   const [selectedUser, setSelectedUser] = useState<IUser | null>(value)
@@ -24,6 +31,7 @@ export function UserCombobox({ onChange, value = null, label = 'User', placehold
       first: 20,
       where: debouncedSearch ? { displayNameContainsFold: debouncedSearch } : undefined,
     },
+    pause: !debouncedSearch,
   })
 
   const combobox = useCombobox({
@@ -61,7 +69,14 @@ export function UserCombobox({ onChange, value = null, label = 'User', placehold
   }, [value])
 
   return (
-    <Combobox store={combobox} withinPortal position="bottom-start" withArrow onOptionSubmit={handleOptionSelect}>
+    <Combobox
+      store={combobox}
+      disabled={disabled}
+      withinPortal
+      position="bottom-start"
+      withArrow
+      onOptionSubmit={handleOptionSelect}
+    >
       <Combobox.Target withAriaAttributes={false}>
         <InputBase
           label={label}
@@ -100,9 +115,11 @@ export function UserCombobox({ onChange, value = null, label = 'User', placehold
           </ScrollArea.Autosize>
         </Combobox.Options>
         <Space p={4} />
-        <Text size="sm">
-          Showing {options.length} of {data?.users.totalCount} results
-        </Text>
+        {options.length ? (
+          <Text size="sm">
+            Showing {options.length} of {data?.users.totalCount} results
+          </Text>
+        ) : null}
       </Combobox.Dropdown>
     </Combobox>
   )

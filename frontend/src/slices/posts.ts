@@ -101,7 +101,6 @@ export const usePostsSlice = create<PostsState>()(
                   _updateOrder(state, updateFn)
                 }),
               ),
-
             setTextFilter: (text) =>
               set(
                 produce<PostsState>((state) => {
@@ -162,7 +161,6 @@ export const usePostsSlice = create<PostsState>()(
               before: undefined,
               where: {
                 ...state.queryParams.where,
-                hasOwnerWith: undefined,
                 titleContains: undefined,
               },
             },

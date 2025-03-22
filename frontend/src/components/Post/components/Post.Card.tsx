@@ -101,9 +101,10 @@ export const PostCard = ({ className, backgroundImage, ...htmlProps }: PostCardP
       </div>
       <Modal
         className={styles.modalIframe}
-        style={{
-          // {/* FIXME: on mobile header overflows regardless of 100%*/}
-          width: '100%',
+        styles={{
+          title: {
+            width: '100%',
+          },
         }}
         opened={modalOpened}
         withCloseButton={false}
@@ -111,7 +112,7 @@ export const PostCard = ({ className, backgroundImage, ...htmlProps }: PostCardP
         fullScreen={fullScreenModal}
         scrollAreaComponent={ScrollArea.Autosize}
         title={
-          <Flex justify="space-between" direction="column">
+          <Flex justify="space-between" direction="column" w="100%">
             <Flex direction="row" justify="space-between" align="center">
               <ActionIcon onClick={() => setFullScreenModal(!fullScreenModal)}>
                 {fullScreenModal ? <IconArrowsMinimize size={16} /> : <IconArrowsMaximize size={16} />}

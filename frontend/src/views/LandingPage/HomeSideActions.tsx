@@ -49,6 +49,7 @@ import {
   PostOrder,
   PostWhereInput,
   useCreatePostMutation,
+  useUsersQuery,
 } from 'src/graphql/gen'
 import { isValidURL } from 'src/utils/urls'
 import ErrorCallout from 'src/components/Callout/ErrorCallout'
@@ -65,7 +66,7 @@ import { IUser } from 'src/types/ui'
 
 const tooltipWithPx = 40
 const EMOJI_SIZE = 24
-const DEBOUNCE_DELAY = 300 // milliseconds
+const DEBOUNCE_DELAY_MS = 300
 
 type HomeSideActionsProps = HTMLProps<HTMLDivElement>
 
@@ -85,10 +86,34 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
   const { isAuthenticated, user, isAuthenticating } = useAuthenticatedUser()
   const textQuery = usePostsSlice((state) => state.queryParams.where?.titleContains)
   const [searchInputValue, setSearchInputValue] = useState(textQuery || '')
-  const [debouncedSearchValue] = useDebouncedValue(searchInputValue, DEBOUNCE_DELAY)
+  const [debouncedSearchValue] = useDebouncedValue(searchInputValue, DEBOUNCE_DELAY_MS)
   const theme = useMantineTheme()
 
-  // Date range state
+  const ownerIdFilter = queryParams.where?.hasOwnerWith?.[0]?.id
+  const [selectedUser, setSelectedUser] = useState<IUser | null>(null)
+
+  const [{ data: userData, fetching: fetchingUser }] = useUsersQuery({
+    variables: {
+      first: 1,
+      where: { id: ownerIdFilter },
+    },
+    pause: !ownerIdFilter,
+    requestPolicy: 'cache-first',
+  })
+
+  useEffect(() => {
+    if (ownerIdFilter && userData && !fetchingUser) {
+      const user = userData.users?.edges?.[0]?.node
+      if (user) {
+        setSelectedUser(user)
+      } else {
+        postActions.updateWhere((where) => {
+          delete where.hasOwnerWith
+        })
+      }
+    }
+  }, [userData, fetchingUser, ownerIdFilter, postActions])
+
   const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
     queryParams.where?.createdAtGTE ? new Date(queryParams.where.createdAtGTE) : null,
     queryParams.where?.createdAtLTE ? new Date(queryParams.where.createdAtLTE) : null,
@@ -322,7 +347,6 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
     </Modal>
   )
 
-  const [selectedUser, setSelectedUser] = useState<IUser | null>(null)
   const handleUserSelect = (user: IUser | null) => {
     setSelectedUser(user)
     if (user) {
@@ -370,20 +394,20 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
         }}
       ></span>
       <Group className={styles.sideActions}>
-        {isAuthenticated && (
-          <Group mt="xs">
-            <Button
-              bg={theme.colors.blue[9]}
-              leftSection={<IconSend size={20} stroke={1.5} />}
-              radius="md"
-              style={{ flex: 1 }}
-              onClick={() => setNewPostModalOpened(true)}
-            >
-              Submit post
-            </Button>
-          </Group>
-        )}
         <Card radius="md" p="md" className={styles.card} w="100%">
+          {isAuthenticated && (
+            <Group mt="xs">
+              <Button
+                bg={theme.colors.blue[9]}
+                leftSection={<IconSend size={20} stroke={1.5} />}
+                radius="md"
+                style={{ flex: 1 }}
+                onClick={() => setNewPostModalOpened(true)}
+              >
+                Submit post
+              </Button>
+            </Group>
+          )}
           <Card.Section className={styles.section}>
             <TextInput
               label="Search"
@@ -399,8 +423,14 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
               onChange={handleUserSelect}
               value={selectedUser}
               label="Select author"
-              placeholder="Search authors"
+              placeholder={fetchingUser ? 'Loading author...' : 'Search authors'}
+              disabled={fetchingUser}
             />
+            {fetchingUser && (
+              <Text size="xs" c="dimmed" mt={5}>
+                Loading user data...
+              </Text>
+            )}
           </Card.Section>
           <Card.Section className={styles.section}>
             <Flex mt={10} gap="md" justify="space-between" align="center" direction="row" wrap="wrap">

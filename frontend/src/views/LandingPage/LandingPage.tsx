@@ -1,4 +1,4 @@
-import { Text, Space, ScrollArea, Drawer, Flex, LoadingOverlay, Group, Loader } from '@mantine/core'
+import { Text, Space, ScrollArea, Drawer, Flex, LoadingOverlay, Group, Loader, Button } from '@mantine/core'
 import { useEffect, useRef, useState } from 'react'
 import { Virtuoso } from 'react-virtuoso'
 import PageTemplate from 'src/components/PageTemplate'
@@ -12,6 +12,7 @@ import styles from './LandingPage.module.css'
 import { useUISlice } from 'src/slices/ui'
 import { BorderSpinner } from 'react-social-media-embed'
 import { PostCore } from 'src/components/Post/Post.core'
+import { IconArrowUp } from '@tabler/icons-react'
 
 const itemHeight = 300
 const scrollablePadding = 16
@@ -21,6 +22,7 @@ export default function LandingPage() {
   const { queryParams, sort, postActions } = usePostsSlice()
   const { burgerOpened, setBurgerOpened } = useUISlice()
   const [isFetchingMore, setIsFetchingMore] = useState(false)
+  const [showBackToTop, setShowBackToTop] = useState(false)
   const [posts, refetchPosts] = usePostsQuery({
     variables: queryParams,
   })
@@ -31,8 +33,14 @@ export default function LandingPage() {
     const currentWhereOrderBy = `${JSON.stringify(queryParams.where)}${JSON.stringify(queryParams.orderBy)}`
 
     if (whereOrderByRef.current !== currentWhereOrderBy) {
-      scrollToTop()
+      setShowBackToTop(true)
+      const timeout = setTimeout(() => {
+        setShowBackToTop(false)
+      }, 8_000)
+
       whereOrderByRef.current = currentWhereOrderBy
+
+      return () => clearTimeout(timeout)
     }
   }, [queryParams.where, queryParams.orderBy])
 
@@ -55,13 +63,20 @@ export default function LandingPage() {
   const fetchedPostsCount = allPosts.length
   const totalCount = posts.data?.posts.totalCount
 
+  function handleScrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    setShowBackToTop(false)
+  }
+
   return (
     <PageTemplate minWidth={'60vw'} sidePanel={<HomeSideActions />}>
       <>
         <Group justify="center">
-          <Text size="sm" fw={500} c="dimmed">
-            Found {totalCount} post{totalCount === 1 ? '' : 's'}
-          </Text>
+          {totalCount ? (
+            <Text size="sm" fw={500} c="dimmed">
+              Found {totalCount} post{totalCount === 1 ? '' : 's'}
+            </Text>
+          ) : null}
           <Virtuoso
             useWindowScroll
             style={{
@@ -95,6 +110,27 @@ export default function LandingPage() {
             }}
           />
         </Group>
+
+        {showBackToTop && (
+          <Button
+            onClick={handleScrollToTop}
+            radius="xl"
+            size="xs"
+            variant="filled"
+            color="blue"
+            className={styles.backToTopButton}
+            leftSection={<IconArrowUp size={16} />}
+            bottom="calc(var(--footer-height) + 8px)"
+            right="8px"
+            style={{
+              position: 'fixed',
+              zIndex: 1000,
+              boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
+            }}
+          >
+            Back to Top
+          </Button>
+        )}
       </>
     </PageTemplate>
   )
@@ -127,7 +163,4 @@ const AnimatedCard = ({ post }) => {
       </PostCore>
     </div>
   )
-}
-function scrollToTop() {
-  window.scrollTo({ top: 0, behavior: 'smooth' })
 }
