@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useCombobox, Combobox, InputBase, ScrollArea, Text, Space, Input } from '@mantine/core'
+import { useCombobox, Combobox, InputBase, ScrollArea, Text, Space, Input, Group } from '@mantine/core'
 import { useDebounce } from 'usehooks-ts'
 import { Virtuoso } from 'react-virtuoso'
 import { useUsersQuery } from 'src/graphql/gen'
@@ -99,12 +99,14 @@ export function UserCombobox({
         <Combobox.Search
           value={search}
           onChange={(event) => setSearch(event.currentTarget.value)}
-          placeholder={`Search ${label.toLowerCase()}`}
+          placeholder="Type to search"
         />
         <Combobox.Options mah={200} style={{ overflowY: 'auto' }}>
           <ScrollArea.Autosize mah={200} type="scroll">
             {fetching ? (
-              <InfiniteLoader />
+              <Group justify="center" pt={12} pb={12}>
+                <InfiniteLoader />
+              </Group>
             ) : (
               <Virtuoso
                 style={{ height: '200px' }}
