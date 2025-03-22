@@ -431,8 +431,6 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
                 Loading user data...
               </Text>
             )}
-          </Card.Section>
-          <Card.Section className={styles.section}>
             <Flex mt={10} gap="md" justify="space-between" align="center" direction="row" wrap="wrap">
               <DatePickerInput
                 label="From date"
