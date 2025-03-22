@@ -51,7 +51,14 @@ func (r *mutationResolver) UpdatePost(ctx context.Context, id uuid.UUID, input g
 
 // DeletePost is the resolver for the deletePost field.
 func (r *mutationResolver) DeletePost(ctx context.Context, id uuid.UUID) (*model.PostDeletePayload, error) {
-	panic(errors.New("not implemented: DeletePost - deletePost"))
+	// FIXME: ignore owner check
+	if err := r.ent.Post.DeleteOneID(id).Exec(ctx); err != nil {
+		return nil, fmt.Errorf("could not delete post: %w", err)
+	}
+
+	return &model.PostDeletePayload{
+		DeletedID: id,
+	}, nil
 }
 
 // Post is the resolver for the post field.

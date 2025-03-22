@@ -13,4 +13,5 @@ input CreatePostWithCategoriesInput {
 
 extend type Mutation {
     createPostWithCategories(input: CreatePostWithCategoriesInput!): PostCreatePayload!
+    restorePost(id: ID!): Boolean
 }

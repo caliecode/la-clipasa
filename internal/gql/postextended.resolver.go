@@ -8,6 +8,8 @@ import (
 	"github.com/caliecode/la-clipasa/internal/ent/generated"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/post"
 	"github.com/caliecode/la-clipasa/internal/gql/model"
+	"github.com/caliecode/la-clipasa/internal/utils/pointers"
+	"github.com/google/uuid"
 )
 
 // CreatePostWithCategories is the resolver for the createPostWithCategories field.
@@ -36,6 +38,17 @@ func (r *mutationResolver) CreatePostWithCategories(ctx context.Context, input m
 	return &model.PostCreatePayload{
 		Post: postPayload.Post,
 	}, nil
+}
+
+// RestorePost is the resolver for the restorePost field.
+func (r *mutationResolver) RestorePost(ctx context.Context, id uuid.UUID) (*bool, error) {
+	// FIXME: ignore owner check
+	_, err := r.ent.Post.UpdateOneID(id).ClearDeletedAt().ClearDeletedBy().Save(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("could not restore post: %w", err)
+	}
+
+	return pointers.New(true), nil
 }
 
 // ToHTML is the resolver for the toHTML field.
