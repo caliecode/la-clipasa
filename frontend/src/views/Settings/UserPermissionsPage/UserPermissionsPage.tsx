@@ -149,11 +149,11 @@ export default function UserPermissionsPage() {
       }
       notifications.show({
         id: ToastId.FormSubmit,
-        title: 'Submitted',
+        title: 'User updated',
         color: 'primary',
         icon: <IconCheck size="1.2rem" />,
         autoClose: 15000,
-        message: 'Submitted',
+        message: 'User role updated successfully',
       })
       setCalloutErrors([])
     } catch (error) {

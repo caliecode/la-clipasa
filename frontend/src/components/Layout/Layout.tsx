@@ -27,6 +27,7 @@ import {
   Badge,
   Burger,
   ScrollArea,
+  Button,
 } from '@mantine/core'
 import broadcasterIcon from 'src/assets/img/caliebre-logo.png'
 import {
@@ -38,6 +39,7 @@ import {
   IconBrandYoutube,
   IconBrandInstagram,
   IconBrandTwitch,
+  IconUsers,
 } from '@tabler/icons'
 import useAuthenticatedUser, { logUserOut } from 'src/hooks/auth/useAuthenticatedUser'
 import { useQueryClient } from '@tanstack/react-query'
@@ -57,7 +59,7 @@ import { EMOTES } from 'src/assets/img/emotes'
 import { ErrorPage } from 'src/components/ErrorPage/ErrorPage'
 import HttpStatus from 'src/utils/httpStatus'
 import BroadcasterTokenButton from 'src/components/BroadcasterTokenModal'
-import { redirectToBroadcasterAuthLogin } from 'src/services/authorization'
+import { checkAuthorization, redirectToBroadcasterAuthLogin } from 'src/services/authorization'
 import BroadcasterTokenModal from 'src/components/BroadcasterTokenModal'
 import banner from 'src/assets/img/banner-la-clipassa.png'
 import homeBackground from 'src/assets/img/background-la-clipassa.jpg'
@@ -99,7 +101,7 @@ export default function Layout({ children }: LayoutProps) {
     await logUserOut(queryClient)
   }
 
-  function renderAvatarMenu() {
+  function renderAvatarOrLogin() {
     if (ui.isLoggingOut || isAuthenticating)
       return (
         <Group gap={'md'} align="center">
@@ -170,34 +172,47 @@ export default function Layout({ children }: LayoutProps) {
             ) : (
               <div></div>
             )} */}
-
-            <Menu
-              width={220}
-              position="bottom-end"
-              onClose={() => setUserMenuOpened(false)}
-              onOpen={() => {
-                if (user) setUserMenuOpened(true)
-              }}
-              disabled={!user}
-            >
-              <Menu.Target>{renderAvatarMenu()}</Menu.Target>
-              <Menu.Dropdown classNames={{ dropdown: styles.menuDropdown }}>
-                <ThemeSwitcher />
-                <Menu.Divider />
-                <Menu.Label>Settings</Menu.Label>
-                <Menu.Item leftSection={<IconSettings size={14} stroke={1.5} />}>Account settings</Menu.Item>
-                <Menu.Item
-                  onClick={() => openBroadcasterToken()}
-                  leftSection={<IconBrandTwitch size={14} stroke={1.5} />}
+            <Group>
+              {checkAuthorization({ user, requiredRole: 'ADMIN' }).authorized && (
+                <Button
+                  component="a"
+                  variant="default"
+                  onClick={() => navigate(uiPath('/admin/users-management'))}
+                  size="xs"
+                  leftSection={<IconUsers size={14} stroke={1.5} />}
                 >
-                  Broadcaster token
-                </Menu.Item>
-                <Menu.Divider />
-                <Menu.Item leftSection={<IconLogout size={14} stroke={1.5} />} onClick={onLogout}>
-                  Logout
-                </Menu.Item>
-              </Menu.Dropdown>
-            </Menu>
+                  User management
+                </Button>
+              )}
+
+              <Menu
+                width={220}
+                position="bottom-end"
+                onClose={() => setUserMenuOpened(false)}
+                onOpen={() => {
+                  if (user) setUserMenuOpened(true)
+                }}
+                disabled={!user}
+              >
+                <Menu.Target>{renderAvatarOrLogin()}</Menu.Target>
+                <Menu.Dropdown classNames={{ dropdown: styles.menuDropdown }}>
+                  <ThemeSwitcher />
+                  <Menu.Divider />
+                  <Menu.Label>Settings</Menu.Label>
+                  <Menu.Item leftSection={<IconSettings size={14} stroke={1.5} />}>Account settings</Menu.Item>
+                  <Menu.Item
+                    onClick={() => openBroadcasterToken()}
+                    leftSection={<IconBrandTwitch size={14} stroke={1.5} />}
+                  >
+                    Broadcaster token
+                  </Menu.Item>
+                  <Menu.Divider />
+                  <Menu.Item leftSection={<IconLogout size={14} stroke={1.5} />} onClick={onLogout}>
+                    Logout
+                  </Menu.Item>
+                </Menu.Dropdown>
+              </Menu>
+            </Group>
           </Group>
           <Container>
             <Tabs
