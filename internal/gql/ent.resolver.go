@@ -2,10 +2,14 @@ package gql
 
 import (
 	"context"
+	"fmt"
 
 	"entgo.io/contrib/entgql"
 	"github.com/caliecode/la-clipasa/internal/ent/generated"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/post"
+	"github.com/caliecode/la-clipasa/internal/gql/model"
 	"github.com/google/uuid"
+	"github.com/theopenlane/entx"
 )
 
 // Node is the resolver for the node field.
@@ -55,7 +59,14 @@ func (r *queryResolver) Comments(ctx context.Context, after *entgql.Cursor[uuid.
 }
 
 // Posts is the resolver for the posts field.
-func (r *queryResolver) Posts(ctx context.Context, after *entgql.Cursor[uuid.UUID], first *int, before *entgql.Cursor[uuid.UUID], last *int, orderBy *generated.PostOrder, where *generated.PostWhereInput) (*generated.PostConnection, error) {
+func (r *queryResolver) Posts(ctx context.Context, after *entgql.Cursor[uuid.UUID], first *int, before *entgql.Cursor[uuid.UUID], last *int, orderBy *generated.PostOrder, where *model.ExtendedPostWhereInput) (*generated.PostConnection, error) {
+	if where.IncludeDeleted != nil && *where.IncludeDeleted {
+		ctx = entx.SkipSoftDelete(ctx)
+	}
+	if where.IncludeDeletedOnly != nil && *where.IncludeDeletedOnly {
+		ctx = entx.SkipSoftDelete(ctx)
+		where.AddPredicates(post.DeletedAtNotNil())
+	}
 	res, err := r.ent.Post.Query().Paginate(
 		ctx,
 		after,
@@ -108,6 +119,46 @@ func (r *queryResolver) Users(ctx context.Context, after *entgql.Cursor[uuid.UUI
 	return res, nil
 }
 
+// HasPostWith is the resolver for the hasPostWith field.
+func (r *commentWhereInputResolver) HasPostWith(ctx context.Context, obj *generated.CommentWhereInput, data []*model.ExtendedPostWhereInput) error {
+	panic(fmt.Errorf("not implemented: HasPostWith - hasPostWith"))
+}
+
+// HasPostWith is the resolver for the hasPostWith field.
+func (r *postCategoryWhereInputResolver) HasPostWith(ctx context.Context, obj *generated.PostCategoryWhereInput, data []*model.ExtendedPostWhereInput) error {
+	panic(fmt.Errorf("not implemented: HasPostWith - hasPostWith"))
+}
+
+// Not is the resolver for the not field.
+func (r *postWhereInputResolver) Not(ctx context.Context, obj *model.ExtendedPostWhereInput, data *model.ExtendedPostWhereInput) error {
+	panic(fmt.Errorf("not implemented: Not - not"))
+}
+
+// And is the resolver for the and field.
+func (r *postWhereInputResolver) And(ctx context.Context, obj *model.ExtendedPostWhereInput, data []*model.ExtendedPostWhereInput) error {
+	panic(fmt.Errorf("not implemented: And - and"))
+}
+
+// Or is the resolver for the or field.
+func (r *postWhereInputResolver) Or(ctx context.Context, obj *model.ExtendedPostWhereInput, data []*model.ExtendedPostWhereInput) error {
+	panic(fmt.Errorf("not implemented: Or - or"))
+}
+
+// HasSavedPostsWith is the resolver for the hasSavedPostsWith field.
+func (r *userWhereInputResolver) HasSavedPostsWith(ctx context.Context, obj *generated.UserWhereInput, data []*model.ExtendedPostWhereInput) error {
+	panic(fmt.Errorf("not implemented: HasSavedPostsWith - hasSavedPostsWith"))
+}
+
+// HasLikedPostsWith is the resolver for the hasLikedPostsWith field.
+func (r *userWhereInputResolver) HasLikedPostsWith(ctx context.Context, obj *generated.UserWhereInput, data []*model.ExtendedPostWhereInput) error {
+	panic(fmt.Errorf("not implemented: HasLikedPostsWith - hasLikedPostsWith"))
+}
+
+// HasPublishedPostsWith is the resolver for the hasPublishedPostsWith field.
+func (r *userWhereInputResolver) HasPublishedPostsWith(ctx context.Context, obj *generated.UserWhereInput, data []*model.ExtendedPostWhereInput) error {
+	panic(fmt.Errorf("not implemented: HasPublishedPostsWith - hasPublishedPostsWith"))
+}
+
 // Post returns PostResolver implementation.
 func (r *Resolver) Post() PostResolver { return &postResolver{r} }
 
@@ -117,8 +168,28 @@ func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 // User returns UserResolver implementation.
 func (r *Resolver) User() UserResolver { return &userResolver{r} }
 
+// CommentWhereInput returns CommentWhereInputResolver implementation.
+func (r *Resolver) CommentWhereInput() CommentWhereInputResolver {
+	return &commentWhereInputResolver{r}
+}
+
+// PostCategoryWhereInput returns PostCategoryWhereInputResolver implementation.
+func (r *Resolver) PostCategoryWhereInput() PostCategoryWhereInputResolver {
+	return &postCategoryWhereInputResolver{r}
+}
+
+// PostWhereInput returns PostWhereInputResolver implementation.
+func (r *Resolver) PostWhereInput() PostWhereInputResolver { return &postWhereInputResolver{r} }
+
+// UserWhereInput returns UserWhereInputResolver implementation.
+func (r *Resolver) UserWhereInput() UserWhereInputResolver { return &userWhereInputResolver{r} }
+
 type (
-	postResolver  struct{ *Resolver }
-	queryResolver struct{ *Resolver }
-	userResolver  struct{ *Resolver }
+	postResolver                   struct{ *Resolver }
+	queryResolver                  struct{ *Resolver }
+	userResolver                   struct{ *Resolver }
+	commentWhereInputResolver      struct{ *Resolver }
+	postCategoryWhereInputResolver struct{ *Resolver }
+	postWhereInputResolver         struct{ *Resolver }
+	userWhereInputResolver         struct{ *Resolver }
 )

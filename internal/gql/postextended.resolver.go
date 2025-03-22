@@ -7,6 +7,7 @@ import (
 
 	"github.com/caliecode/la-clipasa/internal/ent/generated"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/post"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/privacy"
 	"github.com/caliecode/la-clipasa/internal/gql/model"
 	"github.com/caliecode/la-clipasa/internal/utils/pointers"
 	"github.com/google/uuid"
@@ -42,7 +43,8 @@ func (r *mutationResolver) CreatePostWithCategories(ctx context.Context, input m
 
 // RestorePost is the resolver for the restorePost field.
 func (r *mutationResolver) RestorePost(ctx context.Context, id uuid.UUID) (*bool, error) {
-	// FIXME: ignore owner check
+	// already has role privacy, and else we can't query the post
+	ctx = privacy.DecisionContext(ctx, privacy.Allow)
 	_, err := r.ent.Post.UpdateOneID(id).ClearDeletedAt().ClearDeletedBy().Save(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("could not restore post: %w", err)

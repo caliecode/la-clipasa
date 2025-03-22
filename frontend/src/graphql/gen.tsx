@@ -918,6 +918,8 @@ export type PostWhereInput = {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  includeDeleted?: InputMaybe<Scalars['Boolean']['input']>
+  includeDeletedOnly?: InputMaybe<Scalars['Boolean']['input']>
   /** is_moderated field predicates */
   isModerated?: InputMaybe<Scalars['Boolean']['input']>
   isModeratedNEQ?: InputMaybe<Scalars['Boolean']['input']>

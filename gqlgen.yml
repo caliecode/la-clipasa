@@ -51,3 +51,6 @@ models:
     model:
       - github.com/caliecode/la-clipasa/internal/ent/generated.Noder
 
+  # extend for soft deletes, etc. instead of passing values via resolver pointers
+  PostWhereInput:
+    model: github.com/caliecode/la-clipasa/internal/gql/model.ExtendedPostWhereInput

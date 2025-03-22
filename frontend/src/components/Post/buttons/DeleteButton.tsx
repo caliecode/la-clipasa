@@ -15,22 +15,21 @@ import { checkAuthorization } from 'src/services/authorization'
 interface DeleteButtonButtonProps {}
 
 export default function DeleteButton({}: DeleteButtonButtonProps) {
-  const { post } = usePostContext()
+  const { post, setPost } = usePostContext()
   const [, deletePost] = useDeletePostMutation()
   const queryClient = useQueryClient()
   const { user, isAuthenticated } = useAuthenticatedUser()
   const theme = useMantineTheme()
-  const [deleteButtonLoading, setDeleteButtonLoading] = useState(false)
+  const [buttonLoading, setButtonLoading] = useState(false)
 
   const canDeleteOrRestorePost =
     post.owner?.displayName === user?.id || checkAuthorization({ user, requiredRole: 'MODERATOR' }).authorized
 
   const [, restorePost] = useRestorePostMutation()
-  const [restoreButtonLoading, setRestoreButtonLoading] = useState(false)
   const handleRestoreButtonClick = async (e) => {
     e.stopPropagation()
 
-    setRestoreButtonLoading(true)
+    setButtonLoading(true)
     const r = await restorePost({ id: post.id })
     if (r.error) {
       showNotification({
@@ -41,7 +40,13 @@ export default function DeleteButton({}: DeleteButtonButtonProps) {
         icon: <IconRefresh size={18} />,
         autoClose: 3000,
       })
+    } else {
+      setPost({
+        ...post,
+        deletedAt: null,
+      })
     }
+    setButtonLoading(false)
   }
 
   if (!post || !user || !canDeleteOrRestorePost) return null
@@ -53,7 +58,7 @@ export default function DeleteButton({}: DeleteButtonButtonProps) {
       labels: { confirm: 'Delete', cancel: 'Cancel' },
       confirmProps: { color: 'red' },
       onConfirm: () => {
-        setDeleteButtonLoading(true)
+        setButtonLoading(true)
         deletePost({ deletePostId: post.id })
           .then(() => {
             showNotification({
@@ -63,6 +68,11 @@ export default function DeleteButton({}: DeleteButtonButtonProps) {
               color: 'yellow',
               icon: <IconTrash size={18} />,
               autoClose: 3000,
+            })
+
+            setPost({
+              ...post,
+              deletedAt: new Date(),
             })
           })
           .catch((error) => {
@@ -75,6 +85,7 @@ export default function DeleteButton({}: DeleteButtonButtonProps) {
               autoClose: 3000,
             })
           })
+        setButtonLoading(false)
       },
     })
   }
@@ -86,13 +97,13 @@ export default function DeleteButton({}: DeleteButtonButtonProps) {
   }
 
   return (
-    <Tooltip label="Delete" arrowPosition="center" withArrow>
+    <Tooltip label={post.deletedAt ? 'Restore' : 'Delete'} arrowPosition="center" withArrow>
       {post.deletedAt ? (
-        <ActionIcon onClick={handleRestoreButtonClick} className={styles.action} loading={restoreButtonLoading}>
+        <ActionIcon onClick={handleRestoreButtonClick} className={styles.action} loading={buttonLoading}>
           <IconRefresh size={16} color={theme.colors.green[6]} stroke={1.5} />
         </ActionIcon>
       ) : (
-        <ActionIcon onClick={handleDeleteButtonClick} className={styles.action} loading={deleteButtonLoading}>
+        <ActionIcon onClick={handleDeleteButtonClick} className={styles.action} loading={buttonLoading}>
           <IconTrash size={16} color={theme.colors.red[6]} stroke={1.5} />
         </ActionIcon>
       )}

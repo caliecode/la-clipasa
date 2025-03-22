@@ -50,6 +50,10 @@ type ResolverRoot interface {
 	Post() PostResolver
 	Query() QueryResolver
 	User() UserResolver
+	CommentWhereInput() CommentWhereInputResolver
+	PostCategoryWhereInput() PostCategoryWhereInputResolver
+	PostWhereInput() PostWhereInputResolver
+	UserWhereInput() UserWhereInputResolver
 }
 
 type DirectiveRoot struct {
@@ -266,7 +270,7 @@ type ComplexityRoot struct {
 		Post            func(childComplexity int, id uuid.UUID) int
 		PostCategories  func(childComplexity int, after *entgql.Cursor[uuid.UUID], first *int, before *entgql.Cursor[uuid.UUID], last *int, orderBy *generated.PostCategoryOrder, where *generated.PostCategoryWhereInput) int
 		PostCategory    func(childComplexity int, id uuid.UUID) int
-		Posts           func(childComplexity int, after *entgql.Cursor[uuid.UUID], first *int, before *entgql.Cursor[uuid.UUID], last *int, orderBy *generated.PostOrder, where *generated.PostWhereInput) int
+		Posts           func(childComplexity int, after *entgql.Cursor[uuid.UUID], first *int, before *entgql.Cursor[uuid.UUID], last *int, orderBy *generated.PostOrder, where *model.ExtendedPostWhereInput) int
 		Search          func(childComplexity int, query string) int
 		User            func(childComplexity int, id uuid.UUID) int
 		UserSearch      func(childComplexity int, query string) int
@@ -379,7 +383,7 @@ type QueryResolver interface {
 	Nodes(ctx context.Context, ids []uuid.UUID) ([]generated.Noder, error)
 	APIKeys(ctx context.Context, after *entgql.Cursor[uuid.UUID], first *int, before *entgql.Cursor[uuid.UUID], last *int, orderBy *generated.ApiKeyOrder, where *generated.ApiKeyWhereInput) (*generated.ApiKeyConnection, error)
 	Comments(ctx context.Context, after *entgql.Cursor[uuid.UUID], first *int, before *entgql.Cursor[uuid.UUID], last *int, orderBy *generated.CommentOrder, where *generated.CommentWhereInput) (*generated.CommentConnection, error)
-	Posts(ctx context.Context, after *entgql.Cursor[uuid.UUID], first *int, before *entgql.Cursor[uuid.UUID], last *int, orderBy *generated.PostOrder, where *generated.PostWhereInput) (*generated.PostConnection, error)
+	Posts(ctx context.Context, after *entgql.Cursor[uuid.UUID], first *int, before *entgql.Cursor[uuid.UUID], last *int, orderBy *generated.PostOrder, where *model.ExtendedPostWhereInput) (*generated.PostConnection, error)
 	PostCategories(ctx context.Context, after *entgql.Cursor[uuid.UUID], first *int, before *entgql.Cursor[uuid.UUID], last *int, orderBy *generated.PostCategoryOrder, where *generated.PostCategoryWhereInput) (*generated.PostCategoryConnection, error)
 	Users(ctx context.Context, after *entgql.Cursor[uuid.UUID], first *int, before *entgql.Cursor[uuid.UUID], last *int, orderBy *generated.UserOrder, where *generated.UserWhereInput) (*generated.UserConnection, error)
 	AdminUserSearch(ctx context.Context, query string) (*model.UserSearchResult, error)
@@ -395,6 +399,25 @@ type QueryResolver interface {
 }
 type UserResolver interface {
 	TwitchInfo(ctx context.Context, obj *generated.User) (*model.UserTwitchInfo, error)
+}
+
+type CommentWhereInputResolver interface {
+	HasPostWith(ctx context.Context, obj *generated.CommentWhereInput, data []*model.ExtendedPostWhereInput) error
+}
+type PostCategoryWhereInputResolver interface {
+	HasPostWith(ctx context.Context, obj *generated.PostCategoryWhereInput, data []*model.ExtendedPostWhereInput) error
+}
+type PostWhereInputResolver interface {
+	Not(ctx context.Context, obj *model.ExtendedPostWhereInput, data *model.ExtendedPostWhereInput) error
+	And(ctx context.Context, obj *model.ExtendedPostWhereInput, data []*model.ExtendedPostWhereInput) error
+	Or(ctx context.Context, obj *model.ExtendedPostWhereInput, data []*model.ExtendedPostWhereInput) error
+}
+type UserWhereInputResolver interface {
+	HasSavedPostsWith(ctx context.Context, obj *generated.UserWhereInput, data []*model.ExtendedPostWhereInput) error
+
+	HasLikedPostsWith(ctx context.Context, obj *generated.UserWhereInput, data []*model.ExtendedPostWhereInput) error
+
+	HasPublishedPostsWith(ctx context.Context, obj *generated.UserWhereInput, data []*model.ExtendedPostWhereInput) error
 }
 
 type executableSchema struct {
@@ -1452,7 +1475,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Posts(childComplexity, args["after"].(*entgql.Cursor[uuid.UUID]), args["first"].(*int), args["before"].(*entgql.Cursor[uuid.UUID]), args["last"].(*int), args["orderBy"].(*generated.PostOrder), args["where"].(*generated.PostWhereInput)), true
+		return e.complexity.Query.Posts(childComplexity, args["after"].(*entgql.Cursor[uuid.UUID]), args["first"].(*int), args["before"].(*entgql.Cursor[uuid.UUID]), args["last"].(*int), args["orderBy"].(*generated.PostOrder), args["where"].(*model.ExtendedPostWhereInput)), true
 
 	case "Query.search":
 		if e.complexity.Query.Search == nil {
@@ -3903,18 +3926,18 @@ func (ec *executionContext) field_Query_posts_argsOrderBy(
 func (ec *executionContext) field_Query_posts_argsWhere(
 	ctx context.Context,
 	rawArgs map[string]any,
-) (*generated.PostWhereInput, error) {
+) (*model.ExtendedPostWhereInput, error) {
 	if _, ok := rawArgs["where"]; !ok {
-		var zeroVal *generated.PostWhereInput
+		var zeroVal *model.ExtendedPostWhereInput
 		return zeroVal, nil
 	}
 
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("where"))
 	if tmp, ok := rawArgs["where"]; ok {
-		return ec.unmarshalOPostWhereInput2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐPostWhereInput(ctx, tmp)
+		return ec.unmarshalOPostWhereInput2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋmodelᚐExtendedPostWhereInput(ctx, tmp)
 	}
 
-	var zeroVal *generated.PostWhereInput
+	var zeroVal *model.ExtendedPostWhereInput
 	return zeroVal, nil
 }
 
@@ -7219,8 +7242,35 @@ func (ec *executionContext) _Mutation_restorePost(ctx context.Context, field gra
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().RestorePost(rctx, fc.Args["id"].(uuid.UUID))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().RestorePost(rctx, fc.Args["id"].(uuid.UUID))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			role, err := ec.unmarshalNUserRole2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚋuserᚐRole(ctx, "MODERATOR")
+			if err != nil {
+				var zeroVal *bool
+				return zeroVal, err
+			}
+			if ec.directives.HasRole == nil {
+				var zeroVal *bool
+				return zeroVal, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10186,7 +10236,7 @@ func (ec *executionContext) _Query_posts(ctx context.Context, field graphql.Coll
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Posts(rctx, fc.Args["after"].(*entgql.Cursor[uuid.UUID]), fc.Args["first"].(*int), fc.Args["before"].(*entgql.Cursor[uuid.UUID]), fc.Args["last"].(*int), fc.Args["orderBy"].(*generated.PostOrder), fc.Args["where"].(*generated.PostWhereInput))
+		return ec.resolvers.Query().Posts(rctx, fc.Args["after"].(*entgql.Cursor[uuid.UUID]), fc.Args["first"].(*int), fc.Args["before"].(*entgql.Cursor[uuid.UUID]), fc.Args["last"].(*int), fc.Args["orderBy"].(*generated.PostOrder), fc.Args["where"].(*model.ExtendedPostWhereInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -16002,11 +16052,13 @@ func (ec *executionContext) unmarshalInputCommentWhereInput(ctx context.Context,
 			it.HasPost = data
 		case "hasPostWith":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasPostWith"))
-			data, err := ec.unmarshalOPostWhereInput2ᚕᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐPostWhereInputᚄ(ctx, v)
+			data, err := ec.unmarshalOPostWhereInput2ᚕᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋmodelᚐExtendedPostWhereInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.HasPostWith = data
+			if err = ec.resolvers.CommentWhereInput().HasPostWith(ctx, &it, data); err != nil {
+				return it, err
+			}
 		}
 	}
 
@@ -16659,11 +16711,13 @@ func (ec *executionContext) unmarshalInputPostCategoryWhereInput(ctx context.Con
 			it.HasPost = data
 		case "hasPostWith":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasPostWith"))
-			data, err := ec.unmarshalOPostWhereInput2ᚕᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐPostWhereInputᚄ(ctx, v)
+			data, err := ec.unmarshalOPostWhereInput2ᚕᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋmodelᚐExtendedPostWhereInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.HasPostWith = data
+			if err = ec.resolvers.PostCategoryWhereInput().HasPostWith(ctx, &it, data); err != nil {
+				return it, err
+			}
 		}
 	}
 
@@ -16708,14 +16762,14 @@ func (ec *executionContext) unmarshalInputPostOrder(ctx context.Context, obj any
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputPostWhereInput(ctx context.Context, obj any) (generated.PostWhereInput, error) {
-	var it generated.PostWhereInput
+func (ec *executionContext) unmarshalInputPostWhereInput(ctx context.Context, obj any) (model.ExtendedPostWhereInput, error) {
+	var it model.ExtendedPostWhereInput
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "updatedAt", "updatedAtNEQ", "updatedAtIn", "updatedAtNotIn", "updatedAtGT", "updatedAtGTE", "updatedAtLT", "updatedAtLTE", "createdAt", "createdAtNEQ", "createdAtIn", "createdAtNotIn", "createdAtGT", "createdAtGTE", "createdAtLT", "createdAtLTE", "deletedAt", "deletedAtNEQ", "deletedAtIn", "deletedAtNotIn", "deletedAtGT", "deletedAtGTE", "deletedAtLT", "deletedAtLTE", "deletedAtIsNil", "deletedAtNotNil", "deletedBy", "deletedByNEQ", "deletedByIn", "deletedByNotIn", "deletedByGT", "deletedByGTE", "deletedByLT", "deletedByLTE", "deletedByContains", "deletedByHasPrefix", "deletedByHasSuffix", "deletedByIsNil", "deletedByNotNil", "deletedByEqualFold", "deletedByContainsFold", "pinned", "pinnedNEQ", "title", "titleNEQ", "titleIn", "titleNotIn", "titleGT", "titleGTE", "titleLT", "titleLTE", "titleContains", "titleHasPrefix", "titleHasSuffix", "titleEqualFold", "titleContainsFold", "content", "contentNEQ", "contentIn", "contentNotIn", "contentGT", "contentGTE", "contentLT", "contentLTE", "contentContains", "contentHasPrefix", "contentHasSuffix", "contentIsNil", "contentNotNil", "contentEqualFold", "contentContainsFold", "link", "linkNEQ", "linkIn", "linkNotIn", "linkGT", "linkGTE", "linkLT", "linkLTE", "linkContains", "linkHasPrefix", "linkHasSuffix", "linkEqualFold", "linkContainsFold", "moderationComment", "moderationCommentNEQ", "moderationCommentIn", "moderationCommentNotIn", "moderationCommentGT", "moderationCommentGTE", "moderationCommentLT", "moderationCommentLTE", "moderationCommentContains", "moderationCommentHasPrefix", "moderationCommentHasSuffix", "moderationCommentIsNil", "moderationCommentNotNil", "moderationCommentEqualFold", "moderationCommentContainsFold", "isModerated", "isModeratedNEQ", "entityVector", "entityVectorNEQ", "entityVectorIn", "entityVectorNotIn", "entityVectorGT", "entityVectorGTE", "entityVectorLT", "entityVectorLTE", "entityVectorContains", "entityVectorHasPrefix", "entityVectorHasSuffix", "entityVectorIsNil", "entityVectorNotNil", "entityVectorEqualFold", "entityVectorContainsFold", "hasOwner", "hasOwnerWith", "hasComments", "hasCommentsWith", "hasSavedBy", "hasSavedByWith", "hasLikedBy", "hasLikedByWith", "hasCategories", "hasCategoriesWith"}
+	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "updatedAt", "updatedAtNEQ", "updatedAtIn", "updatedAtNotIn", "updatedAtGT", "updatedAtGTE", "updatedAtLT", "updatedAtLTE", "createdAt", "createdAtNEQ", "createdAtIn", "createdAtNotIn", "createdAtGT", "createdAtGTE", "createdAtLT", "createdAtLTE", "deletedAt", "deletedAtNEQ", "deletedAtIn", "deletedAtNotIn", "deletedAtGT", "deletedAtGTE", "deletedAtLT", "deletedAtLTE", "deletedAtIsNil", "deletedAtNotNil", "deletedBy", "deletedByNEQ", "deletedByIn", "deletedByNotIn", "deletedByGT", "deletedByGTE", "deletedByLT", "deletedByLTE", "deletedByContains", "deletedByHasPrefix", "deletedByHasSuffix", "deletedByIsNil", "deletedByNotNil", "deletedByEqualFold", "deletedByContainsFold", "pinned", "pinnedNEQ", "title", "titleNEQ", "titleIn", "titleNotIn", "titleGT", "titleGTE", "titleLT", "titleLTE", "titleContains", "titleHasPrefix", "titleHasSuffix", "titleEqualFold", "titleContainsFold", "content", "contentNEQ", "contentIn", "contentNotIn", "contentGT", "contentGTE", "contentLT", "contentLTE", "contentContains", "contentHasPrefix", "contentHasSuffix", "contentIsNil", "contentNotNil", "contentEqualFold", "contentContainsFold", "link", "linkNEQ", "linkIn", "linkNotIn", "linkGT", "linkGTE", "linkLT", "linkLTE", "linkContains", "linkHasPrefix", "linkHasSuffix", "linkEqualFold", "linkContainsFold", "moderationComment", "moderationCommentNEQ", "moderationCommentIn", "moderationCommentNotIn", "moderationCommentGT", "moderationCommentGTE", "moderationCommentLT", "moderationCommentLTE", "moderationCommentContains", "moderationCommentHasPrefix", "moderationCommentHasSuffix", "moderationCommentIsNil", "moderationCommentNotNil", "moderationCommentEqualFold", "moderationCommentContainsFold", "isModerated", "isModeratedNEQ", "entityVector", "entityVectorNEQ", "entityVectorIn", "entityVectorNotIn", "entityVectorGT", "entityVectorGTE", "entityVectorLT", "entityVectorLTE", "entityVectorContains", "entityVectorHasPrefix", "entityVectorHasSuffix", "entityVectorIsNil", "entityVectorNotNil", "entityVectorEqualFold", "entityVectorContainsFold", "hasOwner", "hasOwnerWith", "hasComments", "hasCommentsWith", "hasSavedBy", "hasSavedByWith", "hasLikedBy", "hasLikedByWith", "hasCategories", "hasCategoriesWith", "includeDeleted", "includeDeletedOnly"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -16724,25 +16778,31 @@ func (ec *executionContext) unmarshalInputPostWhereInput(ctx context.Context, ob
 		switch k {
 		case "not":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("not"))
-			data, err := ec.unmarshalOPostWhereInput2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐPostWhereInput(ctx, v)
+			data, err := ec.unmarshalOPostWhereInput2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋmodelᚐExtendedPostWhereInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Not = data
+			if err = ec.resolvers.PostWhereInput().Not(ctx, &it, data); err != nil {
+				return it, err
+			}
 		case "and":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("and"))
-			data, err := ec.unmarshalOPostWhereInput2ᚕᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐPostWhereInputᚄ(ctx, v)
+			data, err := ec.unmarshalOPostWhereInput2ᚕᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋmodelᚐExtendedPostWhereInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.And = data
+			if err = ec.resolvers.PostWhereInput().And(ctx, &it, data); err != nil {
+				return it, err
+			}
 		case "or":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("or"))
-			data, err := ec.unmarshalOPostWhereInput2ᚕᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐPostWhereInputᚄ(ctx, v)
+			data, err := ec.unmarshalOPostWhereInput2ᚕᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋmodelᚐExtendedPostWhereInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Or = data
+			if err = ec.resolvers.PostWhereInput().Or(ctx, &it, data); err != nil {
+				return it, err
+			}
 		case "id":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
@@ -17681,6 +17741,20 @@ func (ec *executionContext) unmarshalInputPostWhereInput(ctx context.Context, ob
 				return it, err
 			}
 			it.HasCategoriesWith = data
+		case "includeDeleted":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("includeDeleted"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IncludeDeleted = data
+		case "includeDeletedOnly":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("includeDeletedOnly"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IncludeDeletedOnly = data
 		}
 	}
 
@@ -19167,11 +19241,13 @@ func (ec *executionContext) unmarshalInputUserWhereInput(ctx context.Context, ob
 			it.HasSavedPosts = data
 		case "hasSavedPostsWith":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasSavedPostsWith"))
-			data, err := ec.unmarshalOPostWhereInput2ᚕᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐPostWhereInputᚄ(ctx, v)
+			data, err := ec.unmarshalOPostWhereInput2ᚕᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋmodelᚐExtendedPostWhereInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.HasSavedPostsWith = data
+			if err = ec.resolvers.UserWhereInput().HasSavedPostsWith(ctx, &it, data); err != nil {
+				return it, err
+			}
 		case "hasLikedPosts":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasLikedPosts"))
 			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
@@ -19181,11 +19257,13 @@ func (ec *executionContext) unmarshalInputUserWhereInput(ctx context.Context, ob
 			it.HasLikedPosts = data
 		case "hasLikedPostsWith":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasLikedPostsWith"))
-			data, err := ec.unmarshalOPostWhereInput2ᚕᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐPostWhereInputᚄ(ctx, v)
+			data, err := ec.unmarshalOPostWhereInput2ᚕᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋmodelᚐExtendedPostWhereInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.HasLikedPostsWith = data
+			if err = ec.resolvers.UserWhereInput().HasLikedPostsWith(ctx, &it, data); err != nil {
+				return it, err
+			}
 		case "hasPublishedPosts":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasPublishedPosts"))
 			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
@@ -19195,11 +19273,13 @@ func (ec *executionContext) unmarshalInputUserWhereInput(ctx context.Context, ob
 			it.HasPublishedPosts = data
 		case "hasPublishedPostsWith":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasPublishedPostsWith"))
-			data, err := ec.unmarshalOPostWhereInput2ᚕᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐPostWhereInputᚄ(ctx, v)
+			data, err := ec.unmarshalOPostWhereInput2ᚕᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋmodelᚐExtendedPostWhereInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.HasPublishedPostsWith = data
+			if err = ec.resolvers.UserWhereInput().HasPublishedPostsWith(ctx, &it, data); err != nil {
+				return it, err
+			}
 		case "hasComments":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasComments"))
 			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
@@ -23179,7 +23259,7 @@ func (ec *executionContext) marshalNPostUpdatePayload2ᚖgithubᚗcomᚋcaliecod
 	return ec._PostUpdatePayload(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNPostWhereInput2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐPostWhereInput(ctx context.Context, v any) (*generated.PostWhereInput, error) {
+func (ec *executionContext) unmarshalNPostWhereInput2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋmodelᚐExtendedPostWhereInput(ctx context.Context, v any) (*model.ExtendedPostWhereInput, error) {
 	res, err := ec.unmarshalInputPostWhereInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
@@ -24512,7 +24592,7 @@ func (ec *executionContext) unmarshalOPostOrder2ᚖgithubᚗcomᚋcaliecodeᚋla
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOPostWhereInput2ᚕᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐPostWhereInputᚄ(ctx context.Context, v any) ([]*generated.PostWhereInput, error) {
+func (ec *executionContext) unmarshalOPostWhereInput2ᚕᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋmodelᚐExtendedPostWhereInputᚄ(ctx context.Context, v any) ([]*model.ExtendedPostWhereInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -24521,10 +24601,10 @@ func (ec *executionContext) unmarshalOPostWhereInput2ᚕᚖgithubᚗcomᚋcaliec
 		vSlice = graphql.CoerceList(v)
 	}
 	var err error
-	res := make([]*generated.PostWhereInput, len(vSlice))
+	res := make([]*model.ExtendedPostWhereInput, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNPostWhereInput2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐPostWhereInput(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNPostWhereInput2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋmodelᚐExtendedPostWhereInput(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -24532,7 +24612,7 @@ func (ec *executionContext) unmarshalOPostWhereInput2ᚕᚖgithubᚗcomᚋcaliec
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalOPostWhereInput2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐPostWhereInput(ctx context.Context, v any) (*generated.PostWhereInput, error) {
+func (ec *executionContext) unmarshalOPostWhereInput2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋmodelᚐExtendedPostWhereInput(ctx context.Context, v any) (*model.ExtendedPostWhereInput, error) {
 	if v == nil {
 		return nil, nil
 	}
