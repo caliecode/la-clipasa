@@ -68,9 +68,8 @@ func main() {
 	}
 
 	entgqlExt, err := entgql.NewExtension(
-		// FIXME: shouldnt entgql have generated this since the original struct was changed
-		// and converted all to graphql fields?
-		// TODO: check out `(e *schemaGenerator) buildWhereInput` in entgql/schema.go
+		// have to manually create, since entgql's buildWhereInput just generates for db fields
+		// regardless of what changes we make to the whereinput struct
 		entgql.WithSchemaHook(
 			func(graph *gen.Graph, s *ast.Schema) error {
 				for _, n := range graph.Nodes {
