@@ -24,13 +24,7 @@ export default function LandingPage() {
   const [isFetchingMore, setIsFetchingMore] = useState(false)
   const [showBackToTop, setShowBackToTop] = useState(false)
   const [posts, refetchPosts] = usePostsQuery({
-    variables: {
-      ...queryParams,
-      where: {
-        ...queryParams.where,
-        includeDeleted: false,
-      },
-    },
+    variables: queryParams,
   })
 
   const whereOrderByRef = useRef(`${JSON.stringify(queryParams.where)}${JSON.stringify(queryParams.orderBy)}`)
