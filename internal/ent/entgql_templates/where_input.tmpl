@@ -226,7 +226,7 @@ import (
             {{- end }}
         {{- end }}
         {{- if $hasDeletedAt }}
-        {{/* TODO: entx.SkipSoftDelete directly */}}
+        {{/* skipping softdelete interceptor/hooks via context only possible in directive */}}
         if i.IncludeDeletedOnly != nil && *i.IncludeDeletedOnly {
             predicates = append(predicates, {{ $n.Package }}.DeletedAtNotNil())
         }

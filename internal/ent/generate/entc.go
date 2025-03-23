@@ -70,6 +70,8 @@ func main() {
 	entgqlExt, err := entgql.NewExtension(
 		// have to manually create, since entgql's buildWhereInput just generates for db fields
 		// regardless of what changes we make to the whereinput struct
+		// TODO: add a @skipSoftDelete directive, in which we do have access to ctx
+		// and return next(ctx).
 		entgql.WithSchemaHook(
 			func(graph *gen.Graph, s *ast.Schema) error {
 				for _, n := range graph.Nodes {
@@ -90,11 +92,17 @@ func main() {
 							Description: "Include soft-deleted records",
 							Name:        "includeDeleted",
 							Type:        ast.NamedType("Boolean", nil),
+							Directives: []*ast.Directive{
+								{Name: "skipSoftDelete"},
+							},
 						},
 						&ast.FieldDefinition{
 							Description: "Include only soft-deleted records",
 							Name:        "includeDeletedOnly",
 							Type:        ast.NamedType("Boolean", nil),
+							Directives: []*ast.Directive{
+								{Name: "skipSoftDelete"},
+							},
 						},
 					)
 				}

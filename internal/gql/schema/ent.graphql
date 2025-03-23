@@ -295,11 +295,11 @@ input CommentWhereInput {
   """
   Include soft-deleted records
   """
-  includeDeleted: Boolean
+  includeDeleted: Boolean @skipSoftDelete
   """
   Include only soft-deleted records
   """
-  includeDeletedOnly: Boolean
+  includeDeletedOnly: Boolean @skipSoftDelete
 }
 """
 CreateApiKeyInput is used for create ApiKey object.
@@ -883,11 +883,11 @@ input PostWhereInput {
   """
   Include soft-deleted records
   """
-  includeDeleted: Boolean
+  includeDeleted: Boolean @skipSoftDelete
   """
   Include only soft-deleted records
   """
-  includeDeletedOnly: Boolean
+  includeDeletedOnly: Boolean @skipSoftDelete
 }
 type Query {
   """
@@ -1458,9 +1458,9 @@ input UserWhereInput {
   """
   Include soft-deleted records
   """
-  includeDeleted: Boolean
+  includeDeleted: Boolean @skipSoftDelete
   """
   Include only soft-deleted records
   """
-  includeDeletedOnly: Boolean
+  includeDeletedOnly: Boolean @skipSoftDelete
 }

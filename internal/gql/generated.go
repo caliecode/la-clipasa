@@ -53,7 +53,8 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
-	HasRole func(ctx context.Context, obj any, next graphql.Resolver, role user.Role) (res any, err error)
+	HasRole        func(ctx context.Context, obj any, next graphql.Resolver, role user.Role) (res any, err error)
+	SkipSoftDelete func(ctx context.Context, obj any, next graphql.Resolver) (res any, err error)
 }
 
 type ComplexityRoot struct {
@@ -16036,18 +16037,52 @@ func (ec *executionContext) unmarshalInputCommentWhereInput(ctx context.Context,
 			it.HasPostWith = data
 		case "includeDeleted":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("includeDeleted"))
-			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOBoolean2ᚖbool(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.directives.SkipSoftDelete == nil {
+					var zeroVal *bool
+					return zeroVal, errors.New("directive skipSoftDelete is not implemented")
+				}
+				return ec.directives.SkipSoftDelete(ctx, obj, directive0)
 			}
-			it.IncludeDeleted = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*bool); ok {
+				it.IncludeDeleted = data
+			} else if tmp == nil {
+				it.IncludeDeleted = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *bool`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "includeDeletedOnly":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("includeDeletedOnly"))
-			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOBoolean2ᚖbool(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.directives.SkipSoftDelete == nil {
+					var zeroVal *bool
+					return zeroVal, errors.New("directive skipSoftDelete is not implemented")
+				}
+				return ec.directives.SkipSoftDelete(ctx, obj, directive0)
 			}
-			it.IncludeDeletedOnly = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*bool); ok {
+				it.IncludeDeletedOnly = data
+			} else if tmp == nil {
+				it.IncludeDeletedOnly = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *bool`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -17724,18 +17759,52 @@ func (ec *executionContext) unmarshalInputPostWhereInput(ctx context.Context, ob
 			it.HasCategoriesWith = data
 		case "includeDeleted":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("includeDeleted"))
-			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOBoolean2ᚖbool(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.directives.SkipSoftDelete == nil {
+					var zeroVal *bool
+					return zeroVal, errors.New("directive skipSoftDelete is not implemented")
+				}
+				return ec.directives.SkipSoftDelete(ctx, obj, directive0)
 			}
-			it.IncludeDeleted = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*bool); ok {
+				it.IncludeDeleted = data
+			} else if tmp == nil {
+				it.IncludeDeleted = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *bool`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "includeDeletedOnly":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("includeDeletedOnly"))
-			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOBoolean2ᚖbool(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.directives.SkipSoftDelete == nil {
+					var zeroVal *bool
+					return zeroVal, errors.New("directive skipSoftDelete is not implemented")
+				}
+				return ec.directives.SkipSoftDelete(ctx, obj, directive0)
 			}
-			it.IncludeDeletedOnly = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*bool); ok {
+				it.IncludeDeletedOnly = data
+			} else if tmp == nil {
+				it.IncludeDeletedOnly = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *bool`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -19285,18 +19354,52 @@ func (ec *executionContext) unmarshalInputUserWhereInput(ctx context.Context, ob
 			it.HasAPIKeysWith = data
 		case "includeDeleted":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("includeDeleted"))
-			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOBoolean2ᚖbool(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.directives.SkipSoftDelete == nil {
+					var zeroVal *bool
+					return zeroVal, errors.New("directive skipSoftDelete is not implemented")
+				}
+				return ec.directives.SkipSoftDelete(ctx, obj, directive0)
 			}
-			it.IncludeDeleted = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*bool); ok {
+				it.IncludeDeleted = data
+			} else if tmp == nil {
+				it.IncludeDeleted = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *bool`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "includeDeletedOnly":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("includeDeletedOnly"))
-			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOBoolean2ᚖbool(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.directives.SkipSoftDelete == nil {
+					var zeroVal *bool
+					return zeroVal, errors.New("directive skipSoftDelete is not implemented")
+				}
+				return ec.directives.SkipSoftDelete(ctx, obj, directive0)
 			}
-			it.IncludeDeletedOnly = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*bool); ok {
+				it.IncludeDeletedOnly = data
+			} else if tmp == nil {
+				it.IncludeDeletedOnly = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *bool`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
