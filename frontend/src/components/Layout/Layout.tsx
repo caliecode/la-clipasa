@@ -125,6 +125,8 @@ export default function Layout({ children }: LayoutProps) {
     )
   }
 
+  const url = window.location.href
+
   return (
     <Fragment>
       <Helmet>
@@ -175,7 +177,7 @@ export default function Layout({ children }: LayoutProps) {
               {checkAuthorization({ user, requiredRole: 'ADMIN' }).authorized && (
                 <Button
                   component="a"
-                  variant="default"
+                  variant={url.includes(uiPath('/admin/users-management')) ? 'subtle' : 'default'}
                   onClick={() => navigate(uiPath('/admin/users-management'))}
                   size="xs"
                   leftSection={<IconUsers size={14} stroke={1.5} />}
@@ -328,12 +330,15 @@ export default function Layout({ children }: LayoutProps) {
 }
 
 function Banner() {
+  const navigate = useNavigate()
   return (
     <Image
       alt="la clipasa"
       src={banner}
+      onClick={() => navigate('/')}
       className={`showOnLargeOnly`}
       style={{
+        cursor: 'pointer',
         height: 'var(--banner-height)',
         width: '100%',
         backgroundImage: `url(${banner})`,
