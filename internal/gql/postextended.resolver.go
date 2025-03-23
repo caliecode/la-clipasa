@@ -63,13 +63,3 @@ func (r *postResolver) NodeID(ctx context.Context, obj *generated.Post) (string,
 	// same as returned by cursor
 	return base64.RawURLEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%d", post.Table, obj.ID))), nil
 }
-
-// IncludeDeleted is the resolver for the includeDeleted field.
-func (r *postWhereInputResolver) IncludeDeleted(ctx context.Context, obj *generated.PostWhereInput, data *bool) error {
-	panic(fmt.Errorf("not implemented: IncludeDeleted - includeDeleted"))
-}
-
-// IncludeDeletedOnly is the resolver for the includeDeletedOnly field.
-func (r *postWhereInputResolver) IncludeDeletedOnly(ctx context.Context, obj *generated.PostWhereInput, data *bool) error {
-	panic(fmt.Errorf("not implemented: IncludeDeletedOnly - includeDeletedOnly"))
-}

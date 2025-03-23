@@ -6,6 +6,7 @@ import (
 	"entgo.io/contrib/entgql"
 	"github.com/caliecode/la-clipasa/internal/ent/generated"
 	"github.com/google/uuid"
+	"github.com/theopenlane/entx"
 )
 
 // Node is the resolver for the node field.
@@ -56,13 +57,10 @@ func (r *queryResolver) Comments(ctx context.Context, after *entgql.Cursor[uuid.
 
 // Posts is the resolver for the posts field.
 func (r *queryResolver) Posts(ctx context.Context, after *entgql.Cursor[uuid.UUID], first *int, before *entgql.Cursor[uuid.UUID], last *int, orderBy *generated.PostOrder, where *generated.PostWhereInput) (*generated.PostConnection, error) {
-	// if where.IncludeDeleted != nil && *where.IncludeDeleted {
-	// 	ctx = entx.SkipSoftDelete(ctx)
-	// }
-	// if where.IncludeDeletedOnly != nil && *where.IncludeDeletedOnly {
-	// 	ctx = entx.SkipSoftDelete(ctx)
-	// 	where.AddPredicates(post.DeletedAtNotNil())
-	// }
+	if where.IncludeDeleted != nil && *where.IncludeDeleted ||
+		where.IncludeDeletedOnly != nil && *where.IncludeDeletedOnly {
+		ctx = entx.SkipSoftDelete(ctx)
+	}
 	res, err := r.ent.Post.Query().Paginate(
 		ctx,
 		after,
@@ -124,12 +122,8 @@ func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 // User returns UserResolver implementation.
 func (r *Resolver) User() UserResolver { return &userResolver{r} }
 
-// PostWhereInput returns PostWhereInputResolver implementation.
-func (r *Resolver) PostWhereInput() PostWhereInputResolver { return &postWhereInputResolver{r} }
-
 type (
-	postResolver           struct{ *Resolver }
-	queryResolver          struct{ *Resolver }
-	userResolver           struct{ *Resolver }
-	postWhereInputResolver struct{ *Resolver }
+	postResolver  struct{ *Resolver }
+	queryResolver struct{ *Resolver }
+	userResolver  struct{ *Resolver }
 )

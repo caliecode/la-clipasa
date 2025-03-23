@@ -308,6 +308,7 @@ func (i *ApiKeyWhereInput) P() (predicate.ApiKey, error) {
 		}
 		predicates = append(predicates, apikey.HasOwnerWith(with...))
 	}
+
 	switch len(predicates) {
 	case 0:
 		return nil, ErrEmptyApiKeyWhereInput
@@ -406,6 +407,9 @@ type CommentWhereInput struct {
 	// "post" edge predicates.
 	HasPost     *bool             `json:"hasPost,omitempty"`
 	HasPostWith []*PostWhereInput `json:"hasPostWith,omitempty"`
+	// Deleted record filter options.
+	IncludeDeleted     *bool `json:"includeDeleted,omitempty"`
+	IncludeDeletedOnly *bool `json:"includeDeletedOnly,omitempty"`
 }
 
 // AddPredicates adds custom predicates to the where input to be used during the filtering phase.
@@ -702,6 +706,11 @@ func (i *CommentWhereInput) P() (predicate.Comment, error) {
 		}
 		predicates = append(predicates, comment.HasPostWith(with...))
 	}
+
+	if i.IncludeDeletedOnly != nil && *i.IncludeDeletedOnly {
+		predicates = append(predicates, comment.DeletedAtNotNil())
+	}
+
 	switch len(predicates) {
 	case 0:
 		return nil, ErrEmptyCommentWhereInput
@@ -886,6 +895,9 @@ type PostWhereInput struct {
 	// "categories" edge predicates.
 	HasCategories     *bool                     `json:"hasCategories,omitempty"`
 	HasCategoriesWith []*PostCategoryWhereInput `json:"hasCategoriesWith,omitempty"`
+	// Deleted record filter options.
+	IncludeDeleted     *bool `json:"includeDeleted,omitempty"`
+	IncludeDeletedOnly *bool `json:"includeDeletedOnly,omitempty"`
 }
 
 // AddPredicates adds custom predicates to the where input to be used during the filtering phase.
@@ -1422,6 +1434,11 @@ func (i *PostWhereInput) P() (predicate.Post, error) {
 		}
 		predicates = append(predicates, post.HasCategoriesWith(with...))
 	}
+
+	if i.IncludeDeletedOnly != nil && *i.IncludeDeletedOnly {
+		predicates = append(predicates, post.DeletedAtNotNil())
+	}
+
 	switch len(predicates) {
 	case 0:
 		return nil, ErrEmptyPostWhereInput
@@ -1654,6 +1671,7 @@ func (i *PostCategoryWhereInput) P() (predicate.PostCategory, error) {
 		}
 		predicates = append(predicates, postcategory.HasPostWith(with...))
 	}
+
 	switch len(predicates) {
 	case 0:
 		return nil, ErrEmptyPostCategoryWhereInput
@@ -1839,6 +1857,9 @@ type UserWhereInput struct {
 	// "api_keys" edge predicates.
 	HasAPIKeys     *bool               `json:"hasAPIKeys,omitempty"`
 	HasAPIKeysWith []*ApiKeyWhereInput `json:"hasAPIKeysWith,omitempty"`
+	// Deleted record filter options.
+	IncludeDeleted     *bool `json:"includeDeleted,omitempty"`
+	IncludeDeletedOnly *bool `json:"includeDeletedOnly,omitempty"`
 }
 
 // AddPredicates adds custom predicates to the where input to be used during the filtering phase.
@@ -2378,6 +2399,11 @@ func (i *UserWhereInput) P() (predicate.User, error) {
 		}
 		predicates = append(predicates, user.HasAPIKeysWith(with...))
 	}
+
+	if i.IncludeDeletedOnly != nil && *i.IncludeDeletedOnly {
+		predicates = append(predicates, user.DeletedAtNotNil())
+	}
+
 	switch len(predicates) {
 	case 0:
 		return nil, ErrEmptyUserWhereInput

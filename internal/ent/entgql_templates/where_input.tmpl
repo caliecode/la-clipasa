@@ -40,6 +40,14 @@ import (
     {{ end }}
     {{ $name := $names.Node }}
     {{ $input := $names.WhereInput }}
+
+    {{- $hasDeletedAt := false }}
+    {{- range $field := $n.Fields }}
+        {{- if eq $field.Name "deleted_at" }}
+            {{- $hasDeletedAt = true }}
+        {{- end }}
+    {{- end }}
+
     // {{ $input }} represents a where input for filtering {{ $n.Name }} queries.
     type {{ $input }} struct {
         Predicates []predicate.{{ $n.Name }} `json:"-"`
@@ -79,6 +87,12 @@ import (
             {{- $jsonTag = print $jsonTag "_with" }}
             {{- $names := nodePaginationNames $e.Type }}
             {{ $field }} []*{{ $names.WhereInput }} `json:"{{ camel $jsonTag }},omitempty"`
+        {{- end }}
+
+        {{- if $hasDeletedAt }}
+        // Deleted record filter options.
+        IncludeDeleted *bool `json:"includeDeleted,omitempty"`
+        IncludeDeletedOnly *bool `json:"includeDeletedOnly,omitempty"`
         {{- end }}
     }
 
@@ -203,6 +217,21 @@ import (
                 predicates = append(predicates, {{ $n.Package }}.{{ $func }}(with...))
             }
         {{- end }}
+
+        {{- /* Check if schema has deleted_at field */}}
+        {{- $hasDeletedAt := false }}
+        {{- range $field := $n.Fields }}
+            {{- if eq $field.Name "deleted_at" }}
+                {{- $hasDeletedAt = true }}
+            {{- end }}
+        {{- end }}
+        {{- if $hasDeletedAt }}
+        {{/* TODO: entx.SkipSoftDelete directly */}}
+        if i.IncludeDeletedOnly != nil && *i.IncludeDeletedOnly {
+            predicates = append(predicates, {{ $n.Package }}.DeletedAtNotNil())
+        }
+        {{- end }}
+
         switch len(predicates) {
         case 0:
             return nil, {{ $err }}

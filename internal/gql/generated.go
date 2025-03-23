@@ -50,7 +50,6 @@ type ResolverRoot interface {
 	Post() PostResolver
 	Query() QueryResolver
 	User() UserResolver
-	PostWhereInput() PostWhereInputResolver
 }
 
 type DirectiveRoot struct {
@@ -396,11 +395,6 @@ type QueryResolver interface {
 }
 type UserResolver interface {
 	TwitchInfo(ctx context.Context, obj *generated.User) (*model.UserTwitchInfo, error)
-}
-
-type PostWhereInputResolver interface {
-	IncludeDeleted(ctx context.Context, obj *generated.PostWhereInput, data *bool) error
-	IncludeDeletedOnly(ctx context.Context, obj *generated.PostWhereInput, data *bool) error
 }
 
 type executableSchema struct {
@@ -17720,18 +17714,14 @@ func (ec *executionContext) unmarshalInputPostWhereInput(ctx context.Context, ob
 			if err != nil {
 				return it, err
 			}
-			if err = ec.resolvers.PostWhereInput().IncludeDeleted(ctx, &it, data); err != nil {
-				return it, err
-			}
+			it.IncludeDeleted = data
 		case "includeDeletedOnly":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("includeDeletedOnly"))
 			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			if err = ec.resolvers.PostWhereInput().IncludeDeletedOnly(ctx, &it, data); err != nil {
-				return it, err
-			}
+			it.IncludeDeletedOnly = data
 		}
 	}
 
