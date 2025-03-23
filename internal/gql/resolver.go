@@ -54,6 +54,8 @@ func hasRoleDirective(ctx context.Context, obj any, next graphql.Resolver, role 
 }
 
 func skipSoftDeleteDirective(ctx context.Context, obj any, next graphql.Resolver) (res any, err error) {
+	// could also be https://github.com/99designs/gqlgen/issues/1084#issuecomment-795663385
+	// if we must know the current field
 	if obj, ok := obj.(map[string]any); ok {
 		if obj["includeDeleted"] == true || obj["includeDeletedOnly"] == true {
 			ctx = entx.SkipSoftDelete(ctx)
