@@ -122,8 +122,8 @@ func (Post) Policy() ent.Policy {
 		),
 		policy.WithOnMutationRules(
 			ent.OpUpdate|ent.OpDeleteOne|ent.OpDelete,
-			rule.AllowIfRole(user.RoleADMIN),
 			rule.AllowIfSelf(),
+			rule.AllowIfRole(user.RoleMODERATOR),
 		),
 	)
 }

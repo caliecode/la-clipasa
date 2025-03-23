@@ -292,6 +292,14 @@ input CommentWhereInput {
   """
   hasPost: Boolean
   hasPostWith: [PostWhereInput!]
+  """
+  Include soft-deleted records
+  """
+  includeDeleted: Boolean @skipSoftDelete
+  """
+  Include only soft-deleted records
+  """
+  includeDeletedOnly: Boolean @skipSoftDelete
 }
 """
 CreateApiKeyInput is used for create ApiKey object.
@@ -872,6 +880,14 @@ input PostWhereInput {
   """
   hasCategories: Boolean
   hasCategoriesWith: [PostCategoryWhereInput!]
+  """
+  Include soft-deleted records
+  """
+  includeDeleted: Boolean @skipSoftDelete
+  """
+  Include only soft-deleted records
+  """
+  includeDeletedOnly: Boolean @skipSoftDelete
 }
 type Query {
   """
@@ -1439,4 +1455,12 @@ input UserWhereInput {
   """
   hasAPIKeys: Boolean
   hasAPIKeysWith: [ApiKeyWhereInput!]
+  """
+  Include soft-deleted records
+  """
+  includeDeleted: Boolean @skipSoftDelete
+  """
+  Include only soft-deleted records
+  """
+  includeDeletedOnly: Boolean @skipSoftDelete
 }

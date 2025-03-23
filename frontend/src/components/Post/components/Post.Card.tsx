@@ -78,13 +78,14 @@ export const PostCard = ({ className, backgroundImage, ...htmlProps }: PostCardP
             backgroundSize: 'cover',
             backgroundBlendMode: 'overlay',
             backgroundColor: cardBackgroundColor,
+            filter: post.deletedAt ? 'grayscale(80%)' : undefined,
           }}
         >
           <PostCallout />
           <Group>
             <PostMetadata />
             <Space />
-            <PostCategories />
+            {!post.deletedAt && <PostCategories />}
           </Group>
           <Space h="md" />
           <PostContent />

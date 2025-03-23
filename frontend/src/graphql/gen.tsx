@@ -304,6 +304,10 @@ export type CommentWhereInput = {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** Include soft-deleted records */
+  includeDeleted?: InputMaybe<Scalars['Boolean']['input']>
+  /** Include only soft-deleted records */
+  includeDeletedOnly?: InputMaybe<Scalars['Boolean']['input']>
   not?: InputMaybe<CommentWhereInput>
   or?: InputMaybe<Array<CommentWhereInput>>
   /** updated_at field predicates */
@@ -435,6 +439,7 @@ export type Mutation = {
   deletePostCategory: PostCategoryDeletePayload
   /** Delete an existing user */
   deleteUser: UserDeletePayload
+  restorePost?: Maybe<Scalars['Boolean']['output']>
   /** Update an existing apiKey */
   updateApiKey: ApiKeyUpdatePayload
   /** Update an existing comment */
@@ -528,6 +533,10 @@ export type MutationDeletePostCategoryArgs = {
 }
 
 export type MutationDeleteUserArgs = {
+  id: Scalars['ID']['input']
+}
+
+export type MutationRestorePostArgs = {
   id: Scalars['ID']['input']
 }
 
@@ -913,6 +922,10 @@ export type PostWhereInput = {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** Include soft-deleted records */
+  includeDeleted?: InputMaybe<Scalars['Boolean']['input']>
+  /** Include only soft-deleted records */
+  includeDeletedOnly?: InputMaybe<Scalars['Boolean']['input']>
   /** is_moderated field predicates */
   isModerated?: InputMaybe<Scalars['Boolean']['input']>
   isModeratedNEQ?: InputMaybe<Scalars['Boolean']['input']>
@@ -1411,6 +1424,10 @@ export type UserWhereInput = {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** Include soft-deleted records */
+  includeDeleted?: InputMaybe<Scalars['Boolean']['input']>
+  /** Include only soft-deleted records */
+  includeDeletedOnly?: InputMaybe<Scalars['Boolean']['input']>
   /** last_post_seen_cursor field predicates */
   lastPostSeenCursor?: InputMaybe<Scalars['String']['input']>
   lastPostSeenCursorContains?: InputMaybe<Scalars['String']['input']>
@@ -1490,6 +1507,7 @@ export type PostFragment = {
   moderationComment?: string | null
   createdAt: any
   updatedAt: any
+  deletedAt?: any | null
   owner: {
     __typename?: 'User'
     id: string
@@ -1548,6 +1566,7 @@ export type PostsQuery = {
         moderationComment?: string | null
         createdAt: any
         updatedAt: any
+        deletedAt?: any | null
         owner: {
           __typename?: 'User'
           id: string
@@ -1590,6 +1609,7 @@ export type PinnedPostsQuery = {
         moderationComment?: string | null
         createdAt: any
         updatedAt: any
+        deletedAt?: any | null
         owner: {
           __typename?: 'User'
           id: string
@@ -1605,6 +1625,12 @@ export type PinnedPostsQuery = {
     } | null> | null
   }
 }
+
+export type RestorePostMutationVariables = Exact<{
+  id: Scalars['ID']['input']
+}>
+
+export type RestorePostMutation = { __typename?: 'Mutation'; restorePost?: boolean | null }
 
 export type UpdatePostMutationVariables = Exact<{
   id: Scalars['ID']['input']
@@ -1625,6 +1651,7 @@ export type UpdatePostMutation = {
       moderationComment?: string | null
       createdAt: any
       updatedAt: any
+      deletedAt?: any | null
       owner: {
         __typename?: 'User'
         id: string
@@ -1658,6 +1685,7 @@ export type CreatePostMutation = {
       moderationComment?: string | null
       createdAt: any
       updatedAt: any
+      deletedAt?: any | null
       owner: {
         __typename?: 'User'
         id: string
@@ -1847,6 +1875,7 @@ export const PostFragmentDoc = gql`
     }
     createdAt
     updatedAt
+    deletedAt
   }
 `
 export const UserFragmentDoc = gql`
@@ -1912,6 +1941,21 @@ export const PinnedPostsComponent = (
 
 export function usePinnedPostsQuery(options?: Omit<Urql.UseQueryArgs<PinnedPostsQueryVariables>, 'query'>) {
   return Urql.useQuery<PinnedPostsQuery, PinnedPostsQueryVariables>({ query: PinnedPostsDocument, ...options })
+}
+export const RestorePostDocument = gql`
+  mutation RestorePost($id: ID!) {
+    restorePost(id: $id)
+  }
+`
+
+export const RestorePostComponent = (
+  props: Omit<Urql.MutationProps<RestorePostMutation, RestorePostMutationVariables>, 'query'> & {
+    variables?: RestorePostMutationVariables
+  },
+) => <Urql.Mutation {...props} query={RestorePostDocument} />
+
+export function useRestorePostMutation() {
+  return Urql.useMutation<RestorePostMutation, RestorePostMutationVariables>(RestorePostDocument)
 }
 export const UpdatePostDocument = gql`
   mutation UpdatePost($id: ID!, $input: UpdatePostInput!) {

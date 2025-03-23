@@ -8,15 +8,24 @@ import LastSeenButton from 'src/components/Post/buttons/LastSeenButton'
 import ModerateButton from 'src/components/Post/buttons/ModerateButton'
 import ShareButton from 'src/components/Post/buttons/ShareButton'
 import SaveButton from 'src/components/Post/buttons/SaveButton'
+import { usePostContext } from 'src/components/Post/Post.context'
 
-export const PostActions = () => (
-  <Group gap={8}>
-    <LikeButton />
-    <SaveButton />
-    <LastSeenButton />
-    <ShareButton />
-    <ModerateButton />
-    <EditButton />
-    <DeleteButton />
-  </Group>
-)
+export const PostActions = () => {
+  const { post } = usePostContext()
+
+  return (
+    <Group gap={8}>
+      {!post.deletedAt && (
+        <>
+          <LikeButton />
+          <SaveButton />
+          <LastSeenButton />
+          <ShareButton />
+          <ModerateButton />
+          <EditButton />
+        </>
+      )}
+      <DeleteButton />
+    </Group>
+  )
+}

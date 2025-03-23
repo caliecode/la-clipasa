@@ -823,6 +823,15 @@ func (t Type) QueryName() string {
 	return pascal(t.Name) + "Query"
 }
 
+// QueryReceiver returns the receiver name of the query-builder for this type.
+func (t Type) QueryReceiver() string {
+	r := receiver(t.QueryName())
+	if t.Package() == r {
+		return "_" + r
+	}
+	return r
+}
+
 // FilterName returns the struct name denoting the filter-builder for this type.
 func (t Type) FilterName() string {
 	return pascal(t.Name) + "Filter"
@@ -1612,7 +1621,7 @@ func (f Field) Column() *schema.Column {
 }
 
 // incremental returns if the column has an incremental behavior.
-// If no value is defined externally, we use a provided def flag
+// If no value is defined externally, we use a provided def flag.
 func (f Field) incremental(def bool) bool {
 	if ant := f.EntSQL(); ant != nil && ant.Incremental != nil {
 		return *ant.Incremental
@@ -2293,6 +2302,7 @@ var (
 		"Max",
 		"Mean",
 		"Min",
+		"Schema",
 		"Sum",
 		"Policy",
 		"Query",

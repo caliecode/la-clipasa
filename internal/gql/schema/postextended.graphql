@@ -4,6 +4,7 @@ extend type Post {
   nodeId: String!
 }
 
+
 # IMPORTANT: if we extend input we dont get updated gqlgen code, just its own resolver
 # maybe there's a way to call the extended input resolvers after creating the post?
 input CreatePostWithCategoriesInput {
@@ -13,4 +14,5 @@ input CreatePostWithCategoriesInput {
 
 extend type Mutation {
     createPostWithCategories(input: CreatePostWithCategoriesInput!): PostCreatePayload!
+    restorePost(id: ID!): Boolean @hasRole(role: MODERATOR)
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/caliecode/la-clipasa/internal"
 	"github.com/caliecode/la-clipasa/internal/ent/generated"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/privacy"
 	"github.com/caliecode/la-clipasa/internal/gql/model"
 	"github.com/google/uuid"
 )
@@ -51,7 +52,15 @@ func (r *mutationResolver) UpdatePost(ctx context.Context, id uuid.UUID, input g
 
 // DeletePost is the resolver for the deletePost field.
 func (r *mutationResolver) DeletePost(ctx context.Context, id uuid.UUID) (*model.PostDeletePayload, error) {
-	panic(errors.New("not implemented: DeletePost - deletePost"))
+	// already has role privacy, and else we can't query the post
+	ctx = privacy.DecisionContext(ctx, privacy.Allow)
+	if err := r.ent.Post.DeleteOneID(id).Exec(ctx); err != nil {
+		return nil, fmt.Errorf("could not delete post: %w", err)
+	}
+
+	return &model.PostDeletePayload{
+		DeletedID: id,
+	}, nil
 }
 
 // Post is the resolver for the post field.

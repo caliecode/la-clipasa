@@ -11,6 +11,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/gin-gonic/gin"
+	"github.com/theopenlane/entx"
 
 	"github.com/caliecode/la-clipasa/internal"
 	"github.com/caliecode/la-clipasa/internal/auth"
@@ -52,13 +53,24 @@ func hasRoleDirective(ctx context.Context, obj any, next graphql.Resolver, role 
 	return next(ctx)
 }
 
+func skipSoftDeleteDirective(ctx context.Context, obj any, next graphql.Resolver) (res any, err error) {
+	if obj, ok := obj.(map[string]any); ok {
+		if obj["includeDeleted"] == true || obj["includeDeletedOnly"] == true {
+			ctx = entx.SkipSoftDelete(ctx)
+		}
+	}
+
+	return next(ctx)
+}
+
 func NewResolver(entClient *generated.Client) Config {
 	return Config{
 		Resolvers: &Resolver{
 			ent: entClient,
 		},
 		Directives: DirectiveRoot{
-			HasRole: hasRoleDirective,
+			HasRole:        hasRoleDirective,
+			SkipSoftDelete: skipSoftDeleteDirective,
 		},
 	}
 }

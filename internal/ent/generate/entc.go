@@ -11,14 +11,46 @@ import (
 	"entgo.io/contrib/entgql"
 	"entgo.io/ent/entc"
 	"entgo.io/ent/entc/gen"
+	laclipasa "github.com/caliecode/la-clipasa"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
 	"github.com/caliecode/la-clipasa/internal/ent/schema/annotations"
+	"github.com/caliecode/la-clipasa/internal/utils/slices"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/theopenlane/entx"
 	"github.com/theopenlane/entx/genhooks"
 	"github.com/vektah/gqlparser/v2/ast"
 	"go.uber.org/zap"
 )
+
+func loadEntgqlTemplates(dir string) ([]*gen.Template, error) {
+	var templates []*gen.Template
+
+	for _, name := range []string{"where_input"} {
+		// we have to use entgql ParseFS since it initializes the templates internally
+		tmpl, err := gen.NewTemplate(name).
+			Funcs(entgql.TemplateFuncs).
+			ParseFS(laclipasa.EntgqlTemplates, "internal/ent/entgql_templates/"+name+".tmpl")
+		if err != nil {
+			return nil, fmt.Errorf("parsing template %s: %w", name, err)
+		}
+		templates = append(templates, tmpl)
+	}
+
+	templates = append(
+		templates,
+		// []*gen.Template{entgql.WhereTemplate},
+		entgql.CollectionTemplate,
+		entgql.EnumTemplate,
+		entgql.NodeTemplate,
+		entgql.NodeDescriptorTemplate,
+		entgql.PaginationTemplate,
+		entgql.TransactionTemplate,
+		entgql.EdgeTemplate,
+		entgql.MutationInputTemplate,
+	)
+
+	return templates, nil
+}
 
 func main() {
 	if err := os.Chdir("../../.."); err != nil {
@@ -30,12 +62,58 @@ func main() {
 		log.Fatalf("creating entx extension: %v", err)
 	}
 
+	customTemplates, err := loadEntgqlTemplates("./internal/ent/entgql_templates")
+	if err != nil {
+		log.Fatalf("loading custom templates: %v", err)
+	}
+
 	entgqlExt, err := entgql.NewExtension(
-		// Tell Ent to generate a GraphQL schema for
-		// the Ent schema in a file named ent.graphql.
-		entgql.WithSchemaGenerator(),
+		// have to manually create, since entgql's buildWhereInput just generates for db fields
+		// regardless of what changes we make to the whereinput struct
+		// TODO: add a @skipSoftDelete directive, in which we do have access to ctx
+		// and return next(ctx).
+		entgql.WithSchemaHook(
+			func(graph *gen.Graph, s *ast.Schema) error {
+				for _, n := range graph.Nodes {
+					inputName := n.Name + "WhereInput"
+					whereInput, ok := s.Types[inputName]
+					if !ok {
+						continue
+					}
+
+					if !slices.ContainsMatch(whereInput.Fields, func(f *ast.FieldDefinition) bool {
+						return f.Name == "deletedAt"
+					}) {
+						continue
+					}
+
+					whereInput.Fields = append(whereInput.Fields,
+						&ast.FieldDefinition{
+							Description: "Include soft-deleted records",
+							Name:        "includeDeleted",
+							Type:        ast.NamedType("Boolean", nil),
+							Directives: []*ast.Directive{
+								{Name: "skipSoftDelete"},
+							},
+						},
+						&ast.FieldDefinition{
+							Description: "Include only soft-deleted records",
+							Name:        "includeDeletedOnly",
+							Type:        ast.NamedType("Boolean", nil),
+							Directives: []*ast.Directive{
+								{Name: "skipSoftDelete"},
+							},
+						},
+					)
+				}
+
+				return nil
+			},
+		),
+		entgql.WithSchemaGenerator(), // generates ent.graphql
 		entgql.WithWhereInputs(true),
 		entgql.WithNodeDescriptor(true),
+		entgql.WithTemplates(customTemplates...),
 		// required for extra gen
 		entgql.WithConfigPath("gqlgen.yml"),
 		entgql.WithSchemaPath("internal/gql/schema/ent.graphql"),

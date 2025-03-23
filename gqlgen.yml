@@ -51,3 +51,13 @@ models:
     model:
       - github.com/caliecode/la-clipasa/internal/ent/generated.Noder
 
+
+  # best option is to change templates accordingly (where_input.tmpl, etc.). Failed attempts:
+  # 1. embedded struct messes up ent gen (lots of new resolvers for the embedded struct fields are created)
+  # PostWhereInput:
+  #   model: github.com/caliecode/la-clipasa/internal/gql/model.ExtendedPostWhereInput
+  # 2. this will not update ent-generated structs
+  # PostWhereInput:
+  #   extraFields:
+  #     IncludeDeletedOnly:
+  #       ...

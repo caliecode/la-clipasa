@@ -11,6 +11,7 @@ import {
   Popover,
   ScrollArea,
   Select,
+  Slider,
   Space,
   Text,
   TextInput,
@@ -496,9 +497,10 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
                 <Text mt="md" className={styles.label} c="dimmed">
                   Moderation filters
                 </Text>
-                <Flex mt={10} gap="md" justify="space-between" align="center" direction="row" wrap="wrap">
+                <Flex mt={10} gap="md" justify="space-between" align="center" direction="row" wrap="wrap" w="100%">
                   <Select
                     style={{ flexGrow: 10, minWidth: '100%' }}
+                    label="Status"
                     data={statusSelectData}
                     onChange={(value: string) => {
                       const moderated = value ? value === 'true' : undefined
@@ -511,6 +513,7 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
                       queryParams?.where?.isModerated === undefined ? undefined : String(queryParams.where?.isModerated)
                     }
                   />
+                  <DeletedPostFilterSwitch />
                 </Flex>
               </Card.Section>
             </Menu>
@@ -597,5 +600,66 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
         </Card>
       </Group>
     </div>
+  )
+}
+
+const FILTER_STATES = [null, false, true]
+
+function DeletedPostFilterSwitch() {
+  const { queryParams, postActions } = usePostsSlice()
+
+  const [filterState, setFilterState] = useState(1)
+
+  useEffect(() => {
+    postActions.updateWhere((where) => {
+      switch (FILTER_STATES[filterState]) {
+        case null: // Show all
+          where.includeDeleted = true
+          where.includeDeletedOnly = false
+          break
+        case true: // Only deleted
+          where.includeDeleted = true
+          where.includeDeletedOnly = true
+          break
+        case false: // Exclude deleted
+          where.includeDeleted = false
+          where.includeDeletedOnly = false
+          break
+      }
+    })
+  }, [filterState, postActions])
+
+  const toggleFilter = () => {
+    setFilterState((state) => (state + 1) % FILTER_STATES.length)
+  }
+
+  const getLabelText = () => {
+    switch (FILTER_STATES[filterState]) {
+      case null:
+        return 'Showing all posts'
+      case true:
+        return 'Showing only deleted posts'
+      case false:
+        return 'Excluding deleted posts'
+      default:
+        return ''
+    }
+  }
+
+  return (
+    <Flex direction="row" align="center" gap={8}>
+      <Slider
+        value={filterState * 50}
+        onClickCapture={toggleFilter}
+        w={40}
+        min={0}
+        max={100}
+        step={50}
+        marks={[{ value: 0 }, { value: 50 }, { value: 100 }]}
+        showLabelOnHover={false}
+        label={null}
+      />
+      <Text size="sm">{getLabelText()}</Text>
+    </Flex>
   )
 }
