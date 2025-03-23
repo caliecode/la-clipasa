@@ -500,7 +500,7 @@ export default function HomeSideActions(props: HomeSideActionsProps) {
                 <Flex mt={10} gap="md" justify="space-between" align="center" direction="row" wrap="wrap" w="100%">
                   <Select
                     style={{ flexGrow: 10, minWidth: '100%' }}
-                    label="Status"
+                    label="Moderation status"
                     data={statusSelectData}
                     onChange={(value: string) => {
                       const moderated = value ? value === 'true' : undefined
@@ -633,7 +633,7 @@ function DeletedPostFilterSwitch() {
     setFilterState((state) => (state + 1) % FILTER_STATES.length)
   }
 
-  const getLabelText = () => {
+  const getStateText = () => {
     switch (FILTER_STATES[filterState]) {
       case null:
         return 'Showing all posts'
@@ -647,19 +647,22 @@ function DeletedPostFilterSwitch() {
   }
 
   return (
-    <Flex direction="row" align="center" gap={8}>
-      <Slider
-        value={filterState * 50}
-        onClickCapture={toggleFilter}
-        w={40}
-        min={0}
-        max={100}
-        step={50}
-        marks={[{ value: 0 }, { value: 50 }, { value: 100 }]}
-        showLabelOnHover={false}
-        label={null}
-      />
-      <Text size="sm">{getLabelText()}</Text>
+    <Flex direction="column" gap={4}>
+      <Text size="sm">Deletion status</Text>
+      <Flex direction="row" align="center" gap={8}>
+        <Slider
+          value={filterState * 50}
+          onClickCapture={toggleFilter}
+          w={40}
+          min={0}
+          max={100}
+          step={50}
+          marks={[{ value: 0 }, { value: 50 }, { value: 100 }]}
+          showLabelOnHover={false}
+          label={null}
+        />
+        <Text size="sm">{getStateText()}</Text>
+      </Flex>
     </Flex>
   )
 }
