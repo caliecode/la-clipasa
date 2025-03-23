@@ -19,6 +19,7 @@ import (
 
 // Noder wraps the basic Node method.
 type Noder interface {
+	Node(context.Context) (*Node, error)
 	IsNode()
 }
 

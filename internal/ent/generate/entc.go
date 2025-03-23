@@ -7,12 +7,11 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
-	"strings"
 
 	"entgo.io/contrib/entgql"
 	"entgo.io/ent/entc"
 	"entgo.io/ent/entc/gen"
+	laclipasa "github.com/caliecode/la-clipasa"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
 	"github.com/caliecode/la-clipasa/internal/ent/schema/annotations"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -24,39 +23,25 @@ import (
 
 func loadEntgqlTemplates(dir string) ([]*gen.Template, error) {
 	var templates []*gen.Template
-	files, err := os.ReadDir(dir)
-	if err != nil {
-		return nil, fmt.Errorf("reading template directory: %w", err)
-	}
 
-	for _, file := range files {
-		if file.IsDir() || !strings.HasSuffix(file.Name(), ".tmpl") {
-			continue
-		}
-
-		content, err := os.ReadFile(filepath.Join(dir, file.Name()))
-		if err != nil {
-			return nil, fmt.Errorf("reading template file %s: %w", file.Name(), err)
-		}
-
-		name := strings.TrimSuffix(file.Name(), ".tmpl")
-
-		tmpl := gen.NewTemplate(name).Funcs(entgql.TemplateFuncs)
-
-		parsedTmpl, err := tmpl.Parse(string(content))
+	for _, name := range []string{"where_input"} {
+		// we have to use entgql ParseFS since it initializes the templates internally
+		tmpl, err := gen.NewTemplate(name).
+			Funcs(entgql.TemplateFuncs).
+			ParseFS(laclipasa.EntgqlTemplates, "internal/ent/entgql_templates/"+name+".tmpl")
 		if err != nil {
 			return nil, fmt.Errorf("parsing template %s: %w", name, err)
 		}
-
-		templates = append(templates, parsedTmpl)
+		templates = append(templates, tmpl)
 	}
 
 	templates = append(
-		// templates,
-		[]*gen.Template{entgql.WhereTemplate},
+		templates,
+		// []*gen.Template{entgql.WhereTemplate},
 		entgql.CollectionTemplate,
 		entgql.EnumTemplate,
 		entgql.NodeTemplate,
+		entgql.NodeDescriptorTemplate,
 		entgql.PaginationTemplate,
 		entgql.TransactionTemplate,
 		entgql.EdgeTemplate,
