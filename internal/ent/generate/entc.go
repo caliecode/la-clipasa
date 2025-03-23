@@ -14,6 +14,7 @@ import (
 	laclipasa "github.com/caliecode/la-clipasa"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
 	"github.com/caliecode/la-clipasa/internal/ent/schema/annotations"
+	"github.com/caliecode/la-clipasa/internal/utils/slices"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/theopenlane/entx"
 	"github.com/theopenlane/entx/genhooks"
@@ -67,6 +68,40 @@ func main() {
 	}
 
 	entgqlExt, err := entgql.NewExtension(
+		// FIXME: shouldnt entgql have generated this since the original struct was changed
+		// and converted all to graphql fields?
+		entgql.WithSchemaHook(
+			func(graph *gen.Graph, s *ast.Schema) error {
+				for _, n := range graph.Nodes {
+					inputName := n.Name + "WhereInput"
+					whereInput, ok := s.Types[inputName]
+					if !ok {
+						continue
+					}
+
+					if !slices.ContainsMatch(whereInput.Fields, func(f *ast.FieldDefinition) bool {
+						return f.Name == "deletedAt"
+					}) {
+						continue
+					}
+
+					whereInput.Fields = append(whereInput.Fields,
+						&ast.FieldDefinition{
+							Description: "Include soft-deleted records",
+							Name:        "includeDeleted",
+							Type:        ast.NamedType("Boolean", nil),
+						},
+						&ast.FieldDefinition{
+							Description: "Include only soft-deleted records",
+							Name:        "includeDeletedOnly",
+							Type:        ast.NamedType("Boolean", nil),
+						},
+					)
+				}
+
+				return nil
+			},
+		),
 		entgql.WithSchemaGenerator(), // generates ent.graphql
 		entgql.WithWhereInputs(true),
 		entgql.WithNodeDescriptor(true),

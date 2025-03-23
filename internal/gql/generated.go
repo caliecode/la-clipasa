@@ -15544,7 +15544,7 @@ func (ec *executionContext) unmarshalInputCommentWhereInput(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "updatedAt", "updatedAtNEQ", "updatedAtIn", "updatedAtNotIn", "updatedAtGT", "updatedAtGTE", "updatedAtLT", "updatedAtLTE", "createdAt", "createdAtNEQ", "createdAtIn", "createdAtNotIn", "createdAtGT", "createdAtGTE", "createdAtLT", "createdAtLTE", "deletedAt", "deletedAtNEQ", "deletedAtIn", "deletedAtNotIn", "deletedAtGT", "deletedAtGTE", "deletedAtLT", "deletedAtLTE", "deletedAtIsNil", "deletedAtNotNil", "deletedBy", "deletedByNEQ", "deletedByIn", "deletedByNotIn", "deletedByGT", "deletedByGTE", "deletedByLT", "deletedByLTE", "deletedByContains", "deletedByHasPrefix", "deletedByHasSuffix", "deletedByIsNil", "deletedByNotNil", "deletedByEqualFold", "deletedByContainsFold", "content", "contentNEQ", "contentIn", "contentNotIn", "contentGT", "contentGTE", "contentLT", "contentLTE", "contentContains", "contentHasPrefix", "contentHasSuffix", "contentEqualFold", "contentContainsFold", "hasOwner", "hasOwnerWith", "hasPost", "hasPostWith"}
+	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "updatedAt", "updatedAtNEQ", "updatedAtIn", "updatedAtNotIn", "updatedAtGT", "updatedAtGTE", "updatedAtLT", "updatedAtLTE", "createdAt", "createdAtNEQ", "createdAtIn", "createdAtNotIn", "createdAtGT", "createdAtGTE", "createdAtLT", "createdAtLTE", "deletedAt", "deletedAtNEQ", "deletedAtIn", "deletedAtNotIn", "deletedAtGT", "deletedAtGTE", "deletedAtLT", "deletedAtLTE", "deletedAtIsNil", "deletedAtNotNil", "deletedBy", "deletedByNEQ", "deletedByIn", "deletedByNotIn", "deletedByGT", "deletedByGTE", "deletedByLT", "deletedByLTE", "deletedByContains", "deletedByHasPrefix", "deletedByHasSuffix", "deletedByIsNil", "deletedByNotNil", "deletedByEqualFold", "deletedByContainsFold", "content", "contentNEQ", "contentIn", "contentNotIn", "contentGT", "contentGTE", "contentLT", "contentLTE", "contentContains", "contentHasPrefix", "contentHasSuffix", "contentEqualFold", "contentContainsFold", "hasOwner", "hasOwnerWith", "hasPost", "hasPostWith", "includeDeleted", "includeDeletedOnly"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -16034,6 +16034,20 @@ func (ec *executionContext) unmarshalInputCommentWhereInput(ctx context.Context,
 				return it, err
 			}
 			it.HasPostWith = data
+		case "includeDeleted":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("includeDeleted"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IncludeDeleted = data
+		case "includeDeletedOnly":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("includeDeletedOnly"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IncludeDeletedOnly = data
 		}
 	}
 
@@ -18296,7 +18310,7 @@ func (ec *executionContext) unmarshalInputUserWhereInput(ctx context.Context, ob
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "updatedAt", "updatedAtNEQ", "updatedAtIn", "updatedAtNotIn", "updatedAtGT", "updatedAtGTE", "updatedAtLT", "updatedAtLTE", "createdAt", "createdAtNEQ", "createdAtIn", "createdAtNotIn", "createdAtGT", "createdAtGTE", "createdAtLT", "createdAtLTE", "deletedAt", "deletedAtNEQ", "deletedAtIn", "deletedAtNotIn", "deletedAtGT", "deletedAtGTE", "deletedAtLT", "deletedAtLTE", "deletedAtIsNil", "deletedAtNotNil", "deletedBy", "deletedByNEQ", "deletedByIn", "deletedByNotIn", "deletedByGT", "deletedByGTE", "deletedByLT", "deletedByLTE", "deletedByContains", "deletedByHasPrefix", "deletedByHasSuffix", "deletedByIsNil", "deletedByNotNil", "deletedByEqualFold", "deletedByContainsFold", "displayName", "displayNameNEQ", "displayNameIn", "displayNameNotIn", "displayNameGT", "displayNameGTE", "displayNameLT", "displayNameLTE", "displayNameContains", "displayNameHasPrefix", "displayNameHasSuffix", "displayNameEqualFold", "displayNameContainsFold", "alias", "aliasNEQ", "aliasIn", "aliasNotIn", "aliasGT", "aliasGTE", "aliasLT", "aliasLTE", "aliasContains", "aliasHasPrefix", "aliasHasSuffix", "aliasIsNil", "aliasNotNil", "aliasEqualFold", "aliasContainsFold", "profileImage", "profileImageNEQ", "profileImageIn", "profileImageNotIn", "profileImageGT", "profileImageGTE", "profileImageLT", "profileImageLTE", "profileImageContains", "profileImageHasPrefix", "profileImageHasSuffix", "profileImageIsNil", "profileImageNotNil", "profileImageEqualFold", "profileImageContainsFold", "authProvider", "authProviderNEQ", "authProviderIn", "authProviderNotIn", "role", "roleNEQ", "roleIn", "roleNotIn", "lastSeenAt", "lastSeenAtNEQ", "lastSeenAtIn", "lastSeenAtNotIn", "lastSeenAtGT", "lastSeenAtGTE", "lastSeenAtLT", "lastSeenAtLTE", "lastSeenAtIsNil", "lastSeenAtNotNil", "lastPostSeenCursor", "lastPostSeenCursorNEQ", "lastPostSeenCursorIn", "lastPostSeenCursorNotIn", "lastPostSeenCursorGT", "lastPostSeenCursorGTE", "lastPostSeenCursorLT", "lastPostSeenCursorLTE", "lastPostSeenCursorContains", "lastPostSeenCursorHasPrefix", "lastPostSeenCursorHasSuffix", "lastPostSeenCursorIsNil", "lastPostSeenCursorNotNil", "lastPostSeenCursorEqualFold", "lastPostSeenCursorContainsFold", "hasSavedPosts", "hasSavedPostsWith", "hasLikedPosts", "hasLikedPostsWith", "hasPublishedPosts", "hasPublishedPostsWith", "hasComments", "hasCommentsWith", "hasAPIKeys", "hasAPIKeysWith"}
+	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "updatedAt", "updatedAtNEQ", "updatedAtIn", "updatedAtNotIn", "updatedAtGT", "updatedAtGTE", "updatedAtLT", "updatedAtLTE", "createdAt", "createdAtNEQ", "createdAtIn", "createdAtNotIn", "createdAtGT", "createdAtGTE", "createdAtLT", "createdAtLTE", "deletedAt", "deletedAtNEQ", "deletedAtIn", "deletedAtNotIn", "deletedAtGT", "deletedAtGTE", "deletedAtLT", "deletedAtLTE", "deletedAtIsNil", "deletedAtNotNil", "deletedBy", "deletedByNEQ", "deletedByIn", "deletedByNotIn", "deletedByGT", "deletedByGTE", "deletedByLT", "deletedByLTE", "deletedByContains", "deletedByHasPrefix", "deletedByHasSuffix", "deletedByIsNil", "deletedByNotNil", "deletedByEqualFold", "deletedByContainsFold", "displayName", "displayNameNEQ", "displayNameIn", "displayNameNotIn", "displayNameGT", "displayNameGTE", "displayNameLT", "displayNameLTE", "displayNameContains", "displayNameHasPrefix", "displayNameHasSuffix", "displayNameEqualFold", "displayNameContainsFold", "alias", "aliasNEQ", "aliasIn", "aliasNotIn", "aliasGT", "aliasGTE", "aliasLT", "aliasLTE", "aliasContains", "aliasHasPrefix", "aliasHasSuffix", "aliasIsNil", "aliasNotNil", "aliasEqualFold", "aliasContainsFold", "profileImage", "profileImageNEQ", "profileImageIn", "profileImageNotIn", "profileImageGT", "profileImageGTE", "profileImageLT", "profileImageLTE", "profileImageContains", "profileImageHasPrefix", "profileImageHasSuffix", "profileImageIsNil", "profileImageNotNil", "profileImageEqualFold", "profileImageContainsFold", "authProvider", "authProviderNEQ", "authProviderIn", "authProviderNotIn", "role", "roleNEQ", "roleIn", "roleNotIn", "lastSeenAt", "lastSeenAtNEQ", "lastSeenAtIn", "lastSeenAtNotIn", "lastSeenAtGT", "lastSeenAtGTE", "lastSeenAtLT", "lastSeenAtLTE", "lastSeenAtIsNil", "lastSeenAtNotNil", "lastPostSeenCursor", "lastPostSeenCursorNEQ", "lastPostSeenCursorIn", "lastPostSeenCursorNotIn", "lastPostSeenCursorGT", "lastPostSeenCursorGTE", "lastPostSeenCursorLT", "lastPostSeenCursorLTE", "lastPostSeenCursorContains", "lastPostSeenCursorHasPrefix", "lastPostSeenCursorHasSuffix", "lastPostSeenCursorIsNil", "lastPostSeenCursorNotNil", "lastPostSeenCursorEqualFold", "lastPostSeenCursorContainsFold", "hasSavedPosts", "hasSavedPostsWith", "hasLikedPosts", "hasLikedPostsWith", "hasPublishedPosts", "hasPublishedPostsWith", "hasComments", "hasCommentsWith", "hasAPIKeys", "hasAPIKeysWith", "includeDeleted", "includeDeletedOnly"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -19269,6 +19283,20 @@ func (ec *executionContext) unmarshalInputUserWhereInput(ctx context.Context, ob
 				return it, err
 			}
 			it.HasAPIKeysWith = data
+		case "includeDeleted":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("includeDeleted"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IncludeDeleted = data
+		case "includeDeletedOnly":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("includeDeletedOnly"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IncludeDeletedOnly = data
 		}
 	}
 

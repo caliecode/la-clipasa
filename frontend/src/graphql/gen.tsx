@@ -304,6 +304,10 @@ export type CommentWhereInput = {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** Include soft-deleted records */
+  includeDeleted?: InputMaybe<Scalars['Boolean']['input']>
+  /** Include only soft-deleted records */
+  includeDeletedOnly?: InputMaybe<Scalars['Boolean']['input']>
   not?: InputMaybe<CommentWhereInput>
   or?: InputMaybe<Array<CommentWhereInput>>
   /** updated_at field predicates */
@@ -918,7 +922,9 @@ export type PostWhereInput = {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** Include soft-deleted records */
   includeDeleted?: InputMaybe<Scalars['Boolean']['input']>
+  /** Include only soft-deleted records */
   includeDeletedOnly?: InputMaybe<Scalars['Boolean']['input']>
   /** is_moderated field predicates */
   isModerated?: InputMaybe<Scalars['Boolean']['input']>
@@ -1418,6 +1424,10 @@ export type UserWhereInput = {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** Include soft-deleted records */
+  includeDeleted?: InputMaybe<Scalars['Boolean']['input']>
+  /** Include only soft-deleted records */
+  includeDeletedOnly?: InputMaybe<Scalars['Boolean']['input']>
   /** last_post_seen_cursor field predicates */
   lastPostSeenCursor?: InputMaybe<Scalars['String']['input']>
   lastPostSeenCursorContains?: InputMaybe<Scalars['String']['input']>
