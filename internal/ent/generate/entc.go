@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"entgo.io/contrib/entgql"
 	"entgo.io/ent/entc"
@@ -20,6 +22,50 @@ import (
 	"go.uber.org/zap"
 )
 
+func loadEntgqlTemplates(dir string) ([]*gen.Template, error) {
+	var templates []*gen.Template
+	files, err := os.ReadDir(dir)
+	if err != nil {
+		return nil, fmt.Errorf("reading template directory: %w", err)
+	}
+
+	for _, file := range files {
+		if file.IsDir() || !strings.HasSuffix(file.Name(), ".tmpl") {
+			continue
+		}
+
+		content, err := os.ReadFile(filepath.Join(dir, file.Name()))
+		if err != nil {
+			return nil, fmt.Errorf("reading template file %s: %w", file.Name(), err)
+		}
+
+		name := strings.TrimSuffix(file.Name(), ".tmpl")
+
+		tmpl := gen.NewTemplate(name).Funcs(entgql.TemplateFuncs)
+
+		parsedTmpl, err := tmpl.Parse(string(content))
+		if err != nil {
+			return nil, fmt.Errorf("parsing template %s: %w", name, err)
+		}
+
+		templates = append(templates, parsedTmpl)
+	}
+
+	templates = append(
+		// templates,
+		[]*gen.Template{entgql.WhereTemplate},
+		entgql.CollectionTemplate,
+		entgql.EnumTemplate,
+		entgql.NodeTemplate,
+		entgql.PaginationTemplate,
+		entgql.TransactionTemplate,
+		entgql.EdgeTemplate,
+		entgql.MutationInputTemplate,
+	)
+
+	return templates, nil
+}
+
 func main() {
 	if err := os.Chdir("../../.."); err != nil {
 		log.Fatalf("failed chdir: %v", err)
@@ -30,12 +76,16 @@ func main() {
 		log.Fatalf("creating entx extension: %v", err)
 	}
 
+	customTemplates, err := loadEntgqlTemplates("./internal/ent/entgql_templates")
+	if err != nil {
+		log.Fatalf("loading custom templates: %v", err)
+	}
+
 	entgqlExt, err := entgql.NewExtension(
-		// Tell Ent to generate a GraphQL schema for
-		// the Ent schema in a file named ent.graphql.
-		entgql.WithSchemaGenerator(),
+		entgql.WithSchemaGenerator(), // generates ent.graphql
 		entgql.WithWhereInputs(true),
 		entgql.WithNodeDescriptor(true),
+		entgql.WithTemplates(customTemplates...),
 		// required for extra gen
 		entgql.WithConfigPath("gqlgen.yml"),
 		entgql.WithSchemaPath("internal/gql/schema/ent.graphql"),
