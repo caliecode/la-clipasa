@@ -64,7 +64,7 @@ import BroadcasterTokenModal from 'src/components/BroadcasterTokenModal'
 import banner from 'src/assets/img/banner-la-clipassa.png'
 import homeBackground from 'src/assets/img/background-la-clipassa.jpg'
 import styles from './Layout.module.css'
-import HomeSideActions from 'src/views/LandingPage/HomeSideActions'
+import HomeSideActions from 'src/components/HomeSideActions/HomeSideActions'
 
 type LayoutProps = {
   children: React.ReactElement
@@ -90,7 +90,6 @@ export default function Layout({ children }: LayoutProps) {
   const [logo, setLogo] = useState<string>(colorScheme === 'dark' ? logoDark : logoLight)
   const ui = useUISlice()
   const title = burgerOpened ? 'Close navigation' : 'Open navigation'
-  const bannerRef = useRef<HTMLImageElement>(null)
 
   useEffect(() => {
     setLogo(colorScheme === 'dark' ? logoDark : logoLight)
@@ -134,7 +133,7 @@ export default function Layout({ children }: LayoutProps) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Helmet>
-      <Banner ref={bannerRef} />
+      <Banner />
       <AppShell
         style={{
           height: `calc(100% - var(--header-height) - var(--footer-height))`,
@@ -328,11 +327,10 @@ export default function Layout({ children }: LayoutProps) {
   )
 }
 
-function Banner({ ref }: { ref: RefObject<HTMLImageElement> }) {
+function Banner() {
   return (
     <Image
       alt="la clipasa"
-      ref={ref}
       src={banner}
       className={`showOnLargeOnly`}
       style={{
