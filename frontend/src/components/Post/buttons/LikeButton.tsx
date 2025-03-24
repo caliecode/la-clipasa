@@ -50,7 +50,7 @@ export default function LikeButton({}: LikeButtonProps) {
     setIsNewLike(true)
   }
 
-  if (!post || !user) return null
+  if (!post) return null
 
   return (
     <Tooltip label="Like" arrowPosition="center" withArrow>
@@ -59,6 +59,7 @@ export default function LikeButton({}: LikeButtonProps) {
         onClick={handleLikeButtonClick}
         onAnimationEnd={() => setLikeBeacon(false)}
         size="xs"
+        disabled={!user}
         leftSection={
           <IconHeart
             size={18}

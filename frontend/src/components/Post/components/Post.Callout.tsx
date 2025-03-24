@@ -1,13 +1,3 @@
-import { Group, Space } from '@mantine/core'
-
-import CategoryBadge from 'src/components/CategoryBadge'
-import LikeButton from 'src/components/Post/buttons/LikeButton'
-import DeleteButton from 'src/components/Post/buttons/DeleteButton'
-import EditButton from 'src/components/Post/buttons/EditButton'
-import LastSeenButton from 'src/components/Post/buttons/LastSeenButton'
-import ModerateButton from 'src/components/Post/buttons/ModerateButton'
-import ShareButton from 'src/components/Post/buttons/ShareButton'
-import SaveButton from 'src/components/Post/buttons/SaveButton'
 import ErrorCallout from 'src/components/Callout/ErrorCallout'
 import { usePostContext } from 'src/components/Post/Post.context'
 import { checkAuthorization } from 'src/services/authorization'
