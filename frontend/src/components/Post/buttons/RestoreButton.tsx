@@ -9,8 +9,6 @@ interface RestoreButtonProps {
 }
 
 export default function RestoreButton({ postId }: RestoreButtonProps) {
-  const queryClient = useQueryClient()
-
   return (
     <Tooltip label="Restore" arrowPosition="center" withArrow>
       <ActionIcon

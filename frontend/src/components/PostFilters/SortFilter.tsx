@@ -18,6 +18,10 @@ export default function SortSelect(): JSX.Element {
       value: 'lastSeen',
       label: `From last seen ${sortDirection === 'ASC' ? '(ascending creation date)' : '(descending creation date)'}`,
     },
+    {
+      value: 'mostLiked',
+      label: `Most liked`,
+    },
   ]
 
   return (

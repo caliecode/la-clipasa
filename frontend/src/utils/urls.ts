@@ -6,3 +6,14 @@ export function isValidURL(str: string) {
     return false
   }
 }
+
+export function withBaseURL(url?: string | null) {
+  if (url?.startsWith('/')) {
+    return `${import.meta.env.BASE_URL}${url}`
+  }
+  return url || ''
+}
+
+export function toPathname(url?: string | null) {
+  return url?.replace(import.meta.env.BASE_URL, '') || ''
+}

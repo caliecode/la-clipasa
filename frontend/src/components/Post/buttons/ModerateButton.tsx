@@ -1,8 +1,5 @@
 import { ActionIcon, Tooltip } from '@mantine/core'
 import { IconShieldCheck, IconShieldOff } from '@tabler/icons'
-import { InfiniteData, useQueryClient } from '@tanstack/react-query'
-import { useContext, useEffect, useState } from 'react'
-import { usePostsSlice } from 'src/slices/posts'
 import styles from './buttons.module.css'
 import { usePostContext } from 'src/components/Post/Post.context'
 import ProtectedComponent from 'src/components/Permissions/ProtectedComponent'
@@ -12,26 +9,25 @@ import { useUpdatePostMutation } from 'src/graphql/gen'
 interface ModerateButtonProps {}
 
 export default function ModerateButton({}: ModerateButtonProps) {
-  const { post } = usePostContext()
-  const queryClient = useQueryClient()
+  const { post, setPost, calloutErrors, setCalloutErrors } = usePostContext()
   const [updatePostState, updatePost] = useUpdatePostMutation()
 
-  const [moderateButtonLoading, setModerateButtonLoading] = useState(false)
-
-  useEffect(() => {
-    if (!updatePostState.fetching) {
-      setModerateButtonLoading(false)
-    }
-  }, [updatePostState])
-
-  const handleModerateButtonClick = (e) => {
+  const handleModerateButtonClick = async (e) => {
     e.stopPropagation()
 
-    setModerateButtonLoading(true)
-    updatePost({
+    const res = await updatePost({
       id: post?.id,
       input: { isModerated: !post.isModerated },
     })
+    if (res.error?.message !== undefined) {
+      setCalloutErrors([res.error!.message])
+    } else {
+      setPost({
+        ...post,
+        isModerated: !post.isModerated,
+      })
+      setCalloutErrors([])
+    }
   }
 
   if (!post) return null
@@ -42,8 +38,8 @@ export default function ModerateButton({}: ModerateButtonProps) {
         <ActionIcon
           className={styles.action}
           onClick={handleModerateButtonClick}
-          disabled={moderateButtonLoading}
-          loading={moderateButtonLoading}
+          disabled={updatePostState.fetching}
+          loading={updatePostState.fetching}
         >
           {post.isModerated ? (
             <IconShieldOff size={16} color={'red'} stroke={1.5} />

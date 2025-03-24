@@ -64,7 +64,8 @@ import BroadcasterTokenModal from 'src/components/BroadcasterTokenModal'
 import banner from 'src/assets/img/banner-la-clipassa.png'
 import homeBackground from 'src/assets/img/background-la-clipassa.jpg'
 import styles from './Layout.module.css'
-import HomeSideActions from 'src/components/HomeSideActions/HomeSideActions'
+import PostFilters from 'src/components/PostFilters/PostFilters'
+import { withBaseURL } from 'src/utils/urls'
 
 type LayoutProps = {
   children: React.ReactElement
@@ -113,7 +114,7 @@ export default function Layout({ children }: LayoutProps) {
     return user ? (
       <UnstyledButton className={cx(styles.user, { [styles.userActive as string]: userMenuOpened })}>
         <Group gap={'xs'} m={4} align="center">
-          <Avatar alt={user.displayName} radius="xl" size={28} src={user.profileImage} />
+          <Avatar alt={user.displayName} radius="xl" size={28} src={withBaseURL(user.profileImage)} />
           <Text className={styles.displayName} fw={500} size="sm">
             {user.displayName}
           </Text>
@@ -124,8 +125,6 @@ export default function Layout({ children }: LayoutProps) {
       <LoginButton />
     )
   }
-
-  const url = window.location.href
 
   return (
     <Fragment>
@@ -177,7 +176,7 @@ export default function Layout({ children }: LayoutProps) {
               {checkAuthorization({ user, requiredRole: 'ADMIN' }).authorized && (
                 <Button
                   component="a"
-                  variant={url.includes(uiPath('/admin/users-management')) ? 'subtle' : 'default'}
+                  variant={window.location.href.includes(uiPath('/admin/users-management')) ? 'subtle' : 'default'}
                   onClick={() => navigate(uiPath('/admin/users-management'))}
                   size="xs"
                   leftSection={<IconUsers size={14} stroke={1.5} />}
@@ -262,7 +261,7 @@ export default function Layout({ children }: LayoutProps) {
           }}
         >
           <Flex align={'center'} direction="column">
-            <HomeSideActions />
+            <PostFilters />
           </Flex>
         </Drawer>
         {/* <AppShell.Aside p="md">Aside</AppShell.Aside> */}

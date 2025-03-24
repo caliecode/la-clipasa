@@ -113,7 +113,7 @@ export default function SearchFilters({ searchInputValue, setSearchInputValue }:
         disabled={fetchingUser}
       />
 
-      <Flex mt={10} gap="md" justify="space-between" align="center" direction="row" wrap="wrap">
+      <Flex mt={10} gap="md" h="100%" justify="space-between" align="start" direction="row" wrap="wrap">
         <DatePickerInput
           label="From date"
           highlightToday

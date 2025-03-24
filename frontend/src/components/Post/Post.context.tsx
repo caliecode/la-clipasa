@@ -5,8 +5,8 @@ import { PaginatedPostResponse } from 'src/graphql/extended-types'
 interface PostContextType {
   post: PaginatedPostResponse & { nodeId: string }
   setPost: React.Dispatch<React.SetStateAction<PaginatedPostResponse>>
-  calloutErrors?: string[]
-  setCalloutErrors?: React.Dispatch<React.SetStateAction<string[]>>
+  calloutErrors: string[]
+  setCalloutErrors: React.Dispatch<React.SetStateAction<string[]>>
 }
 
 const PostContext = createContext<PostContextType | undefined>(undefined)

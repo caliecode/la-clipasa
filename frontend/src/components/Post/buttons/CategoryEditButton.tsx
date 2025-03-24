@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ActionIcon, Popover } from '@mantine/core'
+import { useClickOutside } from '@mantine/hooks'
 import { IconPlus } from '@tabler/icons-react'
 import ProtectedComponent from 'src/components/Permissions/ProtectedComponent'
 import { usePostContext } from 'src/components/Post/Post.context'
@@ -50,7 +51,6 @@ export default function CategoryEditButton() {
     if (r.error) {
       setErrors(extractGqlErrors(r.error.graphQLErrors))
       if (errors.length === 0) errors.push(r.error.message)
-
       return
     }
     setErrors([])
@@ -70,6 +70,10 @@ export default function CategoryEditButton() {
   }
 
   const [errorNotifier, setErrorNotifier] = useState(0)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // useClickOutside(() => setPopoverOpened(false), ['mouseup', 'touchend'], [containerRef.current, dropdownRef.current])
 
   useEffect(() => {
     errors.length > 0 && setErrorNotifier((prev) => prev + 1)
@@ -77,45 +81,47 @@ export default function CategoryEditButton() {
 
   return (
     <ProtectedComponent requiredRole="MODERATOR">
-      <Popover
-        opened={popoverOpened}
-        onChange={(opened) => {
-          // setPopoverOpened(opened)
-          if (opened) setErrors([])
-        }}
-        position="bottom"
-        withArrow
-        width={400}
-        trapFocus
-        // clickOutsideEvents={['mousedown', 'touchstart']}
-      >
-        <Popover.Target>
-          <ActionIcon
-            radius="xl"
-            size={22}
-            onClick={(e) => {
-              e.stopPropagation()
-              setPopoverOpened((o) => !o)
-            }}
-          >
-            <IconPlus
-              color={colorScheme === 'light' ? 'var(--mantine-color-dark-6)' : 'var(--mantine-color-gray-1)'}
-              size={12}
-              stroke={2.5}
-            />
-          </ActionIcon>
-        </Popover.Target>
+      <div ref={containerRef}>
+        <Popover
+          withinPortal={false}
+          opened={popoverOpened}
+          onChange={(opened) => {
+            if (opened) setErrors([])
+          }}
+          position="bottom"
+          withArrow
+          width={400}
+          trapFocus
+          closeOnClickOutside={false} // we're using our custom hook
+        >
+          <Popover.Target ref={containerRef}>
+            <ActionIcon
+              radius="xl"
+              size={22}
+              onClick={(e) => {
+                e.stopPropagation()
+                setPopoverOpened((o) => !o)
+              }}
+            >
+              <IconPlus
+                color={colorScheme === 'light' ? 'var(--mantine-color-dark-6)' : 'var(--mantine-color-gray-1)'}
+                size={12}
+                stroke={2.5}
+              />
+            </ActionIcon>
+          </Popover.Target>
 
-        <Popover.Dropdown onClick={(e) => e.stopPropagation()}>
-          <ErrorCallout title="Error updating post" errors={errors} />
-          <CategoriesSelect
-            selectedCategories={post.categories?.map((c) => c.category) || []}
-            onCategoriesChange={handleCategoriesChange}
-            allowedCategories={keys(PostCategoryNames)}
-            errorOccurred={errorNotifier}
-          />
-        </Popover.Dropdown>
-      </Popover>
+          <Popover.Dropdown ref={dropdownRef} onClick={(e) => e.stopPropagation()}>
+            <ErrorCallout title="Error updating post" errors={errors} />
+            <CategoriesSelect
+              selectedCategories={post.categories?.map((c) => c.category) || []}
+              onCategoriesChange={handleCategoriesChange}
+              allowedCategories={keys(PostCategoryNames)}
+              errorOccurred={errorNotifier}
+            />
+          </Popover.Dropdown>
+        </Popover>
+      </div>
     </ProtectedComponent>
   )
 }

@@ -5,6 +5,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/field"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
 	"github.com/caliecode/la-clipasa/internal/ent/interceptors"
 	"github.com/caliecode/la-clipasa/internal/ent/privacy/policy"
 	"github.com/caliecode/la-clipasa/internal/ent/privacy/rule"
@@ -61,14 +62,11 @@ func (ApiKey) Policy() ent.Policy {
 			// token sign up for update operations as well
 			ent.OpCreate|ent.OpUpdateOne,
 			rule.AllowIfContextHasPrivacyTokenOfType(&token.SystemCallToken{}),
-			rule.AllowIfSelf(),
-			rule.AllowIfRole("ADMIN"),
-			rule.AllowIfSeedingData(),
+			rule.AllowIfSelfOrHasRole(user.RoleADMIN),
 		),
 		policy.WithOnMutationRules(
 			ent.OpUpdate|ent.OpDeleteOne|ent.OpDelete,
-			rule.AllowIfRole("ADMIN"),
-			rule.AllowIfSelf(),
+			rule.AllowIfSelfOrHasRole(user.RoleADMIN),
 		),
 	)
 }

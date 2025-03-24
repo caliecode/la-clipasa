@@ -1,4 +1,6 @@
-import { generatePath } from 'react-router-dom'
+import { generatePath, matchPath } from 'react-router-dom'
+import { entries } from 'src/utils/object'
+import { toPathname, withBaseURL } from 'src/utils/urls'
 
 const routes = {
   404: '*',
@@ -17,3 +19,34 @@ export function uiPath<P extends UiRoutes>(...args: Parameters<typeof generatePa
 }
 
 const a = uiPath('/post/:postId', { postId: '1' })
+
+/**
+ * Parses a URL and returns the matching route pattern and params
+ */
+export function parseUrl(url: string) {
+  const urlObj = new URL(url)
+  const path = urlObj.pathname.split(import.meta.env.BASE_URL || '').pop() || ''
+
+  for (const [routeName, routePattern] of entries(routes)) {
+    if (routePattern === '*') {
+      continue
+    }
+    const match = matchPath(
+      {
+        path: routePattern,
+      },
+      toPathname(path),
+    )
+
+    if (match) {
+      return {
+        match,
+        routePattern,
+      }
+    }
+  }
+
+  return null
+}
+
+console.log(parseUrl('https://localhost:3000/post/b2b16319-a1a6-422e-b380-55120bc823c0')?.match)

@@ -13,7 +13,7 @@ import { extractGqlErrors } from 'src/utils/errors'
 import { sanitizeContentEditableInputBeforeSubmit } from 'src/utils/strings'
 import { isValidURL } from 'src/utils/urls'
 import { keys } from 'src/utils/object'
-import styles from './HomeSideActions.module.css'
+import styles from './PostFilters.module.css'
 import useAuthenticatedUser from 'src/hooks/auth/useAuthenticatedUser'
 
 type CreatePostModalProps = {

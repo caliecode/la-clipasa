@@ -80,7 +80,7 @@ export default function App() {
             modalProps={{ styles: { root: { marginTop: '100px', zIndex: 20000 } } }}
           >
             <Notifications />
-            <BrowserRouter basename="/ui">
+            <BrowserRouter basename={import.meta.env.BASE_URL}>
               <React.Suspense
                 fallback={<div style={{ backgroundColor: 'rgb(20, 21, 25)', height: '100vh', width: '100vw' }} />}
               >

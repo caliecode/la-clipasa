@@ -1,7 +1,7 @@
 import { Card, Flex, Select, Text } from '@mantine/core'
 import { usePostsSlice } from 'src/slices/posts'
-import styles from './HomeSideActions.module.css'
-import DeletionStatusFilter from 'src/components/HomeSideActions/DeletionStatusFilter'
+import styles from './PostFilters.module.css'
+import DeletionStatusFilter from 'src/components/PostFilters/DeletionStatusFilter'
 
 type SelectData = { value: string; label: string }[]
 

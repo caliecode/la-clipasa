@@ -1,7 +1,7 @@
 import { Card, Chip, Flex, Text, useMantineTheme } from '@mantine/core'
 import { IconBookmark, IconHeart } from '@tabler/icons'
 import { usePostsSlice } from 'src/slices/posts'
-import styles from './HomeSideActions.module.css'
+import styles from './PostFilters.module.css'
 
 type PersonalFiltersProps = {
   userId: string | undefined

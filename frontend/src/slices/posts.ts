@@ -6,7 +6,7 @@ import { Nullable } from 'src/types/utils'
 
 export const POSTS_SLICE_PERSIST_KEY = 'posts-slice'
 
-export type SortSelectOption = 'creationDate' | 'lastSeen'
+export type SortSelectOption = 'creationDate' | 'lastSeen' | 'mostLiked'
 
 type PostsState = {
   lastSeenCursor: Nullable<string>
@@ -80,6 +80,11 @@ export const usePostsSlice = create<PostsState>()(
                     case 'lastSeen':
                       state.queryParams.after = state.lastSeenCursor
                       break
+                    case 'mostLiked':
+                      _updateOrder(state, (order) => {
+                        order.field = 'LIKED_BY_COUNT'
+                        order.direction = 'DESC'
+                      })
                     default:
                       break
                   }

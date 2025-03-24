@@ -4,6 +4,7 @@ import { nameInitials } from 'src/utils/strings'
 import { showRelativeTimestamp } from 'src/utils/date'
 import dayjs from 'dayjs'
 import { usePostContext } from 'src/components/Post/Post.context'
+import { withBaseURL } from 'src/utils/urls'
 
 export const PostMetadata = () => {
   const { post } = usePostContext()
@@ -15,7 +16,7 @@ export const PostMetadata = () => {
         radius="xl"
         data-test-id="header-profile-avatar"
         alt={post.owner?.displayName}
-        src={post.owner?.profileImage}
+        src={withBaseURL(post.owner?.profileImage)}
       >
         {nameInitials(post.owner?.displayName || '')}
       </Avatar>

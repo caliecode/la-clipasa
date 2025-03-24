@@ -4,19 +4,19 @@ import { HTMLProps, useState } from 'react'
 import ProtectedComponent from 'src/components/Permissions/ProtectedComponent'
 import useAuthenticatedUser from 'src/hooks/auth/useAuthenticatedUser'
 import { useUISlice } from 'src/slices/ui'
-import styles from './HomeSideActions.module.css'
+import styles from './PostFilters.module.css'
 import { usePostsSlice } from 'src/slices/posts'
 import { useMantineTheme } from '@mantine/core'
-import CategoryFilters from 'src/components/HomeSideActions/CategoryFilters'
-import CreatePostModal from 'src/components/HomeSideActions/CreatePostModal'
-import ModerationFilters from 'src/components/HomeSideActions/ModerationFilters'
-import PersonalFilters from 'src/components/HomeSideActions/PersonalFilters'
-import SearchFilters from 'src/components/HomeSideActions/SearchFilters'
-import SortSelect from 'src/components/HomeSideActions/SortFilter'
+import CategoryFilters from 'src/components/PostFilters/CategoryFilters'
+import CreatePostModal from 'src/components/PostFilters/CreatePostModal'
+import ModerationFilters from 'src/components/PostFilters/ModerationFilters'
+import PersonalFilters from 'src/components/PostFilters/PersonalFilters'
+import SearchFilters from 'src/components/PostFilters/SearchFilters'
+import SortSelect from 'src/components/PostFilters/SortFilter'
 
-type HomeSideActionsProps = HTMLProps<HTMLDivElement>
+type PostFiltersProps = HTMLProps<HTMLDivElement>
 
-export default function HomeSideActions(props: HomeSideActionsProps): JSX.Element {
+export default function PostFilters(props: PostFiltersProps): JSX.Element {
   const { ...htmlProps } = props
   const [newPostModalOpened, setNewPostModalOpened] = useState(false)
   const { isAuthenticated, user, isAuthenticating } = useAuthenticatedUser()

@@ -123,14 +123,11 @@ func (User) Policy() ent.Policy {
 			// token sign up for update operations as well
 			ent.OpCreate|ent.OpUpdateOne,
 			rule.AllowIfContextHasPrivacyTokenOfType(&token.Oauth2Token{}),
-			rule.AllowIfSelf(),
-			rule.AllowIfRole(user.RoleADMIN),
-			rule.AllowIfSeedingData(),
+			rule.AllowIfSelfOrHasRole(user.RoleADMIN),
 		),
 		policy.WithOnMutationRules(
 			ent.OpUpdate|ent.OpDeleteOne|ent.OpDelete,
-			rule.AllowIfRole(user.RoleADMIN),
-			rule.AllowIfSelf(),
+			rule.AllowIfSelfOrHasRole(user.RoleADMIN),
 		),
 	)
 }

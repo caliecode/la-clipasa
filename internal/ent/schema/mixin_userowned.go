@@ -124,8 +124,6 @@ func (userOwned UserOwnedMixin) Hooks() []ent.Hook {
 		func(next ent.Mutator) ent.Mutator {
 			return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
 				// skip hook if strictly set to allow
-				// TODO: hasRole will simply set the context to the required role
-				// and let underlying hooks, etc handle it
 				if _, allow := privacy.DecisionFromContext(ctx); allow {
 					return next.Mutate(ctx, m)
 				}
@@ -143,7 +141,7 @@ func (userOwned UserOwnedMixin) Hooks() []ent.Hook {
 					}
 				} else {
 					// filter by owner on update and delete mutations
-					mx, ok := m.(interface {
+					_, ok := m.(interface {
 						SetOp(ent.Op)
 						Client() *generated.Client
 						WhereP(...func(*sql.Selector))
@@ -152,7 +150,9 @@ func (userOwned UserOwnedMixin) Hooks() []ent.Hook {
 						return nil, errors.New("unexpected mutation type")
 					}
 
-					userOwned.P(mx, u.ID.String())
+					// this breaks when we allow access to other users by role since they're not the owner
+					// previous role or admin checks will already add the clause
+					// userOwned.P(mx, u.ID.String())
 				}
 
 				return next.Mutate(ctx, m)
@@ -187,7 +187,7 @@ func (userOwned UserOwnedMixin) Interceptors() []ent.Interceptor {
 				return errors.New("userowned interceptor: user not in context")
 			}
 
-			// sets the owner id on the query for the current organization
+			// FIXME: this breaks when we allow access to other users by role since they're not the owner
 			userOwned.P(q, u.ID.String())
 
 			return nil

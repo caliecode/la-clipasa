@@ -2,7 +2,7 @@ import { Card, Group, Text } from '@mantine/core'
 import CategoryBadge from 'src/components/CategoryBadge'
 import { PostCategoryNames } from 'src/services/categories'
 import { usePostsSlice } from 'src/slices/posts'
-import styles from './HomeSideActions.module.css'
+import styles from './PostFilters.module.css'
 import { PostCategoryCategory } from 'src/graphql/gen'
 
 export default function CategoryFilters(): JSX.Element {

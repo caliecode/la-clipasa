@@ -5,17 +5,22 @@ import PageTemplate from 'src/components/PageTemplate'
 import SaveButton from 'src/components/Post/buttons/SaveButton'
 import { PostCard } from 'src/components/Post/components/Post.Card'
 import { PaginatedPostResponse } from 'src/graphql/extended-types'
-import { PostFragment, usePostsQuery } from 'src/graphql/gen'
+import { PostFragment, QueryPostsArgs, usePostsQuery } from 'src/graphql/gen'
 import { usePostsSlice } from 'src/slices/posts'
-import HomeSideActions from 'src/components/HomeSideActions/HomeSideActions'
+import PostFilters from 'src/components/PostFilters/PostFilters'
 import styles from './LandingPage.module.css'
 import { useUISlice } from 'src/slices/ui'
 import { BorderSpinner } from 'react-social-media-embed'
 import { PostCore } from 'src/components/Post/Post.core'
 import { IconArrowUp } from '@tabler/icons-react'
+import { parseUrl } from 'src/ui-paths'
+import { useLocation } from 'react-router-dom'
+import { PostPage } from 'src/components/Post/components/Post.Page'
 
 const itemHeight = 300
 const scrollablePadding = 16
+
+const getPostIdFromRoute = () => parseUrl(window.location.href)?.match.params.postId
 
 export default function LandingPage() {
   const [allPosts, setAllPosts] = useState<(PaginatedPostResponse & { nodeId: string })[]>([])
@@ -23,14 +28,20 @@ export default function LandingPage() {
   const { burgerOpened, setBurgerOpened } = useUISlice()
   const [isFetchingMore, setIsFetchingMore] = useState(false)
   const [showBackToTop, setShowBackToTop] = useState(false)
+  const [activePostId, setActivePostId] = useState(getPostIdFromRoute())
   const [posts, refetchPosts] = usePostsQuery({
-    variables: queryParams,
+    variables: activePostId ? { where: { id: activePostId } } : queryParams,
   })
-
-  const whereOrderByRef = useRef(`${JSON.stringify(queryParams.where)}${JSON.stringify(queryParams.orderBy)}`)
+  const location = useLocation()
 
   useEffect(() => {
-    const currentWhereOrderBy = `${JSON.stringify(queryParams.where)}${JSON.stringify(queryParams.orderBy)}`
+    setActivePostId(getPostIdFromRoute())
+  }, [location])
+
+  const whereOrderByRef = useRef(buildQueryParamsRef(queryParams))
+
+  useEffect(() => {
+    const currentWhereOrderBy = buildQueryParamsRef(queryParams)
 
     if (whereOrderByRef.current !== currentWhereOrderBy) {
       setShowBackToTop(true)
@@ -68,48 +79,56 @@ export default function LandingPage() {
     setShowBackToTop(false)
   }
 
-  return (
-    <PageTemplate minWidth={'60vw'} sidePanel={<HomeSideActions />}>
-      <>
-        <Group justify="center">
-          {totalCount ? (
-            <Text size="sm" fw={500} c="dimmed">
-              Found {totalCount} post{totalCount === 1 ? '' : 's'}
-            </Text>
-          ) : null}
-          <Virtuoso
-            useWindowScroll
-            style={{
-              width: `calc(100% - ${scrollablePadding}px)`,
-            }}
-            data={allPosts}
-            computeItemKey={(index, post) => post.id}
-            fixedItemHeight={itemHeight}
-            endReached={() => {
-              if (fetchedPostsCount && !posts.fetching && posts.data?.posts.pageInfo.hasNextPage) {
-                console.log('bottom reached')
-                setIsFetchingMore(true)
-                postActions.setCursor(posts?.data?.posts.pageInfo.endCursor)
-              }
-            }}
-            /** overscan in pixels */
-            overscan={{ main: 500, reverse: 300 }}
-            itemContent={(index, post) => {
-              if (!post) return null
+  const activePost = allPosts.find((p) => p.id === activePostId)
 
-              return (
-                <div key={post.id}>
-                  <AnimatedCard post={post} />
-                  {index === fetchedPostsCount - 1 && isFetchingMore && (
-                    <Group justify="center" p={12}>
-                      <Loader size={40} />
-                    </Group>
-                  )}
-                </div>
-              )
-            }}
-          />
-        </Group>
+  return (
+    <PageTemplate minWidth={'60vw'} sidePanel={<PostFilters />}>
+      <>
+        {activePostId && activePost ? (
+          <PostCore post={activePost} key={activePostId}>
+            <PostPage />
+          </PostCore>
+        ) : (
+          <Group justify="center">
+            {totalCount ? (
+              <Text size="sm" fw={500} c="dimmed">
+                Found {totalCount} post{totalCount === 1 ? '' : 's'}
+              </Text>
+            ) : null}
+            <Virtuoso
+              useWindowScroll
+              style={{
+                width: `calc(100% - ${scrollablePadding}px)`,
+              }}
+              data={allPosts}
+              computeItemKey={(index, post) => post.id}
+              fixedItemHeight={itemHeight}
+              endReached={() => {
+                if (fetchedPostsCount && !posts.fetching && posts.data?.posts.pageInfo.hasNextPage) {
+                  console.log('bottom reached')
+                  setIsFetchingMore(true)
+                  postActions.setCursor(posts?.data?.posts.pageInfo.endCursor)
+                }
+              }}
+              /** overscan in pixels */
+              overscan={{ main: 500, reverse: 300 }}
+              itemContent={(index, post) => {
+                if (!post) return null
+
+                return (
+                  <div key={post.id}>
+                    <AnimatedCard post={post} />
+                    {index === fetchedPostsCount - 1 && isFetchingMore && (
+                      <Group justify="center" p={12}>
+                        <Loader size={40} />
+                      </Group>
+                    )}
+                  </div>
+                )
+              }}
+            />
+          </Group>
+        )}
 
         {showBackToTop && (
           <Button
@@ -163,4 +182,7 @@ const AnimatedCard = ({ post }) => {
       </PostCore>
     </div>
   )
+}
+function buildQueryParamsRef(queryParams: QueryPostsArgs): string {
+  return `${JSON.stringify(queryParams.where)}${JSON.stringify(queryParams.orderBy)}`
 }

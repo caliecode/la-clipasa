@@ -18,17 +18,17 @@ func AllowIfRole(role user.Role) privacy.QueryMutationRule {
 	return privacy.FilterFunc(func(ctx context.Context, f privacy.Filter) error {
 		// IDFilter is used for the user table
 		type IDFilter interface {
-			WhereID(entql.StringP)
+			WhereID(entql.ValueP)
 		}
 
 		// UserIDFilter is used for the user_setting table
 		type UserIDFilter interface {
-			WhereUserID(entql.StringP)
+			WhereUserID(entql.ValueP)
 		}
 
 		// OwnerIDFilter is used on user owned entities
 		type OwnerIDFilter interface {
-			WhereOwnerID(entql.StringP)
+			WhereOwnerID(entql.ValueP)
 		}
 
 		// if the user setting is being deleted, allow it

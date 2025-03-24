@@ -2,6 +2,7 @@ import { Avatar, Group, Space } from '@mantine/core'
 import RoleBadge from 'src/components/Badges/RoleBadge'
 import { UsersQuery } from 'src/graphql/gen'
 import { nameInitials } from 'src/utils/strings'
+import { withBaseURL } from 'src/utils/urls'
 
 interface UserComboboxOptionProps {
   user: NonNullable<NonNullable<UsersQuery['users']['edges']>[0]>['node']
@@ -18,7 +19,7 @@ export default function UserComboboxOption({ user }: UserComboboxOptionProps) {
           radius="xl"
           data-test-id="header-profile-avatar"
           alt={user.displayName}
-          src={user.profileImage}
+          src={withBaseURL(user.profileImage)}
         >
           {nameInitials(user?.displayName || '')}
         </Avatar>

@@ -1,24 +1,23 @@
-import { PostMetadata } from './Post.Metadata'
-import { PostContent } from './Post.Content'
-import { PostActions } from './Post.Actions'
+import { Card, Space, useMantineColorScheme } from '@mantine/core'
 import { PaginatedPostResponse } from 'src/graphql/extended-types'
-import { PostEmbed } from 'src/components/Post/components/Post.Embed'
 import { PostCore } from 'src/components/Post/Post.core'
+import { Post } from './Post'
+import { uniqueCategoryBackground, CardBackground } from 'src/services/categories'
+import styles from './Post.module.css'
+import { PostEmbed } from 'src/components/Post/components/Post.Embed'
+import { usePostContext } from 'src/components/Post/Post.context'
+import { PostSkeleton } from 'src/components/Post/components/Post.Skeleton'
 
-interface PostPageProps {
-  post: PaginatedPostResponse & { nodeId: string }
-}
+export const PostPage = () => {
+  const { colorScheme } = useMantineColorScheme()
+  const { post } = usePostContext()
 
-export const PostPage = ({ post }: PostPageProps) => (
-  <PostCore post={post}>
-    <div className="post-page-container">
-      <PostMetadata />
-      <PostContent truncateLength={1000} />
+  return (
+    <PostCore post={post}>
+      {/* <PostSkeleton /> */}
+      <Post />
+      <Space h="xl" />
       <PostEmbed inline />
-      <div className="page-actions">
-        <PostActions />
-        {/* Additional page-specific components can be added here */}
-      </div>
-    </div>
-  </PostCore>
-)
+    </PostCore>
+  )
+}
