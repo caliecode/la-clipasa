@@ -43,7 +43,7 @@ import {
 } from '@tabler/icons'
 import useAuthenticatedUser, { logUserOut } from 'src/hooks/auth/useAuthenticatedUser'
 import { useQueryClient } from '@tanstack/react-query'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { faUser } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import logoDark from 'src/assets/logo/two-white-clouds.svg'
@@ -159,13 +159,26 @@ export default function Layout({ children }: LayoutProps) {
               justifyContent: 'space-between',
             }}
           >
-            <Burger
-              className={styles.burger}
-              size={'sm'}
-              opened={burgerOpened}
-              onClick={() => setBurgerOpened(!burgerOpened)}
-              title={title}
-            />
+            <Group align="center" gap={'xs'}>
+              <Burger
+                className={styles.burger}
+                size={'sm'}
+                opened={burgerOpened}
+                onClick={() => setBurgerOpened(!burgerOpened)}
+                title={title}
+              />
+              {window.innerWidth < 768 && (
+                <Image
+                  alt="la clipasa"
+                  src={logo}
+                  height={20}
+                  width={20}
+                  style={{ cursor: 'pointer' }}
+                  className={styles.logo}
+                  onClick={() => navigate('/')}
+                />
+              )}
+            </Group>
             <div> </div>
             {/* {broadcasterLive ? (
               <LiveAvatar streamTitle={twitchBroadcasterLive?.data?.data?.[0]?.title}></LiveAvatar>
@@ -266,7 +279,7 @@ export default function Layout({ children }: LayoutProps) {
             setBurgerOpened(false)
           }}
         >
-          <Flex align={'center'} direction="column">
+          <Flex align={'center'} direction="column" pb="var(--footer-height)">
             <PostFilters />
           </Flex>
         </Drawer>
