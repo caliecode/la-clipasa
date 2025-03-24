@@ -470,6 +470,11 @@ x.build.frontend() {
   pnpm run build
 }
 
+# Build backend.
+x.build.backend() {
+  go build -tags production -v -o ./rest-server ./cmd/rest-server/main.go
+}
+
 # Test frontend. Accepts `vitest` parameters.
 # Args: [...]
 x.test.frontend() {

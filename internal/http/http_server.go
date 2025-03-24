@@ -320,7 +320,8 @@ func NewServer(ctx context.Context, conf Config, opts ...ServerOption) (*Server,
 		c.Redirect(http.StatusMovedPermanently, "/ui")
 	})
 
-	router.Use(static.Serve("/", newStaticFileSystem())) // does show at broken routes eg https://localhost:8090/ui/fds
+	baseUrl := "/ui"
+	router.Use(static.Serve(baseUrl+"/", newStaticFileSystem())) // does show at broken routes eg https://localhost:8090/ui/fds
 
 	// Client-side routing fallback
 	router.NoRoute(func(c *gin.Context) {
