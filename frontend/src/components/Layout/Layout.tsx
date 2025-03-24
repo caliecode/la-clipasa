@@ -173,18 +173,6 @@ export default function Layout({ children }: LayoutProps) {
               <div></div>
             )} */}
             <Group>
-              {checkAuthorization({ user, requiredRole: 'ADMIN' }).authorized && (
-                <Button
-                  component="a"
-                  variant={window.location.href.includes(uiPath('/admin/users-management')) ? 'subtle' : 'default'}
-                  onClick={() => navigate(uiPath('/admin/users-management'))}
-                  size="xs"
-                  leftSection={<IconUsers size={14} stroke={1.5} />}
-                >
-                  User management
-                </Button>
-              )}
-
               <Menu
                 width={220}
                 position="bottom-end"
@@ -197,6 +185,24 @@ export default function Layout({ children }: LayoutProps) {
                 <Menu.Target>{renderAvatarOrLogin()}</Menu.Target>
                 <Menu.Dropdown classNames={{ dropdown: styles.menuDropdown }}>
                   <ThemeSwitcher />
+                  {checkAuthorization({ user, requiredRole: 'ADMIN' }).authorized && (
+                    <>
+                      <Menu.Divider />
+                      <Menu.Label>Admin</Menu.Label>
+                      <Menu.Item
+                        component="a"
+                        color={
+                          window.location.href.includes(uiPath('/admin/users-management'))
+                            ? 'var(--mantine-primary-color-6)'
+                            : 'inherit'
+                        }
+                        leftSection={<IconUsers size={14} stroke={1.5} />}
+                        onClick={() => navigate(uiPath('/admin/users-management'))}
+                      >
+                        User management
+                      </Menu.Item>
+                    </>
+                  )}
                   <Menu.Divider />
                   <Menu.Label>Settings</Menu.Label>
                   <Menu.Item leftSection={<IconSettings size={14} stroke={1.5} />}>Account settings</Menu.Item>
