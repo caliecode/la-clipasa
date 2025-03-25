@@ -1,5 +1,7 @@
 import { Group, Container, Button, Space, Box, Card } from '@mantine/core'
-import { useEffect } from 'react'
+import { useMediaQuery } from '@mantine/hooks'
+import { IconChevronLeft, IconChevronRight } from '@tabler/icons'
+import { useEffect, useState } from 'react'
 import { Post } from 'src/components/Post/components/Post'
 import { PostEmbed } from 'src/components/Post/components/Post.Embed'
 import { usePostContext } from 'src/components/Post/Post.context'
@@ -26,10 +28,47 @@ export const PostPage = () => {
   const { image: categoryImage, color: categoryColor } = useCardBackground(post)
   const cardBackgroundImage = categoryImage || 'auto'
 
+  const isMobile = useMediaQuery('(max-width: 768px)')
+  const [swipeStart, setSwipeStart] = useState(0)
+  const [swipeEnd, setSwipeEnd] = useState(0)
+
+  const handleSwipeStart = (e: React.TouchEvent) => {
+    setSwipeStart(e.touches[0]!.clientX)
+    setSwipeEnd(e.touches[0]!.clientX)
+  }
+
+  const handleSwipeMove = (e: React.TouchEvent) => {
+    setSwipeEnd(e.touches[0]!.clientX)
+  }
+
+  const handleSwipeEnd = () => {
+    if (!swipeStart || !swipeEnd) return
+
+    const delta = swipeStart - swipeEnd
+    const isLeftSwipe = delta > 30 // px
+    const isRightSwipe = delta < -30
+
+    if (isLeftSwipe && nextPost) {
+      setPost(nextPost)
+    } else if (isRightSwipe && previousPost) {
+      setPost(previousPost)
+    }
+
+    // reset
+    setSwipeStart(0)
+    setSwipeEnd(0)
+  }
+
+  const currentDelta = swipeEnd - swipeStart
+  const isSwipingRight = currentDelta > 0
+  const isSwipingLeft = currentDelta < 0
+
+  const swipePercentage = Math.min(Math.abs((swipeEnd - swipeStart) / 100), 0.3)
+
   return (
-    <Container h="100vh">
+    <Container h="100vh" p={0}>
       <Group gap={0} align="stretch" wrap="nowrap">
-        {!isSharedPost && (
+        {!isSharedPost && !isMobile && (
           <Container p={0}>
             <Button
               variant="filled"
@@ -43,9 +82,12 @@ export const PostPage = () => {
           </Container>
         )}
         <Card
-          radius="none"
+          radius={isMobile ? 'var(--mantine-radius-md)' : 'none'}
           w="100%"
           shadow="none"
+          onTouchStart={handleSwipeStart}
+          onTouchMove={handleSwipeMove}
+          onTouchEnd={handleSwipeEnd}
           style={{
             backgroundImage: `url(${cardBackgroundImage})`,
             backgroundSize: 'cover',
@@ -54,9 +96,39 @@ export const PostPage = () => {
             filter: post.deletedAt ? 'grayscale(80%)' : undefined,
           }}
         >
+          {isMobile && (
+            <>
+              <Box
+                style={{
+                  position: 'absolute',
+                  left: 0,
+                  top: '50%',
+                  transform: `translateY(-50%) translateX(${swipePercentage * 100}%)`,
+                  opacity: previousPost && isSwipingRight ? swipePercentage / 2 : 0,
+                  transition: 'transform 0.8s, opacity 0.2s',
+                  zIndex: 1,
+                }}
+              >
+                <IconChevronLeft size="2x" color="white" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.3)' }} />
+              </Box>
+              <Box
+                style={{
+                  position: 'absolute',
+                  right: 0,
+                  top: '50%',
+                  transform: `translateY(-50%) translateX(-${swipePercentage * 100}%)`,
+                  opacity: nextPost && isSwipingLeft ? swipePercentage / 2 : 0,
+                  transition: 'transform 0.8s, opacity 0.2s',
+                  zIndex: 1,
+                }}
+              >
+                <IconChevronRight size="2x" color="white" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.3)' }} />
+              </Box>
+            </>
+          )}
           <Post />
         </Card>
-        {!isSharedPost && (
+        {!isSharedPost && !isMobile && (
           <Container p={0}>
             <Button
               variant="filled"
