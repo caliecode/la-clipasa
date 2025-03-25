@@ -1,8 +1,9 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useState } from 'react'
+import React, { createContext, useContext, useEffect, useState } from 'react'
 import { PaginatedPostResponse } from 'src/graphql/extended-types'
+import { usePostsSlice } from 'src/slices/posts'
 
-interface PostContextType {
+export interface PostContextType {
   post: PaginatedPostResponse & { nodeId: string }
   setPost: React.Dispatch<React.SetStateAction<PaginatedPostResponse>>
   calloutErrors: string[]
@@ -22,10 +23,26 @@ export const PostProvider = ({
   post: initialPost,
 }: {
   children: React.ReactNode
-  post: PaginatedPostResponse & { nodeId: string }
+  post: PostContextType['post']
 }) => {
+  const { posts, postActions } = usePostsSlice()
   const [post, setPost] = useState(initialPost)
   const [calloutErrors, setCalloutErrors] = useState<string[]>([])
+
+  useEffect(() => {
+    // liked, saved, etc. downstream
+    postActions.replacePosts(
+      posts.map((p) => {
+        if (p.id === post.id) {
+          return {
+            ...p,
+            id: p.id,
+          }
+        }
+        return p
+      }),
+    )
+  }, [post])
 
   return (
     <PostContext.Provider value={{ post, setPost, calloutErrors, setCalloutErrors }}>{children}</PostContext.Provider>

@@ -83,16 +83,17 @@ export default function CategoryEditButton() {
     <ProtectedComponent requiredRole="MODERATOR">
       <div ref={containerRef}>
         <Popover
-          withinPortal={false}
+          withinPortal
           opened={popoverOpened}
           onChange={(opened) => {
+            setPopoverOpened(opened)
             if (opened) setErrors([])
           }}
           position="bottom"
           withArrow
           width={400}
           trapFocus
-          closeOnClickOutside={false} // we're using our custom hook
+          closeOnClickOutside
         >
           <Popover.Target ref={containerRef}>
             <ActionIcon

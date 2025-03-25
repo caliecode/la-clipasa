@@ -1500,6 +1500,7 @@ export type PaginationFragmentFragment = {
 export type PostFragment = {
   __typename?: 'Post'
   id: string
+  nodeId: string
   title: string
   content?: string | null
   link: string
@@ -1559,6 +1560,7 @@ export type PostsQuery = {
       node?: {
         __typename?: 'Post'
         id: string
+        nodeId: string
         title: string
         content?: string | null
         link: string
@@ -1602,6 +1604,7 @@ export type PinnedPostsQuery = {
       node?: {
         __typename?: 'Post'
         id: string
+        nodeId: string
         title: string
         content?: string | null
         link: string
@@ -1644,6 +1647,7 @@ export type UpdatePostMutation = {
     post: {
       __typename?: 'Post'
       id: string
+      nodeId: string
       title: string
       content?: string | null
       link: string
@@ -1678,6 +1682,7 @@ export type CreatePostMutation = {
     post: {
       __typename?: 'Post'
       id: string
+      nodeId: string
       title: string
       content?: string | null
       link: string
@@ -1851,6 +1856,7 @@ export const PaginationFragmentFragmentDoc = gql`
 export const PostFragmentDoc = gql`
   fragment Post on Post {
     id
+    nodeId
     title
     content
     link

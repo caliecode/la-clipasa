@@ -60,6 +60,6 @@ func (r *postResolver) ToHTML(ctx context.Context, obj *generated.Post) (string,
 
 // NodeID is the resolver for the nodeId field.
 func (r *postResolver) NodeID(ctx context.Context, obj *generated.Post) (string, error) {
-	// same as returned by cursor
+	// this is not a pagination cursor which is an encoded Cursor
 	return base64.RawURLEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%d", post.Table, obj.ID))), nil
 }

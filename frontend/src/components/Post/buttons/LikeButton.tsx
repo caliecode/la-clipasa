@@ -15,14 +15,13 @@ interface LikeButtonProps {}
 
 export default function LikeButton({}: LikeButtonProps) {
   const theme = useMantineTheme()
-  const { post } = usePostContext()
+  const { post, setPost } = usePostContext()
 
   const [, updateUser] = useUpdateUserMutation()
   const [likeBeacon, setLikeBeacon] = useState(false)
   const [isLiked, setIsLiked] = useState(false)
-  const [isNewLike, setIsNewLike] = useState(false)
 
-  const { user } = useAuthenticatedUser()
+  const { user, refetchUser } = useAuthenticatedUser()
 
   useEffect(() => {
     setIsLiked(!!user?.likedPosts?.find((sp) => sp.id === post?.id))
@@ -47,7 +46,14 @@ export default function LikeButton({}: LikeButtonProps) {
 
     setLikeBeacon(true)
     setIsLiked(!isLiked)
-    setIsNewLike(true)
+    setPost((p) => ({
+      ...p,
+      likedBy: {
+        ...p.likedBy,
+        totalCount: isLiked ? p.likedBy.totalCount - 1 : p.likedBy.totalCount + 1,
+      },
+    }))
+    refetchUser()
   }
 
   if (!post) return null
@@ -69,7 +75,7 @@ export default function LikeButton({}: LikeButtonProps) {
           />
         }
       >
-        {truncateIntegerToString(post.likedBy.totalCount + (isLiked && isNewLike ? 1 : 0))}
+        {truncateIntegerToString(post.likedBy.totalCount)}
       </Button>
     </Tooltip>
   )

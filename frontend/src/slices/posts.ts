@@ -3,6 +3,7 @@ import { devtools, persist } from 'zustand/middleware'
 import { produce, WritableDraft } from 'immer'
 import { PostCategoryCategory, PostOrder, PostWhereInput, QueryPostsArgs } from 'src/graphql/gen'
 import { Nullable } from 'src/types/utils'
+import { PostContextType } from 'src/components/Post/Post.context'
 
 export const POSTS_SLICE_PERSIST_KEY = 'posts-slice'
 
@@ -12,7 +13,11 @@ type PostsState = {
   lastSeenCursor: Nullable<string>
   sort: SortSelectOption
   queryParams: QueryPostsArgs
+  posts: PostContextType['post'][]
   postActions: {
+    replacePosts: (posts: PostContextType['post'][]) => void
+    appendPosts: (posts: PostContextType['post'][]) => void
+    resetPosts: () => void
     setSort: (sort: SortSelectOption) => void
     resetPagination: () => void
     setLastSeenCursor: (cursor: Nullable<string>) => void
@@ -33,6 +38,7 @@ const initialState: Omit<PostsState, 'postActions'> = {
     orderBy: { field: 'CREATED_AT', direction: 'DESC' },
     first: 10,
   },
+  posts: [],
 }
 
 export const usePostsSlice = create<PostsState>()(
@@ -57,6 +63,25 @@ export const usePostsSlice = create<PostsState>()(
         return {
           ...initialState,
           postActions: {
+            replacePosts: (newPosts) =>
+              set(
+                produce<PostsState>((state) => {
+                  state.posts = newPosts
+                }),
+              ),
+            appendPosts: (newPosts) =>
+              set(
+                produce<PostsState>((state) => {
+                  state.posts.push(...newPosts)
+                }),
+              ),
+            resetPosts: () =>
+              set(
+                produce<PostsState>((state) => {
+                  state.posts = []
+                }),
+              ),
+
             setCursor: (cursor) =>
               set(
                 produce<PostsState>((state) => {

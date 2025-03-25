@@ -13,9 +13,11 @@ import { useUISlice } from 'src/slices/ui'
 import { BorderSpinner } from 'react-social-media-embed'
 import { PostCore } from 'src/components/Post/Post.core'
 import { IconArrowUp } from '@tabler/icons-react'
-import { parseUrl } from 'src/ui-paths'
+import { parseUrl, uiPath } from 'src/ui-paths'
 import { useLocation } from 'react-router-dom'
+import { PostContextType } from 'src/components/Post/Post.context'
 import { PostPage } from 'src/components/Post/components/Post.Page'
+import { withBaseURL } from 'src/utils/urls'
 
 const itemHeight = 300
 const scrollablePadding = 16
@@ -23,14 +25,15 @@ const scrollablePadding = 16
 const getPostIdFromRoute = () => parseUrl(window.location.href)?.match.params.postId
 
 export default function LandingPage() {
-  const [allPosts, setAllPosts] = useState<(PaginatedPostResponse & { nodeId: string })[]>([])
-  const { queryParams, sort, postActions } = usePostsSlice()
+  const isSharedPost = window.location.search.includes('ref=share')
+
+  const { queryParams, sort, postActions, posts: allPosts } = usePostsSlice()
   const { burgerOpened, setBurgerOpened } = useUISlice()
   const [isFetchingMore, setIsFetchingMore] = useState(false)
   const [showBackToTop, setShowBackToTop] = useState(false)
   const [activePostId, setActivePostId] = useState(getPostIdFromRoute())
   const [posts, refetchPosts] = usePostsQuery({
-    variables: activePostId ? { where: { id: activePostId } } : queryParams,
+    variables: activePostId && isSharedPost ? { where: { id: activePostId } } : queryParams,
   })
   const location = useLocation()
 
@@ -44,6 +47,7 @@ export default function LandingPage() {
     const currentWhereOrderBy = buildQueryParamsRef(queryParams)
 
     if (whereOrderByRef.current !== currentWhereOrderBy) {
+      window.history.pushState(null, '', withBaseURL(uiPath('/')))
       setShowBackToTop(true)
       const timeout = setTimeout(() => {
         setShowBackToTop(false)
@@ -57,23 +61,25 @@ export default function LandingPage() {
 
   useEffect(() => {
     if (posts.data?.posts.edges) {
-      setAllPosts((prev) => [
-        ...(isFetchingMore ? prev : []),
-        ...(posts.data?.posts.edges
-          ?.map((e) => ({
-            ...e!.node!,
-            nodeId: e!.cursor,
-          }))
-          .filter((p) => !!p) ?? []),
-      ])
+      const newPosts = posts.data.posts.edges
+        .map((e) => ({
+          ...e!.node!,
+          nodeId: e!.cursor,
+        }))
+        .filter((p) => !!p)
+
+      if (isFetchingMore) {
+        postActions.appendPosts(newPosts)
+      } else {
+        postActions.replacePosts(newPosts)
+      }
 
       if (isFetchingMore) setIsFetchingMore(false)
     }
-  }, [posts.data?.posts.edges])
+  }, [posts.data?.posts.edges, postActions])
 
   const fetchedPostsCount = allPosts.length
   const totalCount = posts.data?.posts.totalCount
-
   function handleScrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
     setShowBackToTop(false)
@@ -90,7 +96,7 @@ export default function LandingPage() {
           </PostCore>
         ) : (
           <Group justify="center">
-            {totalCount ? (
+            {totalCount !== undefined ? (
               <Text size="sm" fw={500} c="dimmed">
                 Found {totalCount} post{totalCount === 1 ? '' : 's'}
               </Text>

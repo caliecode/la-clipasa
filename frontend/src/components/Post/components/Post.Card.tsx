@@ -14,6 +14,7 @@ import { PostContent } from './Post.Content'
 import { PostActions } from './Post.Actions'
 import { Post } from 'src/components/Post/components/Post'
 import { PostModal } from 'src/components/Post/components/Post.Modal'
+import { useCardBackground } from 'src/hooks/ui/usePostCardBackground'
 
 type PostCardProps = {
   className?: string
@@ -27,19 +28,14 @@ export const PostCard = ({ className, backgroundImage, ...htmlProps }: PostCardP
   const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false)
   const navigate = useNavigate()
 
-  const uniqueCategory = post?.categories?.find((c) => uniqueCategoryBackground[c.category])
-  const cardBackground: CardBackground = uniqueCategory ? uniqueCategoryBackground[uniqueCategory.category] : undefined
-  const cardBackgroundImage = backgroundImage ? backgroundImage : cardBackground ? cardBackground.image : 'auto'
-  const cardBackgroundColor = cardBackground
-    ? cardBackground.color(colorScheme)
-    : colorScheme === 'dark'
-      ? 'var(--mantine-color-gray-9)'
-      : 'var(--mantine-color-gray-2)'
+  const { image: categoryImage, color: categoryColor } = useCardBackground(post)
+  const cardBackgroundImage = backgroundImage || categoryImage || 'auto'
 
   return (
     <>
       <div
         onClick={() => {
+          window.scrollTo({ top: 0, behavior: 'smooth' })
           navigate(uiPath('/post/:postId', { postId: post.id }))
         }}
       >
@@ -53,7 +49,7 @@ export const PostCard = ({ className, backgroundImage, ...htmlProps }: PostCardP
             backgroundImage: `url(${cardBackgroundImage})`,
             backgroundSize: 'cover',
             backgroundBlendMode: 'overlay',
-            backgroundColor: cardBackgroundColor,
+            backgroundColor: categoryColor,
             filter: post.deletedAt ? 'grayscale(80%)' : undefined,
           }}
         >

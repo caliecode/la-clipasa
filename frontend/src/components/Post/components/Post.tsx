@@ -17,7 +17,7 @@ export const Post = ({ showCategories = true, showCommentCount = true, showModer
   const { post } = usePostContext()
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div style={{ position: 'relative', width: '100%' }}>
       {!post.isModerated && (
         <IconShieldOff
           style={{

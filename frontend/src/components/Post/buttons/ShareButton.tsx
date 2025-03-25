@@ -23,7 +23,7 @@ export default function ShareButton({}: ShareButtonProps) {
         onClick={(e) => {
           e.stopPropagation()
           const path = withBaseURL(uiPath('/post/:postId', { postId: post.id }))
-          navigator.clipboard.writeText(window.location.origin + path)
+          navigator.clipboard.writeText(`${window.location.origin + path}?ref=share`)
           setCopied(true)
           setTimeout(() => setCopied(false), 4_000)
         }}

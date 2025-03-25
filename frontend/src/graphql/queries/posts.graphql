@@ -1,5 +1,6 @@
 fragment Post on Post {
   id
+  nodeId
   title
   content
   link
