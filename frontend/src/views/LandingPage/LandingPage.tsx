@@ -17,12 +17,10 @@ import { parseUrl, uiPath } from 'src/ui-paths'
 import { useLocation } from 'react-router-dom'
 import { PostContextType } from 'src/components/Post/Post.context'
 import { PostPage } from 'src/components/Post/components/Post.Page'
-import { withBaseURL } from 'src/utils/urls'
+import { getPostIdFromRoute, withBaseURL } from 'src/utils/urls'
 
 const itemHeight = 300
 const scrollablePadding = 16
-
-const getPostIdFromRoute = () => parseUrl(window.location.href)?.match.params.postId
 
 export default function LandingPage() {
   const [isSharedPost, setIsSharedPost] = useState<boolean | null>(null)
@@ -83,6 +81,7 @@ export default function LandingPage() {
 
   const fetchedPostsCount = allPosts.length
   const totalCount = posts.data?.posts.totalCount
+
   function handleScrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
     setShowBackToTop(false)

@@ -1,3 +1,5 @@
+import { parseUrl } from 'src/ui-paths'
+
 export function isValidURL(str: string) {
   try {
     new URL(str)
@@ -17,3 +19,5 @@ export function withBaseURL(url?: string | null) {
 export function toPathname(url?: string | null) {
   return url?.replace(import.meta.env.BASE_URL, '') || ''
 }
+
+export const getPostIdFromRoute = () => parseUrl(window.location.href)?.match.params.postId

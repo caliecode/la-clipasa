@@ -9,7 +9,7 @@ import { PostCore } from 'src/components/Post/Post.core'
 import { useCardBackground } from 'src/hooks/ui/usePostCardBackground'
 import { usePostsSlice } from 'src/slices/posts'
 import { uiPath } from 'src/ui-paths'
-import { withBaseURL } from 'src/utils/urls'
+import { getPostIdFromRoute, withBaseURL } from 'src/utils/urls'
 
 export const PostPage = () => {
   const { posts } = usePostsSlice()
@@ -20,8 +20,10 @@ export const PostPage = () => {
   const nextPost = currentIndex < posts.length - 1 ? posts[currentIndex + 1] : null
   const isSharedPost = window.location.search.includes('ref=share')
 
-  // post page rendered once per site (TODO: can force singleton),
   useEffect(() => {
+    const currentPostId = getPostIdFromRoute()
+    if (currentPostId === post.id) return
+
     window.history.pushState(null, '', withBaseURL(uiPath('/post/:postId', { postId: post.id })))
   }, [post])
 
