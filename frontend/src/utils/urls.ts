@@ -16,8 +16,4 @@ export function withBaseURL(url?: string | null) {
   return url || ''
 }
 
-export function toPathname(url?: string | null) {
-  return url?.replace(import.meta.env.BASE_URL, '') || ''
-}
-
 export const getPostIdFromRoute = () => parseUrl(window.location.href)?.match.params.postId

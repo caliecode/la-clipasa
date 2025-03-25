@@ -1,6 +1,5 @@
 import { generatePath, matchPath } from 'react-router-dom'
 import { entries } from 'src/utils/object'
-import { toPathname, withBaseURL } from 'src/utils/urls'
 
 const routes = {
   404: '*',
@@ -47,6 +46,10 @@ export function parseUrl(url: string) {
   }
 
   return null
+}
+
+export function toPathname(url?: string | null) {
+  return url?.replace(import.meta.env.BASE_URL, '') || ''
 }
 
 console.log(parseUrl('https://localhost:3000/post/b2b16319-a1a6-422e-b380-55120bc823c0')?.match)
