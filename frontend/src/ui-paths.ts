@@ -11,13 +11,14 @@ const routes = {
   PROFILE: '/profile',
 } as const
 
-export type UiRoutes = (typeof routes)[keyof typeof routes] // "/users" | "/users/:userId"
+export type UiRoutes = (typeof routes)[keyof typeof routes]
 
+/**
+ * Returns the UI path for a given route excluding the base URL
+ */
 export function uiPath<P extends UiRoutes>(...args: Parameters<typeof generatePath<P>>): string {
   return generatePath(...args)
 }
-
-const a = uiPath('/post/:postId', { postId: '1' })
 
 /**
  * Parses a URL and returns the matching route pattern and params
@@ -51,5 +52,3 @@ export function parseUrl(url: string) {
 export function toPathname(url?: string | null) {
   return url?.replace(import.meta.env.BASE_URL, '') || ''
 }
-
-console.log(parseUrl('https://localhost:3000/post/b2b16319-a1a6-422e-b380-55120bc823c0')?.match)
