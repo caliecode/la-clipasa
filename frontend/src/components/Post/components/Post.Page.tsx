@@ -27,7 +27,7 @@ export const PostPage = () => {
   const cardBackgroundImage = categoryImage || 'auto'
 
   return (
-    <>
+    <Container h="100vh">
       <Group gap={0} align="stretch" wrap="nowrap">
         {!isSharedPost && (
           <Container p={0}>
@@ -72,6 +72,6 @@ export const PostPage = () => {
       </Group>
       <Space h="xl" />
       <PostEmbed inline />
-    </>
+    </Container>
   )
 }

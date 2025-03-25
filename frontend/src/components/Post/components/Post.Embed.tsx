@@ -12,7 +12,7 @@ export const PostEmbed = ({ inline = false }: PostEmbedProps) => {
   const { id, service } = getServiceAndId(post.link)
   const { colorScheme } = useMantineColorScheme()
   const embedStyle: React.CSSProperties = inline
-    ? { maxWidth: '100%', height: '100%' }
+    ? { maxWidth: '100%', height: '20vh' }
     : { overflow: 'scroll', maxWidth: '50vw' }
 
   const renderEmbed = () => {

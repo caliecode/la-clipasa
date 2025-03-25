@@ -18,7 +18,7 @@ const PageTemplate = ({ children, minWidth, maxWidth, sidePanel }: PageTemplateP
       <div
         style={{
           flex: 1,
-          maxWidth: maxWidth || 'auto',
+          maxWidth: maxWidth || '100%',
         }}
       >
         <Paper
