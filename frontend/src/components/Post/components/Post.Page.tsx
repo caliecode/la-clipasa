@@ -6,6 +6,8 @@ import { usePostContext } from 'src/components/Post/Post.context'
 import { PostCore } from 'src/components/Post/Post.core'
 import { useCardBackground } from 'src/hooks/ui/usePostCardBackground'
 import { usePostsSlice } from 'src/slices/posts'
+import { uiPath } from 'src/ui-paths'
+import { withBaseURL } from 'src/utils/urls'
 
 export const PostPage = () => {
   const { posts } = usePostsSlice()
@@ -16,13 +18,10 @@ export const PostPage = () => {
   const nextPost = currentIndex < posts.length - 1 ? posts[currentIndex + 1] : null
   const isSharedPost = window.location.search.includes('ref=share')
 
+  // post page rendered once per site (TODO: can force singleton),
   useEffect(() => {
-    if (posts.length > 0) {
-      console.log('posts', posts)
-      console.log('prev post', previousPost)
-      console.log('next post', nextPost)
-    }
-  }, [posts, previousPost, nextPost])
+    window.history.pushState(null, '', withBaseURL(uiPath('/post/:postId', { postId: post.id })))
+  }, [post])
 
   const { image: categoryImage, color: categoryColor } = useCardBackground(post)
   const cardBackgroundImage = categoryImage || 'auto'
