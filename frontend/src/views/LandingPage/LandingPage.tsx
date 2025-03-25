@@ -25,8 +25,7 @@ const scrollablePadding = 16
 const getPostIdFromRoute = () => parseUrl(window.location.href)?.match.params.postId
 
 export default function LandingPage() {
-  const isSharedPost = window.location.search.includes('ref=share')
-
+  const [isSharedPost, setIsSharedPost] = useState<boolean | null>(null)
   const { queryParams, sort, postActions, posts: allPosts } = usePostsSlice()
   const { burgerOpened, setBurgerOpened } = useUISlice()
   const [isFetchingMore, setIsFetchingMore] = useState(false)
@@ -34,10 +33,14 @@ export default function LandingPage() {
   const [activePostId, setActivePostId] = useState(getPostIdFromRoute())
   const [posts, refetchPosts] = usePostsQuery({
     variables: activePostId && isSharedPost ? { where: { id: activePostId } } : queryParams,
+    pause: isSharedPost === null,
   })
   const location = useLocation()
 
   useEffect(() => {
+    const isSharedPost = location.search.includes('ref=share') ? true : false
+    setIsSharedPost(isSharedPost)
+
     setActivePostId(getPostIdFromRoute())
   }, [location])
 

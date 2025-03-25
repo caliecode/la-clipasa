@@ -15,6 +15,8 @@ import { isValidURL } from 'src/utils/urls'
 import { keys } from 'src/utils/object'
 import styles from './PostFilters.module.css'
 import useAuthenticatedUser from 'src/hooks/auth/useAuthenticatedUser'
+import { useNavigate } from 'react-router-dom'
+import { uiPath } from 'src/ui-paths'
 
 type CreatePostModalProps = {
   opened: boolean
@@ -23,6 +25,7 @@ type CreatePostModalProps = {
 
 export default function CreatePostModal({ opened, onClose }: CreatePostModalProps): JSX.Element {
   const { user } = useAuthenticatedUser()
+  const navigate = useNavigate()
   const [createPostMutation, createPost] = useCreatePostMutation()
   const { setBurgerOpened } = useUISlice()
   const [titlePreviewPopoverOpened, setTitlePreviewPopoverOpened] = useState<boolean>(false)
@@ -80,6 +83,10 @@ export default function CreatePostModal({ opened, onClose }: CreatePostModalProp
       icon: <IconSend size={18} />,
       autoClose: 5000,
     })
+
+    const newPostId = res.data?.createPostWithCategories.post.id
+    console.log('newPostId', newPostId)
+    if (newPostId) navigate(`${uiPath('/post/:postId', { postId: newPostId })}?ref=share`)
   })
 
   return (

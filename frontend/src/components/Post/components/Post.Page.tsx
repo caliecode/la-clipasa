@@ -66,7 +66,7 @@ export const PostPage = () => {
   const swipePercentage = Math.min(Math.abs((swipeEnd - swipeStart) / 100), 0.3)
 
   return (
-    <Container h="100vh" p={0}>
+    <Container h="100vh" p={0} m={0} miw="100%">
       <Group gap={0} align="stretch" wrap="nowrap">
         {!isSharedPost && !isMobile && (
           <Container p={0}>
