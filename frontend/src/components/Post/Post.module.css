@@ -41,7 +41,7 @@
   border-radius: 15px;
   background-color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-7));
   box-shadow: none;
-  animation: fade-in 1.8s infinite;
+  animation: fade-in 5.8s infinite;
 
   &:hover {
     box-shadow: none;

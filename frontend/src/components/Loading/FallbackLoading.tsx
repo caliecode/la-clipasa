@@ -1,13 +1,31 @@
 import { motion } from 'framer-motion'
 import cloudsDark from 'src/assets/logo/two-white-clouds.svg'
 import cloudsLight from 'src/assets/logo/two-black-clouds.svg'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { RouteLoading } from './FallbackLoading.styles'
 import { useUISlice } from 'src/slices/ui'
 import { useMantineColorScheme, useMantineTheme } from '@mantine/core'
+import { useLocation } from 'react-router-dom'
+import PageTemplate from 'src/components/PageTemplate'
+import { PostSkeleton } from 'src/components/Post/components/Post.Skeleton'
+import { PostFiltersSkeleton } from 'src/components/PostFilters/PostFilters.Skeleton'
 
 export default function FallbackLoading() {
+  const location = useLocation()
   const { colorScheme } = useMantineColorScheme()
+  console.log(location.pathname)
+
+  if (location.pathname === '/' || location.pathname.startsWith('/post/')) {
+    return (
+      <PageTemplate minWidth={'60vw'} sidePanel={<PostFiltersSkeleton />}>
+        <>
+          {Array.from({ length: 5 }).map((_, index) => (
+            <PostSkeleton style={{ marginBottom: 12 }} key={String(index)} />
+          ))}
+        </>
+      </PageTemplate>
+    )
+  }
 
   return (
     <RouteLoading>

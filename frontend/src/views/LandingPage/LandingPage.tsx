@@ -1,4 +1,4 @@
-import { Text, Space, ScrollArea, Drawer, Flex, LoadingOverlay, Group, Loader, Button } from '@mantine/core'
+import { Text, Space, ScrollArea, Drawer, Flex, LoadingOverlay, Group, Loader, Button, Skeleton } from '@mantine/core'
 import { useEffect, useRef, useState } from 'react'
 import { Virtuoso } from 'react-virtuoso'
 import PageTemplate from 'src/components/PageTemplate'
@@ -18,6 +18,8 @@ import { useLocation } from 'react-router-dom'
 import { PostContextType } from 'src/components/Post/Post.context'
 import { PostPage } from 'src/components/Post/components/Post.Page'
 import { getPostIdFromRoute, withBaseURL } from 'src/utils/urls'
+import { PostSkeleton } from 'src/components/Post/components/Post.Skeleton'
+import { PostFiltersSkeleton } from 'src/components/PostFilters/PostFilters.Skeleton'
 
 const itemHeight = 300
 const scrollablePadding = 16
