@@ -31,18 +31,28 @@ export default function LandingPage() {
   const [isFetchingMore, setIsFetchingMore] = useState(false)
   const [showBackToTop, setShowBackToTop] = useState(false)
   const [activePostId, setActivePostId] = useState(getPostIdFromRoute())
+  const location = useLocation()
+
   const [posts, refetchPosts] = usePostsQuery({
     variables: activePostId && isSharedPost ? { where: { id: activePostId } } : queryParams,
     pause: isSharedPost === null,
   })
-  const location = useLocation()
+  const fetchedPostsCount = allPosts.length
+  const totalCount = posts.data?.posts.totalCount
+  const hasNextPage = posts.data?.posts.pageInfo.hasNextPage
 
   useEffect(() => {
     const isSharedPost = location.search.includes('ref=share') ? true : false
     setIsSharedPost(isSharedPost)
 
-    setActivePostId(getPostIdFromRoute())
-  }, [location])
+    const postId = getPostIdFromRoute()
+    setActivePostId(postId)
+
+    const isLast = postId === allPosts[allPosts.length - 1]?.id
+    if (isLast) {
+      handleFetchMorePosts()
+    }
+  }, [location, allPosts])
 
   const whereOrderByRef = useRef(buildQueryParamsRef(queryParams))
 
@@ -81,8 +91,12 @@ export default function LandingPage() {
     }
   }, [posts.data?.posts.edges, postActions])
 
-  const fetchedPostsCount = allPosts.length
-  const totalCount = posts.data?.posts.totalCount
+  function handleFetchMorePosts() {
+    if (!posts.fetching && hasNextPage) {
+      setIsFetchingMore(true)
+      postActions.setCursor(posts?.data?.posts.pageInfo.endCursor)
+    }
+  }
 
   function handleScrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -113,14 +127,7 @@ export default function LandingPage() {
               data={allPosts}
               computeItemKey={(index, post) => post.id}
               fixedItemHeight={itemHeight}
-              endReached={() => {
-                if (fetchedPostsCount && !posts.fetching && posts.data?.posts.pageInfo.hasNextPage) {
-                  console.log('bottom reached')
-                  setIsFetchingMore(true)
-                  postActions.setCursor(posts?.data?.posts.pageInfo.endCursor)
-                }
-              }}
-              /** overscan in pixels */
+              endReached={handleFetchMorePosts}
               overscan={{ main: 500, reverse: 300 }}
               itemContent={(index, post) => {
                 if (!post) return null
@@ -193,6 +200,7 @@ const AnimatedCard = ({ post }) => {
     </div>
   )
 }
+
 function buildQueryParamsRef(queryParams: QueryPostsArgs): string {
   return `${JSON.stringify(queryParams.where)}${JSON.stringify(queryParams.orderBy)}`
 }
