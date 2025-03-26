@@ -85,7 +85,6 @@ export default function CreatePostModal({ opened, onClose }: CreatePostModalProp
     })
 
     const newPostId = res.data?.createPostWithCategories.post.id
-    console.log('newPostId', newPostId)
     if (newPostId) navigate(`${uiPath('/post/:postId', { postId: newPostId })}?ref=share`)
   })
 

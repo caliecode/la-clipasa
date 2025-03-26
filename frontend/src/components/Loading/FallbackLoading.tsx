@@ -13,7 +13,6 @@ import { PostFiltersSkeleton } from 'src/components/PostFilters/PostFilters.Skel
 export default function FallbackLoading() {
   const location = useLocation()
   const { colorScheme } = useMantineColorScheme()
-  console.log(location.pathname)
 
   if (location.pathname === '/' || location.pathname.startsWith('/post/')) {
     return (
