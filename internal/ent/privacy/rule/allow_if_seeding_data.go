@@ -14,6 +14,6 @@ func AllowIfSeedingData() privacy.QueryMutationRule {
 			return privacy.Allow
 		}
 
-		return privacy.Deny
+		return privacy.Skip
 	})
 }

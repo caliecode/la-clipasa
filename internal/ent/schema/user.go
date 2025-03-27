@@ -122,11 +122,13 @@ func (User) Policy() ent.Policy {
 			// the user hook has update operations on user create so we need to allow email
 			// token sign up for update operations as well
 			ent.OpCreate|ent.OpUpdateOne,
+			rule.AllowIfSeedingData(),
 			rule.AllowIfContextHasPrivacyTokenOfType(&token.Oauth2Token{}),
 			rule.AllowIfSelfOrHasRole(user.RoleADMIN),
 		),
 		policy.WithOnMutationRules(
 			ent.OpUpdate|ent.OpDeleteOne|ent.OpDelete,
+			rule.AllowIfSeedingData(),
 			rule.AllowIfSelfOrHasRole(user.RoleADMIN),
 		),
 	)
