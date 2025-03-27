@@ -1,178 +1,176 @@
-# https://github.com/MarioCarrion/todo-api-microservice-example/blob/main/.golangci.yml
-# yaml-language-server: $schema=https://raw.githubusercontent.com/golangci/golangci-lint/refs/tags/v1.63.4/jsonschema/golangci.jsonschema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/golangci/golangci-lint/refs/tags/v2.0.2/jsonschema/golangci.jsonschema.json
+version: "2"
 linters:
-  enable-all: true
+  default: all
   disable:
-    - goconst
-    - nlreturn
-    - mnd
-    - cyclop
-    - dupword
-    - ireturn # oapi-codegen strict handlers
-    # - interfacebloat
-    - thelper
-    - testpackage
-    - depguard
-    - godot
-    # - json(camel)
-    - funlen
-    - lll
-    - wsl
-    - tagliatelle
-    - nosnakecase
-    - godox # marks TODO, FIX, ...
-    - forbidigo # fmt banned, etc.
-    - goerr113
-    - gofumpt
-    - gomnd
-    - nonamedreturns
-    # deprecated
-    - exhaustivestruct
-    - golint
-    - interfacer
-    - maligned
-    - scopelint
-    # disabled because of go1.18, added to avoid the initial warning when running
-    # https://github.com/golangci/golangci-lint/issues/2649
     - bodyclose
     - contextcheck
+    - cyclop
+    - depguard
+    - dupword
+    - err113
+    - forbidigo
+    - funlen
+    - goconst
+    - godot
+    - godox
+    - ireturn
+    - lll
+    - mnd
     - nilerr
+    - nlreturn
     - noctx
-    # - rowserrcheck
+    - nonamedreturns
     - sqlclosecheck
-    - structcheck
+    - tagalign
+    - tagliatelle
+    - testpackage
+    - thelper
     - unparam
     - wastedassign
-    # broken --fix for generated code
-    - tagalign
-
-linters-settings:
-  errcheck:
-    check-type-assertions: true
-    check-blank: true
-    exclude-functions:
-      - io/ioutil.ReadFile
-      - io.Copy(*bytes.Buffer)
-      - io.Copy(os.Stdout)
-  gofmt:
-    simplify: true
-  lll:
-    line-length: 130
-  tagliatelle:
-    case:
-      use-field-name: true
-      rules:
-        json: goCamel
-        yaml: goCamel
-  staticcheck:
-    checks:
-      - "all"
-  gci:
-    sections:
-      - standard
-      - default
-      - prefix(github.com/caliecode/la-clipasa)
-    skip-generated: true
-  exhaustruct:
-    include:
-      - "github.com/caliecode/la-clipasa/internal.*Params"
-  ireturn:
-    allow:
-      - error
-      - stdlib
-      - "go.opentelemetry.io/otel/trace.Span"
-  varnamelen:
-    max-distance: 20
-    ignore-type-assert-ok: true
-    ignore-map-index-ok: true
-    ignore-chan-recv-ok: true
-    ignore-names:
-      - id
-      - tx
-      - ctx
-    ignore-decls:
-      - d db.DBTX
-      - c *gin.Context
-      - b bytes.Buffer
-      - h http.Handler
-      - id string
-      - ok bool
-      - r *http.Request
-      - w http.ResponseWriter
-  wrapcheck:
-    ignoreSigs:
-      - internaldomain.WrapErrorf(
-      - internaldomain.NewErrorf(
-      - internal.NewErrorf(
-      - internal.WrapErrorf(
-      - .Errorf(
-      - errors.New(
-      - errors.Unwrap(
-      - .Wrap(
-      - .Wrapf(
-      - .WithMessage(
-      - .WithMessagef(
-      - .WithStack(
-    ignorePackageGlobs:
-      - github.com/caliecode/la-clipasa/*
-issues:
-  exclude-files:
-    - ".*\\.xo\\.go$"
-    - ".*\\.gen\\.go$"
-    - ".*\\.pb\\.go$"
-  exclude-rules:
-    - path: "internal/testutil/*" # doesn't work with internal/... for some reason
-      linters:
-        - gosec
-    - path: "."
-      linters:
-        - gci
-        - nolintlint
-    - path: internal/gen/
-      linters:
-        - lll
-        - godot
-        - wsl
-    # All tests
-    - path: _test\.go
-      linters:
-        - errcheck
-        - cyclop
-        - errchkjson
-        - exhaustruct
-        - funlen
-        - goerr113
-        - lll
-        - nonamedreturns
-        - nosnakecase
-        - varnamelen
-        - wrapcheck
-    # Handles the C4 diagrams
-    - path: internal/doc/doc.go
-      linters:
-        - lll
-        - revive
-        - stylecheck
-    # Final binaries
-    - path: cmd/
-      linters:
-        - cyclop
-        - funlen
-        - gocognit
-        - unparam
-    - path: cmd/internal/repos/postgresql.go
-      linters:
-        - revive # blank-imports
-    - path: internal/memcached/task.go
-      linters:
-        - lll
-    # Because of the env var testing and using t.Setenv
-    - path: internal/envvar/envvar_test.go
-      linters:
-        - paralleltest
-        - thelper
-        - tparallel
-    # Because these are tools
-    - path: internal/tools/tools.go
-      linters:
-        - typecheck
+    - wsl
+  settings:
+    errcheck:
+      check-type-assertions: true
+      check-blank: true
+      exclude-functions:
+        - io/ioutil.ReadFile
+        - io.Copy(*bytes.Buffer)
+        - io.Copy(os.Stdout)
+    exhaustruct:
+      include:
+        - github.com/caliecode/la-clipasa/internal.*Params
+    ireturn:
+      allow:
+        - error
+        - stdlib
+        - go.opentelemetry.io/otel/trace.Span
+    lll:
+      line-length: 130
+    staticcheck:
+      checks:
+        - all
+    tagliatelle:
+      case:
+        rules:
+          json: goCamel
+          yaml: goCamel
+        use-field-name: true
+    varnamelen:
+      max-distance: 20
+      ignore-names:
+        - id
+        - tx
+        - ctx
+      ignore-type-assert-ok: true
+      ignore-map-index-ok: true
+      ignore-chan-recv-ok: true
+      ignore-decls:
+        - d db.DBTX
+        - c *gin.Context
+        - b bytes.Buffer
+        - h http.Handler
+        - id string
+        - ok bool
+        - r *http.Request
+        - w http.ResponseWriter
+    wrapcheck:
+      ignore-sigs:
+        - internaldomain.WrapErrorf(
+        - internaldomain.NewErrorf(
+        - internal.NewErrorf(
+        - internal.WrapErrorf(
+        - .Errorf(
+        - errors.New(
+        - errors.Unwrap(
+        - .Wrap(
+        - .Wrapf(
+        - .WithMessage(
+        - .WithMessagef(
+        - .WithStack(
+      ignore-package-globs:
+        - github.com/caliecode/la-clipasa/*
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - gosec
+        path: internal/testutil/*
+      - linters:
+          - nolintlint
+        path: .
+      - linters:
+          - godot
+          - lll
+          - wsl
+        path: internal/gen/
+      - linters:
+          - cyclop
+          - err113
+          - errcheck
+          - errchkjson
+          - exhaustruct
+          - funlen
+          - lll
+          - nonamedreturns
+          - nosnakecase
+          - varnamelen
+          - wrapcheck
+        path: _test\.go
+      - linters:
+          - lll
+          - revive
+          - staticcheck
+        path: internal/doc/doc.go
+      - linters:
+          - cyclop
+          - funlen
+          - gocognit
+          - unparam
+        path: cmd/
+      - linters:
+          - revive
+        path: cmd/internal/repos/postgresql.go
+      - linters:
+          - lll
+        path: internal/memcached/task.go
+      - linters:
+          - paralleltest
+          - thelper
+          - tparallel
+        path: internal/envvar/envvar_test.go
+    paths:
+      - .*\.xo\.go$
+      - .*\.gen\.go$
+      - .*\.pb\.go$
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - goimports
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - prefix(github.com/caliecode/la-clipasa)
+    gofmt:
+      simplify: true
+  exclusions:
+    generated: lax
+    paths:
+      - .*\.xo\.go$
+      - .*\.gen\.go$
+      - .*\.pb\.go$
+      - third_party$
+      - builtin$
+      - examples$
+      - .
