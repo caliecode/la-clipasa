@@ -391,6 +391,7 @@ linters-settings:
     # lint struct usage in all packages that use them
     include:
       - 'github\.com/caliecode/la-clipasa/internal/gql\.DirectiveRoot$'
+      - 'github\.com/caliecode/la-clipasa/internal/gql\.Resolver$'
     exclude:
       - 'github\.com/caliecode/la-clipasa/internal/repos/postgresql/gen/models\..*(UpdateParams|Joins)$'
 # in case we want to run a linter on test files only

@@ -369,6 +369,7 @@ export type CreatePostInput = {
 export type CreatePostWithCategoriesInput = {
   base: CreatePostInput
   categories?: InputMaybe<Array<PostCategoryCategory>>
+  video?: InputMaybe<Scalars['Upload']['input']>
 }
 
 /**

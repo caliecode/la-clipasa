@@ -1,22 +1,38 @@
-import { Button, Group, Modal, Popover, Text, Textarea, TextInput, Tooltip } from '@mantine/core'
+import React, { useEffect, useRef, useState } from 'react'
+import {
+  Button,
+  Group,
+  Modal,
+  Popover,
+  Text,
+  Textarea,
+  TextInput,
+  Tooltip,
+  FileInput,
+  Stack,
+  Progress,
+  Space,
+} from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { showNotification } from '@mantine/notifications'
-import { IconEyeCheck, IconSend } from '@tabler/icons'
-import { useEffect, useRef, useState } from 'react'
+import { IconEyeCheck, IconSend, IconUpload, IconVideo } from '@tabler/icons-react'
+import { useMutation } from 'urql'
+import axios from 'axios'
 import ErrorCallout from 'src/components/Callout/ErrorCallout'
 import { CategoriesSelect } from 'src/components/CategorySelect'
-import { CreatePostInput, CreatePostWithCategoriesInput, useCreatePostMutation } from 'src/graphql/gen'
 import { PostCategoryNamesOnCreate } from 'src/services/categories'
 import { emotesTextToHtml } from 'src/services/twitch'
 import { useUISlice } from 'src/slices/ui'
-import { extractGqlErrors } from 'src/utils/errors'
 import { sanitizeContentEditableInputBeforeSubmit } from 'src/utils/strings'
 import { isValidURL } from 'src/utils/urls'
 import { keys } from 'src/utils/object'
 import styles from './PostFilters.module.css'
 import useAuthenticatedUser from 'src/hooks/auth/useAuthenticatedUser'
 import { useNavigate } from 'react-router-dom'
+import { apiPath } from 'src/services/apiPaths'
+import { CreatePostInput, CreatePostWithCategoriesInput, useCreatePostMutation } from 'src/graphql/gen'
 import { uiPath } from 'src/ui-paths'
+import { extractGqlErrors } from 'src/utils/errors'
 
 type CreatePostModalProps = {
   opened: boolean
@@ -28,8 +44,10 @@ export default function CreatePostModal({ opened, onClose }: CreatePostModalProp
   const navigate = useNavigate()
   const [createPostMutation, createPost] = useCreatePostMutation()
   const { setBurgerOpened } = useUISlice()
+
   const [titlePreviewPopoverOpened, setTitlePreviewPopoverOpened] = useState<boolean>(false)
   const [calloutErrors, setCalloutErrors] = useState<string[]>([])
+  const [videoFile, setVideoFile] = useState<File | null>(null)
   const titleInputRef = useRef<HTMLTextAreaElement>(null)
   const EMOJI_SIZE = 24
 
@@ -40,18 +58,15 @@ export default function CreatePostModal({ opened, onClose }: CreatePostModalProp
     },
     validate: {
       base: {
-        title: (value) =>
-          !value || value.trim() === '' || value.trim() === '<br>'
-            ? 'Title cannot be empty'
-            : value?.length > 150
-              ? 'Title can have at most 150 characters.'
-              : null,
-        link: (value) =>
-          !isValidURL(value)
-            ? 'Link is not a valid URL'
-            : value?.length > 250
-              ? 'Link can have at most 250 characters.'
-              : null,
+        title: (value) => {
+          if (!value || value.trim() === '' || value.trim() === '<br>') return 'Title cannot be empty'
+          if (value?.length > 150) return 'Title can have at most 150 characters.'
+        },
+        link: (value) => {
+          if (videoFile) return null
+          if (!isValidURL(value)) return 'Link is not a valid URL'
+          if (value?.length > 250) 'Link can have at most 250 characters.'
+        },
         content: (value) => (value && value.length > 400 ? 'Message can have at most 400 characters.' : null),
       },
     },
@@ -63,29 +78,36 @@ export default function CreatePostModal({ opened, onClose }: CreatePostModalProp
 
   const handleSubmit = postCreateForm.onSubmit(async (values) => {
     values.base.title = sanitizeContentEditableInputBeforeSubmit(values.base.title)
-    const res = await createPost({ input: values })
 
-    if (res.error) {
-      const errors = extractGqlErrors(res.error.graphQLErrors)
-      if (errors.length === 0) errors.push(res.error.message)
+    try {
+      values.base.title = sanitizeContentEditableInputBeforeSubmit(values.base.title)
+      const res = await createPost({ input: { ...values, video: videoFile } })
 
-      setCalloutErrors(errors)
-      return
+      if (res.error) {
+        const errors = extractGqlErrors(res.error.graphQLErrors)
+        if (errors.length === 0) errors.push(res.error.message)
+
+        setCalloutErrors(errors)
+        return
+      }
+
+      onClose()
+      setBurgerOpened(false)
+      showNotification({
+        id: 'post-created',
+        title: 'Post submitted',
+        message: 'Post created successfully',
+        color: 'green',
+        icon: <IconSend size={18} />,
+        autoClose: 5000,
+      })
+
+      const newPostId = res.data?.createPostWithCategories.post.id
+      if (newPostId) navigate(`${uiPath('/post/:postId', { postId: newPostId })}?ref=share`)
+    } catch (error) {
+      console.error('Post creation error:', error)
+      setCalloutErrors([error instanceof Error ? error.message : 'Failed to create post'])
     }
-
-    onClose()
-    setBurgerOpened(false)
-    showNotification({
-      id: 'post-created',
-      title: 'Post submitted',
-      message: 'Post created successfully',
-      color: 'green',
-      icon: <IconSend size={18} />,
-      autoClose: 5000,
-    })
-
-    const newPostId = res.data?.createPostWithCategories.post.id
-    if (newPostId) navigate(`${uiPath('/post/:postId', { postId: newPostId })}?ref=share`)
   })
 
   return (
@@ -93,6 +115,9 @@ export default function CreatePostModal({ opened, onClose }: CreatePostModalProp
       opened={opened}
       onClose={() => {
         onClose()
+        // Reset form and video state when modal closes
+        postCreateForm.reset()
+        setVideoFile(null)
       }}
       title="Create a new post"
       closeOnEscape={false}
@@ -157,6 +182,24 @@ export default function CreatePostModal({ opened, onClose }: CreatePostModalProp
           onCategoriesChange={(categories) => postCreateForm.setFieldValue('categories', categories)}
           allowedCategories={keys(PostCategoryNamesOnCreate)}
         />
+        <Space h="md" />
+        <FileInput
+          label="Video Upload"
+          placeholder="Select video file"
+          accept="video/mp4,video/mpeg,video/quicktime"
+          leftSection={<IconUpload size={16} />}
+          value={videoFile}
+          clearable
+          onChange={(file) => {
+            setVideoFile(file)
+            postCreateForm.setFieldValue('video', '')
+            postCreateForm.setFieldValue('base.link', '-')
+          }}
+        />
+        <Text size="xs" opacity={0.6}>
+          Optional: upload a video (Max 10MB)
+        </Text>
+
         <Group justify="end" mt="md">
           <Button
             variant="gradient"

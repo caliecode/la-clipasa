@@ -10,6 +10,7 @@ extend type Post {
 input CreatePostWithCategoriesInput {
     base: CreatePostInput!
     categories: [PostCategoryCategory!]
+    video: Upload
 }
 
 extend type Mutation {

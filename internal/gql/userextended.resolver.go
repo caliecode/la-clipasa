@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/caliecode/la-clipasa/internal"
-	"github.com/caliecode/la-clipasa/internal/client"
 	"github.com/caliecode/la-clipasa/internal/ent/generated"
 	"github.com/caliecode/la-clipasa/internal/gql/model"
 )
@@ -30,14 +29,13 @@ func (r *queryResolver) Me(ctx context.Context) (*generated.User, error) {
 func (r *userResolver) TwitchInfo(ctx context.Context, obj *generated.User) (*model.UserTwitchInfo, error) {
 	initTwitchCache()
 	l := internal.GetLoggerFromCtx(ctx)
-	twitch := client.NewTwitchHandlers()
 
 	ginCtx, err := GinContextFromCtx(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	u, err := twitch.GetUser(ginCtx)
+	u, err := r.twitch.GetUser(ginCtx)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +63,7 @@ func (r *userResolver) TwitchInfo(ctx context.Context, obj *generated.User) (*mo
 
 	go func() {
 		defer wg.Done()
-		subscription, err := twitch.GetUserSubscription(ginCtx, twitchUserID)
+		subscription, err := r.twitch.GetUserSubscription(ginCtx, twitchUserID)
 		if err != nil {
 			subErr = err
 			return
@@ -77,7 +75,7 @@ func (r *userResolver) TwitchInfo(ctx context.Context, obj *generated.User) (*mo
 
 	go func() {
 		defer wg.Done()
-		follow, err := twitch.GetUserFollower(ginCtx, twitchUserID)
+		follow, err := r.twitch.GetUserFollower(ginCtx, twitchUserID)
 		if err != nil {
 			followErr = err
 			return
@@ -90,7 +88,7 @@ func (r *userResolver) TwitchInfo(ctx context.Context, obj *generated.User) (*mo
 	// TODO: requires broadcaster request
 	go func() {
 		defer wg.Done()
-		// ban, err := twitch.GetUserBanStatus(ginCtx, twitchUserID)
+		// ban, err := r.twitch.GetUserBanStatus(ginCtx, twitchUserID)
 		// if err != nil {
 		// 	banErr = err
 		// 	return

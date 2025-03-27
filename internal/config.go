@@ -73,10 +73,15 @@ func (e *AppEnv) Decode(value string) error {
 	return nil
 }
 
-type Twitch struct {
+type TwitchConfig struct {
 	BroadcasterID     string
 	BroadcasterName   string
 	AuthInfoCookieKey string
+}
+
+type DiscordConfig struct {
+	ChannelID string `env:"DISCORD_CHANNEL_ID"`
+	BotToken  string `env:"DISCORD_BOT_TOKEN"`
 }
 
 // AppConfig contains app settings.
@@ -85,7 +90,8 @@ type AppConfig struct {
 	KV         KeyValueDbConfig
 	TwitchOIDC TwitchOidcConfig
 	SuperAdmin SuperAdminConfig
-	Twitch     Twitch
+	Twitch     TwitchConfig
+	Discord    DiscordConfig
 
 	FrontendPort          string  `env:"FRONTEND_PORT"`
 	Domain                string  `env:"DOMAIN"`
@@ -107,7 +113,7 @@ func NewAppConfig() error {
 	defer configLock.Unlock()
 
 	cfg := &AppConfig{
-		Twitch: Twitch{
+		Twitch: TwitchConfig{
 			BroadcasterID:     "52341091",
 			BroadcasterName:   "caliebre",
 			AuthInfoCookieKey: "twitch_auth_info",

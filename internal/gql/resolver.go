@@ -15,6 +15,7 @@ import (
 
 	"github.com/caliecode/la-clipasa/internal"
 	"github.com/caliecode/la-clipasa/internal/auth"
+	"github.com/caliecode/la-clipasa/internal/client"
 	"github.com/caliecode/la-clipasa/internal/ent/generated"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
 )
@@ -29,7 +30,9 @@ const (
 )
 
 type Resolver struct {
-	ent *generated.Client
+	ent     *generated.Client
+	twitch  *client.TwitchHandlers
+	discord *client.DiscordHandlers
 }
 
 func GinContextFromCtx(ctx context.Context) (*gin.Context, error) {
@@ -68,7 +71,9 @@ func skipSoftDeleteDirective(ctx context.Context, obj any, next graphql.Resolver
 func NewResolver(entClient *generated.Client) Config {
 	return Config{
 		Resolvers: &Resolver{
-			ent: entClient,
+			ent:     entClient,
+			twitch:  client.NewTwitchHandlers(),
+			discord: client.NewDiscordHandlers(),
 		},
 		Directives: DirectiveRoot{
 			HasRole:        hasRoleDirective,

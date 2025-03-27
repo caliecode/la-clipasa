@@ -4,6 +4,7 @@ package model
 
 import (
 	"entgo.io/contrib/entgql"
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/caliecode/la-clipasa/internal/ent/generated"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/postcategory"
 	"github.com/google/uuid"
@@ -64,6 +65,7 @@ type CommentUpdatePayload struct {
 type CreatePostWithCategoriesInput struct {
 	Base       *generated.CreatePostInput `json:"base"`
 	Categories []postcategory.Category    `json:"categories,omitempty"`
+	Video      *graphql.Upload            `json:"video,omitempty"`
 }
 
 // Return response for createBulkPost mutation

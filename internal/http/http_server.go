@@ -518,6 +518,10 @@ func graphqlHandler(entClient *generated.Client) gin.HandlerFunc {
 	srv.AddTransport(transport.Options{})
 	srv.AddTransport(transport.GET{})
 	srv.AddTransport(transport.POST{})
+	srv.AddTransport(transport.MultipartForm{
+		MaxMemory:     10 << 20,
+		MaxUploadSize: 10 << 20,
+	})
 	srv.AddTransport(transport.Websocket{
 		KeepAlivePingInterval: 10 * time.Second,
 	})
