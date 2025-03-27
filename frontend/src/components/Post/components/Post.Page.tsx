@@ -145,6 +145,7 @@ export const PostPage = () => {
         )}
       </Group>
       <Space h="xl" />
+
       <PostEmbed inline />
     </Container>
   )

@@ -16295,7 +16295,7 @@ func (ec *executionContext) unmarshalInputCreatePostWithCategoriesInput(ctx cont
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"base", "categories"}
+	fieldsInOrder := [...]string{"base", "categories", "video"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -16316,6 +16316,13 @@ func (ec *executionContext) unmarshalInputCreatePostWithCategoriesInput(ctx cont
 				return it, err
 			}
 			it.Categories = data
+		case "video":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("video"))
+			data, err := ec.unmarshalOUpload2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Video = data
 		}
 	}
 
@@ -24814,6 +24821,22 @@ func (ec *executionContext) marshalOTime2ᚖtimeᚐTime(ctx context.Context, sel
 		return graphql.Null
 	}
 	res := graphql.MarshalTime(*v)
+	return res
+}
+
+func (ec *executionContext) unmarshalOUpload2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx context.Context, v any) (*graphql.Upload, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalUpload(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOUpload2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx context.Context, sel ast.SelectionSet, v *graphql.Upload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalUpload(*v)
 	return res
 }
 

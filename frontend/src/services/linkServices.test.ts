@@ -23,7 +23,7 @@ describe('infer URL metadata', () => {
   test('reddit URL', () => {
     const url = 'https://www.reddit.com/r/Cyyh9G5E6II/'
     const result = getServiceAndId(url)
-    expect(result).toEqual({ service: 'unknown', id: undefined })
+    expect(result).toEqual({ service: 'reddit', id: undefined })
   })
 
   test('discord video', () => {

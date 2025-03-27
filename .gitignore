@@ -1,5 +1,6 @@
 caliebre_submissions.jsonl
 ids.txt
+
 **/repopack-output.*
 **/.vite
 .direnv
@@ -26,7 +27,7 @@ go.work*
 *.cache
 **/testdata/**/got
 /certificates/*.pem
-
+file_example_*.mp4
 node_modules/**
 /whiteboard.excalidraw
 .env

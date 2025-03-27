@@ -58,14 +58,16 @@ export default function LikeButton({}: LikeButtonProps) {
 
   if (!post) return null
 
+  const disabled = !user
+
   return (
-    <Tooltip label="Like" arrowPosition="center" withArrow>
+    <Tooltip label="Like" arrowPosition="center" withArrow disabled={disabled}>
       <Button
         className={`${isLiked && styles.likedAction} ${styles.action} ${likeBeacon ? styles.beacon : ''}`}
         onClick={handleLikeButtonClick}
         onAnimationEnd={() => setLikeBeacon(false)}
         size="xs"
-        disabled={!user}
+        disabled={disabled}
         leftSection={
           <IconHeart
             size={18}

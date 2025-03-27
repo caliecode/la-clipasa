@@ -16,7 +16,7 @@ type URLMetadata = {
 /**
  * Infers metadata for a given URL
  */
-export function getServiceAndId(url: string): URLMetadata {
+export function getServiceAndId(url = ''): URLMetadata {
   let service: Service = 'unknown'
   let id: string | undefined = undefined
 
@@ -35,9 +35,8 @@ export function getServiceAndId(url: string): URLMetadata {
   } else if (url.includes('twitter.com')) {
     service = 'twitter'
     id = url.split('status/')[1]?.split('?')[0]
-    // cannot embed it
-    // } else if (url.includes('reddit.com') || url.includes('redd.it')) {
-    //   service = 'reddit'
+  } else if (url.includes('reddit.com')) {
+    service = 'reddit'
   } else if (url.includes('cdn.discordapp.com')) {
     service = 'discord'
     if (url.endsWith('.mp4')) {

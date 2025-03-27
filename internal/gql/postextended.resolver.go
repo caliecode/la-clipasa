@@ -15,6 +15,15 @@ import (
 
 // CreatePostWithCategories is the resolver for the createPostWithCategories field.
 func (r *mutationResolver) CreatePostWithCategories(ctx context.Context, input model.CreatePostWithCategoriesInput) (*model.PostCreatePayload, error) {
+	if input.Video != nil {
+		video, err := r.discord.UploadFile(ctx, *input.Video)
+		if err != nil {
+			return nil, fmt.Errorf("failed to upload video to discord: %w", err)
+		}
+
+		input.Base.Link = video.Attachments[0].URL
+	}
+
 	postPayload, err := r.CreatePost(ctx, *input.Base)
 	if err != nil {
 		return nil, parseRequestError(err, action{action: ActionCreate, object: "post"})

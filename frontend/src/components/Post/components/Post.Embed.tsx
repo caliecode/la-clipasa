@@ -25,6 +25,17 @@ export const PostEmbed = ({ inline = false }: PostEmbedProps) => {
         return <YouTubeEmbed url={post.link} width="100%" />
       case 'tiktok':
         return <TikTokEmbed url={post.link} width="100%" />
+      case 'reddit':
+        return (
+          <iframe
+            id="reddit-embed"
+            src={`${post.link.replace('www.reddit.com', 'www.redditmedia.com').split('/').slice(0, -1).join('/')}/?ref_source=embed&ref=share&embed=true`}
+            sandbox="allow-scripts allow-same-origin allow-popups"
+            height="600px"
+            width="100%"
+            style={{ borderRadius: 10, border: 'none' }}
+          ></iframe>
+        )
       default:
         return null
     }
