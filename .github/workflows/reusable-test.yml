@@ -34,6 +34,12 @@ jobs:
 
           project test.backend.setup
 
+      - name: Can create initial data
+        run: |
+          source .envrc
+
+          project db.initial-data
+
       - name: Test frontend
         run: |
           source .envrc
