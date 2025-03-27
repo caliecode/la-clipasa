@@ -440,6 +440,7 @@ type Post implements Node {
   moderationComment: String
   isModerated: Boolean!
   entityVector: String
+  metadata: PostMetadata
   owner: User!
   comments(
     """

@@ -571,6 +571,11 @@ func (po *PostQuery) collectField(ctx context.Context, oneNode bool, opCtx *grap
 				selectedFields = append(selectedFields, post.FieldEntityVector)
 				fieldSeen[post.FieldEntityVector] = struct{}{}
 			}
+		case "metadata":
+			if _, ok := fieldSeen[post.FieldMetadata]; !ok {
+				selectedFields = append(selectedFields, post.FieldMetadata)
+				fieldSeen[post.FieldMetadata] = struct{}{}
+			}
 		case "id":
 		case "__typename":
 		default:

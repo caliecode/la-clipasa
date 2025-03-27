@@ -16,6 +16,7 @@ import (
 	"github.com/caliecode/la-clipasa/internal/ent/privacy/policy"
 	"github.com/caliecode/la-clipasa/internal/ent/privacy/rule"
 	"github.com/caliecode/la-clipasa/internal/ent/schema/mixins"
+	"github.com/caliecode/la-clipasa/internal/gql/extramodel"
 )
 
 // Post holds the schema definition for the Post entity.
@@ -47,6 +48,13 @@ func (Post) Fields() []ent.Field {
 			}).
 			Optional().Default("").Immutable().Annotations(
 			entgql.Skip(entgql.SkipMutationCreateInput, entgql.SkipMutationUpdateInput, entgql.SkipOrderField)),
+		field.JSON("metadata", extramodel.PostMetadata{}).
+			Optional().
+			SchemaType(map[string]string{
+				dialect.Postgres: "jsonb",
+			}).Annotations(
+			entgql.Skip(entgql.SkipMutationCreateInput, entgql.SkipMutationUpdateInput, entgql.SkipOrderField),
+		),
 	}
 }
 

@@ -716,6 +716,16 @@ func EntityVectorContainsFold(v string) predicate.Post {
 	return predicate.Post(sql.FieldContainsFold(FieldEntityVector, v))
 }
 
+// MetadataIsNil applies the IsNil predicate on the "metadata" field.
+func MetadataIsNil() predicate.Post {
+	return predicate.Post(sql.FieldIsNull(FieldMetadata))
+}
+
+// MetadataNotNil applies the NotNil predicate on the "metadata" field.
+func MetadataNotNil() predicate.Post {
+	return predicate.Post(sql.FieldNotNull(FieldMetadata))
+}
+
 // HasOwner applies the HasEdge predicate on the "owner" edge.
 func HasOwner() predicate.Post {
 	return predicate.Post(func(s *sql.Selector) {

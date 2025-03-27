@@ -17,6 +17,7 @@ import (
 	"github.com/caliecode/la-clipasa/internal/ent/generated/postcategory"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/predicate"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
+	"github.com/caliecode/la-clipasa/internal/gql/extramodel"
 	"github.com/google/uuid"
 )
 
@@ -1411,6 +1412,7 @@ type PostMutation struct {
 	moderation_comment *string
 	is_moderated       *bool
 	entity_vector      *string
+	metadata           *extramodel.PostMetadata
 	clearedFields      map[string]struct{}
 	owner              *uuid.UUID
 	clearedowner       bool
@@ -2032,6 +2034,55 @@ func (m *PostMutation) ResetEntityVector() {
 	delete(m.clearedFields, post.FieldEntityVector)
 }
 
+// SetMetadata sets the "metadata" field.
+func (m *PostMutation) SetMetadata(em extramodel.PostMetadata) {
+	m.metadata = &em
+}
+
+// Metadata returns the value of the "metadata" field in the mutation.
+func (m *PostMutation) Metadata() (r extramodel.PostMetadata, exists bool) {
+	v := m.metadata
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMetadata returns the old "metadata" field's value of the Post entity.
+// If the Post object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PostMutation) OldMetadata(ctx context.Context) (v extramodel.PostMetadata, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMetadata is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMetadata requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMetadata: %w", err)
+	}
+	return oldValue.Metadata, nil
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (m *PostMutation) ClearMetadata() {
+	m.metadata = nil
+	m.clearedFields[post.FieldMetadata] = struct{}{}
+}
+
+// MetadataCleared returns if the "metadata" field was cleared in this mutation.
+func (m *PostMutation) MetadataCleared() bool {
+	_, ok := m.clearedFields[post.FieldMetadata]
+	return ok
+}
+
+// ResetMetadata resets all changes to the "metadata" field.
+func (m *PostMutation) ResetMetadata() {
+	m.metadata = nil
+	delete(m.clearedFields, post.FieldMetadata)
+}
+
 // ClearOwner clears the "owner" edge to the User entity.
 func (m *PostMutation) ClearOwner() {
 	m.clearedowner = true
@@ -2309,7 +2360,7 @@ func (m *PostMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PostMutation) Fields() []string {
-	fields := make([]string, 0, 12)
+	fields := make([]string, 0, 13)
 	if m.updated_at != nil {
 		fields = append(fields, post.FieldUpdatedAt)
 	}
@@ -2346,6 +2397,9 @@ func (m *PostMutation) Fields() []string {
 	if m.entity_vector != nil {
 		fields = append(fields, post.FieldEntityVector)
 	}
+	if m.metadata != nil {
+		fields = append(fields, post.FieldMetadata)
+	}
 	return fields
 }
 
@@ -2378,6 +2432,8 @@ func (m *PostMutation) Field(name string) (ent.Value, bool) {
 		return m.IsModerated()
 	case post.FieldEntityVector:
 		return m.EntityVector()
+	case post.FieldMetadata:
+		return m.Metadata()
 	}
 	return nil, false
 }
@@ -2411,6 +2467,8 @@ func (m *PostMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldIsModerated(ctx)
 	case post.FieldEntityVector:
 		return m.OldEntityVector(ctx)
+	case post.FieldMetadata:
+		return m.OldMetadata(ctx)
 	}
 	return nil, fmt.Errorf("unknown Post field %s", name)
 }
@@ -2504,6 +2562,13 @@ func (m *PostMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetEntityVector(v)
 		return nil
+	case post.FieldMetadata:
+		v, ok := value.(extramodel.PostMetadata)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMetadata(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Post field %s", name)
 }
@@ -2549,6 +2614,9 @@ func (m *PostMutation) ClearedFields() []string {
 	if m.FieldCleared(post.FieldEntityVector) {
 		fields = append(fields, post.FieldEntityVector)
 	}
+	if m.FieldCleared(post.FieldMetadata) {
+		fields = append(fields, post.FieldMetadata)
+	}
 	return fields
 }
 
@@ -2577,6 +2645,9 @@ func (m *PostMutation) ClearField(name string) error {
 		return nil
 	case post.FieldEntityVector:
 		m.ClearEntityVector()
+		return nil
+	case post.FieldMetadata:
+		m.ClearMetadata()
 		return nil
 	}
 	return fmt.Errorf("unknown Post nullable field %s", name)
@@ -2621,6 +2692,9 @@ func (m *PostMutation) ResetField(name string) error {
 		return nil
 	case post.FieldEntityVector:
 		m.ResetEntityVector()
+		return nil
+	case post.FieldMetadata:
+		m.ResetMetadata()
 		return nil
 	}
 	return fmt.Errorf("unknown Post field %s", name)

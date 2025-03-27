@@ -87,6 +87,7 @@ var (
 		{Name: "moderation_comment", Type: field.TypeString, Nullable: true},
 		{Name: "is_moderated", Type: field.TypeBool, Default: false},
 		{Name: "entity_vector", Type: field.TypeString, Nullable: true, Size: 2147483647, Default: "", SchemaType: map[string]string{"postgres": "tsvector"}},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true, SchemaType: map[string]string{"postgres": "jsonb"}},
 		{Name: "owner_id", Type: field.TypeUUID},
 	}
 	// PostsTable holds the schema information for the "posts" table.
@@ -97,7 +98,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "posts_users_published_posts",
-				Columns:    []*schema.Column{PostsColumns[12]},
+				Columns:    []*schema.Column{PostsColumns[13]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -106,7 +107,7 @@ var (
 			{
 				Name:    "post_owner_id",
 				Unique:  false,
-				Columns: []*schema.Column{PostsColumns[12]},
+				Columns: []*schema.Column{PostsColumns[13]},
 				Annotation: &entsql.IndexAnnotation{
 					Where: "(deleted_at IS NULL)",
 				},

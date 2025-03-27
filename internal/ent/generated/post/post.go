@@ -40,6 +40,8 @@ const (
 	FieldIsModerated = "is_moderated"
 	// FieldEntityVector holds the string denoting the entity_vector field in the database.
 	FieldEntityVector = "entity_vector"
+	// FieldMetadata holds the string denoting the metadata field in the database.
+	FieldMetadata = "metadata"
 	// EdgeOwner holds the string denoting the owner edge name in mutations.
 	EdgeOwner = "owner"
 	// EdgeComments holds the string denoting the comments edge name in mutations.
@@ -100,6 +102,7 @@ var Columns = []string{
 	FieldModerationComment,
 	FieldIsModerated,
 	FieldEntityVector,
+	FieldMetadata,
 }
 
 var (

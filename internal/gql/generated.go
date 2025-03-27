@@ -20,6 +20,7 @@ import (
 	"github.com/caliecode/la-clipasa/internal/ent/generated/postcategory"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
 	"github.com/caliecode/la-clipasa/internal/ent/schema/uuidgql"
+	"github.com/caliecode/la-clipasa/internal/gql/extramodel"
 	"github.com/caliecode/la-clipasa/internal/gql/model"
 	"github.com/google/uuid"
 	gqlparser "github.com/vektah/gqlparser/v2"
@@ -182,6 +183,7 @@ type ComplexityRoot struct {
 		IsModerated       func(childComplexity int) int
 		LikedBy           func(childComplexity int, after *entgql.Cursor[uuid.UUID], first *int, before *entgql.Cursor[uuid.UUID], last *int, orderBy *generated.UserOrder, where *generated.UserWhereInput) int
 		Link              func(childComplexity int) int
+		Metadata          func(childComplexity int) int
 		ModerationComment func(childComplexity int) int
 		NodeID            func(childComplexity int) int
 		Owner             func(childComplexity int) int
@@ -248,6 +250,11 @@ type ComplexityRoot struct {
 	PostEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	PostMetadata struct {
+		Service func(childComplexity int) int
+		Version func(childComplexity int) int
 	}
 
 	PostUpdatePayload struct {
@@ -1087,6 +1094,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Post.Link(childComplexity), true
 
+	case "Post.metadata":
+		if e.complexity.Post.Metadata == nil {
+			break
+		}
+
+		return e.complexity.Post.Metadata(childComplexity), true
+
 	case "Post.moderationComment":
 		if e.complexity.Post.ModerationComment == nil {
 			break
@@ -1296,6 +1310,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.PostEdge.Node(childComplexity), true
+
+	case "PostMetadata.service":
+		if e.complexity.PostMetadata.Service == nil {
+			break
+		}
+
+		return e.complexity.PostMetadata.Service(childComplexity), true
+
+	case "PostMetadata.version":
+		if e.complexity.PostMetadata.Version == nil {
+			break
+		}
+
+		return e.complexity.PostMetadata.Version(childComplexity), true
 
 	case "PostUpdatePayload.post":
 		if e.complexity.PostUpdatePayload.Post == nil {
@@ -5431,6 +5459,8 @@ func (ec *executionContext) fieldContext_Comment_post(_ context.Context, field g
 				return ec.fieldContext_Post_isModerated(ctx, field)
 			case "entityVector":
 				return ec.fieldContext_Post_entityVector(ctx, field)
+			case "metadata":
+				return ec.fieldContext_Post_metadata(ctx, field)
 			case "owner":
 				return ec.fieldContext_Post_owner(ctx, field)
 			case "comments":
@@ -8264,6 +8294,53 @@ func (ec *executionContext) fieldContext_Post_entityVector(_ context.Context, fi
 	return fc, nil
 }
 
+func (ec *executionContext) _Post_metadata(ctx context.Context, field graphql.CollectedField, obj *generated.Post) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Post_metadata(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Metadata, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(extramodel.PostMetadata)
+	fc.Result = res
+	return ec.marshalOPostMetadata2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋextramodelᚐPostMetadata(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Post_metadata(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Post",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "version":
+				return ec.fieldContext_PostMetadata_version(ctx, field)
+			case "service":
+				return ec.fieldContext_PostMetadata_service(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PostMetadata", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Post_owner(ctx context.Context, field graphql.CollectedField, obj *generated.Post) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Post_owner(ctx, field)
 	if err != nil {
@@ -8756,6 +8833,8 @@ func (ec *executionContext) fieldContext_PostBulkCreatePayload_posts(_ context.C
 				return ec.fieldContext_Post_isModerated(ctx, field)
 			case "entityVector":
 				return ec.fieldContext_Post_entityVector(ctx, field)
+			case "metadata":
+				return ec.fieldContext_Post_metadata(ctx, field)
 			case "owner":
 				return ec.fieldContext_Post_owner(ctx, field)
 			case "comments":
@@ -9013,6 +9092,8 @@ func (ec *executionContext) fieldContext_PostCategory_post(_ context.Context, fi
 				return ec.fieldContext_Post_isModerated(ctx, field)
 			case "entityVector":
 				return ec.fieldContext_Post_entityVector(ctx, field)
+			case "metadata":
+				return ec.fieldContext_Post_metadata(ctx, field)
 			case "owner":
 				return ec.fieldContext_Post_owner(ctx, field)
 			case "comments":
@@ -9693,6 +9774,8 @@ func (ec *executionContext) fieldContext_PostCreatePayload_post(_ context.Contex
 				return ec.fieldContext_Post_isModerated(ctx, field)
 			case "entityVector":
 				return ec.fieldContext_Post_entityVector(ctx, field)
+			case "metadata":
+				return ec.fieldContext_Post_metadata(ctx, field)
 			case "owner":
 				return ec.fieldContext_Post_owner(ctx, field)
 			case "comments":
@@ -9818,6 +9901,8 @@ func (ec *executionContext) fieldContext_PostEdge_node(_ context.Context, field 
 				return ec.fieldContext_Post_isModerated(ctx, field)
 			case "entityVector":
 				return ec.fieldContext_Post_entityVector(ctx, field)
+			case "metadata":
+				return ec.fieldContext_Post_metadata(ctx, field)
 			case "owner":
 				return ec.fieldContext_Post_owner(ctx, field)
 			case "comments":
@@ -9878,6 +9963,91 @@ func (ec *executionContext) fieldContext_PostEdge_cursor(_ context.Context, fiel
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Cursor does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostMetadata_version(ctx context.Context, field graphql.CollectedField, obj *extramodel.PostMetadata) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PostMetadata_version(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Version, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PostMetadata_version(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostMetadata",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostMetadata_service(ctx context.Context, field graphql.CollectedField, obj *extramodel.PostMetadata) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PostMetadata_service(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Service, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*extramodel.PostService)
+	fc.Result = res
+	return ec.marshalOPostService2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋextramodelᚐPostService(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PostMetadata_service(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostMetadata",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type PostService does not have child fields")
 		},
 	}
 	return fc, nil
@@ -9946,6 +10116,8 @@ func (ec *executionContext) fieldContext_PostUpdatePayload_post(_ context.Contex
 				return ec.fieldContext_Post_isModerated(ctx, field)
 			case "entityVector":
 				return ec.fieldContext_Post_entityVector(ctx, field)
+			case "metadata":
+				return ec.fieldContext_Post_metadata(ctx, field)
 			case "owner":
 				return ec.fieldContext_Post_owner(ctx, field)
 			case "comments":
@@ -10650,6 +10822,8 @@ func (ec *executionContext) fieldContext_Query_post(ctx context.Context, field g
 				return ec.fieldContext_Post_isModerated(ctx, field)
 			case "entityVector":
 				return ec.fieldContext_Post_entityVector(ctx, field)
+			case "metadata":
+				return ec.fieldContext_Post_metadata(ctx, field)
 			case "owner":
 				return ec.fieldContext_Post_owner(ctx, field)
 			case "comments":
@@ -11985,6 +12159,8 @@ func (ec *executionContext) fieldContext_User_savedPosts(_ context.Context, fiel
 				return ec.fieldContext_Post_isModerated(ctx, field)
 			case "entityVector":
 				return ec.fieldContext_Post_entityVector(ctx, field)
+			case "metadata":
+				return ec.fieldContext_Post_metadata(ctx, field)
 			case "owner":
 				return ec.fieldContext_Post_owner(ctx, field)
 			case "comments":
@@ -12066,6 +12242,8 @@ func (ec *executionContext) fieldContext_User_likedPosts(_ context.Context, fiel
 				return ec.fieldContext_Post_isModerated(ctx, field)
 			case "entityVector":
 				return ec.fieldContext_Post_entityVector(ctx, field)
+			case "metadata":
+				return ec.fieldContext_Post_metadata(ctx, field)
 			case "owner":
 				return ec.fieldContext_Post_owner(ctx, field)
 			case "comments":
@@ -12147,6 +12325,8 @@ func (ec *executionContext) fieldContext_User_publishedPosts(_ context.Context, 
 				return ec.fieldContext_Post_isModerated(ctx, field)
 			case "entityVector":
 				return ec.fieldContext_Post_entityVector(ctx, field)
+			case "metadata":
+				return ec.fieldContext_Post_metadata(ctx, field)
 			case "owner":
 				return ec.fieldContext_Post_owner(ctx, field)
 			case "comments":
@@ -20509,6 +20689,8 @@ func (ec *executionContext) _Post(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "entityVector":
 			out.Values[i] = ec._Post_entityVector(ctx, field, obj)
+		case "metadata":
+			out.Values[i] = ec._Post_metadata(ctx, field, obj)
 		case "owner":
 			field := field
 
@@ -21283,6 +21465,47 @@ func (ec *executionContext) _PostEdge(ctx context.Context, sel ast.SelectionSet,
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var postMetadataImplementors = []string{"PostMetadata"}
+
+func (ec *executionContext) _PostMetadata(ctx context.Context, sel ast.SelectionSet, obj *extramodel.PostMetadata) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postMetadataImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PostMetadata")
+		case "version":
+			out.Values[i] = ec._PostMetadata_version(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "service":
+			out.Values[i] = ec._PostMetadata_service(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -24659,12 +24882,32 @@ func (ec *executionContext) marshalOPostEdge2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑ
 	return ec._PostEdge(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalOPostMetadata2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋextramodelᚐPostMetadata(ctx context.Context, sel ast.SelectionSet, v extramodel.PostMetadata) graphql.Marshaler {
+	return ec._PostMetadata(ctx, sel, &v)
+}
+
 func (ec *executionContext) unmarshalOPostOrder2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐPostOrder(ctx context.Context, v any) (*generated.PostOrder, error) {
 	if v == nil {
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputPostOrder(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOPostService2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋextramodelᚐPostService(ctx context.Context, v any) (*extramodel.PostService, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(extramodel.PostService)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOPostService2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋextramodelᚐPostService(ctx context.Context, sel ast.SelectionSet, v *extramodel.PostService) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) unmarshalOPostWhereInput2ᚕᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐPostWhereInputᚄ(ctx context.Context, v any) ([]*generated.PostWhereInput, error) {

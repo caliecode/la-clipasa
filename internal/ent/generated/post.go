@@ -3,6 +3,7 @@
 package generated
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -11,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/post"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
+	"github.com/caliecode/la-clipasa/internal/gql/extramodel"
 	"github.com/google/uuid"
 )
 
@@ -43,6 +45,8 @@ type Post struct {
 	IsModerated bool `json:"is_moderated,omitempty"`
 	// EntityVector holds the value of the "entity_vector" field.
 	EntityVector string `json:"entity_vector,omitempty"`
+	// Metadata holds the value of the "metadata" field.
+	Metadata extramodel.PostMetadata `json:"metadata,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PostQuery when eager-loading is set.
 	Edges        PostEdges `json:"edges"`
@@ -125,6 +129,8 @@ func (*Post) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case post.FieldMetadata:
+			values[i] = new([]byte)
 		case post.FieldPinned, post.FieldIsModerated:
 			values[i] = new(sql.NullBool)
 		case post.FieldDeletedBy, post.FieldTitle, post.FieldContent, post.FieldLink, post.FieldModerationComment, post.FieldEntityVector:
@@ -227,6 +233,14 @@ func (po *Post) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				po.EntityVector = value.String
 			}
+		case post.FieldMetadata:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field metadata", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &po.Metadata); err != nil {
+					return fmt.Errorf("unmarshal field metadata: %w", err)
+				}
+			}
 		default:
 			po.selectValues.Set(columns[i], values[i])
 		}
@@ -325,6 +339,9 @@ func (po *Post) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("entity_vector=")
 	builder.WriteString(po.EntityVector)
+	builder.WriteString(", ")
+	builder.WriteString("metadata=")
+	builder.WriteString(fmt.Sprintf("%v", po.Metadata))
 	builder.WriteByte(')')
 	return builder.String()
 }

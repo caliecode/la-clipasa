@@ -14,6 +14,7 @@ import (
 	"github.com/caliecode/la-clipasa/internal/ent/generated/post"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/postcategory"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
+	"github.com/caliecode/la-clipasa/internal/gql/extramodel"
 	"github.com/google/uuid"
 )
 
@@ -164,6 +165,20 @@ func (pc *PostCreate) SetEntityVector(s string) *PostCreate {
 func (pc *PostCreate) SetNillableEntityVector(s *string) *PostCreate {
 	if s != nil {
 		pc.SetEntityVector(*s)
+	}
+	return pc
+}
+
+// SetMetadata sets the "metadata" field.
+func (pc *PostCreate) SetMetadata(em extramodel.PostMetadata) *PostCreate {
+	pc.mutation.SetMetadata(em)
+	return pc
+}
+
+// SetNillableMetadata sets the "metadata" field if the given value is not nil.
+func (pc *PostCreate) SetNillableMetadata(em *extramodel.PostMetadata) *PostCreate {
+	if em != nil {
+		pc.SetMetadata(*em)
 	}
 	return pc
 }
@@ -429,6 +444,10 @@ func (pc *PostCreate) createSpec() (*Post, *sqlgraph.CreateSpec) {
 	if value, ok := pc.mutation.EntityVector(); ok {
 		_spec.SetField(post.FieldEntityVector, field.TypeString, value)
 		_node.EntityVector = value
+	}
+	if value, ok := pc.mutation.Metadata(); ok {
+		_spec.SetField(post.FieldMetadata, field.TypeJSON, value)
+		_node.Metadata = value
 	}
 	if nodes := pc.mutation.OwnerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

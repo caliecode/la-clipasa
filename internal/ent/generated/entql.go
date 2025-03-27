@@ -79,6 +79,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			post.FieldModerationComment: {Type: field.TypeString, Column: post.FieldModerationComment},
 			post.FieldIsModerated:       {Type: field.TypeBool, Column: post.FieldIsModerated},
 			post.FieldEntityVector:      {Type: field.TypeString, Column: post.FieldEntityVector},
+			post.FieldMetadata:          {Type: field.TypeJSON, Column: post.FieldMetadata},
 		},
 	}
 	graph.Nodes[3] = &sqlgraph.Node{
@@ -575,6 +576,11 @@ func (f *PostFilter) WhereIsModerated(p entql.BoolP) {
 // WhereEntityVector applies the entql string predicate on the entity_vector field.
 func (f *PostFilter) WhereEntityVector(p entql.StringP) {
 	f.Where(p.Field(post.FieldEntityVector))
+}
+
+// WhereMetadata applies the entql json.RawMessage predicate on the metadata field.
+func (f *PostFilter) WhereMetadata(p entql.BytesP) {
+	f.Where(p.Field(post.FieldMetadata))
 }
 
 // WhereHasOwner applies a predicate to check if query has an edge owner.

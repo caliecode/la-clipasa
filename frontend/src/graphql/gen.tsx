@@ -611,6 +611,7 @@ export type Post = Node & {
   isModerated: Scalars['Boolean']['output']
   likedBy: UserConnection
   link: Scalars['String']['output']
+  metadata?: Maybe<PostMetadata>
   moderationComment?: Maybe<Scalars['String']['output']>
   nodeId: Scalars['String']['output']
   owner: User
@@ -807,6 +808,14 @@ export type PostEdge = {
   node?: Maybe<Post>
 }
 
+export type PostMetadata = {
+  __typename?: 'PostMetadata'
+  /** Service represents the provider of the Post link. */
+  service?: Maybe<PostService>
+  /** Version is the version of the Post metadata. */
+  version: Scalars['Int']['output']
+}
+
 /** Ordering options for Post connections */
 export type PostOrder = {
   /** The ordering direction. */
@@ -817,6 +826,8 @@ export type PostOrder = {
 
 /** Properties by which Post connections can be ordered. */
 export type PostOrderField = 'COMMENTS_COUNT' | 'CREATED_AT' | 'ID' | 'LIKED_BY_COUNT' | 'UPDATED_AT'
+
+export type PostService = 'DISCORD'
 
 /** Return response for updatePost mutation */
 export type PostUpdatePayload = {

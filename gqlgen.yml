@@ -22,6 +22,7 @@ struct_tag: json
 # so that we may use ent models in generated resolver interfaces instead of having a duplicate in gqlgen models
 autobind:
   # Fix binding for the `Field` interface.
+  - github.com/caliecode/la-clipasa/internal/gql/extramodel
   - github.com/99designs/gqlgen/graphql/introspection
   - github.com/caliecode/la-clipasa/internal/ent/generated
   - github.com/caliecode/la-clipasa/internal/gql

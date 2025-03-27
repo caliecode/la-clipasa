@@ -16,6 +16,7 @@ import (
 	"github.com/caliecode/la-clipasa/internal/ent/generated/postcategory"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/predicate"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
+	"github.com/caliecode/la-clipasa/internal/gql/extramodel"
 	"github.com/google/uuid"
 )
 
@@ -186,6 +187,26 @@ func (pu *PostUpdate) SetNillableIsModerated(b *bool) *PostUpdate {
 	if b != nil {
 		pu.SetIsModerated(*b)
 	}
+	return pu
+}
+
+// SetMetadata sets the "metadata" field.
+func (pu *PostUpdate) SetMetadata(em extramodel.PostMetadata) *PostUpdate {
+	pu.mutation.SetMetadata(em)
+	return pu
+}
+
+// SetNillableMetadata sets the "metadata" field if the given value is not nil.
+func (pu *PostUpdate) SetNillableMetadata(em *extramodel.PostMetadata) *PostUpdate {
+	if em != nil {
+		pu.SetMetadata(*em)
+	}
+	return pu
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (pu *PostUpdate) ClearMetadata() *PostUpdate {
+	pu.mutation.ClearMetadata()
 	return pu
 }
 
@@ -463,6 +484,12 @@ func (pu *PostUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if pu.mutation.EntityVectorCleared() {
 		_spec.ClearField(post.FieldEntityVector, field.TypeString)
+	}
+	if value, ok := pu.mutation.Metadata(); ok {
+		_spec.SetField(post.FieldMetadata, field.TypeJSON, value)
+	}
+	if pu.mutation.MetadataCleared() {
+		_spec.ClearField(post.FieldMetadata, field.TypeJSON)
 	}
 	if pu.mutation.OwnerCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -851,6 +878,26 @@ func (puo *PostUpdateOne) SetNillableIsModerated(b *bool) *PostUpdateOne {
 	return puo
 }
 
+// SetMetadata sets the "metadata" field.
+func (puo *PostUpdateOne) SetMetadata(em extramodel.PostMetadata) *PostUpdateOne {
+	puo.mutation.SetMetadata(em)
+	return puo
+}
+
+// SetNillableMetadata sets the "metadata" field if the given value is not nil.
+func (puo *PostUpdateOne) SetNillableMetadata(em *extramodel.PostMetadata) *PostUpdateOne {
+	if em != nil {
+		puo.SetMetadata(*em)
+	}
+	return puo
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (puo *PostUpdateOne) ClearMetadata() *PostUpdateOne {
+	puo.mutation.ClearMetadata()
+	return puo
+}
+
 // SetOwner sets the "owner" edge to the User entity.
 func (puo *PostUpdateOne) SetOwner(u *User) *PostUpdateOne {
 	return puo.SetOwnerID(u.ID)
@@ -1155,6 +1202,12 @@ func (puo *PostUpdateOne) sqlSave(ctx context.Context) (_node *Post, err error) 
 	}
 	if puo.mutation.EntityVectorCleared() {
 		_spec.ClearField(post.FieldEntityVector, field.TypeString)
+	}
+	if value, ok := puo.mutation.Metadata(); ok {
+		_spec.SetField(post.FieldMetadata, field.TypeJSON, value)
+	}
+	if puo.mutation.MetadataCleared() {
+		_spec.ClearField(post.FieldMetadata, field.TypeJSON)
 	}
 	if puo.mutation.OwnerCleared() {
 		edge := &sqlgraph.EdgeSpec{

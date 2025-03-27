@@ -167,7 +167,7 @@ func (po *Post) Node(ctx context.Context) (node *Node, err error) {
 	node = &Node{
 		ID:     po.ID,
 		Type:   "Post",
-		Fields: make([]*Field, 11),
+		Fields: make([]*Field, 12),
 		Edges:  make([]*Edge, 5),
 	}
 	var buf []byte
@@ -257,6 +257,14 @@ func (po *Post) Node(ctx context.Context) (node *Node, err error) {
 	node.Fields[10] = &Field{
 		Type:  "string",
 		Name:  "entity_vector",
+		Value: string(buf),
+	}
+	if buf, err = json.Marshal(po.Metadata); err != nil {
+		return nil, err
+	}
+	node.Fields[11] = &Field{
+		Type:  "extramodel.PostMetadata",
+		Name:  "metadata",
 		Value: string(buf),
 	}
 	node.Edges[0] = &Edge{

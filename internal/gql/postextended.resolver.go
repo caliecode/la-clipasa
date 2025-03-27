@@ -8,6 +8,7 @@ import (
 	"github.com/caliecode/la-clipasa/internal/ent/generated"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/post"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/privacy"
+	"github.com/caliecode/la-clipasa/internal/gql/extramodel"
 	"github.com/caliecode/la-clipasa/internal/gql/model"
 	"github.com/caliecode/la-clipasa/internal/utils/pointers"
 	"github.com/google/uuid"
@@ -15,6 +16,7 @@ import (
 
 // CreatePostWithCategories is the resolver for the createPostWithCategories field.
 func (r *mutationResolver) CreatePostWithCategories(ctx context.Context, input model.CreatePostWithCategoriesInput) (*model.PostCreatePayload, error) {
+	metadata := newPostMetadata()
 	if input.Video != nil {
 		video, err := r.discord.UploadFile(ctx, *input.Video)
 		if err != nil {
@@ -22,11 +24,20 @@ func (r *mutationResolver) CreatePostWithCategories(ctx context.Context, input m
 		}
 
 		input.Base.Link = video.Attachments[0].URL
+
+		metadata.Service = pointers.New(extramodel.PostServiceDiscord)
+		metadata.DiscordVideo = &extramodel.DiscordVideoMetadata{
+			ID: video.Attachments[0].ID,
+		}
 	}
 
 	postPayload, err := r.CreatePost(ctx, *input.Base)
 	if err != nil {
 		return nil, parseRequestError(err, action{action: ActionCreate, object: "post"})
+	}
+
+	if metadata.Service != nil {
+		r.ent.Post.UpdateOneID(postPayload.Post.ID).SetMetadata(*metadata).Exec(ctx)
 	}
 
 	if len(input.Categories) > 0 {
