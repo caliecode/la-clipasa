@@ -22,5 +22,16 @@
         "-env=.env.dev"
       ]
     },
+    {
+      "name": "db.initial-data",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "cwd": ".",
+      "program": "cmd/initial-data/main.go",
+      "args": [
+        "-env=.env.dev"
+      ]
+    },
   ]
 }
