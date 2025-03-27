@@ -146,17 +146,7 @@ export const PostPage = () => {
       </Group>
       <Space h="xl" />
 
-      {/* TODO: dummy subreddit for uploads, in case its easier for some instead of uploading to yt, etc. */}
-      <iframe
-        id="reddit-embed"
-        src="https://www.redditmedia.com/r/Caliebre/comments/1hqi2td/que_buen_truco/?ref\_source=embed\&amp;ref=share\&amp;embed=true"
-        sandbox="allow-scripts allow-same-origin allow-popups"
-        height="600px"
-        width="100%"
-        style={{ borderRadius: 10, border: 'none' }}
-      ></iframe>
-      {/* TODO: discord upload */}
-      {/* <PostEmbed inline /> */}
+      <PostEmbed inline />
     </Container>
   )
 }

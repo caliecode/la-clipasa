@@ -33,6 +33,8 @@ import { apiPath } from 'src/services/apiPaths'
 import { CreatePostInput, CreatePostWithCategoriesInput, useCreatePostMutation } from 'src/graphql/gen'
 import { uiPath } from 'src/ui-paths'
 import { extractGqlErrors } from 'src/utils/errors'
+import { IconAlertTriangle, IconCircleCheck } from '@tabler/icons'
+import { getServiceAndId } from 'src/services/linkServices'
 
 type CreatePostModalProps = {
   opened: boolean
@@ -110,6 +112,11 @@ export default function CreatePostModal({ opened, onClose }: CreatePostModalProp
     }
   })
 
+  const unknownLinkService =
+    postCreateForm.values?.base?.link &&
+    getServiceAndId(postCreateForm.values?.base?.link).service === 'unknown' &&
+    videoFile === null
+
   return (
     <Modal
       opened={opened}
@@ -171,10 +178,27 @@ export default function CreatePostModal({ opened, onClose }: CreatePostModalProp
             ></div>
           </Popover.Dropdown>
         </Popover>
-        <TextInput withAsterisk label="Link" {...postCreateForm.getInputProps('base.link')} />
+        <TextInput
+          withAsterisk
+          rightSectionPointerEvents="all"
+          rightSection={
+            unknownLinkService ? (
+              <IconAlertTriangle size={16} color="var(--mantine-color-red-5)" />
+            ) : (
+              <IconCircleCheck size={16} color="var(--mantine-color-green-6)" />
+            )
+          }
+          label="Link"
+          {...postCreateForm.getInputProps('base.link')}
+        />
+        {unknownLinkService && (
+          <Text size="xs" opacity={0.6} c="var(--mantine-color-red-5)">
+            WARNING: unrecognized service. Embeds will not work
+          </Text>
+        )}
         <TextInput label="Content" {...postCreateForm.getInputProps('base.content')} />
         <Text size="xs" opacity={0.6}>
-          Leave message empty to show link by default.
+          Optional: add a message
         </Text>
         <CategoriesSelect
           {...postCreateForm.getInputProps('categories')}
