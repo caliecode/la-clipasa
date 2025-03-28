@@ -3,6 +3,7 @@ import { usePostContext } from '../Post.context'
 import { getServiceAndId } from 'src/services/linkServices'
 import styles from '../Post.module.css'
 import { useMantineColorScheme } from '@mantine/core'
+import { useMemo } from 'react'
 interface PostEmbedProps {
   inline?: boolean
 }
@@ -15,7 +16,7 @@ export const PostEmbed = ({ inline = false }: PostEmbedProps) => {
     ? { maxWidth: '100%', height: '20vh' }
     : { overflow: 'scroll', maxWidth: '50vw' }
 
-  const Embed = () => {
+  const Embed = useMemo(() => {
     switch (service) {
       case 'instagram':
         return <InstagramEmbed url={post.link} width="100%" />
@@ -49,11 +50,7 @@ export const PostEmbed = ({ inline = false }: PostEmbedProps) => {
       default:
         return null
     }
-  }
+  }, [post.link, service])
 
-  return (
-    <div style={embedStyle}>
-      <Embed />
-    </div>
-  )
+  return <div style={embedStyle}>{Embed}</div>
 }
