@@ -56,6 +56,7 @@ export const PostPage = () => {
       window.history.pushState(null, '', withBaseURL(uiPath('/post/:postId', { postId: post.id })))
     }
 
+    // https://discord.com/developers/docs/reference#signed-attachment-cdn-urls
     if (post?.id) refreshLink()
   }, [post, refreshState.fetching, refreshed, setPost, setCalloutErrors, refreshDiscordLink])
 
