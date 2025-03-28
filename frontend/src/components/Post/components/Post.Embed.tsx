@@ -31,7 +31,7 @@ export const PostEmbed = ({ inline = false }: PostEmbedProps) => {
             src={post.link}
             controls
             width="100%"
-            style={{ borderRadius: 10, border: 'none' }}
+            style={{ borderRadius: 10, border: 'none', maxHeight: '60vh' }}
           ></video>
         )
       case 'reddit':
