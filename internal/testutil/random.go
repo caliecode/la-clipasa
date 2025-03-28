@@ -4,51 +4,49 @@ import (
 	"fmt"
 	"math/rand"
 	"strings"
-	"sync"
+	"sync/atomic"
 	"time"
 )
 
 var (
-	seed    int64      = time.Now().UnixNano() // Default to a random seed
-	r       *rand.Rand = rand.New(rand.NewSource(seed))
-	randMux sync.Mutex // Mutex to protect access to the global random generator
+	seed    int64 = time.Now().UnixNano()
+	counter int64 = 0
 )
 
 // SetSeed sets the seed for the random number generator.
 func SetSeed(s int64) {
-	randMux.Lock()
-	defer randMux.Unlock()
-	seed = s
-	r = rand.New(rand.NewSource(seed))
+	atomic.StoreInt64(&seed, s)
+	atomic.StoreInt64(&counter, 0)
 }
 
 const alphabet = "abcdefghijklmnopqrstuvwxyz"
 
+func getUniqueSource() *rand.Rand {
+	currentCounter := atomic.AddInt64(&counter, 1)
+	return rand.New(rand.NewSource(seed + currentCounter))
+}
+
 // RandomInt64 generates a random int64 between min and max.
 func RandomInt64(mi, ma int64) int64 {
-	randMux.Lock()
-	defer randMux.Unlock()
+	r := getUniqueSource()
 	return mi + r.Int63n(ma-mi+1)
 }
 
 // RandomInt generates a random int between min and max.
 func RandomInt(mi, ma int) int {
-	randMux.Lock()
-	defer randMux.Unlock()
+	r := getUniqueSource()
 	return mi + r.Intn(ma-mi+1)
 }
 
 // RandomHEXColor generates a random color in hexadecimal format (#RRGGBB).
 func RandomHEXColor() string {
-	randMux.Lock()
-	defer randMux.Unlock()
+	r := getUniqueSource()
 	return fmt.Sprintf("#%02X%02X%02X", r.Intn(256), r.Intn(256), r.Intn(256))
 }
 
 // RandomBool generates a random boolean.
 func RandomBool() bool {
-	randMux.Lock()
-	defer randMux.Unlock()
+	r := getUniqueSource()
 	return []bool{true, false}[r.Intn(2)]
 }
 
@@ -76,9 +74,7 @@ func RandomLocalDate() time.Time {
 
 // RandomString generates a random string of length n.
 func RandomString(n int) string {
-	randMux.Lock()
-	defer randMux.Unlock()
-
+	r := getUniqueSource()
 	var sb strings.Builder
 	k := len(alphabet)
 
@@ -102,33 +98,28 @@ func RandomMoney() int64 {
 
 // RandomFirstName generates a random first name.
 func RandomFirstName() string {
-	randMux.Lock()
-	defer randMux.Unlock()
+	r := getUniqueSource()
 	return firstNames[r.Intn(len(firstNames))]
 }
 
 // RandomLastName generates a random last name.
 func RandomLastName() string {
-	randMux.Lock()
-	defer randMux.Unlock()
+	r := getUniqueSource()
 	return lastNames[r.Intn(len(lastNames))]
 }
 
 // RandomFrom selects a random item from a list. Assumes the list is not empty.
 func RandomFrom[T any](items []T) T {
-	randMux.Lock()
-	defer randMux.Unlock()
+	r := getUniqueSource()
 	index := r.Intn(len(items))
 	return items[index]
 }
 
 // RandomNFrom selects n random items from a list. Assumes the list is not empty.
 func RandomNFrom[T any](items []T, mi int, ma int) []T {
+	r := getUniqueSource()
 	count := RandomInt(mi, ma)
 	var ss []T
-
-	randMux.Lock()
-	defer randMux.Unlock()
 
 	for i := 0; i < count; i++ {
 		ss = append(ss, items[r.Intn(len(items))])
@@ -145,11 +136,10 @@ func RandomEmail() string {
 // such as eminently-sincere-mollusk-aksticpemgicjrtb.
 // Prefix count is configurable via n.
 func RandomNameIdentifier(n int, sep string) string {
-	randMux.Lock()
+	r := getUniqueSource()
 	adv := adverbs[r.Intn(len(adverbs))]
 	adj := adjectives[r.Intn(len(adjectives))]
 	nam := names[r.Intn(len(names))]
-	randMux.Unlock()
 
 	var ss []string
 	switch n {
@@ -172,9 +162,7 @@ func RandomLink() string {
 
 // RandomLoremIpsum generates a random Lorem Ipsum paragraph.
 func RandomLoremIpsum(mi, ma int) string {
-	randMux.Lock()
-	defer randMux.Unlock()
-
+	r := getUniqueSource()
 	var ss []string
 	for range RandomInt(mi, ma) {
 		ss = append(ss, loremIpsum[r.Intn(len(loremIpsum))])

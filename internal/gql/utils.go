@@ -14,5 +14,6 @@ var mutuallyExclCats = map[postcategory.Category]bool{
 func newPostMetadata() *extramodel.PostMetadata {
 	return &extramodel.PostMetadata{
 		Version: 1,
+		Service: extramodel.PostServiceUnknown,
 	}
 }

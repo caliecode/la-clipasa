@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"time"
 
+	"github.com/caliecode/la-clipasa/internal/client"
 	"github.com/caliecode/la-clipasa/internal/ent/generated"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/post"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/privacy"
@@ -25,9 +27,14 @@ func (r *mutationResolver) CreatePostWithCategories(ctx context.Context, input m
 
 		input.Base.Link = video.Attachments[0].URL
 
-		metadata.Service = pointers.New(extramodel.PostServiceDiscord)
+		exp, err := client.ParseDiscordExpirationTime(video.Attachments[0].URL)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse discord CDN link expiration time: %w", err)
+		}
+		metadata.Service = extramodel.PostServiceDiscord
 		metadata.DiscordVideo = &extramodel.DiscordVideoMetadata{
-			ID: video.Attachments[0].ID,
+			ID:         video.ID,
+			Expiration: *exp,
 		}
 	}
 
@@ -36,7 +43,7 @@ func (r *mutationResolver) CreatePostWithCategories(ctx context.Context, input m
 		return nil, parseRequestError(err, action{action: ActionCreate, object: "post"})
 	}
 
-	if metadata.Service != nil {
+	if metadata.Service != "" {
 		r.ent.Post.UpdateOneID(postPayload.Post.ID).SetMetadata(*metadata).Exec(ctx)
 	}
 
@@ -71,6 +78,31 @@ func (r *mutationResolver) RestorePost(ctx context.Context, id uuid.UUID) (*bool
 	}
 
 	return pointers.New(true), nil
+}
+
+// RefreshDiscordLink is the resolver for the refreshDiscordLink field.
+func (r *mutationResolver) RefreshDiscordLink(ctx context.Context, id uuid.UUID) (*string, error) {
+	p, err := r.ent.Post.Get(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get post: %w", err)
+	}
+	if p.Metadata.Service != extramodel.PostServiceDiscord {
+		return nil, fmt.Errorf("post is not from discord")
+	}
+	if p.Metadata.DiscordVideo.Expiration.After(time.Now().Add(time.Minute)) {
+		return pointers.New(p.Link), nil
+	}
+	res, err := r.discord.RefreshCdnLink(ctx, p.Metadata.DiscordVideo.ID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to refresh discord link: %w", err)
+	}
+	m := p.Metadata
+	m.DiscordVideo.Expiration = res.Expiration
+	_, err = r.ent.Post.UpdateOneID(id).SetLink(res.URL).SetMetadata(m).Save(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update post: %w", err)
+	}
+	return pointers.New(res.URL), nil
 }
 
 // ToHTML is the resolver for the toHTML field.

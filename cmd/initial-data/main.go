@@ -251,10 +251,12 @@ func main() {
 		pp = append(pp, post)
 	}
 
-	// Create additional random data
+	logger.Debugf("Finished loading %d Reddit posts", len(pp))
+
 	for range 200 {
 		uu = append(uu, random.NewUser(ctx))
 	}
+	logger.Debugf("Created %d users", len(uu))
 
 	for range 800 {
 		u := uu[r.Intn(len(uu))]
@@ -266,6 +268,7 @@ func main() {
 			SaveX(ctx)
 		pp = append(pp, p)
 	}
+	logger.Debugf("Created %d posts", len(pp))
 
 	for range 600 {
 		p := pp[r.Intn(len(pp))]

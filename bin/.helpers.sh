@@ -551,7 +551,7 @@ docker.postgres.stop_db_processes() {
     -d "postgres" \
     -c "select pg_terminate_backend(pid) \
         from pg_stat_activity \
-        where datname='$db'" >/dev/null
+        where datname='$db'" &>/dev/null || true
 }
 
 docker.postgres.wait_until_ready() {

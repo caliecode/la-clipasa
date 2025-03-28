@@ -2,6 +2,12 @@ package models
 
 import "time"
 
+type DiscordLinkRefresh struct {
+	ID         string    `json:"id"`
+	Expiration time.Time `json:"expiration"`
+	URL        string    `json:"url"`
+}
+
 type DiscordUploadResponse struct {
 	Type         int           `json:"type"`
 	Content      string        `json:"content"`
