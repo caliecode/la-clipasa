@@ -62,7 +62,7 @@ export const PostPage = () => {
   const { image: categoryImage, color: categoryColor } = useCardBackground(post)
   const cardBackgroundImage = categoryImage || 'auto'
 
-  const isMobile = useMediaQuery('(max-width: 768px)')
+  const isMobile = useMediaQuery('(max-width: 768px)', window.innerWidth < 768)
 
   const swipeStartXRef = useRef(0)
   const swipeCurrentXRef = useRef(0)
@@ -72,12 +72,6 @@ export const PostPage = () => {
   const [swipeIntensity, setSwipeIntensity] = useState(0)
 
   const handleSwipeStart = (e: TouchEvent<HTMLDivElement>) => {
-    const targetElement = e.target as HTMLElement
-    if (targetElement.closest('button, a, input, textarea, select')) {
-      isSwipingRef.current = false
-      return
-    }
-
     swipeStartXRef.current = e.touches[0]!.clientX
     swipeCurrentXRef.current = e.touches[0]!.clientX
     isSwipingRef.current = true
@@ -153,6 +147,7 @@ export const PostPage = () => {
         )}
 
         <Card
+          data-tour={isMobile ? 'swipe-area' : ''}
           radius={isMobile ? 'var(--mantine-radius-md)' : 'none'}
           p="md"
           w="100%"

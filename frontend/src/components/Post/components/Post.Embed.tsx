@@ -10,14 +10,12 @@ interface PostEmbedProps {
 
 export const PostEmbed = ({ inline = false }: PostEmbedProps) => {
   const { post } = usePostContext()
-  const { id, service } = getServiceAndId(post.link)
-  const { colorScheme } = useMantineColorScheme()
   const embedStyle: React.CSSProperties = inline
     ? { minWidth: '100%', height: '20vh' }
     : { overflow: 'scroll', maxWidth: '50vw' }
 
   const Embed = useMemo(() => {
-    switch (service) {
+    switch (getServiceAndId(post.link).service) {
       case 'instagram':
         return <InstagramEmbed url={post.link} width="100%" />
       case 'twitter':
@@ -50,7 +48,7 @@ export const PostEmbed = ({ inline = false }: PostEmbedProps) => {
       default:
         return null
     }
-  }, [post.link, service])
+  }, [post.link])
 
   return <div style={embedStyle}>{Embed}</div>
 }

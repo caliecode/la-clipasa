@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { TourProvider, useTour, StepType } from '@reactour/tour'
-import { Badge, MantineProvider, Portal, Text, useMantineColorScheme } from '@mantine/core'
-
+import { useMantineColorScheme, useMantineTheme } from '@mantine/core'
 import { useLocation } from 'react-router-dom'
+import { parseUrl } from 'src/ui-paths'
+import { useMediaQuery } from '@mantine/hooks'
 
 const borderRadius = 8
 
@@ -11,102 +12,10 @@ type CustomStep = StepType & {
   cleanup: (...args: any) => void
 }
 
-/**
- * alternatives:
- * -  https://github.com/gilbarbara/react-joyride.
- *
- * TODO: conditionally set visibility: hidden
- * on nextButton = document.querySelector('[aria-label="Go to next step"]')
- * until condition is met for step. Then set beacon on top of nextButton or better yet fix bad hook closures.
- */
-export const AppTourProvider = ({ children }) => {
-  const tour = useTour()
-  const [currentStep, setCurrentStep] = useState(0)
+const TourController = () => {
+  const { setSteps, setIsOpen, setCurrentStep, currentStep, isOpen, steps } = useTour()
   const location = useLocation()
-
-  // TODO: switch on app path:
-  useEffect(() => {
-    setCurrentStep(0)
-    if (!tour.setSteps) return
-
-    if (location.pathname === '/page-1') {
-      tour.setSteps([
-        {
-          selector: '[data-tour="step-page"]',
-          content: 'text page',
-        },
-      ])
-    } else if (location.pathname === '/page-2') {
-      tour.setSteps([
-        {
-          selector: '[data-tour="step-page-2"]',
-          content: 'text page 2',
-        },
-        {
-          selector: '[data-tour="step-page-3"]',
-          content: 'text page 3',
-        },
-      ])
-    } else {
-      tour.setSteps(steps)
-    }
-  }, [location.pathname, setCurrentStep, tour.setSteps])
-
-  const steps: CustomStep[] = [
-    {
-      selector: '[data-tour="description-input"]',
-      position: 'right',
-      content: 'Type something',
-      action(elem) {
-        console.log('1- adding event listeners for tour')
-        const input = document.querySelector('[data-tour="description-input"]')
-        console.log(input?.textContent)
-        input?.addEventListener('click', this.eventListener)
-        console.log({ this: this })
-      },
-      eventListener() {
-        incrementStep(steps)
-      },
-      cleanup() {
-        console.log('cleanup for 1')
-        const input = document.querySelector('[data-tour="description-input"]')
-        input?.removeEventListener('click', this.eventListener)
-      },
-    },
-    {
-      selector: '.tour-button-example',
-      position: 'right',
-      content: 'Click button',
-      action(elem) {
-        console.log('2- adding event listeners for tour')
-        const buttonExample = document.querySelector('.tour-button-example')
-        console.log(buttonExample?.textContent)
-        buttonExample?.addEventListener('click', this.eventListener)
-        console.log({ this: this })
-      },
-      eventListener() {
-        incrementStep(steps)
-      },
-      cleanup() {
-        console.log('cleanup for 2')
-        const buttonExample = document.querySelector('.tour-button-example')
-        buttonExample?.removeEventListener('click', this.eventListener)
-      },
-    },
-    {
-      selector: '.tour-button',
-      content: 'This is the second step after clicking',
-      action(elem) {
-        console.log('3 - adding event listeners for tour')
-      },
-      eventListener() {
-        incrementStep(steps)
-      },
-      cleanup() {
-        console.log('cleanup for 3')
-      },
-    },
-  ]
+  const tour = useTour()
 
   function incrementStep(steps: CustomStep[]) {
     if (currentStep === steps.length) {
@@ -117,9 +26,76 @@ export const AppTourProvider = ({ children }) => {
     setCurrentStep((prevStep) => prevStep + 1)
   }
 
+  const postDetailSteps: CustomStep[] = [
+    {
+      selector: '[data-tour="swipe-area"]',
+      content: 'Swipe here to see the next post.',
+      action(elem) {
+        console.log('1- adding event listeners for tour')
+        const input = document.querySelector('[data-tour="swipe-area"]')
+        input?.addEventListener('touchend', this.eventListener)
+      },
+      eventListener(e: TouchEvent) {
+        incrementStep(postDetailSteps)
+      },
+      cleanup() {
+        console.log('cleanup for 1')
+        const input = document.querySelector('[data-tour="swipe-area"]')
+        input?.removeEventListener('touchend', this.eventListener)
+      },
+    },
+  ]
+
+  const isMobile = useMediaQuery('(max-width: 768px)', window.innerWidth < 768)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      let newSteps: StepType[] = []
+      const currentUrl = window.location.href
+      const parsed = parseUrl(currentUrl)
+
+      switch (parsed?.routePattern) {
+        case '/post/:postId':
+          if (isMobile) {
+            newSteps = postDetailSteps
+          }
+          break
+        default:
+          if (isOpen) {
+            setIsOpen(false)
+          }
+          return
+      }
+
+      if (newSteps.length > 0) {
+        const currentSteps = tour.steps
+        if (JSON.stringify(newSteps) !== JSON.stringify(currentSteps)) {
+          setSteps!(newSteps)
+          setCurrentStep(0)
+          setIsOpen(true)
+        } else if (!isOpen) {
+          setIsOpen(true)
+        }
+        return
+      }
+
+      if (isOpen) {
+        setIsOpen(false)
+      }
+    }, 1000)
+
+    return () => clearTimeout(timer)
+  }, [location.pathname, setSteps, setIsOpen, setCurrentStep, isOpen])
+
+  return null
+}
+
+export const AppTourProvider = ({ children }) => {
   const { colorScheme } = useMantineColorScheme()
+
   return (
     <TourProvider
+      steps={[]}
       styles={{
         badge: (props) => ({
           ...props,
@@ -127,18 +103,9 @@ export const AppTourProvider = ({ children }) => {
           fontSize: 12,
           marginTop: 10,
           marginLeft: 10,
-          // visibility: 'hidden',
         }),
-        arrow: (props) => ({
-          ...props,
-          marginBottom: -10,
-          cursor: 'pointer',
-        }),
-        close: (props) => ({
-          ...props,
-          marginTop: -10,
-          marginRight: -10,
-        }),
+        arrow: (props) => ({ ...props, marginBottom: -10 }),
+        close: (props) => ({ ...props, marginTop: -10, marginRight: -10 }),
         popover: (props) => ({
           ...props,
           borderRadius: borderRadius,
@@ -146,23 +113,22 @@ export const AppTourProvider = ({ children }) => {
           color: colorScheme === 'dark' ? 'var(--mantine-color-gray-0)' : 'var(--mantine-color-dark-7)',
         }),
       }}
-      showDots={false}
-      currentStep={currentStep}
-      setCurrentStep={() => {
-        if (currentStep === tour.steps.length - 1) {
-          setCurrentStep(0)
-        } else {
-          setCurrentStep(currentStep + 1)
-        }
-      }}
-      disableDotsNavigation
+      showDots
       showNavigation
-      disableFocusLock
+      disableFocusLock={false}
       disableInteraction={false}
-      steps={tour.steps}
-      badgeContent={(badgeProps) => <div style={{ borderRadius: 0 }}>{badgeProps.currentStep + 1}</div>}
+      badgeContent={({ currentStep, totalSteps }) => (
+        <div>
+          {currentStep + 1} / {totalSteps}
+        </div>
+      )}
+      onClickClose={() => {
+        //stop the tour
+        return
+      }}
     >
       {children}
+      <TourController />
     </TourProvider>
   )
 }
