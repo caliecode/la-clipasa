@@ -1,11 +1,13 @@
 import { Group, Container, Button, Space, Box, Card } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons'
+import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
 import { Post } from 'src/components/Post/components/Post'
 import { PostEmbed } from 'src/components/Post/components/Post.Embed'
 import { usePostContext } from 'src/components/Post/Post.context'
 import { PostCore } from 'src/components/Post/Post.core'
+import { useRefreshDiscordLinkMutation } from 'src/graphql/gen'
 import { useCardBackground } from 'src/hooks/ui/usePostCardBackground'
 import { usePostsSlice } from 'src/slices/posts'
 import { uiPath } from 'src/ui-paths'
@@ -14,17 +16,37 @@ import { getPostIdFromRoute, withBaseURL } from 'src/utils/urls'
 export const PostPage = () => {
   const { posts } = usePostsSlice()
   const { post, setPost } = usePostContext()
-
+  const [refreshState, refreshDiscordLink] = useRefreshDiscordLinkMutation()
+  const [refreshed, setRefreshed] = useState(false)
   const currentIndex = posts.findIndex((p) => p.id === post.id)
   const previousPost = currentIndex > 0 ? posts[currentIndex - 1] : null
   const nextPost = currentIndex < posts.length - 1 ? posts[currentIndex + 1] : null
   const isSharedPost = window.location.search.includes('ref=share')
 
   useEffect(() => {
-    const currentPostId = getPostIdFromRoute()
-    if (currentPostId === post.id) return
+    async function refreshLink() {
+      if (
+        !refreshed &&
+        !refreshState.fetching &&
+        post.metadata?.service === 'DISCORD' &&
+        dayjs(post.metadata.discord?.expiration).isBefore(dayjs())
+      ) {
+        const res = await refreshDiscordLink({ id: post.id })
+        if (res.data?.refreshDiscordLink) {
+          setPost({ ...post, link: res.data?.refreshDiscordLink })
+          setRefreshed(true)
+        }
+        if (res.error) {
+          console.error(res.error)
+        }
+      }
+    }
 
-    window.history.pushState(null, '', withBaseURL(uiPath('/post/:postId', { postId: post.id })))
+    const currentPostId = getPostIdFromRoute()
+    if (currentPostId !== post.id) {
+      window.history.pushState(null, '', withBaseURL(uiPath('/post/:postId', { postId: post.id })))
+    }
+    refreshLink()
   }, [post])
 
   const { image: categoryImage, color: categoryColor } = useCardBackground(post)

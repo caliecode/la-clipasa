@@ -133,6 +133,11 @@ type ComplexityRoot struct {
 		Comment func(childComplexity int) int
 	}
 
+	DiscordVideoMetadata struct {
+		Expiration func(childComplexity int) int
+		ID         func(childComplexity int) int
+	}
+
 	Mutation struct {
 		CreateAPIKey              func(childComplexity int, input generated.CreateApiKeyInput) int
 		CreateBulkAPIKey          func(childComplexity int, input []*generated.CreateApiKeyInput) int
@@ -156,6 +161,7 @@ type ComplexityRoot struct {
 		DeletePostCategory        func(childComplexity int, id uuid.UUID) int
 		DeleteUser                func(childComplexity int, id uuid.UUID) int
 		M                         func(childComplexity int) int
+		RefreshDiscordLink        func(childComplexity int, id uuid.UUID) int
 		RestorePost               func(childComplexity int, id uuid.UUID) int
 		UpdateAPIKey              func(childComplexity int, id uuid.UUID, input generated.UpdateApiKeyInput) int
 		UpdateComment             func(childComplexity int, id uuid.UUID, input generated.UpdateCommentInput) int
@@ -253,8 +259,9 @@ type ComplexityRoot struct {
 	}
 
 	PostMetadata struct {
-		Service func(childComplexity int) int
-		Version func(childComplexity int) int
+		DiscordVideo func(childComplexity int) int
+		Service      func(childComplexity int) int
+		Version      func(childComplexity int) int
 	}
 
 	PostUpdatePayload struct {
@@ -372,6 +379,7 @@ type MutationResolver interface {
 	DeletePostCategory(ctx context.Context, id uuid.UUID) (*model.PostCategoryDeletePayload, error)
 	CreatePostWithCategories(ctx context.Context, input model.CreatePostWithCategoriesInput) (*model.PostCreatePayload, error)
 	RestorePost(ctx context.Context, id uuid.UUID) (*bool, error)
+	RefreshDiscordLink(ctx context.Context, id uuid.UUID) (*string, error)
 	CreateUser(ctx context.Context, input generated.CreateUserInput) (*model.UserCreatePayload, error)
 	CreateBulkUser(ctx context.Context, input []*generated.CreateUserInput) (*model.UserBulkCreatePayload, error)
 	CreateBulkCSVUser(ctx context.Context, input graphql.Upload) (*model.UserBulkCreatePayload, error)
@@ -648,6 +656,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.CommentUpdatePayload.Comment(childComplexity), true
 
+	case "DiscordVideoMetadata.expiration":
+		if e.complexity.DiscordVideoMetadata.Expiration == nil {
+			break
+		}
+
+		return e.complexity.DiscordVideoMetadata.Expiration(childComplexity), true
+
+	case "DiscordVideoMetadata.id":
+		if e.complexity.DiscordVideoMetadata.ID == nil {
+			break
+		}
+
+		return e.complexity.DiscordVideoMetadata.ID(childComplexity), true
+
 	case "Mutation.createApiKey":
 		if e.complexity.Mutation.CreateAPIKey == nil {
 			break
@@ -906,6 +928,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.M(childComplexity), true
+
+	case "Mutation.refreshDiscordLink":
+		if e.complexity.Mutation.RefreshDiscordLink == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_refreshDiscordLink_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.RefreshDiscordLink(childComplexity, args["id"].(uuid.UUID)), true
 
 	case "Mutation.restorePost":
 		if e.complexity.Mutation.RestorePost == nil {
@@ -1310,6 +1344,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.PostEdge.Node(childComplexity), true
+
+	case "PostMetadata.discord":
+		if e.complexity.PostMetadata.DiscordVideo == nil {
+			break
+		}
+
+		return e.complexity.PostMetadata.DiscordVideo(childComplexity), true
 
 	case "PostMetadata.service":
 		if e.complexity.PostMetadata.Service == nil {
@@ -2537,6 +2578,34 @@ func (ec *executionContext) field_Mutation_deleteUser_args(ctx context.Context, 
 	return args, nil
 }
 func (ec *executionContext) field_Mutation_deleteUser_argsID(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (uuid.UUID, error) {
+	if _, ok := rawArgs["id"]; !ok {
+		var zeroVal uuid.UUID
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+	if tmp, ok := rawArgs["id"]; ok {
+		return ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
+	}
+
+	var zeroVal uuid.UUID
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_refreshDiscordLink_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_refreshDiscordLink_argsID(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_refreshDiscordLink_argsID(
 	ctx context.Context,
 	rawArgs map[string]any,
 ) (uuid.UUID, error) {
@@ -5957,6 +6026,88 @@ func (ec *executionContext) fieldContext_CommentUpdatePayload_comment(_ context.
 	return fc, nil
 }
 
+func (ec *executionContext) _DiscordVideoMetadata_id(ctx context.Context, field graphql.CollectedField, obj *extramodel.DiscordVideoMetadata) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DiscordVideoMetadata_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DiscordVideoMetadata_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DiscordVideoMetadata",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DiscordVideoMetadata_expiration(ctx context.Context, field graphql.CollectedField, obj *extramodel.DiscordVideoMetadata) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DiscordVideoMetadata_expiration(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Expiration, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalOTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DiscordVideoMetadata_expiration(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DiscordVideoMetadata",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation__m(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation__m(ctx, field)
 	if err != nil {
@@ -7316,6 +7467,58 @@ func (ec *executionContext) fieldContext_Mutation_restorePost(ctx context.Contex
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_refreshDiscordLink(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_refreshDiscordLink(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().RefreshDiscordLink(rctx, fc.Args["id"].(uuid.UUID))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_refreshDiscordLink(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_refreshDiscordLink_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_createUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_createUser(ctx, field)
 	if err != nil {
@@ -8334,6 +8537,8 @@ func (ec *executionContext) fieldContext_Post_metadata(_ context.Context, field 
 				return ec.fieldContext_PostMetadata_version(ctx, field)
 			case "service":
 				return ec.fieldContext_PostMetadata_service(ctx, field)
+			case "discord":
+				return ec.fieldContext_PostMetadata_discord(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PostMetadata", field.Name)
 		},
@@ -10033,11 +10238,14 @@ func (ec *executionContext) _PostMetadata_service(ctx context.Context, field gra
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*extramodel.PostService)
+	res := resTmp.(extramodel.PostService)
 	fc.Result = res
-	return ec.marshalOPostService2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋextramodelᚐPostService(ctx, field.Selections, res)
+	return ec.marshalNPostService2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋextramodelᚐPostService(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_PostMetadata_service(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -10048,6 +10256,53 @@ func (ec *executionContext) fieldContext_PostMetadata_service(_ context.Context,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type PostService does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostMetadata_discord(ctx context.Context, field graphql.CollectedField, obj *extramodel.PostMetadata) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PostMetadata_discord(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DiscordVideo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*extramodel.DiscordVideoMetadata)
+	fc.Result = res
+	return ec.marshalODiscordVideoMetadata2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋextramodelᚐDiscordVideoMetadata(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PostMetadata_discord(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostMetadata",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_DiscordVideoMetadata_id(ctx, field)
+			case "expiration":
+				return ec.fieldContext_DiscordVideoMetadata_expiration(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DiscordVideoMetadata", field.Name)
 		},
 	}
 	return fc, nil
@@ -20353,6 +20608,44 @@ func (ec *executionContext) _CommentUpdatePayload(ctx context.Context, sel ast.S
 	return out
 }
 
+var discordVideoMetadataImplementors = []string{"DiscordVideoMetadata"}
+
+func (ec *executionContext) _DiscordVideoMetadata(ctx context.Context, sel ast.SelectionSet, obj *extramodel.DiscordVideoMetadata) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, discordVideoMetadataImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DiscordVideoMetadata")
+		case "id":
+			out.Values[i] = ec._DiscordVideoMetadata_id(ctx, field, obj)
+		case "expiration":
+			out.Values[i] = ec._DiscordVideoMetadata_expiration(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var mutationImplementors = []string{"Mutation"}
 
 func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -20526,6 +20819,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "restorePost":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_restorePost(ctx, field)
+			})
+		case "refreshDiscordLink":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_refreshDiscordLink(ctx, field)
 			})
 		case "createUser":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -21506,6 +21803,11 @@ func (ec *executionContext) _PostMetadata(ctx context.Context, sel ast.Selection
 			}
 		case "service":
 			out.Values[i] = ec._PostMetadata_service(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "discord":
+			out.Values[i] = ec._PostMetadata_discord(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -23565,6 +23867,16 @@ func (ec *executionContext) marshalNPostOrderField2ᚖgithubᚗcomᚋcaliecode�
 	return v
 }
 
+func (ec *executionContext) unmarshalNPostService2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋextramodelᚐPostService(ctx context.Context, v any) (extramodel.PostService, error) {
+	var res extramodel.PostService
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNPostService2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋextramodelᚐPostService(ctx context.Context, sel ast.SelectionSet, v extramodel.PostService) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) marshalNPostUpdatePayload2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋmodelᚐPostUpdatePayload(ctx context.Context, sel ast.SelectionSet, v model.PostUpdatePayload) graphql.Marshaler {
 	return ec._PostUpdatePayload(ctx, sel, &v)
 }
@@ -24488,6 +24800,13 @@ func (ec *executionContext) marshalOCursor2ᚖentgoᚗioᚋcontribᚋentgqlᚐCu
 	return v
 }
 
+func (ec *executionContext) marshalODiscordVideoMetadata2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋextramodelᚐDiscordVideoMetadata(ctx context.Context, sel ast.SelectionSet, v *extramodel.DiscordVideoMetadata) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._DiscordVideoMetadata(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalOID2ᚕgithubᚗcomᚋgoogleᚋuuidᚐUUIDᚄ(ctx context.Context, v any) ([]uuid.UUID, error) {
 	if v == nil {
 		return nil, nil
@@ -24892,22 +25211,6 @@ func (ec *executionContext) unmarshalOPostOrder2ᚖgithubᚗcomᚋcaliecodeᚋla
 	}
 	res, err := ec.unmarshalInputPostOrder(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalOPostService2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋextramodelᚐPostService(ctx context.Context, v any) (*extramodel.PostService, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var res = new(extramodel.PostService)
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOPostService2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋextramodelᚐPostService(ctx context.Context, sel ast.SelectionSet, v *extramodel.PostService) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return v
 }
 
 func (ec *executionContext) unmarshalOPostWhereInput2ᚕᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐPostWhereInputᚄ(ctx context.Context, v any) ([]*generated.PostWhereInput, error) {

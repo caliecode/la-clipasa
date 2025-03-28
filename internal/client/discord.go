@@ -8,6 +8,9 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+	"net/url"
+	"strconv"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/caliecode/la-clipasa/internal"
@@ -35,6 +38,27 @@ import (
 type DiscordHandlers struct {
 	botToken  string
 	channelID string
+}
+
+func ParseDiscordExpirationTime(videoURL string) (*time.Time, error) {
+	parsedURL, err := url.Parse(videoURL)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse video URL: %w", err)
+	}
+
+	exParam := parsedURL.Query().Get("ex")
+	if exParam == "" {
+		return nil, fmt.Errorf("no expiration parameter found in URL")
+	}
+
+	expirationTimestamp, err := strconv.ParseInt(exParam, 16, 64)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode expiration timestamp: %w", err)
+	}
+
+	expirationTime := time.Unix(expirationTimestamp, 0)
+
+	return &expirationTime, nil
 }
 
 func NewDiscordHandlers() *DiscordHandlers {
@@ -91,4 +115,45 @@ func (h *DiscordHandlers) UploadFile(ctx context.Context, upload graphql.Upload)
 	}
 
 	return &uploadResponse, nil
+}
+
+func (h *DiscordHandlers) RefreshCdnLink(messageId string) (*models.DiscordLinkRefresh, error) {
+	url := fmt.Sprintf("https://discord.com/api/v10/channels/%s/messages/%s", h.channelID, messageId)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error creating request: %w", err)
+	}
+
+	req.Header.Set("Authorization", "Bot "+h.botToken)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error sending request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed to fetch message, status code: %d", resp.StatusCode)
+	}
+
+	responseBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("error reading response: %w", err)
+	}
+	var message models.DiscordUploadResponse
+	if err := json.Unmarshal(responseBody, &message); err != nil {
+		return nil, fmt.Errorf("error parsing response: %w", err)
+	}
+
+	att := message.Attachments[0]
+	exp, err := ParseDiscordExpirationTime(att.URL)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing expiration time: %w", err)
+	}
+
+	return &models.DiscordLinkRefresh{
+		ID:         att.ID,
+		Expiration: *exp,
+		URL:        att.URL,
+	}, nil
 }

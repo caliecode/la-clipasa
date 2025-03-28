@@ -4,17 +4,19 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"time"
 )
 
 type DiscordVideoMetadata struct {
-	ID string `json:"id"` // for cdn refreshing
+	ID         string    `json:"id"` // for cdn refreshing
+	Expiration time.Time `json:"expiration"`
 }
 
 type PostMetadata struct {
 	// Version is the version of the Post metadata.
 	Version int `json:"version"`
 	// Service represents the provider of the Post link.
-	Service      *PostService          `json:"service,omitempty"`
+	Service      PostService           `json:"service,omitempty"`
 	DiscordVideo *DiscordVideoMetadata `json:"discord,omitempty"`
 }
 
@@ -22,15 +24,17 @@ type PostService string
 
 const (
 	PostServiceDiscord PostService = "DISCORD"
+	PostServiceUnknown PostService = "UNKNOWN"
 )
 
 var AllPostService = []PostService{
 	PostServiceDiscord,
+	PostServiceUnknown,
 }
 
 func (e PostService) IsValid() bool {
 	switch e {
-	case PostServiceDiscord:
+	case PostServiceDiscord, PostServiceUnknown:
 		return true
 	}
 	return false

@@ -396,6 +396,12 @@ export type CreateUserInput = {
   savedPostIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
+export type DiscordVideoMetadata = {
+  __typename?: 'DiscordVideoMetadata'
+  expiration?: Maybe<Scalars['Time']['output']>
+  id?: Maybe<Scalars['String']['output']>
+}
+
 export type Mutation = {
   __typename?: 'Mutation'
   _m?: Maybe<Scalars['Boolean']['output']>
@@ -440,6 +446,7 @@ export type Mutation = {
   deletePostCategory: PostCategoryDeletePayload
   /** Delete an existing user */
   deleteUser: UserDeletePayload
+  refreshDiscordLink?: Maybe<Scalars['String']['output']>
   restorePost?: Maybe<Scalars['Boolean']['output']>
   /** Update an existing apiKey */
   updateApiKey: ApiKeyUpdatePayload
@@ -534,6 +541,10 @@ export type MutationDeletePostCategoryArgs = {
 }
 
 export type MutationDeleteUserArgs = {
+  id: Scalars['ID']['input']
+}
+
+export type MutationRefreshDiscordLinkArgs = {
   id: Scalars['ID']['input']
 }
 
@@ -810,8 +821,9 @@ export type PostEdge = {
 
 export type PostMetadata = {
   __typename?: 'PostMetadata'
+  discord?: Maybe<DiscordVideoMetadata>
   /** Service represents the provider of the Post link. */
-  service?: Maybe<PostService>
+  service: PostService
   /** Version is the version of the Post metadata. */
   version: Scalars['Int']['output']
 }
@@ -827,7 +839,7 @@ export type PostOrder = {
 /** Properties by which Post connections can be ordered. */
 export type PostOrderField = 'COMMENTS_COUNT' | 'CREATED_AT' | 'ID' | 'LIKED_BY_COUNT' | 'UPDATED_AT'
 
-export type PostService = 'DISCORD'
+export type PostService = 'DISCORD' | 'UNKNOWN'
 
 /** Return response for updatePost mutation */
 export type PostUpdatePayload = {
@@ -1532,6 +1544,12 @@ export type PostFragment = {
   likedBy: { __typename?: 'UserConnection'; totalCount: number }
   comments: { __typename?: 'CommentConnection'; totalCount: number }
   categories?: Array<{ __typename?: 'PostCategory'; id: string; category: PostCategoryCategory }> | null
+  metadata?: {
+    __typename?: 'PostMetadata'
+    version: number
+    service: PostService
+    discord?: { __typename?: 'DiscordVideoMetadata'; id?: string | null; expiration?: any | null } | null
+  } | null
 }
 
 export type UserFragment = {
@@ -1544,6 +1562,12 @@ export type UserFragment = {
   awards?: Array<string> | null
   lastPostSeenCursor?: string | null
 }
+
+export type RefreshDiscordLinkMutationVariables = Exact<{
+  id: Scalars['ID']['input']
+}>
+
+export type RefreshDiscordLinkMutation = { __typename?: 'Mutation'; refreshDiscordLink?: string | null }
 
 export type PostsQueryVariables = Exact<{
   after?: InputMaybe<Scalars['Cursor']['input']>
@@ -1592,6 +1616,12 @@ export type PostsQuery = {
         likedBy: { __typename?: 'UserConnection'; totalCount: number }
         comments: { __typename?: 'CommentConnection'; totalCount: number }
         categories?: Array<{ __typename?: 'PostCategory'; id: string; category: PostCategoryCategory }> | null
+        metadata?: {
+          __typename?: 'PostMetadata'
+          version: number
+          service: PostService
+          discord?: { __typename?: 'DiscordVideoMetadata'; id?: string | null; expiration?: any | null } | null
+        } | null
       } | null
     } | null> | null
   }
@@ -1636,6 +1666,12 @@ export type PinnedPostsQuery = {
         likedBy: { __typename?: 'UserConnection'; totalCount: number }
         comments: { __typename?: 'CommentConnection'; totalCount: number }
         categories?: Array<{ __typename?: 'PostCategory'; id: string; category: PostCategoryCategory }> | null
+        metadata?: {
+          __typename?: 'PostMetadata'
+          version: number
+          service: PostService
+          discord?: { __typename?: 'DiscordVideoMetadata'; id?: string | null; expiration?: any | null } | null
+        } | null
       } | null
     } | null> | null
   }
@@ -1679,6 +1715,12 @@ export type UpdatePostMutation = {
       likedBy: { __typename?: 'UserConnection'; totalCount: number }
       comments: { __typename?: 'CommentConnection'; totalCount: number }
       categories?: Array<{ __typename?: 'PostCategory'; id: string; category: PostCategoryCategory }> | null
+      metadata?: {
+        __typename?: 'PostMetadata'
+        version: number
+        service: PostService
+        discord?: { __typename?: 'DiscordVideoMetadata'; id?: string | null; expiration?: any | null } | null
+      } | null
     }
   }
 }
@@ -1714,6 +1756,12 @@ export type CreatePostMutation = {
       likedBy: { __typename?: 'UserConnection'; totalCount: number }
       comments: { __typename?: 'CommentConnection'; totalCount: number }
       categories?: Array<{ __typename?: 'PostCategory'; id: string; category: PostCategoryCategory }> | null
+      metadata?: {
+        __typename?: 'PostMetadata'
+        version: number
+        service: PostService
+        discord?: { __typename?: 'DiscordVideoMetadata'; id?: string | null; expiration?: any | null } | null
+      } | null
     }
   }
 }
@@ -1891,6 +1939,14 @@ export const PostFragmentDoc = gql`
       id
       category
     }
+    metadata {
+      version
+      service
+      discord {
+        id
+        expiration
+      }
+    }
     createdAt
     updatedAt
     deletedAt
@@ -1907,6 +1963,21 @@ export const UserFragmentDoc = gql`
     lastPostSeenCursor
   }
 `
+export const RefreshDiscordLinkDocument = gql`
+  mutation RefreshDiscordLink($id: ID!) {
+    refreshDiscordLink(id: $id)
+  }
+`
+
+export const RefreshDiscordLinkComponent = (
+  props: Omit<Urql.MutationProps<RefreshDiscordLinkMutation, RefreshDiscordLinkMutationVariables>, 'query'> & {
+    variables?: RefreshDiscordLinkMutationVariables
+  },
+) => <Urql.Mutation {...props} query={RefreshDiscordLinkDocument} />
+
+export function useRefreshDiscordLinkMutation() {
+  return Urql.useMutation<RefreshDiscordLinkMutation, RefreshDiscordLinkMutationVariables>(RefreshDiscordLinkDocument)
+}
 export const PostsDocument = gql`
   query Posts($after: Cursor, $first: Int, $before: Cursor, $last: Int, $where: PostWhereInput, $orderBy: PostOrder) {
     posts(after: $after, first: $first, before: $before, last: $last, where: $where, orderBy: $orderBy) {

@@ -16,15 +16,23 @@ input CreatePostWithCategoriesInput {
 extend type Mutation {
     createPostWithCategories(input: CreatePostWithCategoriesInput!): PostCreatePayload!
     restorePost(id: ID!): Boolean @hasRole(role: MODERATOR)
+    refreshDiscordLink(id: ID!): String
 }
 
 enum PostService {
-  DISCORD
+  DISCORD,
+  UNKNOWN
+}
+
+type DiscordVideoMetadata {
+  id: String
+  expiration: Time
 }
 
 type PostMetadata {
   """Version is the version of the Post metadata."""
   version: Int!
   """Service represents the provider of the Post link."""
-  service: PostService
+  service: PostService!
+  discord: DiscordVideoMetadata
 }

@@ -33,10 +33,18 @@ fragment Post on Post {
   metadata {
     version
     service
+    discord {
+      id
+      expiration
+    }
   }
   createdAt
   updatedAt
   deletedAt
+}
+
+mutation RefreshDiscordLink($id: ID!) {
+  refreshDiscordLink(id: $id)
 }
 
 query Posts($after: Cursor, $first: Int, $before: Cursor, $last: Int, $where: PostWhereInput, $orderBy: PostOrder) {
