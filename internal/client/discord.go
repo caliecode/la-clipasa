@@ -78,7 +78,7 @@ func (h *DiscordHandlers) makeRequest(ctx context.Context, method, endpoint stri
 			return nil, fmt.Errorf("error parsing response: %w", err)
 		}
 
-		return nil, fmt.Errorf("discord API error: %s", resp.StatusCode, res["message"])
+		return nil, fmt.Errorf("discord API error: %v", res["message"])
 	}
 
 	return responseBody, nil
