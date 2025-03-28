@@ -17,27 +17,17 @@ import (
 	"github.com/caliecode/la-clipasa/internal/models"
 )
 
-/**
- *
- * TODO:
- *
- * curl -H 'Authorization: Bot <...>' https://discord.com/api/channels/1058424616726565007/messages
- *
- * returns cdn links with expire headers (hex to dec) -> 24hs expiration
- *
- * bot api 50rps
- *
- * we could let users upload file via frontend to our dedicated discord channel
- * and regenerate links when they expire. then the post table is updated with the new links when a user visits it
- *
- * in the future we can have a small cache layer too. as a poor man's queue maybe write locking each cache entry prevents spamming discord calls if +50 people visit the same expired discord post,
- * while others work as usual.
- *
- */
-
 type DiscordHandlers struct {
-	botToken  string
-	channelID string
+	botToken string
+	baseURL  string
+}
+
+func NewDiscordHandlers() *DiscordHandlers {
+	cfg := internal.Config
+	return &DiscordHandlers{
+		botToken: cfg.Discord.BotToken,
+		baseURL:  fmt.Sprintf("https://discord.com/api/v10/channels/%s", cfg.Discord.ChannelID),
+	}
 }
 
 func ParseDiscordExpirationTime(videoURL string) (*time.Time, error) {
@@ -57,17 +47,36 @@ func ParseDiscordExpirationTime(videoURL string) (*time.Time, error) {
 	}
 
 	expirationTime := time.Unix(expirationTimestamp, 0)
-
 	return &expirationTime, nil
 }
 
-func NewDiscordHandlers() *DiscordHandlers {
-	cfg := internal.Config
-
-	return &DiscordHandlers{
-		botToken:  cfg.Discord.BotToken,
-		channelID: cfg.Discord.ChannelID,
+func (h *DiscordHandlers) makeRequest(ctx context.Context, method, endpoint string, body io.Reader, contentType string) ([]byte, error) {
+	req, err := http.NewRequestWithContext(ctx, method, h.baseURL+endpoint, body)
+	if err != nil {
+		return nil, fmt.Errorf("error creating request: %w", err)
 	}
+
+	req.Header.Set("Authorization", "Bot "+h.botToken)
+	if contentType != "" {
+		req.Header.Set("Content-Type", contentType)
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	responseBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("error reading response: %w", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("discord API error [%d]: %s", resp.StatusCode, string(responseBody))
+	}
+
+	return responseBody, nil
 }
 
 func (h *DiscordHandlers) UploadFile(ctx context.Context, upload graphql.Upload) (*models.DiscordUploadResponse, error) {
@@ -76,73 +85,44 @@ func (h *DiscordHandlers) UploadFile(ctx context.Context, upload graphql.Upload)
 
 	part, err := writer.CreateFormFile("file", upload.Filename)
 	if err != nil {
-		return &models.DiscordUploadResponse{}, fmt.Errorf("error creating form file: %w", err)
+		return nil, fmt.Errorf("error creating form file: %w", err)
 	}
 
 	if _, err := io.Copy(part, upload.File); err != nil {
-		return &models.DiscordUploadResponse{}, fmt.Errorf("error copying file content: %w", err)
+		return nil, fmt.Errorf("error copying file content: %w", err)
 	}
 
 	if err := writer.Close(); err != nil {
-		return &models.DiscordUploadResponse{}, fmt.Errorf("error closing multipart writer: %w", err)
+		return nil, fmt.Errorf("error closing multipart writer: %w", err)
 	}
 
-	req, err := http.NewRequestWithContext(ctx, "POST", fmt.Sprintf("https://discord.com/api/v10/channels/%s/messages", h.channelID), body)
+	responseBody, err := h.makeRequest(ctx, http.MethodPost, "/messages", body, writer.FormDataContentType())
 	if err != nil {
-		return &models.DiscordUploadResponse{}, fmt.Errorf("error creating request: %w", err)
-	}
-	req.Header.Set("Content-Type", writer.FormDataContentType())
-	req.Header.Set("Authorization", "Bot "+h.botToken)
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return &models.DiscordUploadResponse{}, fmt.Errorf("error sending request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	responseBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return &models.DiscordUploadResponse{}, fmt.Errorf("error reading response: %w", err)
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return &models.DiscordUploadResponse{}, fmt.Errorf("upload failed with status %d: %s", resp.StatusCode, string(responseBody))
+		return nil, fmt.Errorf("upload failed: %w", err)
 	}
 
 	var uploadResponse models.DiscordUploadResponse
 	if err := json.Unmarshal(responseBody, &uploadResponse); err != nil {
-		return &models.DiscordUploadResponse{}, fmt.Errorf("error parsing response: %w", err)
+		return nil, fmt.Errorf("error parsing response: %w", err)
 	}
 
 	return &uploadResponse, nil
 }
 
-func (h *DiscordHandlers) RefreshCdnLink(messageId string) (*models.DiscordLinkRefresh, error) {
-	url := fmt.Sprintf("https://discord.com/api/v10/channels/%s/messages/%s", h.channelID, messageId)
-	req, err := http.NewRequest("GET", url, nil)
+func (h *DiscordHandlers) RefreshCdnLink(ctx context.Context, messageID string) (*models.DiscordLinkRefresh, error) {
+	endpoint := fmt.Sprintf("/messages/%s", messageID)
+	responseBody, err := h.makeRequest(ctx, http.MethodGet, endpoint, nil, "")
 	if err != nil {
-		return nil, fmt.Errorf("error creating request: %w", err)
+		return nil, fmt.Errorf("refresh failed: %w", err)
 	}
 
-	req.Header.Set("Authorization", "Bot "+h.botToken)
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("error sending request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed to fetch message, status code: %d", resp.StatusCode)
-	}
-
-	responseBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("error reading response: %w", err)
-	}
 	var message models.DiscordUploadResponse
 	if err := json.Unmarshal(responseBody, &message); err != nil {
 		return nil, fmt.Errorf("error parsing response: %w", err)
+	}
+
+	if len(message.Attachments) == 0 {
+		return nil, fmt.Errorf("no attachments found in message")
 	}
 
 	att := message.Attachments[0]

@@ -92,7 +92,7 @@ func (r *mutationResolver) RefreshDiscordLink(ctx context.Context, id uuid.UUID)
 	if p.Metadata.DiscordVideo.Expiration.After(time.Now().Add(time.Minute)) {
 		return pointers.New(p.Link), nil
 	}
-	res, err := r.discord.RefreshCdnLink(p.Metadata.DiscordVideo.ID)
+	res, err := r.discord.RefreshCdnLink(ctx, p.Metadata.DiscordVideo.ID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to refresh discord link: %w", err)
 	}
