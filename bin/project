@@ -378,29 +378,31 @@ exhaustive_lint() {
     cat <<EOF
 version: "2"
 linters:
-  disable-all: true
+  default: none
   enable:
-    - exhaustruct
     - exhaustive
-linters-settings:
-  exhaustive:
-    # use //exhaustive:enforce above switches to enable
-    explicit-exhaustive-switch: true
-    explicit-exhaustive-map: true
-    default-case-required: true
-  exhaustruct:
-    # lint struct usage in all packages that use them
-    include:
-      - 'github\.com/caliecode/la-clipasa/internal/gql\.DirectiveRoot$'
-      - 'github\.com/caliecode/la-clipasa/internal/gql\.Resolver$'
-    exclude:
-      - 'github\.com/caliecode/la-clipasa/internal/repos/postgresql/gen/models\..*(UpdateParams|Joins)$'
-# in case we want to run a linter on test files only
-# issues:
-#   exclude-rules:
-#     - path-except: _test\.go
-#       linters:
-#         - exhaustruct
+    - exhaustruct
+  settings:
+    exhaustive:
+      explicit-exhaustive-map: true
+      explicit-exhaustive-switch: true
+      default-case-required: true
+    exhaustruct:
+      include:
+        - github\.com/caliecode/la-clipasa/internal/gql\.DirectiveRoot$
+        - github\.com/caliecode/la-clipasa/internal/gql\.Resolver$
+      exclude:
+        - github\.com/caliecode/la-clipasa/internal/repos/postgresql/gen/models\..*(UpdateParams|Joins)$
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      # if we wanted to run a cfg file on tests only
+      #-  path-except: _test\.go
 EOF
   )
   LOG_LEVEL=error golangci-lint run --allow-parallel-runners --config <(echo "$lint_config")
@@ -790,10 +792,18 @@ x.db.conns-db() {
 }
 # Create a new database in the current environment if it doesn't exist
 # and stops its running processes if any.
-x.db.recreate() {
+x.db.create() {
   { { {
     docker.postgres.create_db $POSTGRES_DB
     docker.postgres.stop_db_processes $POSTGRES_DB
+  } 2>&4 | xlog >&3; } 4>&1 | xerr >&3; } 3>&1
+}
+
+x.db.create-db() {
+  { { {
+    local db="$1"
+    docker.postgres.create_db $db
+    docker.postgres.stop_db_processes $db
   } 2>&4 | xlog >&3; } 4>&1 | xerr >&3; } 3>&1
 }
 

@@ -260,7 +260,6 @@ func main() {
 
 	for range 800 {
 		u := uu[r.Intn(len(uu))]
-		logger.Debugf("Creating post for user %s", u.DisplayName)
 		p := random.NewPost(ctx, u)
 		ctx = internal.SetUserCtx(ctx, u)
 		p = entClient.Post.UpdateOne(p).

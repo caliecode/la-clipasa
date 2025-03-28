@@ -30,6 +30,10 @@ fragment Post on Post {
     id
     category
   }
+  metadata {
+    version
+    service
+  }
   createdAt
   updatedAt
   deletedAt
