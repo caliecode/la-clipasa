@@ -6,20 +6,57 @@ import { parseUrl } from 'src/ui-paths'
 import { useMediaQuery } from '@mantine/hooks'
 
 const borderRadius = 8
+const COMPLETED_TOURS_KEY = 'completed-tours'
+
+const TOUR_IDS = {
+  MOBILE_POST_TOUR: 'mobile-post-tour',
+}
 
 type CustomStep = StepType & {
   eventListener: EventListenerOrEventListenerObject
   cleanup: (...args: any) => void
 }
 
+const getCompletedTours = (): string[] => {
+  const storedTours = localStorage.getItem(COMPLETED_TOURS_KEY)
+  return storedTours ? JSON.parse(storedTours) : []
+}
+
+const markTourCompleted = (tourId: string): void => {
+  const completedTours = getCompletedTours()
+  if (!completedTours.includes(tourId)) {
+    completedTours.push(tourId)
+    localStorage.setItem(COMPLETED_TOURS_KEY, JSON.stringify(completedTours))
+  }
+}
+
+const isTourCompleted = (tourId: string): boolean => {
+  return getCompletedTours().includes(tourId)
+}
+
+const resetTour = (tourId: string): void => {
+  const completedTours = getCompletedTours()
+  const updatedTours = completedTours.filter((id) => id !== tourId)
+  localStorage.setItem(COMPLETED_TOURS_KEY, JSON.stringify(updatedTours))
+}
+
+const resetAllTours = (): void => {
+  localStorage.removeItem(COMPLETED_TOURS_KEY)
+}
+
 const TourController = () => {
   const { setSteps, setIsOpen, setCurrentStep, currentStep, isOpen, steps } = useTour()
   const location = useLocation()
   const tour = useTour()
+  const isMobile = useMediaQuery('(max-width: 768px)', window.innerWidth < 768)
 
-  function incrementStep(steps: CustomStep[]) {
-    if (currentStep === steps.length) {
+  const [activeTourId, setActiveTourId] = React.useState<string | null>(null)
+
+  function incrementStep(steps: CustomStep[], tourId: string) {
+    if (currentStep === steps.length - 1) {
+      markTourCompleted(tourId)
       tour.setIsOpen(false)
+      setActiveTourId(null)
       return
     }
     steps[currentStep]?.cleanup()
@@ -36,7 +73,7 @@ const TourController = () => {
         input?.addEventListener('touchend', this.eventListener)
       },
       eventListener(e: TouchEvent) {
-        incrementStep(postDetailSteps)
+        incrementStep(postDetailSteps, TOUR_IDS.MOBILE_POST_TOUR)
       },
       cleanup() {
         console.log('cleanup for 1')
@@ -46,28 +83,34 @@ const TourController = () => {
     },
   ]
 
-  const isMobile = useMediaQuery('(max-width: 768px)', window.innerWidth < 768)
-
   useEffect(() => {
     const timer = setTimeout(() => {
       let newSteps: StepType[] = []
+      let newTourId: string | null = null
       const currentUrl = window.location.href
       const parsed = parseUrl(currentUrl)
 
       switch (parsed?.routePattern) {
         case '/post/:postId':
           if (isMobile) {
-            newSteps = postDetailSteps
+            newTourId = TOUR_IDS.MOBILE_POST_TOUR
+
+            if (!isTourCompleted(newTourId)) {
+              newSteps = postDetailSteps
+            }
           }
           break
+
         default:
           if (isOpen) {
             setIsOpen(false)
+            setActiveTourId(null)
           }
           return
       }
 
-      if (newSteps.length > 0) {
+      if (newSteps.length > 0 && newTourId) {
+        setActiveTourId(newTourId)
         const currentSteps = tour.steps
         if (JSON.stringify(newSteps) !== JSON.stringify(currentSteps)) {
           setSteps!(newSteps)
@@ -81,6 +124,7 @@ const TourController = () => {
 
       if (isOpen) {
         setIsOpen(false)
+        setActiveTourId(null)
       }
     }, 1000)
 
@@ -92,6 +136,19 @@ const TourController = () => {
 
 export const AppTourProvider = ({ children }) => {
   const { colorScheme } = useMantineColorScheme()
+  const [activeTourId, setActiveTourId] = React.useState<string | null>(null)
+  const location = useLocation()
+
+  const getCurrentTourId = (): string | null => {
+    const currentUrl = window.location.href
+    const parsed = parseUrl(currentUrl)
+
+    if (parsed?.routePattern === '/post/:postId') {
+      return TOUR_IDS.MOBILE_POST_TOUR
+    }
+
+    return null
+  }
 
   return (
     <TourProvider
@@ -123,7 +180,11 @@ export const AppTourProvider = ({ children }) => {
         </div>
       )}
       onClickClose={() => {
-        //stop the tour
+        const tourId = getCurrentTourId()
+        if (tourId) {
+          markTourCompleted(tourId)
+          setActiveTourId(null)
+        }
         return
       }}
     >
