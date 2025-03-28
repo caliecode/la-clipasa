@@ -25,6 +25,16 @@ export const PostEmbed = ({ inline = false }: PostEmbedProps) => {
         return <YouTubeEmbed url={post.link} width="100%" />
       case 'tiktok':
         return <TikTokEmbed url={post.link} width="100%" />
+      case 'discord':
+        return (
+          <video
+            id="discord-embed"
+            src={post.link}
+            controls
+            width="100%"
+            style={{ borderRadius: 10, border: 'none' }}
+          ></video>
+        )
       case 'reddit':
         return (
           <iframe

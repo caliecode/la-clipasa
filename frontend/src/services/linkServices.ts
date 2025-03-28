@@ -1,12 +1,4 @@
-export type Service =
-  | 'youtube'
-  | 'instagram'
-  | 'reddit'
-  | 'discord'
-  | 'twitter'
-  | 'unknown'
-  | 'discord_video'
-  | 'tiktok'
+export type Service = 'youtube' | 'instagram' | 'reddit' | 'discord' | 'twitter' | 'unknown' | 'tiktok'
 
 type URLMetadata = {
   service: Service
@@ -39,9 +31,6 @@ export function getServiceAndId(url = ''): URLMetadata {
     service = 'reddit'
   } else if (url.includes('cdn.discordapp.com')) {
     service = 'discord'
-    if (url.endsWith('.mp4')) {
-      service = 'discord_video'
-    }
   } else if (url.includes('tiktok.com')) {
     service = 'tiktok'
   } else {
