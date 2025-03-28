@@ -6,6 +6,7 @@ import { PostActions } from './Post.Actions'
 import { PostCallout } from 'src/components/Post/components/Post.Callout'
 import { PostCategories } from 'src/components/Post/components/Post.Categories'
 import { usePostContext } from 'src/components/Post/Post.context'
+import { memo } from 'react'
 
 interface PostProps {
   showCategories?: boolean
@@ -13,7 +14,7 @@ interface PostProps {
   showModerationIcon?: boolean
 }
 
-export const Post = ({ showCategories = true, showCommentCount = true, showModerationIcon = true }: PostProps) => {
+const PostComponent = ({ showCategories = true, showCommentCount = true, showModerationIcon = true }: PostProps) => {
   const { post } = usePostContext()
 
   return (
@@ -54,3 +55,5 @@ export const Post = ({ showCategories = true, showCommentCount = true, showModer
     </div>
   )
 }
+
+export const Post = memo(PostComponent)

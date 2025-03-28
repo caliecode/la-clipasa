@@ -1,12 +1,13 @@
 import { Group, Container, Button, Space, Box, Card } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
-import { IconChevronLeft, IconChevronRight } from '@tabler/icons'
+import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
 import dayjs from 'dayjs'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef, TouchEvent } from 'react'
 import { Post } from 'src/components/Post/components/Post'
 import { PostEmbed } from 'src/components/Post/components/Post.Embed'
+import { PostSkeleton } from 'src/components/Post/components/Post.Skeleton'
 import { usePostContext } from 'src/components/Post/Post.context'
-import { PostCore } from 'src/components/Post/Post.core'
+
 import { useRefreshDiscordLinkMutation } from 'src/graphql/gen'
 import { useCardBackground } from 'src/hooks/ui/usePostCardBackground'
 import { usePostsSlice } from 'src/slices/posts'
@@ -14,11 +15,14 @@ import { uiPath } from 'src/ui-paths'
 import { extractGqlErrors } from 'src/utils/errors'
 import { getPostIdFromRoute, withBaseURL } from 'src/utils/urls'
 
+const SWIPE_THRESHOLD = 50
+
 export const PostPage = () => {
   const { posts } = usePostsSlice()
   const { post, setPost, setCalloutErrors } = usePostContext()
   const [refreshState, refreshDiscordLink] = useRefreshDiscordLinkMutation()
   const [refreshed, setRefreshed] = useState(false)
+
   const currentIndex = posts.findIndex((p) => p.id === post.id)
   const previousPost = currentIndex > 0 ? posts[currentIndex - 1] : null
   const nextPost = currentIndex < posts.length - 1 ? posts[currentIndex + 1] : null
@@ -30,68 +34,107 @@ export const PostPage = () => {
         !refreshed &&
         !refreshState.fetching &&
         post.metadata?.service === 'DISCORD' &&
-        dayjs(post.metadata.discord?.expiration).isBefore(dayjs())
+        post.metadata.discord?.expiration &&
+        dayjs(post.metadata.discord.expiration).isBefore(dayjs())
       ) {
+        setRefreshed(true)
         const res = await refreshDiscordLink({ id: post.id })
-        if (res.data?.refreshDiscordLink) {
-          setPost({ ...post, link: res.data?.refreshDiscordLink })
-          setRefreshed(true)
+        const newLink = res.data?.refreshDiscordLink
+        if (newLink) {
+          setPost((currentPost) => ({ ...currentPost, link: newLink }))
         }
         if (res.error) {
           setCalloutErrors(extractGqlErrors(res.error?.graphQLErrors))
+          setRefreshed(false)
         }
       }
     }
 
     const currentPostId = getPostIdFromRoute()
-    if (currentPostId !== post.id) {
+
+    if (post?.id && currentPostId !== post.id) {
       window.history.pushState(null, '', withBaseURL(uiPath('/post/:postId', { postId: post.id })))
     }
-    refreshLink()
-  }, [post])
+
+    if (post?.id) refreshLink()
+  }, [post, refreshState.fetching, refreshed, setPost, setCalloutErrors, refreshDiscordLink])
 
   const { image: categoryImage, color: categoryColor } = useCardBackground(post)
   const cardBackgroundImage = categoryImage || 'auto'
 
   const isMobile = useMediaQuery('(max-width: 768px)')
-  const [swipeStart, setSwipeStart] = useState(0)
-  const [swipeEnd, setSwipeEnd] = useState(0)
 
-  const handleSwipeStart = (e: React.TouchEvent) => {
-    setSwipeStart(e.touches[0]!.clientX)
-    setSwipeEnd(e.touches[0]!.clientX)
+  const swipeStartXRef = useRef(0)
+  const swipeCurrentXRef = useRef(0)
+  const isSwipingRef = useRef(false)
+
+  const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null)
+  const [swipeIntensity, setSwipeIntensity] = useState(0)
+
+  const handleSwipeStart = (e: TouchEvent<HTMLDivElement>) => {
+    const targetElement = e.target as HTMLElement
+    if (targetElement.closest('button, a, input, textarea, select')) {
+      isSwipingRef.current = false
+      return
+    }
+
+    swipeStartXRef.current = e.touches[0]!.clientX
+    swipeCurrentXRef.current = e.touches[0]!.clientX
+    isSwipingRef.current = true
+    setSwipeDirection(null)
+    setSwipeIntensity(0)
   }
 
-  const handleSwipeMove = (e: React.TouchEvent) => {
-    setSwipeEnd(e.touches[0]!.clientX)
+  const handleSwipeMove = (e: TouchEvent<HTMLDivElement>) => {
+    if (!isSwipingRef.current || !e.touches[0]) return
+
+    swipeCurrentXRef.current = e.touches[0]!.clientX
+    const deltaX = swipeCurrentXRef.current - swipeStartXRef.current
+
+    const intensity = Math.min(Math.abs(deltaX) / (window.innerWidth * 0.5), 0.4)
+    setSwipeIntensity(intensity)
+
+    if (deltaX > SWIPE_THRESHOLD / 3) {
+      setSwipeDirection('right')
+    } else if (deltaX < -SWIPE_THRESHOLD / 3) {
+      setSwipeDirection('left')
+    } else {
+      setSwipeDirection(null)
+    }
   }
 
   const handleSwipeEnd = () => {
-    if (!swipeStart || !swipeEnd) return
+    if (!isSwipingRef.current) return
 
-    const delta = swipeStart - swipeEnd
-    const isLeftSwipe = delta > 30 // px
-    const isRightSwipe = delta < -30
+    const deltaX = swipeCurrentXRef.current - swipeStartXRef.current
+    let navigated = false
 
-    if (isLeftSwipe && nextPost) {
-      setPost(nextPost)
-    } else if (isRightSwipe && previousPost) {
+    if (deltaX > SWIPE_THRESHOLD && previousPost) {
       setPost(previousPost)
+      navigated = true
+    } else if (deltaX < -SWIPE_THRESHOLD && nextPost) {
+      setPost(nextPost)
+      navigated = true
     }
 
-    // reset
-    setSwipeStart(0)
-    setSwipeEnd(0)
+    swipeStartXRef.current = 0
+    swipeCurrentXRef.current = 0
+    isSwipingRef.current = false
+    setSwipeDirection(null)
+
+    if (!navigated) {
+      setSwipeIntensity(0)
+    } else {
+      setSwipeIntensity(0)
+    }
   }
 
-  const currentDelta = swipeEnd - swipeStart
-  const isSwipingRight = currentDelta > 0
-  const isSwipingLeft = currentDelta < 0
-
-  const swipePercentage = Math.min(Math.abs((swipeEnd - swipeStart) / 100), 0.3)
+  const showLeftIndicator = isMobile && previousPost && swipeDirection === 'right'
+  const showRightIndicator = isMobile && nextPost && swipeDirection === 'left'
+  const indicatorOpacity = swipeIntensity * 2
 
   return (
-    <Container h="100vh" p={0} m={0} miw="100%">
+    <Container fluid h="100dvh" p={0} m={0} style={{ overflow: 'hidden' }}>
       <Group gap={0} align="stretch" wrap="nowrap">
         {!isSharedPost && !isMobile && (
           <Container p={0}>
@@ -101,24 +144,36 @@ export const PostPage = () => {
               h="100%"
               onClick={() => previousPost && setPost(previousPost)}
               disabled={!previousPost}
+              aria-label="Previous Post"
+              p={4}
             >
-              ←
+              <IconChevronLeft />
             </Button>
           </Container>
         )}
+
         <Card
           radius={isMobile ? 'var(--mantine-radius-md)' : 'none'}
+          p="md"
           w="100%"
+          h="100%"
           shadow="none"
-          onTouchStart={handleSwipeStart}
-          onTouchMove={handleSwipeMove}
-          onTouchEnd={handleSwipeEnd}
+          onTouchStart={isMobile ? handleSwipeStart : undefined}
+          onTouchMove={isMobile ? handleSwipeMove : undefined}
+          onTouchEnd={isMobile ? handleSwipeEnd : undefined}
           style={{
-            backgroundImage: `url(${cardBackgroundImage})`,
+            flexGrow: 1,
+            position: 'relative',
+            overflowY: 'auto',
+            backgroundImage: post.deletedAt ? undefined : `url(${cardBackgroundImage})`,
             backgroundSize: 'cover',
+            backgroundPosition: 'center',
             backgroundBlendMode: 'overlay',
             backgroundColor: categoryColor,
             filter: post.deletedAt ? 'grayscale(80%)' : undefined,
+
+            transition: 'background-color 0.3s ease, filter 0.3s ease',
+            WebkitTapHighlightColor: 'transparent',
           }}
         >
           {isMobile && (
@@ -126,33 +181,46 @@ export const PostPage = () => {
               <Box
                 style={{
                   position: 'absolute',
-                  left: 0,
+                  left: '10px',
                   top: '50%',
-                  transform: `translateY(-50%) translateX(${swipePercentage * 100}%)`,
-                  opacity: previousPost && isSwipingRight ? swipePercentage / 2 : 0,
-                  transition: 'transform 0.8s, opacity 0.2s',
+                  transform: `translateY(-50%) scale(${showLeftIndicator ? 1 : 0.5})`,
+                  opacity: showLeftIndicator ? indicatorOpacity : 0,
+                  transition: 'transform 0.3s ease, opacity 0.3s ease',
                   zIndex: 1,
+                  pointerEvents: 'none',
                 }}
               >
-                <IconChevronLeft size="2x" color="white" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.3)' }} />
+                <IconChevronLeft
+                  size="2rem"
+                  color="white"
+                  style={{ filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.5))' }}
+                />
               </Box>
+
               <Box
                 style={{
                   position: 'absolute',
-                  right: 0,
+                  right: '10px',
                   top: '50%',
-                  transform: `translateY(-50%) translateX(-${swipePercentage * 100}%)`,
-                  opacity: nextPost && isSwipingLeft ? swipePercentage / 2 : 0,
-                  transition: 'transform 0.8s, opacity 0.2s',
+                  transform: `translateY(-50%) scale(${showRightIndicator ? 1 : 0.5})`,
+                  opacity: showRightIndicator ? indicatorOpacity : 0,
+                  transition: 'transform 0.3s ease, opacity 0.3s ease',
                   zIndex: 1,
+                  pointerEvents: 'none',
                 }}
               >
-                <IconChevronRight size="2x" color="white" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.3)' }} />
+                <IconChevronRight
+                  size="2rem"
+                  color="white"
+                  style={{ filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.5))' }}
+                />
               </Box>
             </>
           )}
+
           <Post />
         </Card>
+
         {!isSharedPost && !isMobile && (
           <Container p={0}>
             <Button
@@ -161,14 +229,16 @@ export const PostPage = () => {
               h="100%"
               onClick={() => nextPost && setPost(nextPost)}
               disabled={!nextPost}
+              aria-label="Next Post"
+              p={4}
             >
-              →
+              <IconChevronRight />
             </Button>
           </Container>
         )}
       </Group>
-      <Space h="xl" />
 
+      <Space h="xl" />
       <PostEmbed inline />
     </Container>
   )
