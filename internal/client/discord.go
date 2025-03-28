@@ -73,7 +73,12 @@ func (h *DiscordHandlers) makeRequest(ctx context.Context, method, endpoint stri
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("discord API error [%d]: %s", resp.StatusCode, string(responseBody))
+		var res map[string]interface{}
+		if err := json.Unmarshal(responseBody, &res); err != nil {
+			return nil, fmt.Errorf("error parsing response: %w", err)
+		}
+
+		return nil, fmt.Errorf("discord API error: %s", resp.StatusCode, res["message"])
 	}
 
 	return responseBody, nil
@@ -113,7 +118,7 @@ func (h *DiscordHandlers) RefreshCdnLink(ctx context.Context, messageID string) 
 	endpoint := fmt.Sprintf("/messages/%s", messageID)
 	responseBody, err := h.makeRequest(ctx, http.MethodGet, endpoint, nil, "")
 	if err != nil {
-		return nil, fmt.Errorf("refresh failed: %w", err)
+		return nil, fmt.Errorf("request error: %w", err)
 	}
 
 	var message models.DiscordUploadResponse

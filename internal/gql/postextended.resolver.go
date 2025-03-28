@@ -14,6 +14,7 @@ import (
 	"github.com/caliecode/la-clipasa/internal/gql/model"
 	"github.com/caliecode/la-clipasa/internal/utils/pointers"
 	"github.com/google/uuid"
+	"github.com/theopenlane/entx"
 )
 
 // CreatePostWithCategories is the resolver for the createPostWithCategories field.
@@ -82,6 +83,7 @@ func (r *mutationResolver) RestorePost(ctx context.Context, id uuid.UUID) (*bool
 
 // RefreshDiscordLink is the resolver for the refreshDiscordLink field.
 func (r *mutationResolver) RefreshDiscordLink(ctx context.Context, id uuid.UUID) (*string, error) {
+	ctx = entx.SkipSoftDelete(ctx) // maybe a mod wants to see a deleted post
 	p, err := r.ent.Post.Get(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get post: %w", err)

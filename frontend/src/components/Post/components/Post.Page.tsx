@@ -11,11 +11,12 @@ import { useRefreshDiscordLinkMutation } from 'src/graphql/gen'
 import { useCardBackground } from 'src/hooks/ui/usePostCardBackground'
 import { usePostsSlice } from 'src/slices/posts'
 import { uiPath } from 'src/ui-paths'
+import { extractGqlErrors } from 'src/utils/errors'
 import { getPostIdFromRoute, withBaseURL } from 'src/utils/urls'
 
 export const PostPage = () => {
   const { posts } = usePostsSlice()
-  const { post, setPost } = usePostContext()
+  const { post, setPost, setCalloutErrors } = usePostContext()
   const [refreshState, refreshDiscordLink] = useRefreshDiscordLinkMutation()
   const [refreshed, setRefreshed] = useState(false)
   const currentIndex = posts.findIndex((p) => p.id === post.id)
@@ -37,7 +38,7 @@ export const PostPage = () => {
           setRefreshed(true)
         }
         if (res.error) {
-          console.error(res.error)
+          setCalloutErrors(extractGqlErrors(res.error?.graphQLErrors))
         }
       }
     }
