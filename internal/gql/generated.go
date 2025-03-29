@@ -145,20 +145,24 @@ type ComplexityRoot struct {
 		CreateBulkCSVComment      func(childComplexity int, input graphql.Upload) int
 		CreateBulkCSVPost         func(childComplexity int, input graphql.Upload) int
 		CreateBulkCSVPostCategory func(childComplexity int, input graphql.Upload) int
+		CreateBulkCSVRefreshToken func(childComplexity int, input graphql.Upload) int
 		CreateBulkCSVUser         func(childComplexity int, input graphql.Upload) int
 		CreateBulkComment         func(childComplexity int, input []*generated.CreateCommentInput) int
 		CreateBulkPost            func(childComplexity int, input []*generated.CreatePostInput) int
 		CreateBulkPostCategory    func(childComplexity int, input []*generated.CreatePostCategoryInput) int
+		CreateBulkRefreshToken    func(childComplexity int, input []*generated.CreateRefreshTokenInput) int
 		CreateBulkUser            func(childComplexity int, input []*generated.CreateUserInput) int
 		CreateComment             func(childComplexity int, input generated.CreateCommentInput) int
 		CreatePost                func(childComplexity int, input generated.CreatePostInput) int
 		CreatePostCategory        func(childComplexity int, input generated.CreatePostCategoryInput) int
 		CreatePostWithCategories  func(childComplexity int, input model.CreatePostWithCategoriesInput) int
+		CreateRefreshToken        func(childComplexity int, input generated.CreateRefreshTokenInput) int
 		CreateUser                func(childComplexity int, input generated.CreateUserInput) int
 		DeleteAPIKey              func(childComplexity int, id uuid.UUID) int
 		DeleteComment             func(childComplexity int, id uuid.UUID) int
 		DeletePost                func(childComplexity int, id uuid.UUID) int
 		DeletePostCategory        func(childComplexity int, id uuid.UUID) int
+		DeleteRefreshToken        func(childComplexity int, id uuid.UUID) int
 		DeleteUser                func(childComplexity int, id uuid.UUID) int
 		M                         func(childComplexity int) int
 		RefreshDiscordLink        func(childComplexity int, id uuid.UUID) int
@@ -167,6 +171,7 @@ type ComplexityRoot struct {
 		UpdateComment             func(childComplexity int, id uuid.UUID, input generated.UpdateCommentInput) int
 		UpdatePost                func(childComplexity int, id uuid.UUID, input generated.UpdatePostInput) int
 		UpdatePostCategory        func(childComplexity int, id uuid.UUID, input generated.UpdatePostCategoryInput) int
+		UpdateRefreshToken        func(childComplexity int, id uuid.UUID, input generated.UpdateRefreshTokenInput) int
 		UpdateUser                func(childComplexity int, id uuid.UUID, input generated.UpdateUserInput) int
 	}
 
@@ -282,10 +287,50 @@ type ComplexityRoot struct {
 		PostCategories  func(childComplexity int, after *entgql.Cursor[uuid.UUID], first *int, before *entgql.Cursor[uuid.UUID], last *int, orderBy *generated.PostCategoryOrder, where *generated.PostCategoryWhereInput) int
 		PostCategory    func(childComplexity int, id uuid.UUID) int
 		Posts           func(childComplexity int, after *entgql.Cursor[uuid.UUID], first *int, before *entgql.Cursor[uuid.UUID], last *int, orderBy *generated.PostOrder, where *generated.PostWhereInput) int
+		RefreshToken    func(childComplexity int, id uuid.UUID) int
+		RefreshTokens   func(childComplexity int, after *entgql.Cursor[uuid.UUID], first *int, before *entgql.Cursor[uuid.UUID], last *int, orderBy *generated.RefreshTokenOrder, where *generated.RefreshTokenWhereInput) int
 		Search          func(childComplexity int, query string) int
 		User            func(childComplexity int, id uuid.UUID) int
 		UserSearch      func(childComplexity int, query string) int
 		Users           func(childComplexity int, after *entgql.Cursor[uuid.UUID], first *int, before *entgql.Cursor[uuid.UUID], last *int, orderBy *generated.UserOrder, where *generated.UserWhereInput) int
+	}
+
+	RefreshToken struct {
+		CreatedAt func(childComplexity int) int
+		ExpiresAt func(childComplexity int) int
+		ID        func(childComplexity int) int
+		IPAddress func(childComplexity int) int
+		Owner     func(childComplexity int) int
+		Revoked   func(childComplexity int) int
+		UpdatedAt func(childComplexity int) int
+		UserAgent func(childComplexity int) int
+	}
+
+	RefreshTokenBulkCreatePayload struct {
+		RefreshTokens func(childComplexity int) int
+	}
+
+	RefreshTokenConnection struct {
+		Edges      func(childComplexity int) int
+		PageInfo   func(childComplexity int) int
+		TotalCount func(childComplexity int) int
+	}
+
+	RefreshTokenCreatePayload struct {
+		RefreshToken func(childComplexity int) int
+	}
+
+	RefreshTokenDeletePayload struct {
+		DeletedID func(childComplexity int) int
+	}
+
+	RefreshTokenEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
+	}
+
+	RefreshTokenUpdatePayload struct {
+		RefreshToken func(childComplexity int) int
 	}
 
 	SearchResultConnection struct {
@@ -380,6 +425,11 @@ type MutationResolver interface {
 	CreatePostWithCategories(ctx context.Context, input model.CreatePostWithCategoriesInput) (*model.PostCreatePayload, error)
 	RestorePost(ctx context.Context, id uuid.UUID) (*bool, error)
 	RefreshDiscordLink(ctx context.Context, id uuid.UUID) (*string, error)
+	CreateRefreshToken(ctx context.Context, input generated.CreateRefreshTokenInput) (*model.RefreshTokenCreatePayload, error)
+	CreateBulkRefreshToken(ctx context.Context, input []*generated.CreateRefreshTokenInput) (*model.RefreshTokenBulkCreatePayload, error)
+	CreateBulkCSVRefreshToken(ctx context.Context, input graphql.Upload) (*model.RefreshTokenBulkCreatePayload, error)
+	UpdateRefreshToken(ctx context.Context, id uuid.UUID, input generated.UpdateRefreshTokenInput) (*model.RefreshTokenUpdatePayload, error)
+	DeleteRefreshToken(ctx context.Context, id uuid.UUID) (*model.RefreshTokenDeletePayload, error)
 	CreateUser(ctx context.Context, input generated.CreateUserInput) (*model.UserCreatePayload, error)
 	CreateBulkUser(ctx context.Context, input []*generated.CreateUserInput) (*model.UserBulkCreatePayload, error)
 	CreateBulkCSVUser(ctx context.Context, input graphql.Upload) (*model.UserBulkCreatePayload, error)
@@ -397,12 +447,14 @@ type QueryResolver interface {
 	Comments(ctx context.Context, after *entgql.Cursor[uuid.UUID], first *int, before *entgql.Cursor[uuid.UUID], last *int, orderBy *generated.CommentOrder, where *generated.CommentWhereInput) (*generated.CommentConnection, error)
 	Posts(ctx context.Context, after *entgql.Cursor[uuid.UUID], first *int, before *entgql.Cursor[uuid.UUID], last *int, orderBy *generated.PostOrder, where *generated.PostWhereInput) (*generated.PostConnection, error)
 	PostCategories(ctx context.Context, after *entgql.Cursor[uuid.UUID], first *int, before *entgql.Cursor[uuid.UUID], last *int, orderBy *generated.PostCategoryOrder, where *generated.PostCategoryWhereInput) (*generated.PostCategoryConnection, error)
+	RefreshTokens(ctx context.Context, after *entgql.Cursor[uuid.UUID], first *int, before *entgql.Cursor[uuid.UUID], last *int, orderBy *generated.RefreshTokenOrder, where *generated.RefreshTokenWhereInput) (*generated.RefreshTokenConnection, error)
 	Users(ctx context.Context, after *entgql.Cursor[uuid.UUID], first *int, before *entgql.Cursor[uuid.UUID], last *int, orderBy *generated.UserOrder, where *generated.UserWhereInput) (*generated.UserConnection, error)
 	AdminUserSearch(ctx context.Context, query string) (*model.UserSearchResult, error)
 	APIKey(ctx context.Context, id uuid.UUID) (*generated.ApiKey, error)
 	Comment(ctx context.Context, id uuid.UUID) (*generated.Comment, error)
 	Post(ctx context.Context, id uuid.UUID) (*generated.Post, error)
 	PostCategory(ctx context.Context, id uuid.UUID) (*generated.PostCategory, error)
+	RefreshToken(ctx context.Context, id uuid.UUID) (*generated.RefreshToken, error)
 	UserSearch(ctx context.Context, query string) (*model.UserSearchResult, error)
 	Search(ctx context.Context, query string) (*model.SearchResultConnection, error)
 	AdminSearch(ctx context.Context, query string) (*model.SearchResultConnection, error)
@@ -742,6 +794,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateBulkCSVPostCategory(childComplexity, args["input"].(graphql.Upload)), true
 
+	case "Mutation.createBulkCSVRefreshToken":
+		if e.complexity.Mutation.CreateBulkCSVRefreshToken == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createBulkCSVRefreshToken_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateBulkCSVRefreshToken(childComplexity, args["input"].(graphql.Upload)), true
+
 	case "Mutation.createBulkCSVUser":
 		if e.complexity.Mutation.CreateBulkCSVUser == nil {
 			break
@@ -789,6 +853,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateBulkPostCategory(childComplexity, args["input"].([]*generated.CreatePostCategoryInput)), true
+
+	case "Mutation.createBulkRefreshToken":
+		if e.complexity.Mutation.CreateBulkRefreshToken == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createBulkRefreshToken_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateBulkRefreshToken(childComplexity, args["input"].([]*generated.CreateRefreshTokenInput)), true
 
 	case "Mutation.createBulkUser":
 		if e.complexity.Mutation.CreateBulkUser == nil {
@@ -850,6 +926,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreatePostWithCategories(childComplexity, args["input"].(model.CreatePostWithCategoriesInput)), true
 
+	case "Mutation.createRefreshToken":
+		if e.complexity.Mutation.CreateRefreshToken == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createRefreshToken_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateRefreshToken(childComplexity, args["input"].(generated.CreateRefreshTokenInput)), true
+
 	case "Mutation.createUser":
 		if e.complexity.Mutation.CreateUser == nil {
 			break
@@ -909,6 +997,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.DeletePostCategory(childComplexity, args["id"].(uuid.UUID)), true
+
+	case "Mutation.deleteRefreshToken":
+		if e.complexity.Mutation.DeleteRefreshToken == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteRefreshToken_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteRefreshToken(childComplexity, args["id"].(uuid.UUID)), true
 
 	case "Mutation.deleteUser":
 		if e.complexity.Mutation.DeleteUser == nil {
@@ -1000,6 +1100,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UpdatePostCategory(childComplexity, args["id"].(uuid.UUID), args["input"].(generated.UpdatePostCategoryInput)), true
+
+	case "Mutation.updateRefreshToken":
+		if e.complexity.Mutation.UpdateRefreshToken == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateRefreshToken_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateRefreshToken(childComplexity, args["id"].(uuid.UUID), args["input"].(generated.UpdateRefreshTokenInput)), true
 
 	case "Mutation.updateUser":
 		if e.complexity.Mutation.UpdateUser == nil {
@@ -1524,6 +1636,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Posts(childComplexity, args["after"].(*entgql.Cursor[uuid.UUID]), args["first"].(*int), args["before"].(*entgql.Cursor[uuid.UUID]), args["last"].(*int), args["orderBy"].(*generated.PostOrder), args["where"].(*generated.PostWhereInput)), true
 
+	case "Query.refreshToken":
+		if e.complexity.Query.RefreshToken == nil {
+			break
+		}
+
+		args, err := ec.field_Query_refreshToken_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.RefreshToken(childComplexity, args["id"].(uuid.UUID)), true
+
+	case "Query.refreshTokens":
+		if e.complexity.Query.RefreshTokens == nil {
+			break
+		}
+
+		args, err := ec.field_Query_refreshTokens_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.RefreshTokens(childComplexity, args["after"].(*entgql.Cursor[uuid.UUID]), args["first"].(*int), args["before"].(*entgql.Cursor[uuid.UUID]), args["last"].(*int), args["orderBy"].(*generated.RefreshTokenOrder), args["where"].(*generated.RefreshTokenWhereInput)), true
+
 	case "Query.search":
 		if e.complexity.Query.Search == nil {
 			break
@@ -1571,6 +1707,125 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Users(childComplexity, args["after"].(*entgql.Cursor[uuid.UUID]), args["first"].(*int), args["before"].(*entgql.Cursor[uuid.UUID]), args["last"].(*int), args["orderBy"].(*generated.UserOrder), args["where"].(*generated.UserWhereInput)), true
+
+	case "RefreshToken.createdAt":
+		if e.complexity.RefreshToken.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.RefreshToken.CreatedAt(childComplexity), true
+
+	case "RefreshToken.expiresAt":
+		if e.complexity.RefreshToken.ExpiresAt == nil {
+			break
+		}
+
+		return e.complexity.RefreshToken.ExpiresAt(childComplexity), true
+
+	case "RefreshToken.id":
+		if e.complexity.RefreshToken.ID == nil {
+			break
+		}
+
+		return e.complexity.RefreshToken.ID(childComplexity), true
+
+	case "RefreshToken.ipAddress":
+		if e.complexity.RefreshToken.IPAddress == nil {
+			break
+		}
+
+		return e.complexity.RefreshToken.IPAddress(childComplexity), true
+
+	case "RefreshToken.owner":
+		if e.complexity.RefreshToken.Owner == nil {
+			break
+		}
+
+		return e.complexity.RefreshToken.Owner(childComplexity), true
+
+	case "RefreshToken.revoked":
+		if e.complexity.RefreshToken.Revoked == nil {
+			break
+		}
+
+		return e.complexity.RefreshToken.Revoked(childComplexity), true
+
+	case "RefreshToken.updatedAt":
+		if e.complexity.RefreshToken.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.RefreshToken.UpdatedAt(childComplexity), true
+
+	case "RefreshToken.userAgent":
+		if e.complexity.RefreshToken.UserAgent == nil {
+			break
+		}
+
+		return e.complexity.RefreshToken.UserAgent(childComplexity), true
+
+	case "RefreshTokenBulkCreatePayload.refreshTokens":
+		if e.complexity.RefreshTokenBulkCreatePayload.RefreshTokens == nil {
+			break
+		}
+
+		return e.complexity.RefreshTokenBulkCreatePayload.RefreshTokens(childComplexity), true
+
+	case "RefreshTokenConnection.edges":
+		if e.complexity.RefreshTokenConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.RefreshTokenConnection.Edges(childComplexity), true
+
+	case "RefreshTokenConnection.pageInfo":
+		if e.complexity.RefreshTokenConnection.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.RefreshTokenConnection.PageInfo(childComplexity), true
+
+	case "RefreshTokenConnection.totalCount":
+		if e.complexity.RefreshTokenConnection.TotalCount == nil {
+			break
+		}
+
+		return e.complexity.RefreshTokenConnection.TotalCount(childComplexity), true
+
+	case "RefreshTokenCreatePayload.refreshToken":
+		if e.complexity.RefreshTokenCreatePayload.RefreshToken == nil {
+			break
+		}
+
+		return e.complexity.RefreshTokenCreatePayload.RefreshToken(childComplexity), true
+
+	case "RefreshTokenDeletePayload.deletedID":
+		if e.complexity.RefreshTokenDeletePayload.DeletedID == nil {
+			break
+		}
+
+		return e.complexity.RefreshTokenDeletePayload.DeletedID(childComplexity), true
+
+	case "RefreshTokenEdge.cursor":
+		if e.complexity.RefreshTokenEdge.Cursor == nil {
+			break
+		}
+
+		return e.complexity.RefreshTokenEdge.Cursor(childComplexity), true
+
+	case "RefreshTokenEdge.node":
+		if e.complexity.RefreshTokenEdge.Node == nil {
+			break
+		}
+
+		return e.complexity.RefreshTokenEdge.Node(childComplexity), true
+
+	case "RefreshTokenUpdatePayload.refreshToken":
+		if e.complexity.RefreshTokenUpdatePayload.RefreshToken == nil {
+			break
+		}
+
+		return e.complexity.RefreshTokenUpdatePayload.RefreshToken(childComplexity), true
 
 	case "SearchResultConnection.nodes":
 		if e.complexity.SearchResultConnection.Nodes == nil {
@@ -1841,15 +2096,19 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreatePostCategoryInput,
 		ec.unmarshalInputCreatePostInput,
 		ec.unmarshalInputCreatePostWithCategoriesInput,
+		ec.unmarshalInputCreateRefreshTokenInput,
 		ec.unmarshalInputCreateUserInput,
 		ec.unmarshalInputPostCategoryOrder,
 		ec.unmarshalInputPostCategoryWhereInput,
 		ec.unmarshalInputPostOrder,
 		ec.unmarshalInputPostWhereInput,
+		ec.unmarshalInputRefreshTokenOrder,
+		ec.unmarshalInputRefreshTokenWhereInput,
 		ec.unmarshalInputUpdateApiKeyInput,
 		ec.unmarshalInputUpdateCommentInput,
 		ec.unmarshalInputUpdatePostCategoryInput,
 		ec.unmarshalInputUpdatePostInput,
+		ec.unmarshalInputUpdateRefreshTokenInput,
 		ec.unmarshalInputUpdateUserInput,
 		ec.unmarshalInputUserOrder,
 		ec.unmarshalInputUserWhereInput,
@@ -1949,7 +2208,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(ec.Schema(), ec.Schema().Types[name]), nil
 }
 
-//go:embed "schema/adminsearch.graphql" "schema/apikey.graphql" "schema/comment.graphql" "schema/common.graphql" "schema/ent.graphql" "schema/post.graphql" "schema/postcategory.graphql" "schema/postextended.graphql" "schema/search.graphql" "schema/user.graphql" "schema/userextended.graphql"
+//go:embed "schema/adminsearch.graphql" "schema/apikey.graphql" "schema/comment.graphql" "schema/common.graphql" "schema/ent.graphql" "schema/post.graphql" "schema/postcategory.graphql" "schema/postextended.graphql" "schema/refreshtoken.graphql" "schema/search.graphql" "schema/user.graphql" "schema/userextended.graphql"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -1969,6 +2228,7 @@ var sources = []*ast.Source{
 	{Name: "schema/post.graphql", Input: sourceData("schema/post.graphql"), BuiltIn: false},
 	{Name: "schema/postcategory.graphql", Input: sourceData("schema/postcategory.graphql"), BuiltIn: false},
 	{Name: "schema/postextended.graphql", Input: sourceData("schema/postextended.graphql"), BuiltIn: false},
+	{Name: "schema/refreshtoken.graphql", Input: sourceData("schema/refreshtoken.graphql"), BuiltIn: false},
 	{Name: "schema/search.graphql", Input: sourceData("schema/search.graphql"), BuiltIn: false},
 	{Name: "schema/user.graphql", Input: sourceData("schema/user.graphql"), BuiltIn: false},
 	{Name: "schema/userextended.graphql", Input: sourceData("schema/userextended.graphql"), BuiltIn: false},
@@ -2175,6 +2435,34 @@ func (ec *executionContext) field_Mutation_createBulkCSVPost_argsInput(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Mutation_createBulkCSVRefreshToken_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_createBulkCSVRefreshToken_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_createBulkCSVRefreshToken_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (graphql.Upload, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal graphql.Upload
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNUpload2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx, tmp)
+	}
+
+	var zeroVal graphql.Upload
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Mutation_createBulkCSVUser_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -2284,6 +2572,34 @@ func (ec *executionContext) field_Mutation_createBulkPost_argsInput(
 	}
 
 	var zeroVal []*generated.CreatePostInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_createBulkRefreshToken_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_createBulkRefreshToken_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_createBulkRefreshToken_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) ([]*generated.CreateRefreshTokenInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal []*generated.CreateRefreshTokenInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalOCreateRefreshTokenInput2ᚕᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐCreateRefreshTokenInputᚄ(ctx, tmp)
+	}
+
+	var zeroVal []*generated.CreateRefreshTokenInput
 	return zeroVal, nil
 }
 
@@ -2427,6 +2743,34 @@ func (ec *executionContext) field_Mutation_createPost_argsInput(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Mutation_createRefreshToken_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_createRefreshToken_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_createRefreshToken_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (generated.CreateRefreshTokenInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal generated.CreateRefreshTokenInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNCreateRefreshTokenInput2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐCreateRefreshTokenInput(ctx, tmp)
+	}
+
+	var zeroVal generated.CreateRefreshTokenInput
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -2550,6 +2894,34 @@ func (ec *executionContext) field_Mutation_deletePost_args(ctx context.Context, 
 	return args, nil
 }
 func (ec *executionContext) field_Mutation_deletePost_argsID(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (uuid.UUID, error) {
+	if _, ok := rawArgs["id"]; !ok {
+		var zeroVal uuid.UUID
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+	if tmp, ok := rawArgs["id"]; ok {
+		return ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
+	}
+
+	var zeroVal uuid.UUID
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_deleteRefreshToken_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_deleteRefreshToken_argsID(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_deleteRefreshToken_argsID(
 	ctx context.Context,
 	rawArgs map[string]any,
 ) (uuid.UUID, error) {
@@ -2852,6 +3224,57 @@ func (ec *executionContext) field_Mutation_updatePost_argsInput(
 	}
 
 	var zeroVal generated.UpdatePostInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateRefreshToken_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_updateRefreshToken_argsID(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
+	arg1, err := ec.field_Mutation_updateRefreshToken_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg1
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_updateRefreshToken_argsID(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (uuid.UUID, error) {
+	if _, ok := rawArgs["id"]; !ok {
+		var zeroVal uuid.UUID
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+	if tmp, ok := rawArgs["id"]; ok {
+		return ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
+	}
+
+	var zeroVal uuid.UUID
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateRefreshToken_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (generated.UpdateRefreshTokenInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal generated.UpdateRefreshTokenInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNUpdateRefreshTokenInput2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐUpdateRefreshTokenInput(ctx, tmp)
+	}
+
+	var zeroVal generated.UpdateRefreshTokenInput
 	return zeroVal, nil
 }
 
@@ -4013,6 +4436,177 @@ func (ec *executionContext) field_Query_posts_argsWhere(
 	}
 
 	var zeroVal *generated.PostWhereInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_refreshToken_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Query_refreshToken_argsID(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Query_refreshToken_argsID(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (uuid.UUID, error) {
+	if _, ok := rawArgs["id"]; !ok {
+		var zeroVal uuid.UUID
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+	if tmp, ok := rawArgs["id"]; ok {
+		return ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
+	}
+
+	var zeroVal uuid.UUID
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_refreshTokens_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Query_refreshTokens_argsAfter(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["after"] = arg0
+	arg1, err := ec.field_Query_refreshTokens_argsFirst(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["first"] = arg1
+	arg2, err := ec.field_Query_refreshTokens_argsBefore(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["before"] = arg2
+	arg3, err := ec.field_Query_refreshTokens_argsLast(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["last"] = arg3
+	arg4, err := ec.field_Query_refreshTokens_argsOrderBy(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["orderBy"] = arg4
+	arg5, err := ec.field_Query_refreshTokens_argsWhere(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["where"] = arg5
+	return args, nil
+}
+func (ec *executionContext) field_Query_refreshTokens_argsAfter(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*entgql.Cursor[uuid.UUID], error) {
+	if _, ok := rawArgs["after"]; !ok {
+		var zeroVal *entgql.Cursor[uuid.UUID]
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
+	if tmp, ok := rawArgs["after"]; ok {
+		return ec.unmarshalOCursor2ᚖentgoᚗioᚋcontribᚋentgqlᚐCursor(ctx, tmp)
+	}
+
+	var zeroVal *entgql.Cursor[uuid.UUID]
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_refreshTokens_argsFirst(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*int, error) {
+	if _, ok := rawArgs["first"]; !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+	if tmp, ok := rawArgs["first"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_refreshTokens_argsBefore(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*entgql.Cursor[uuid.UUID], error) {
+	if _, ok := rawArgs["before"]; !ok {
+		var zeroVal *entgql.Cursor[uuid.UUID]
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
+	if tmp, ok := rawArgs["before"]; ok {
+		return ec.unmarshalOCursor2ᚖentgoᚗioᚋcontribᚋentgqlᚐCursor(ctx, tmp)
+	}
+
+	var zeroVal *entgql.Cursor[uuid.UUID]
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_refreshTokens_argsLast(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*int, error) {
+	if _, ok := rawArgs["last"]; !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
+	if tmp, ok := rawArgs["last"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_refreshTokens_argsOrderBy(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*generated.RefreshTokenOrder, error) {
+	if _, ok := rawArgs["orderBy"]; !ok {
+		var zeroVal *generated.RefreshTokenOrder
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+	if tmp, ok := rawArgs["orderBy"]; ok {
+		return ec.unmarshalORefreshTokenOrder2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐRefreshTokenOrder(ctx, tmp)
+	}
+
+	var zeroVal *generated.RefreshTokenOrder
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_refreshTokens_argsWhere(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*generated.RefreshTokenWhereInput, error) {
+	if _, ok := rawArgs["where"]; !ok {
+		var zeroVal *generated.RefreshTokenWhereInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("where"))
+	if tmp, ok := rawArgs["where"]; ok {
+		return ec.unmarshalORefreshTokenWhereInput2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐRefreshTokenWhereInput(ctx, tmp)
+	}
+
+	var zeroVal *generated.RefreshTokenWhereInput
 	return zeroVal, nil
 }
 
@@ -7519,6 +8113,301 @@ func (ec *executionContext) fieldContext_Mutation_refreshDiscordLink(ctx context
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_createRefreshToken(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createRefreshToken(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateRefreshToken(rctx, fc.Args["input"].(generated.CreateRefreshTokenInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.RefreshTokenCreatePayload)
+	fc.Result = res
+	return ec.marshalNRefreshTokenCreatePayload2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋmodelᚐRefreshTokenCreatePayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createRefreshToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "refreshToken":
+				return ec.fieldContext_RefreshTokenCreatePayload_refreshToken(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RefreshTokenCreatePayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createRefreshToken_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_createBulkRefreshToken(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createBulkRefreshToken(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateBulkRefreshToken(rctx, fc.Args["input"].([]*generated.CreateRefreshTokenInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.RefreshTokenBulkCreatePayload)
+	fc.Result = res
+	return ec.marshalNRefreshTokenBulkCreatePayload2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋmodelᚐRefreshTokenBulkCreatePayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createBulkRefreshToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "refreshTokens":
+				return ec.fieldContext_RefreshTokenBulkCreatePayload_refreshTokens(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RefreshTokenBulkCreatePayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createBulkRefreshToken_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_createBulkCSVRefreshToken(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createBulkCSVRefreshToken(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateBulkCSVRefreshToken(rctx, fc.Args["input"].(graphql.Upload))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.RefreshTokenBulkCreatePayload)
+	fc.Result = res
+	return ec.marshalNRefreshTokenBulkCreatePayload2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋmodelᚐRefreshTokenBulkCreatePayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createBulkCSVRefreshToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "refreshTokens":
+				return ec.fieldContext_RefreshTokenBulkCreatePayload_refreshTokens(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RefreshTokenBulkCreatePayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createBulkCSVRefreshToken_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateRefreshToken(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateRefreshToken(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateRefreshToken(rctx, fc.Args["id"].(uuid.UUID), fc.Args["input"].(generated.UpdateRefreshTokenInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.RefreshTokenUpdatePayload)
+	fc.Result = res
+	return ec.marshalNRefreshTokenUpdatePayload2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋmodelᚐRefreshTokenUpdatePayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateRefreshToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "refreshToken":
+				return ec.fieldContext_RefreshTokenUpdatePayload_refreshToken(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RefreshTokenUpdatePayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateRefreshToken_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_deleteRefreshToken(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_deleteRefreshToken(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteRefreshToken(rctx, fc.Args["id"].(uuid.UUID))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.RefreshTokenDeletePayload)
+	fc.Result = res
+	return ec.marshalNRefreshTokenDeletePayload2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋmodelᚐRefreshTokenDeletePayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_deleteRefreshToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "deletedID":
+				return ec.fieldContext_RefreshTokenDeletePayload_deletedID(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RefreshTokenDeletePayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_deleteRefreshToken_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_createUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_createUser(ctx, field)
 	if err != nil {
@@ -10753,6 +11642,69 @@ func (ec *executionContext) fieldContext_Query_postCategories(ctx context.Contex
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_refreshTokens(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_refreshTokens(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().RefreshTokens(rctx, fc.Args["after"].(*entgql.Cursor[uuid.UUID]), fc.Args["first"].(*int), fc.Args["before"].(*entgql.Cursor[uuid.UUID]), fc.Args["last"].(*int), fc.Args["orderBy"].(*generated.RefreshTokenOrder), fc.Args["where"].(*generated.RefreshTokenWhereInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*generated.RefreshTokenConnection)
+	fc.Result = res
+	return ec.marshalNRefreshTokenConnection2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐRefreshTokenConnection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_refreshTokens(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "edges":
+				return ec.fieldContext_RefreshTokenConnection_edges(ctx, field)
+			case "pageInfo":
+				return ec.fieldContext_RefreshTokenConnection_pageInfo(ctx, field)
+			case "totalCount":
+				return ec.fieldContext_RefreshTokenConnection_totalCount(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RefreshTokenConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_refreshTokens_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_users(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_users(ctx, field)
 	if err != nil {
@@ -11172,6 +12124,79 @@ func (ec *executionContext) fieldContext_Query_postCategory(ctx context.Context,
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_postCategory_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_refreshToken(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_refreshToken(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().RefreshToken(rctx, fc.Args["id"].(uuid.UUID))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*generated.RefreshToken)
+	fc.Result = res
+	return ec.marshalNRefreshToken2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐRefreshToken(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_refreshToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_RefreshToken_id(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_RefreshToken_updatedAt(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_RefreshToken_createdAt(ctx, field)
+			case "expiresAt":
+				return ec.fieldContext_RefreshToken_expiresAt(ctx, field)
+			case "revoked":
+				return ec.fieldContext_RefreshToken_revoked(ctx, field)
+			case "ipAddress":
+				return ec.fieldContext_RefreshToken_ipAddress(ctx, field)
+			case "userAgent":
+				return ec.fieldContext_RefreshToken_userAgent(ctx, field)
+			case "owner":
+				return ec.fieldContext_RefreshToken_owner(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RefreshToken", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_refreshToken_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -11656,6 +12681,867 @@ func (ec *executionContext) fieldContext_Query___schema(_ context.Context, field
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefreshToken_id(ctx context.Context, field graphql.CollectedField, obj *generated.RefreshToken) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RefreshToken_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(uuid.UUID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RefreshToken_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefreshToken",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefreshToken_updatedAt(ctx context.Context, field graphql.CollectedField, obj *generated.RefreshToken) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RefreshToken_updatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RefreshToken_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefreshToken",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefreshToken_createdAt(ctx context.Context, field graphql.CollectedField, obj *generated.RefreshToken) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RefreshToken_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RefreshToken_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefreshToken",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefreshToken_expiresAt(ctx context.Context, field graphql.CollectedField, obj *generated.RefreshToken) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RefreshToken_expiresAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ExpiresAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RefreshToken_expiresAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefreshToken",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefreshToken_revoked(ctx context.Context, field graphql.CollectedField, obj *generated.RefreshToken) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RefreshToken_revoked(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Revoked, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RefreshToken_revoked(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefreshToken",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefreshToken_ipAddress(ctx context.Context, field graphql.CollectedField, obj *generated.RefreshToken) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RefreshToken_ipAddress(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IPAddress, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RefreshToken_ipAddress(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefreshToken",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefreshToken_userAgent(ctx context.Context, field graphql.CollectedField, obj *generated.RefreshToken) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RefreshToken_userAgent(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserAgent, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RefreshToken_userAgent(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefreshToken",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefreshToken_owner(ctx context.Context, field graphql.CollectedField, obj *generated.RefreshToken) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RefreshToken_owner(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Owner(ctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*generated.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RefreshToken_owner(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefreshToken",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_User_updatedAt(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
+			case "deletedAt":
+				return ec.fieldContext_User_deletedAt(ctx, field)
+			case "deletedBy":
+				return ec.fieldContext_User_deletedBy(ctx, field)
+			case "displayName":
+				return ec.fieldContext_User_displayName(ctx, field)
+			case "alias":
+				return ec.fieldContext_User_alias(ctx, field)
+			case "profileImage":
+				return ec.fieldContext_User_profileImage(ctx, field)
+			case "authProvider":
+				return ec.fieldContext_User_authProvider(ctx, field)
+			case "role":
+				return ec.fieldContext_User_role(ctx, field)
+			case "lastSeenAt":
+				return ec.fieldContext_User_lastSeenAt(ctx, field)
+			case "lastPostSeenCursor":
+				return ec.fieldContext_User_lastPostSeenCursor(ctx, field)
+			case "awards":
+				return ec.fieldContext_User_awards(ctx, field)
+			case "savedPosts":
+				return ec.fieldContext_User_savedPosts(ctx, field)
+			case "likedPosts":
+				return ec.fieldContext_User_likedPosts(ctx, field)
+			case "publishedPosts":
+				return ec.fieldContext_User_publishedPosts(ctx, field)
+			case "comments":
+				return ec.fieldContext_User_comments(ctx, field)
+			case "apiKeys":
+				return ec.fieldContext_User_apiKeys(ctx, field)
+			case "twitchInfo":
+				return ec.fieldContext_User_twitchInfo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefreshTokenBulkCreatePayload_refreshTokens(ctx context.Context, field graphql.CollectedField, obj *model.RefreshTokenBulkCreatePayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RefreshTokenBulkCreatePayload_refreshTokens(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RefreshTokens, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*generated.RefreshToken)
+	fc.Result = res
+	return ec.marshalORefreshToken2ᚕᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐRefreshTokenᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RefreshTokenBulkCreatePayload_refreshTokens(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefreshTokenBulkCreatePayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_RefreshToken_id(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_RefreshToken_updatedAt(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_RefreshToken_createdAt(ctx, field)
+			case "expiresAt":
+				return ec.fieldContext_RefreshToken_expiresAt(ctx, field)
+			case "revoked":
+				return ec.fieldContext_RefreshToken_revoked(ctx, field)
+			case "ipAddress":
+				return ec.fieldContext_RefreshToken_ipAddress(ctx, field)
+			case "userAgent":
+				return ec.fieldContext_RefreshToken_userAgent(ctx, field)
+			case "owner":
+				return ec.fieldContext_RefreshToken_owner(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RefreshToken", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefreshTokenConnection_edges(ctx context.Context, field graphql.CollectedField, obj *generated.RefreshTokenConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RefreshTokenConnection_edges(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Edges, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*generated.RefreshTokenEdge)
+	fc.Result = res
+	return ec.marshalORefreshTokenEdge2ᚕᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐRefreshTokenEdge(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RefreshTokenConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefreshTokenConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "node":
+				return ec.fieldContext_RefreshTokenEdge_node(ctx, field)
+			case "cursor":
+				return ec.fieldContext_RefreshTokenEdge_cursor(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RefreshTokenEdge", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefreshTokenConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *generated.RefreshTokenConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RefreshTokenConnection_pageInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(entgql.PageInfo[uuid.UUID])
+	fc.Result = res
+	return ec.marshalNPageInfo2entgoᚗioᚋcontribᚋentgqlᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RefreshTokenConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefreshTokenConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "hasNextPage":
+				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+			case "hasPreviousPage":
+				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+			case "startCursor":
+				return ec.fieldContext_PageInfo_startCursor(ctx, field)
+			case "endCursor":
+				return ec.fieldContext_PageInfo_endCursor(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefreshTokenConnection_totalCount(ctx context.Context, field graphql.CollectedField, obj *generated.RefreshTokenConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RefreshTokenConnection_totalCount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalCount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RefreshTokenConnection_totalCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefreshTokenConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefreshTokenCreatePayload_refreshToken(ctx context.Context, field graphql.CollectedField, obj *model.RefreshTokenCreatePayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RefreshTokenCreatePayload_refreshToken(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RefreshToken, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*generated.RefreshToken)
+	fc.Result = res
+	return ec.marshalNRefreshToken2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐRefreshToken(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RefreshTokenCreatePayload_refreshToken(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefreshTokenCreatePayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_RefreshToken_id(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_RefreshToken_updatedAt(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_RefreshToken_createdAt(ctx, field)
+			case "expiresAt":
+				return ec.fieldContext_RefreshToken_expiresAt(ctx, field)
+			case "revoked":
+				return ec.fieldContext_RefreshToken_revoked(ctx, field)
+			case "ipAddress":
+				return ec.fieldContext_RefreshToken_ipAddress(ctx, field)
+			case "userAgent":
+				return ec.fieldContext_RefreshToken_userAgent(ctx, field)
+			case "owner":
+				return ec.fieldContext_RefreshToken_owner(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RefreshToken", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefreshTokenDeletePayload_deletedID(ctx context.Context, field graphql.CollectedField, obj *model.RefreshTokenDeletePayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RefreshTokenDeletePayload_deletedID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DeletedID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(uuid.UUID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RefreshTokenDeletePayload_deletedID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefreshTokenDeletePayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefreshTokenEdge_node(ctx context.Context, field graphql.CollectedField, obj *generated.RefreshTokenEdge) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RefreshTokenEdge_node(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Node, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*generated.RefreshToken)
+	fc.Result = res
+	return ec.marshalORefreshToken2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐRefreshToken(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RefreshTokenEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefreshTokenEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_RefreshToken_id(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_RefreshToken_updatedAt(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_RefreshToken_createdAt(ctx, field)
+			case "expiresAt":
+				return ec.fieldContext_RefreshToken_expiresAt(ctx, field)
+			case "revoked":
+				return ec.fieldContext_RefreshToken_revoked(ctx, field)
+			case "ipAddress":
+				return ec.fieldContext_RefreshToken_ipAddress(ctx, field)
+			case "userAgent":
+				return ec.fieldContext_RefreshToken_userAgent(ctx, field)
+			case "owner":
+				return ec.fieldContext_RefreshToken_owner(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RefreshToken", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefreshTokenEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *generated.RefreshTokenEdge) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RefreshTokenEdge_cursor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Cursor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(entgql.Cursor[uuid.UUID])
+	fc.Result = res
+	return ec.marshalNCursor2entgoᚗioᚋcontribᚋentgqlᚐCursor(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RefreshTokenEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefreshTokenEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Cursor does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefreshTokenUpdatePayload_refreshToken(ctx context.Context, field graphql.CollectedField, obj *model.RefreshTokenUpdatePayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RefreshTokenUpdatePayload_refreshToken(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RefreshToken, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*generated.RefreshToken)
+	fc.Result = res
+	return ec.marshalNRefreshToken2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐRefreshToken(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RefreshTokenUpdatePayload_refreshToken(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefreshTokenUpdatePayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_RefreshToken_id(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_RefreshToken_updatedAt(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_RefreshToken_createdAt(ctx, field)
+			case "expiresAt":
+				return ec.fieldContext_RefreshToken_expiresAt(ctx, field)
+			case "revoked":
+				return ec.fieldContext_RefreshToken_revoked(ctx, field)
+			case "ipAddress":
+				return ec.fieldContext_RefreshToken_ipAddress(ctx, field)
+			case "userAgent":
+				return ec.fieldContext_RefreshToken_userAgent(ctx, field)
+			case "owner":
+				return ec.fieldContext_RefreshToken_owner(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RefreshToken", field.Name)
 		},
 	}
 	return fc, nil
@@ -16764,6 +18650,61 @@ func (ec *executionContext) unmarshalInputCreatePostWithCategoriesInput(ctx cont
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputCreateRefreshTokenInput(ctx context.Context, obj any) (generated.CreateRefreshTokenInput, error) {
+	var it generated.CreateRefreshTokenInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"expiresAt", "revoked", "ipAddress", "userAgent", "ownerID"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "expiresAt":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expiresAt"))
+			data, err := ec.unmarshalNTime2timeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ExpiresAt = data
+		case "revoked":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("revoked"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Revoked = data
+		case "ipAddress":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ipAddress"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IPAddress = data
+		case "userAgent":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userAgent"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserAgent = data
+		case "ownerID":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ownerID"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.OwnerID = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, obj any) (generated.CreateUserInput, error) {
 	var it generated.CreateUserInput
 	asMap := map[string]any{}
@@ -18253,6 +20194,547 @@ func (ec *executionContext) unmarshalInputPostWhereInput(ctx context.Context, ob
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputRefreshTokenOrder(ctx context.Context, obj any) (generated.RefreshTokenOrder, error) {
+	var it generated.RefreshTokenOrder
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	if _, present := asMap["direction"]; !present {
+		asMap["direction"] = "ASC"
+	}
+
+	fieldsInOrder := [...]string{"direction", "field"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "direction":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
+			data, err := ec.unmarshalNOrderDirection2entgoᚗioᚋcontribᚋentgqlᚐOrderDirection(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Direction = data
+		case "field":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
+			data, err := ec.unmarshalNRefreshTokenOrderField2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐRefreshTokenOrderField(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Field = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputRefreshTokenWhereInput(ctx context.Context, obj any) (generated.RefreshTokenWhereInput, error) {
+	var it generated.RefreshTokenWhereInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "updatedAt", "updatedAtNEQ", "updatedAtIn", "updatedAtNotIn", "updatedAtGT", "updatedAtGTE", "updatedAtLT", "updatedAtLTE", "createdAt", "createdAtNEQ", "createdAtIn", "createdAtNotIn", "createdAtGT", "createdAtGTE", "createdAtLT", "createdAtLTE", "expiresAt", "expiresAtNEQ", "expiresAtIn", "expiresAtNotIn", "expiresAtGT", "expiresAtGTE", "expiresAtLT", "expiresAtLTE", "revoked", "revokedNEQ", "ipAddress", "ipAddressNEQ", "ipAddressIn", "ipAddressNotIn", "ipAddressGT", "ipAddressGTE", "ipAddressLT", "ipAddressLTE", "ipAddressContains", "ipAddressHasPrefix", "ipAddressHasSuffix", "ipAddressIsNil", "ipAddressNotNil", "ipAddressEqualFold", "ipAddressContainsFold", "userAgent", "userAgentNEQ", "userAgentIn", "userAgentNotIn", "userAgentGT", "userAgentGTE", "userAgentLT", "userAgentLTE", "userAgentContains", "userAgentHasPrefix", "userAgentHasSuffix", "userAgentIsNil", "userAgentNotNil", "userAgentEqualFold", "userAgentContainsFold", "hasOwner", "hasOwnerWith"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "not":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("not"))
+			data, err := ec.unmarshalORefreshTokenWhereInput2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐRefreshTokenWhereInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Not = data
+		case "and":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("and"))
+			data, err := ec.unmarshalORefreshTokenWhereInput2ᚕᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐRefreshTokenWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.And = data
+		case "or":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("or"))
+			data, err := ec.unmarshalORefreshTokenWhereInput2ᚕᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐRefreshTokenWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Or = data
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "idNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idNEQ"))
+			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IDNEQ = data
+		case "idIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idIn"))
+			data, err := ec.unmarshalOID2ᚕgithubᚗcomᚋgoogleᚋuuidᚐUUIDᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IDIn = data
+		case "idNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idNotIn"))
+			data, err := ec.unmarshalOID2ᚕgithubᚗcomᚋgoogleᚋuuidᚐUUIDᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IDNotIn = data
+		case "idGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idGT"))
+			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IDGT = data
+		case "idGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idGTE"))
+			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IDGTE = data
+		case "idLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idLT"))
+			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IDLT = data
+		case "idLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idLTE"))
+			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IDLTE = data
+		case "updatedAt":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedAt = data
+		case "updatedAtNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAtNEQ"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedAtNEQ = data
+		case "updatedAtIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAtIn"))
+			data, err := ec.unmarshalOTime2ᚕtimeᚐTimeᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedAtIn = data
+		case "updatedAtNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAtNotIn"))
+			data, err := ec.unmarshalOTime2ᚕtimeᚐTimeᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedAtNotIn = data
+		case "updatedAtGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAtGT"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedAtGT = data
+		case "updatedAtGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAtGTE"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedAtGTE = data
+		case "updatedAtLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAtLT"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedAtLT = data
+		case "updatedAtLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAtLTE"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedAtLTE = data
+		case "createdAt":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAt = data
+		case "createdAtNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAtNEQ"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAtNEQ = data
+		case "createdAtIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAtIn"))
+			data, err := ec.unmarshalOTime2ᚕtimeᚐTimeᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAtIn = data
+		case "createdAtNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAtNotIn"))
+			data, err := ec.unmarshalOTime2ᚕtimeᚐTimeᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAtNotIn = data
+		case "createdAtGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAtGT"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAtGT = data
+		case "createdAtGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAtGTE"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAtGTE = data
+		case "createdAtLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAtLT"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAtLT = data
+		case "createdAtLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAtLTE"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAtLTE = data
+		case "expiresAt":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expiresAt"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ExpiresAt = data
+		case "expiresAtNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expiresAtNEQ"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ExpiresAtNEQ = data
+		case "expiresAtIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expiresAtIn"))
+			data, err := ec.unmarshalOTime2ᚕtimeᚐTimeᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ExpiresAtIn = data
+		case "expiresAtNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expiresAtNotIn"))
+			data, err := ec.unmarshalOTime2ᚕtimeᚐTimeᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ExpiresAtNotIn = data
+		case "expiresAtGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expiresAtGT"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ExpiresAtGT = data
+		case "expiresAtGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expiresAtGTE"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ExpiresAtGTE = data
+		case "expiresAtLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expiresAtLT"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ExpiresAtLT = data
+		case "expiresAtLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expiresAtLTE"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ExpiresAtLTE = data
+		case "revoked":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("revoked"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Revoked = data
+		case "revokedNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("revokedNEQ"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RevokedNEQ = data
+		case "ipAddress":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ipAddress"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IPAddress = data
+		case "ipAddressNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ipAddressNEQ"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IPAddressNEQ = data
+		case "ipAddressIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ipAddressIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IPAddressIn = data
+		case "ipAddressNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ipAddressNotIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IPAddressNotIn = data
+		case "ipAddressGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ipAddressGT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IPAddressGT = data
+		case "ipAddressGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ipAddressGTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IPAddressGTE = data
+		case "ipAddressLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ipAddressLT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IPAddressLT = data
+		case "ipAddressLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ipAddressLTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IPAddressLTE = data
+		case "ipAddressContains":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ipAddressContains"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IPAddressContains = data
+		case "ipAddressHasPrefix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ipAddressHasPrefix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IPAddressHasPrefix = data
+		case "ipAddressHasSuffix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ipAddressHasSuffix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IPAddressHasSuffix = data
+		case "ipAddressIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ipAddressIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IPAddressIsNil = data
+		case "ipAddressNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ipAddressNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IPAddressNotNil = data
+		case "ipAddressEqualFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ipAddressEqualFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IPAddressEqualFold = data
+		case "ipAddressContainsFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ipAddressContainsFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IPAddressContainsFold = data
+		case "userAgent":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userAgent"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserAgent = data
+		case "userAgentNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userAgentNEQ"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserAgentNEQ = data
+		case "userAgentIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userAgentIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserAgentIn = data
+		case "userAgentNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userAgentNotIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserAgentNotIn = data
+		case "userAgentGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userAgentGT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserAgentGT = data
+		case "userAgentGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userAgentGTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserAgentGTE = data
+		case "userAgentLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userAgentLT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserAgentLT = data
+		case "userAgentLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userAgentLTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserAgentLTE = data
+		case "userAgentContains":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userAgentContains"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserAgentContains = data
+		case "userAgentHasPrefix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userAgentHasPrefix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserAgentHasPrefix = data
+		case "userAgentHasSuffix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userAgentHasSuffix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserAgentHasSuffix = data
+		case "userAgentIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userAgentIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserAgentIsNil = data
+		case "userAgentNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userAgentNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserAgentNotNil = data
+		case "userAgentEqualFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userAgentEqualFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserAgentEqualFold = data
+		case "userAgentContainsFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userAgentContainsFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserAgentContainsFold = data
+		case "hasOwner":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasOwner"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasOwner = data
+		case "hasOwnerWith":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasOwnerWith"))
+			data, err := ec.unmarshalOUserWhereInput2ᚕᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐUserWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasOwnerWith = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputUpdateApiKeyInput(ctx context.Context, obj any) (generated.UpdateApiKeyInput, error) {
 	var it generated.UpdateApiKeyInput
 	asMap := map[string]any{}
@@ -18523,6 +21005,75 @@ func (ec *executionContext) unmarshalInputUpdatePostInput(ctx context.Context, o
 				return it, err
 			}
 			it.ClearCategories = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateRefreshTokenInput(ctx context.Context, obj any) (generated.UpdateRefreshTokenInput, error) {
+	var it generated.UpdateRefreshTokenInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"expiresAt", "revoked", "ipAddress", "clearIPAddress", "userAgent", "clearUserAgent", "ownerID"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "expiresAt":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expiresAt"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ExpiresAt = data
+		case "revoked":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("revoked"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Revoked = data
+		case "ipAddress":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ipAddress"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IPAddress = data
+		case "clearIPAddress":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("clearIPAddress"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ClearIPAddress = data
+		case "userAgent":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userAgent"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserAgent = data
+		case "clearUserAgent":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("clearUserAgent"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ClearUserAgent = data
+		case "ownerID":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ownerID"))
+			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.OwnerID = data
 		}
 	}
 
@@ -19861,6 +22412,11 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._User(ctx, sel, obj)
+	case *generated.RefreshToken:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._RefreshToken(ctx, sel, obj)
 	case *generated.PostCategory:
 		if obj == nil {
 			return graphql.Null
@@ -20824,6 +23380,41 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_refreshDiscordLink(ctx, field)
 			})
+		case "createRefreshToken":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createRefreshToken(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createBulkRefreshToken":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createBulkRefreshToken(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createBulkCSVRefreshToken":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createBulkCSVRefreshToken(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updateRefreshToken":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateRefreshToken(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "deleteRefreshToken":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deleteRefreshToken(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "createUser":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createUser(ctx, field)
@@ -22018,6 +24609,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "refreshTokens":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_refreshTokens(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "users":
 			field := field
 
@@ -22147,6 +24760,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "refreshToken":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_refreshToken(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "userSearch":
 			field := field
 
@@ -22253,6 +24888,345 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___schema(ctx, field)
 			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var refreshTokenImplementors = []string{"RefreshToken", "Node"}
+
+func (ec *executionContext) _RefreshToken(ctx context.Context, sel ast.SelectionSet, obj *generated.RefreshToken) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, refreshTokenImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RefreshToken")
+		case "id":
+			out.Values[i] = ec._RefreshToken_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "updatedAt":
+			out.Values[i] = ec._RefreshToken_updatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "createdAt":
+			out.Values[i] = ec._RefreshToken_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "expiresAt":
+			out.Values[i] = ec._RefreshToken_expiresAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "revoked":
+			out.Values[i] = ec._RefreshToken_revoked(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "ipAddress":
+			out.Values[i] = ec._RefreshToken_ipAddress(ctx, field, obj)
+		case "userAgent":
+			out.Values[i] = ec._RefreshToken_userAgent(ctx, field, obj)
+		case "owner":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._RefreshToken_owner(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var refreshTokenBulkCreatePayloadImplementors = []string{"RefreshTokenBulkCreatePayload"}
+
+func (ec *executionContext) _RefreshTokenBulkCreatePayload(ctx context.Context, sel ast.SelectionSet, obj *model.RefreshTokenBulkCreatePayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, refreshTokenBulkCreatePayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RefreshTokenBulkCreatePayload")
+		case "refreshTokens":
+			out.Values[i] = ec._RefreshTokenBulkCreatePayload_refreshTokens(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var refreshTokenConnectionImplementors = []string{"RefreshTokenConnection"}
+
+func (ec *executionContext) _RefreshTokenConnection(ctx context.Context, sel ast.SelectionSet, obj *generated.RefreshTokenConnection) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, refreshTokenConnectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RefreshTokenConnection")
+		case "edges":
+			out.Values[i] = ec._RefreshTokenConnection_edges(ctx, field, obj)
+		case "pageInfo":
+			out.Values[i] = ec._RefreshTokenConnection_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "totalCount":
+			out.Values[i] = ec._RefreshTokenConnection_totalCount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var refreshTokenCreatePayloadImplementors = []string{"RefreshTokenCreatePayload"}
+
+func (ec *executionContext) _RefreshTokenCreatePayload(ctx context.Context, sel ast.SelectionSet, obj *model.RefreshTokenCreatePayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, refreshTokenCreatePayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RefreshTokenCreatePayload")
+		case "refreshToken":
+			out.Values[i] = ec._RefreshTokenCreatePayload_refreshToken(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var refreshTokenDeletePayloadImplementors = []string{"RefreshTokenDeletePayload"}
+
+func (ec *executionContext) _RefreshTokenDeletePayload(ctx context.Context, sel ast.SelectionSet, obj *model.RefreshTokenDeletePayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, refreshTokenDeletePayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RefreshTokenDeletePayload")
+		case "deletedID":
+			out.Values[i] = ec._RefreshTokenDeletePayload_deletedID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var refreshTokenEdgeImplementors = []string{"RefreshTokenEdge"}
+
+func (ec *executionContext) _RefreshTokenEdge(ctx context.Context, sel ast.SelectionSet, obj *generated.RefreshTokenEdge) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, refreshTokenEdgeImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RefreshTokenEdge")
+		case "node":
+			out.Values[i] = ec._RefreshTokenEdge_node(ctx, field, obj)
+		case "cursor":
+			out.Values[i] = ec._RefreshTokenEdge_cursor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var refreshTokenUpdatePayloadImplementors = []string{"RefreshTokenUpdatePayload"}
+
+func (ec *executionContext) _RefreshTokenUpdatePayload(ctx context.Context, sel ast.SelectionSet, obj *model.RefreshTokenUpdatePayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, refreshTokenUpdatePayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RefreshTokenUpdatePayload")
+		case "refreshToken":
+			out.Values[i] = ec._RefreshTokenUpdatePayload_refreshToken(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -23524,6 +26498,16 @@ func (ec *executionContext) unmarshalNCreatePostWithCategoriesInput2githubᚗcom
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNCreateRefreshTokenInput2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐCreateRefreshTokenInput(ctx context.Context, v any) (generated.CreateRefreshTokenInput, error) {
+	res, err := ec.unmarshalInputCreateRefreshTokenInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNCreateRefreshTokenInput2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐCreateRefreshTokenInput(ctx context.Context, v any) (*generated.CreateRefreshTokenInput, error) {
+	res, err := ec.unmarshalInputCreateRefreshTokenInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNCreateUserInput2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐCreateUserInput(ctx context.Context, v any) (generated.CreateUserInput, error) {
 	res, err := ec.unmarshalInputCreateUserInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -23896,6 +26880,111 @@ func (ec *executionContext) unmarshalNPostWhereInput2ᚖgithubᚗcomᚋcaliecode
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) marshalNRefreshToken2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐRefreshToken(ctx context.Context, sel ast.SelectionSet, v generated.RefreshToken) graphql.Marshaler {
+	return ec._RefreshToken(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNRefreshToken2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐRefreshToken(ctx context.Context, sel ast.SelectionSet, v *generated.RefreshToken) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._RefreshToken(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNRefreshTokenBulkCreatePayload2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋmodelᚐRefreshTokenBulkCreatePayload(ctx context.Context, sel ast.SelectionSet, v model.RefreshTokenBulkCreatePayload) graphql.Marshaler {
+	return ec._RefreshTokenBulkCreatePayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNRefreshTokenBulkCreatePayload2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋmodelᚐRefreshTokenBulkCreatePayload(ctx context.Context, sel ast.SelectionSet, v *model.RefreshTokenBulkCreatePayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._RefreshTokenBulkCreatePayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNRefreshTokenConnection2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐRefreshTokenConnection(ctx context.Context, sel ast.SelectionSet, v generated.RefreshTokenConnection) graphql.Marshaler {
+	return ec._RefreshTokenConnection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNRefreshTokenConnection2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐRefreshTokenConnection(ctx context.Context, sel ast.SelectionSet, v *generated.RefreshTokenConnection) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._RefreshTokenConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNRefreshTokenCreatePayload2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋmodelᚐRefreshTokenCreatePayload(ctx context.Context, sel ast.SelectionSet, v model.RefreshTokenCreatePayload) graphql.Marshaler {
+	return ec._RefreshTokenCreatePayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNRefreshTokenCreatePayload2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋmodelᚐRefreshTokenCreatePayload(ctx context.Context, sel ast.SelectionSet, v *model.RefreshTokenCreatePayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._RefreshTokenCreatePayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNRefreshTokenDeletePayload2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋmodelᚐRefreshTokenDeletePayload(ctx context.Context, sel ast.SelectionSet, v model.RefreshTokenDeletePayload) graphql.Marshaler {
+	return ec._RefreshTokenDeletePayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNRefreshTokenDeletePayload2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋmodelᚐRefreshTokenDeletePayload(ctx context.Context, sel ast.SelectionSet, v *model.RefreshTokenDeletePayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._RefreshTokenDeletePayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNRefreshTokenOrderField2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐRefreshTokenOrderField(ctx context.Context, v any) (*generated.RefreshTokenOrderField, error) {
+	var res = new(generated.RefreshTokenOrderField)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNRefreshTokenOrderField2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐRefreshTokenOrderField(ctx context.Context, sel ast.SelectionSet, v *generated.RefreshTokenOrderField) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return v
+}
+
+func (ec *executionContext) marshalNRefreshTokenUpdatePayload2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋmodelᚐRefreshTokenUpdatePayload(ctx context.Context, sel ast.SelectionSet, v model.RefreshTokenUpdatePayload) graphql.Marshaler {
+	return ec._RefreshTokenUpdatePayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNRefreshTokenUpdatePayload2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋmodelᚐRefreshTokenUpdatePayload(ctx context.Context, sel ast.SelectionSet, v *model.RefreshTokenUpdatePayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._RefreshTokenUpdatePayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNRefreshTokenWhereInput2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐRefreshTokenWhereInput(ctx context.Context, v any) (*generated.RefreshTokenWhereInput, error) {
+	res, err := ec.unmarshalInputRefreshTokenWhereInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalNSearchResult2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋgqlᚋmodelᚐSearchResult(ctx context.Context, sel ast.SelectionSet, v model.SearchResult) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -23997,6 +27086,11 @@ func (ec *executionContext) unmarshalNUpdatePostCategoryInput2githubᚗcomᚋcal
 
 func (ec *executionContext) unmarshalNUpdatePostInput2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐUpdatePostInput(ctx context.Context, v any) (generated.UpdatePostInput, error) {
 	res, err := ec.unmarshalInputUpdatePostInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNUpdateRefreshTokenInput2githubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐUpdateRefreshTokenInput(ctx context.Context, v any) (generated.UpdateRefreshTokenInput, error) {
+	res, err := ec.unmarshalInputUpdateRefreshTokenInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -24766,6 +27860,24 @@ func (ec *executionContext) unmarshalOCreatePostInput2ᚕᚖgithubᚗcomᚋcalie
 	return res, nil
 }
 
+func (ec *executionContext) unmarshalOCreateRefreshTokenInput2ᚕᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐCreateRefreshTokenInputᚄ(ctx context.Context, v any) ([]*generated.CreateRefreshTokenInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]*generated.CreateRefreshTokenInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNCreateRefreshTokenInput2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐCreateRefreshTokenInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
 func (ec *executionContext) unmarshalOCreateUserInput2ᚕᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐCreateUserInputᚄ(ctx context.Context, v any) ([]*generated.CreateUserInput, error) {
 	if v == nil {
 		return nil, nil
@@ -25236,6 +28348,142 @@ func (ec *executionContext) unmarshalOPostWhereInput2ᚖgithubᚗcomᚋcaliecode
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputPostWhereInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalORefreshToken2ᚕᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐRefreshTokenᚄ(ctx context.Context, sel ast.SelectionSet, v []*generated.RefreshToken) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNRefreshToken2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐRefreshToken(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalORefreshToken2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐRefreshToken(ctx context.Context, sel ast.SelectionSet, v *generated.RefreshToken) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._RefreshToken(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalORefreshTokenEdge2ᚕᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐRefreshTokenEdge(ctx context.Context, sel ast.SelectionSet, v []*generated.RefreshTokenEdge) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalORefreshTokenEdge2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐRefreshTokenEdge(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
+func (ec *executionContext) marshalORefreshTokenEdge2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐRefreshTokenEdge(ctx context.Context, sel ast.SelectionSet, v *generated.RefreshTokenEdge) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._RefreshTokenEdge(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalORefreshTokenOrder2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐRefreshTokenOrder(ctx context.Context, v any) (*generated.RefreshTokenOrder, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputRefreshTokenOrder(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalORefreshTokenWhereInput2ᚕᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐRefreshTokenWhereInputᚄ(ctx context.Context, v any) ([]*generated.RefreshTokenWhereInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]*generated.RefreshTokenWhereInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNRefreshTokenWhereInput2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐRefreshTokenWhereInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalORefreshTokenWhereInput2ᚖgithubᚗcomᚋcaliecodeᚋlaᚑclipasaᚋinternalᚋentᚋgeneratedᚐRefreshTokenWhereInput(ctx context.Context, v any) (*generated.RefreshTokenWhereInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputRefreshTokenWhereInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

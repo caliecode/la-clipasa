@@ -20,6 +20,8 @@ type Tx struct {
 	Post *PostClient
 	// PostCategory is the client for interacting with the PostCategory builders.
 	PostCategory *PostCategoryClient
+	// RefreshToken is the client for interacting with the RefreshToken builders.
+	RefreshToken *RefreshTokenClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 
@@ -157,6 +159,7 @@ func (tx *Tx) init() {
 	tx.Comment = NewCommentClient(tx.config)
 	tx.Post = NewPostClient(tx.config)
 	tx.PostCategory = NewPostCategoryClient(tx.config)
+	tx.RefreshToken = NewRefreshTokenClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 }
 

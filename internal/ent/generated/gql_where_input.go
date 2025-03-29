@@ -12,6 +12,7 @@ import (
 	"github.com/caliecode/la-clipasa/internal/ent/generated/post"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/postcategory"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/predicate"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/refreshtoken"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
 	"github.com/google/uuid"
 )
@@ -1679,6 +1680,389 @@ func (i *PostCategoryWhereInput) P() (predicate.PostCategory, error) {
 		return predicates[0], nil
 	default:
 		return postcategory.And(predicates...), nil
+	}
+}
+
+// RefreshTokenWhereInput represents a where input for filtering RefreshToken queries.
+type RefreshTokenWhereInput struct {
+	Predicates []predicate.RefreshToken  `json:"-"`
+	Not        *RefreshTokenWhereInput   `json:"not,omitempty"`
+	Or         []*RefreshTokenWhereInput `json:"or,omitempty"`
+	And        []*RefreshTokenWhereInput `json:"and,omitempty"`
+
+	// "id" field predicates.
+	ID      *uuid.UUID  `json:"id,omitempty"`
+	IDNEQ   *uuid.UUID  `json:"idNEQ,omitempty"`
+	IDIn    []uuid.UUID `json:"idIn,omitempty"`
+	IDNotIn []uuid.UUID `json:"idNotIn,omitempty"`
+	IDGT    *uuid.UUID  `json:"idGT,omitempty"`
+	IDGTE   *uuid.UUID  `json:"idGTE,omitempty"`
+	IDLT    *uuid.UUID  `json:"idLT,omitempty"`
+	IDLTE   *uuid.UUID  `json:"idLTE,omitempty"`
+
+	// "updated_at" field predicates.
+	UpdatedAt      *time.Time  `json:"updatedAt,omitempty"`
+	UpdatedAtNEQ   *time.Time  `json:"updatedAtNEQ,omitempty"`
+	UpdatedAtIn    []time.Time `json:"updatedAtIn,omitempty"`
+	UpdatedAtNotIn []time.Time `json:"updatedAtNotIn,omitempty"`
+	UpdatedAtGT    *time.Time  `json:"updatedAtGT,omitempty"`
+	UpdatedAtGTE   *time.Time  `json:"updatedAtGTE,omitempty"`
+	UpdatedAtLT    *time.Time  `json:"updatedAtLT,omitempty"`
+	UpdatedAtLTE   *time.Time  `json:"updatedAtLTE,omitempty"`
+
+	// "created_at" field predicates.
+	CreatedAt      *time.Time  `json:"createdAt,omitempty"`
+	CreatedAtNEQ   *time.Time  `json:"createdAtNEQ,omitempty"`
+	CreatedAtIn    []time.Time `json:"createdAtIn,omitempty"`
+	CreatedAtNotIn []time.Time `json:"createdAtNotIn,omitempty"`
+	CreatedAtGT    *time.Time  `json:"createdAtGT,omitempty"`
+	CreatedAtGTE   *time.Time  `json:"createdAtGTE,omitempty"`
+	CreatedAtLT    *time.Time  `json:"createdAtLT,omitempty"`
+	CreatedAtLTE   *time.Time  `json:"createdAtLTE,omitempty"`
+
+	// "expires_at" field predicates.
+	ExpiresAt      *time.Time  `json:"expiresAt,omitempty"`
+	ExpiresAtNEQ   *time.Time  `json:"expiresAtNEQ,omitempty"`
+	ExpiresAtIn    []time.Time `json:"expiresAtIn,omitempty"`
+	ExpiresAtNotIn []time.Time `json:"expiresAtNotIn,omitempty"`
+	ExpiresAtGT    *time.Time  `json:"expiresAtGT,omitempty"`
+	ExpiresAtGTE   *time.Time  `json:"expiresAtGTE,omitempty"`
+	ExpiresAtLT    *time.Time  `json:"expiresAtLT,omitempty"`
+	ExpiresAtLTE   *time.Time  `json:"expiresAtLTE,omitempty"`
+
+	// "revoked" field predicates.
+	Revoked    *bool `json:"revoked,omitempty"`
+	RevokedNEQ *bool `json:"revokedNEQ,omitempty"`
+
+	// "ip_address" field predicates.
+	IPAddress             *string  `json:"ipAddress,omitempty"`
+	IPAddressNEQ          *string  `json:"ipAddressNEQ,omitempty"`
+	IPAddressIn           []string `json:"ipAddressIn,omitempty"`
+	IPAddressNotIn        []string `json:"ipAddressNotIn,omitempty"`
+	IPAddressGT           *string  `json:"ipAddressGT,omitempty"`
+	IPAddressGTE          *string  `json:"ipAddressGTE,omitempty"`
+	IPAddressLT           *string  `json:"ipAddressLT,omitempty"`
+	IPAddressLTE          *string  `json:"ipAddressLTE,omitempty"`
+	IPAddressContains     *string  `json:"ipAddressContains,omitempty"`
+	IPAddressHasPrefix    *string  `json:"ipAddressHasPrefix,omitempty"`
+	IPAddressHasSuffix    *string  `json:"ipAddressHasSuffix,omitempty"`
+	IPAddressIsNil        bool     `json:"ipAddressIsNil,omitempty"`
+	IPAddressNotNil       bool     `json:"ipAddressNotNil,omitempty"`
+	IPAddressEqualFold    *string  `json:"ipAddressEqualFold,omitempty"`
+	IPAddressContainsFold *string  `json:"ipAddressContainsFold,omitempty"`
+
+	// "user_agent" field predicates.
+	UserAgent             *string  `json:"userAgent,omitempty"`
+	UserAgentNEQ          *string  `json:"userAgentNEQ,omitempty"`
+	UserAgentIn           []string `json:"userAgentIn,omitempty"`
+	UserAgentNotIn        []string `json:"userAgentNotIn,omitempty"`
+	UserAgentGT           *string  `json:"userAgentGT,omitempty"`
+	UserAgentGTE          *string  `json:"userAgentGTE,omitempty"`
+	UserAgentLT           *string  `json:"userAgentLT,omitempty"`
+	UserAgentLTE          *string  `json:"userAgentLTE,omitempty"`
+	UserAgentContains     *string  `json:"userAgentContains,omitempty"`
+	UserAgentHasPrefix    *string  `json:"userAgentHasPrefix,omitempty"`
+	UserAgentHasSuffix    *string  `json:"userAgentHasSuffix,omitempty"`
+	UserAgentIsNil        bool     `json:"userAgentIsNil,omitempty"`
+	UserAgentNotNil       bool     `json:"userAgentNotNil,omitempty"`
+	UserAgentEqualFold    *string  `json:"userAgentEqualFold,omitempty"`
+	UserAgentContainsFold *string  `json:"userAgentContainsFold,omitempty"`
+
+	// "owner" edge predicates.
+	HasOwner     *bool             `json:"hasOwner,omitempty"`
+	HasOwnerWith []*UserWhereInput `json:"hasOwnerWith,omitempty"`
+}
+
+// AddPredicates adds custom predicates to the where input to be used during the filtering phase.
+func (i *RefreshTokenWhereInput) AddPredicates(predicates ...predicate.RefreshToken) {
+	i.Predicates = append(i.Predicates, predicates...)
+}
+
+// Filter applies the RefreshTokenWhereInput filter on the RefreshTokenQuery builder.
+func (i *RefreshTokenWhereInput) Filter(q *RefreshTokenQuery) (*RefreshTokenQuery, error) {
+	if i == nil {
+		return q, nil
+	}
+	p, err := i.P()
+	if err != nil {
+		if err == ErrEmptyRefreshTokenWhereInput {
+			return q, nil
+		}
+		return nil, err
+	}
+	return q.Where(p), nil
+}
+
+// ErrEmptyRefreshTokenWhereInput is returned in case the RefreshTokenWhereInput is empty.
+var ErrEmptyRefreshTokenWhereInput = errors.New("generated: empty predicate RefreshTokenWhereInput")
+
+// P returns a predicate for filtering refreshtokens.
+// An error is returned if the input is empty or invalid.
+func (i *RefreshTokenWhereInput) P() (predicate.RefreshToken, error) {
+	var predicates []predicate.RefreshToken
+	if i.Not != nil {
+		p, err := i.Not.P()
+		if err != nil {
+			return nil, fmt.Errorf("%w: field 'not'", err)
+		}
+		predicates = append(predicates, refreshtoken.Not(p))
+	}
+	switch n := len(i.Or); {
+	case n == 1:
+		p, err := i.Or[0].P()
+		if err != nil {
+			return nil, fmt.Errorf("%w: field 'or'", err)
+		}
+		predicates = append(predicates, p)
+	case n > 1:
+		or := make([]predicate.RefreshToken, 0, n)
+		for _, w := range i.Or {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'or'", err)
+			}
+			or = append(or, p)
+		}
+		predicates = append(predicates, refreshtoken.Or(or...))
+	}
+	switch n := len(i.And); {
+	case n == 1:
+		p, err := i.And[0].P()
+		if err != nil {
+			return nil, fmt.Errorf("%w: field 'and'", err)
+		}
+		predicates = append(predicates, p)
+	case n > 1:
+		and := make([]predicate.RefreshToken, 0, n)
+		for _, w := range i.And {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'and'", err)
+			}
+			and = append(and, p)
+		}
+		predicates = append(predicates, refreshtoken.And(and...))
+	}
+	predicates = append(predicates, i.Predicates...)
+	if i.ID != nil {
+		predicates = append(predicates, refreshtoken.IDEQ(*i.ID))
+	}
+	if i.IDNEQ != nil {
+		predicates = append(predicates, refreshtoken.IDNEQ(*i.IDNEQ))
+	}
+	if len(i.IDIn) > 0 {
+		predicates = append(predicates, refreshtoken.IDIn(i.IDIn...))
+	}
+	if len(i.IDNotIn) > 0 {
+		predicates = append(predicates, refreshtoken.IDNotIn(i.IDNotIn...))
+	}
+	if i.IDGT != nil {
+		predicates = append(predicates, refreshtoken.IDGT(*i.IDGT))
+	}
+	if i.IDGTE != nil {
+		predicates = append(predicates, refreshtoken.IDGTE(*i.IDGTE))
+	}
+	if i.IDLT != nil {
+		predicates = append(predicates, refreshtoken.IDLT(*i.IDLT))
+	}
+	if i.IDLTE != nil {
+		predicates = append(predicates, refreshtoken.IDLTE(*i.IDLTE))
+	}
+	if i.UpdatedAt != nil {
+		predicates = append(predicates, refreshtoken.UpdatedAtEQ(*i.UpdatedAt))
+	}
+	if i.UpdatedAtNEQ != nil {
+		predicates = append(predicates, refreshtoken.UpdatedAtNEQ(*i.UpdatedAtNEQ))
+	}
+	if len(i.UpdatedAtIn) > 0 {
+		predicates = append(predicates, refreshtoken.UpdatedAtIn(i.UpdatedAtIn...))
+	}
+	if len(i.UpdatedAtNotIn) > 0 {
+		predicates = append(predicates, refreshtoken.UpdatedAtNotIn(i.UpdatedAtNotIn...))
+	}
+	if i.UpdatedAtGT != nil {
+		predicates = append(predicates, refreshtoken.UpdatedAtGT(*i.UpdatedAtGT))
+	}
+	if i.UpdatedAtGTE != nil {
+		predicates = append(predicates, refreshtoken.UpdatedAtGTE(*i.UpdatedAtGTE))
+	}
+	if i.UpdatedAtLT != nil {
+		predicates = append(predicates, refreshtoken.UpdatedAtLT(*i.UpdatedAtLT))
+	}
+	if i.UpdatedAtLTE != nil {
+		predicates = append(predicates, refreshtoken.UpdatedAtLTE(*i.UpdatedAtLTE))
+	}
+	if i.CreatedAt != nil {
+		predicates = append(predicates, refreshtoken.CreatedAtEQ(*i.CreatedAt))
+	}
+	if i.CreatedAtNEQ != nil {
+		predicates = append(predicates, refreshtoken.CreatedAtNEQ(*i.CreatedAtNEQ))
+	}
+	if len(i.CreatedAtIn) > 0 {
+		predicates = append(predicates, refreshtoken.CreatedAtIn(i.CreatedAtIn...))
+	}
+	if len(i.CreatedAtNotIn) > 0 {
+		predicates = append(predicates, refreshtoken.CreatedAtNotIn(i.CreatedAtNotIn...))
+	}
+	if i.CreatedAtGT != nil {
+		predicates = append(predicates, refreshtoken.CreatedAtGT(*i.CreatedAtGT))
+	}
+	if i.CreatedAtGTE != nil {
+		predicates = append(predicates, refreshtoken.CreatedAtGTE(*i.CreatedAtGTE))
+	}
+	if i.CreatedAtLT != nil {
+		predicates = append(predicates, refreshtoken.CreatedAtLT(*i.CreatedAtLT))
+	}
+	if i.CreatedAtLTE != nil {
+		predicates = append(predicates, refreshtoken.CreatedAtLTE(*i.CreatedAtLTE))
+	}
+	if i.ExpiresAt != nil {
+		predicates = append(predicates, refreshtoken.ExpiresAtEQ(*i.ExpiresAt))
+	}
+	if i.ExpiresAtNEQ != nil {
+		predicates = append(predicates, refreshtoken.ExpiresAtNEQ(*i.ExpiresAtNEQ))
+	}
+	if len(i.ExpiresAtIn) > 0 {
+		predicates = append(predicates, refreshtoken.ExpiresAtIn(i.ExpiresAtIn...))
+	}
+	if len(i.ExpiresAtNotIn) > 0 {
+		predicates = append(predicates, refreshtoken.ExpiresAtNotIn(i.ExpiresAtNotIn...))
+	}
+	if i.ExpiresAtGT != nil {
+		predicates = append(predicates, refreshtoken.ExpiresAtGT(*i.ExpiresAtGT))
+	}
+	if i.ExpiresAtGTE != nil {
+		predicates = append(predicates, refreshtoken.ExpiresAtGTE(*i.ExpiresAtGTE))
+	}
+	if i.ExpiresAtLT != nil {
+		predicates = append(predicates, refreshtoken.ExpiresAtLT(*i.ExpiresAtLT))
+	}
+	if i.ExpiresAtLTE != nil {
+		predicates = append(predicates, refreshtoken.ExpiresAtLTE(*i.ExpiresAtLTE))
+	}
+	if i.Revoked != nil {
+		predicates = append(predicates, refreshtoken.RevokedEQ(*i.Revoked))
+	}
+	if i.RevokedNEQ != nil {
+		predicates = append(predicates, refreshtoken.RevokedNEQ(*i.RevokedNEQ))
+	}
+	if i.IPAddress != nil {
+		predicates = append(predicates, refreshtoken.IPAddressEQ(*i.IPAddress))
+	}
+	if i.IPAddressNEQ != nil {
+		predicates = append(predicates, refreshtoken.IPAddressNEQ(*i.IPAddressNEQ))
+	}
+	if len(i.IPAddressIn) > 0 {
+		predicates = append(predicates, refreshtoken.IPAddressIn(i.IPAddressIn...))
+	}
+	if len(i.IPAddressNotIn) > 0 {
+		predicates = append(predicates, refreshtoken.IPAddressNotIn(i.IPAddressNotIn...))
+	}
+	if i.IPAddressGT != nil {
+		predicates = append(predicates, refreshtoken.IPAddressGT(*i.IPAddressGT))
+	}
+	if i.IPAddressGTE != nil {
+		predicates = append(predicates, refreshtoken.IPAddressGTE(*i.IPAddressGTE))
+	}
+	if i.IPAddressLT != nil {
+		predicates = append(predicates, refreshtoken.IPAddressLT(*i.IPAddressLT))
+	}
+	if i.IPAddressLTE != nil {
+		predicates = append(predicates, refreshtoken.IPAddressLTE(*i.IPAddressLTE))
+	}
+	if i.IPAddressContains != nil {
+		predicates = append(predicates, refreshtoken.IPAddressContains(*i.IPAddressContains))
+	}
+	if i.IPAddressHasPrefix != nil {
+		predicates = append(predicates, refreshtoken.IPAddressHasPrefix(*i.IPAddressHasPrefix))
+	}
+	if i.IPAddressHasSuffix != nil {
+		predicates = append(predicates, refreshtoken.IPAddressHasSuffix(*i.IPAddressHasSuffix))
+	}
+	if i.IPAddressIsNil {
+		predicates = append(predicates, refreshtoken.IPAddressIsNil())
+	}
+	if i.IPAddressNotNil {
+		predicates = append(predicates, refreshtoken.IPAddressNotNil())
+	}
+	if i.IPAddressEqualFold != nil {
+		predicates = append(predicates, refreshtoken.IPAddressEqualFold(*i.IPAddressEqualFold))
+	}
+	if i.IPAddressContainsFold != nil {
+		predicates = append(predicates, refreshtoken.IPAddressContainsFold(*i.IPAddressContainsFold))
+	}
+	if i.UserAgent != nil {
+		predicates = append(predicates, refreshtoken.UserAgentEQ(*i.UserAgent))
+	}
+	if i.UserAgentNEQ != nil {
+		predicates = append(predicates, refreshtoken.UserAgentNEQ(*i.UserAgentNEQ))
+	}
+	if len(i.UserAgentIn) > 0 {
+		predicates = append(predicates, refreshtoken.UserAgentIn(i.UserAgentIn...))
+	}
+	if len(i.UserAgentNotIn) > 0 {
+		predicates = append(predicates, refreshtoken.UserAgentNotIn(i.UserAgentNotIn...))
+	}
+	if i.UserAgentGT != nil {
+		predicates = append(predicates, refreshtoken.UserAgentGT(*i.UserAgentGT))
+	}
+	if i.UserAgentGTE != nil {
+		predicates = append(predicates, refreshtoken.UserAgentGTE(*i.UserAgentGTE))
+	}
+	if i.UserAgentLT != nil {
+		predicates = append(predicates, refreshtoken.UserAgentLT(*i.UserAgentLT))
+	}
+	if i.UserAgentLTE != nil {
+		predicates = append(predicates, refreshtoken.UserAgentLTE(*i.UserAgentLTE))
+	}
+	if i.UserAgentContains != nil {
+		predicates = append(predicates, refreshtoken.UserAgentContains(*i.UserAgentContains))
+	}
+	if i.UserAgentHasPrefix != nil {
+		predicates = append(predicates, refreshtoken.UserAgentHasPrefix(*i.UserAgentHasPrefix))
+	}
+	if i.UserAgentHasSuffix != nil {
+		predicates = append(predicates, refreshtoken.UserAgentHasSuffix(*i.UserAgentHasSuffix))
+	}
+	if i.UserAgentIsNil {
+		predicates = append(predicates, refreshtoken.UserAgentIsNil())
+	}
+	if i.UserAgentNotNil {
+		predicates = append(predicates, refreshtoken.UserAgentNotNil())
+	}
+	if i.UserAgentEqualFold != nil {
+		predicates = append(predicates, refreshtoken.UserAgentEqualFold(*i.UserAgentEqualFold))
+	}
+	if i.UserAgentContainsFold != nil {
+		predicates = append(predicates, refreshtoken.UserAgentContainsFold(*i.UserAgentContainsFold))
+	}
+
+	if i.HasOwner != nil {
+		p := refreshtoken.HasOwner()
+		if !*i.HasOwner {
+			p = refreshtoken.Not(p)
+		}
+		predicates = append(predicates, p)
+	}
+	if len(i.HasOwnerWith) > 0 {
+		with := make([]predicate.User, 0, len(i.HasOwnerWith))
+		for _, w := range i.HasOwnerWith {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'HasOwnerWith'", err)
+			}
+			with = append(with, p)
+		}
+		predicates = append(predicates, refreshtoken.HasOwnerWith(with...))
+	}
+
+	switch len(predicates) {
+	case 0:
+		return nil, ErrEmptyRefreshTokenWhereInput
+	case 1:
+		return predicates[0], nil
+	default:
+		return refreshtoken.And(predicates...), nil
 	}
 }
 

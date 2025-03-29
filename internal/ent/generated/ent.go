@@ -16,6 +16,7 @@ import (
 	"github.com/caliecode/la-clipasa/internal/ent/generated/comment"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/post"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/postcategory"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/refreshtoken"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
 )
 
@@ -81,6 +82,7 @@ func checkColumn(table, column string) error {
 			comment.Table:      comment.ValidColumn,
 			post.Table:         post.ValidColumn,
 			postcategory.Table: postcategory.ValidColumn,
+			refreshtoken.Table: refreshtoken.ValidColumn,
 			user.Table:         user.ValidColumn,
 		})
 	})

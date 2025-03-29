@@ -13,6 +13,7 @@ import (
 	"github.com/caliecode/la-clipasa/internal/ent/generated/post"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/postcategory"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/predicate"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/refreshtoken"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
 )
 
@@ -180,6 +181,33 @@ func (f TraversePostCategory) Traverse(ctx context.Context, q generated.Query) e
 	return fmt.Errorf("unexpected query type %T. expect *generated.PostCategoryQuery", q)
 }
 
+// The RefreshTokenFunc type is an adapter to allow the use of ordinary function as a Querier.
+type RefreshTokenFunc func(context.Context, *generated.RefreshTokenQuery) (generated.Value, error)
+
+// Query calls f(ctx, q).
+func (f RefreshTokenFunc) Query(ctx context.Context, q generated.Query) (generated.Value, error) {
+	if q, ok := q.(*generated.RefreshTokenQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *generated.RefreshTokenQuery", q)
+}
+
+// The TraverseRefreshToken type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseRefreshToken func(context.Context, *generated.RefreshTokenQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseRefreshToken) Intercept(next generated.Querier) generated.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseRefreshToken) Traverse(ctx context.Context, q generated.Query) error {
+	if q, ok := q.(*generated.RefreshTokenQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *generated.RefreshTokenQuery", q)
+}
+
 // The UserFunc type is an adapter to allow the use of ordinary function as a Querier.
 type UserFunc func(context.Context, *generated.UserQuery) (generated.Value, error)
 
@@ -218,6 +246,8 @@ func NewQuery(q generated.Query) (Query, error) {
 		return &query[*generated.PostQuery, predicate.Post, post.OrderOption]{typ: generated.TypePost, tq: q}, nil
 	case *generated.PostCategoryQuery:
 		return &query[*generated.PostCategoryQuery, predicate.PostCategory, postcategory.OrderOption]{typ: generated.TypePostCategory, tq: q}, nil
+	case *generated.RefreshTokenQuery:
+		return &query[*generated.RefreshTokenQuery, predicate.RefreshToken, refreshtoken.OrderOption]{typ: generated.TypeRefreshToken, tq: q}, nil
 	case *generated.UserQuery:
 		return &query[*generated.UserQuery, predicate.User, user.OrderOption]{typ: generated.TypeUser, tq: q}, nil
 	default:

@@ -277,7 +277,7 @@ func NewServer(ctx context.Context, conf Config, opts ...ServerOption) (*Server,
 		return nil, fmt.Errorf("error creating twitch broadcast provider: %w", err)
 	}
 
-	authn := auth.NewAuthentication()
+	authn := auth.NewAuthentication(entclient)
 	handlers := Handlers{
 		logger: conf.Logger,
 		authmw: NewAuthMiddleware(conf.Logger, authn),

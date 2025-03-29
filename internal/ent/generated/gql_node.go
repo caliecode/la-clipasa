@@ -12,6 +12,7 @@ import (
 	"github.com/caliecode/la-clipasa/internal/ent/generated/comment"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/post"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/postcategory"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/refreshtoken"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
@@ -42,6 +43,11 @@ var postcategoryImplementors = []string{"PostCategory", "Node"}
 
 // IsNode implements the Node interface check for GQLGen.
 func (*PostCategory) IsNode() {}
+
+var refreshtokenImplementors = []string{"RefreshToken", "Node"}
+
+// IsNode implements the Node interface check for GQLGen.
+func (*RefreshToken) IsNode() {}
 
 var userImplementors = []string{"User", "Node"}
 
@@ -138,6 +144,15 @@ func (c *Client) noder(ctx context.Context, table string, id uuid.UUID) (Noder, 
 			Where(postcategory.ID(id))
 		if fc := graphql.GetFieldContext(ctx); fc != nil {
 			if err := query.collectField(ctx, true, graphql.GetOperationContext(ctx), fc.Field, nil, postcategoryImplementors...); err != nil {
+				return nil, err
+			}
+		}
+		return query.Only(ctx)
+	case refreshtoken.Table:
+		query := c.RefreshToken.Query().
+			Where(refreshtoken.ID(id))
+		if fc := graphql.GetFieldContext(ctx); fc != nil {
+			if err := query.collectField(ctx, true, graphql.GetOperationContext(ctx), fc.Field, nil, refreshtokenImplementors...); err != nil {
 				return nil, err
 			}
 		}
@@ -276,6 +291,22 @@ func (c *Client) noders(ctx context.Context, table string, ids []uuid.UUID) ([]N
 		query := c.PostCategory.Query().
 			Where(postcategory.IDIn(ids...))
 		query, err := query.CollectFields(ctx, postcategoryImplementors...)
+		if err != nil {
+			return nil, err
+		}
+		nodes, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, node := range nodes {
+			for _, noder := range idmap[node.ID] {
+				*noder = node
+			}
+		}
+	case refreshtoken.Table:
+		query := c.RefreshToken.Query().
+			Where(refreshtoken.IDIn(ids...))
+		query, err := query.CollectFields(ctx, refreshtokenImplementors...)
 		if err != nil {
 			return nil, err
 		}

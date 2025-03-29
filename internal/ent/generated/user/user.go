@@ -55,6 +55,8 @@ const (
 	EdgeComments = "comments"
 	// EdgeAPIKeys holds the string denoting the api_keys edge name in mutations.
 	EdgeAPIKeys = "api_keys"
+	// EdgeRefreshTokens holds the string denoting the refresh_tokens edge name in mutations.
+	EdgeRefreshTokens = "refresh_tokens"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// SavedPostsTable is the table that holds the saved_posts relation/edge. The primary key declared below.
@@ -88,6 +90,13 @@ const (
 	APIKeysInverseTable = "api_keys"
 	// APIKeysColumn is the table column denoting the api_keys relation/edge.
 	APIKeysColumn = "owner_id"
+	// RefreshTokensTable is the table that holds the refresh_tokens relation/edge.
+	RefreshTokensTable = "refresh_tokens"
+	// RefreshTokensInverseTable is the table name for the RefreshToken entity.
+	// It exists in this package in order to avoid circular dependency with the "refreshtoken" package.
+	RefreshTokensInverseTable = "refresh_tokens"
+	// RefreshTokensColumn is the table column denoting the refresh_tokens relation/edge.
+	RefreshTokensColumn = "owner_id"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -355,6 +364,20 @@ func ByAPIKeys(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newAPIKeysStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByRefreshTokensCount orders the results by refresh_tokens count.
+func ByRefreshTokensCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newRefreshTokensStep(), opts...)
+	}
+}
+
+// ByRefreshTokens orders the results by refresh_tokens terms.
+func ByRefreshTokens(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newRefreshTokensStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newSavedPostsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -388,6 +411,13 @@ func newAPIKeysStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(APIKeysInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, APIKeysTable, APIKeysColumn),
+	)
+}
+func newRefreshTokensStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(RefreshTokensInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, RefreshTokensTable, RefreshTokensColumn),
 	)
 }
 

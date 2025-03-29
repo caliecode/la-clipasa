@@ -7,6 +7,7 @@ import (
 
 	"github.com/caliecode/la-clipasa/internal/ent/generated/apikey"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/post"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/refreshtoken"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
 	uuid "github.com/google/uuid"
 )
@@ -31,6 +32,11 @@ func PostCategoryEdgeCleanup(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
+func RefreshTokenEdgeCleanup(ctx context.Context, id uuid.UUID) error {
+
+	return nil
+}
+
 func UserEdgeCleanup(ctx context.Context, id uuid.UUID) error {
 
 	if exists, err := FromContext(ctx).Post.Query().Where((post.HasOwnerWith(user.ID(id)))).Exist(ctx); err == nil && exists {
@@ -42,6 +48,13 @@ func UserEdgeCleanup(ctx context.Context, id uuid.UUID) error {
 
 	if exists, err := FromContext(ctx).ApiKey.Query().Where((apikey.HasOwnerWith(user.ID(id)))).Exist(ctx); err == nil && exists {
 		if _, err := FromContext(ctx).ApiKey.Delete().Where(apikey.HasOwnerWith(user.ID(id))).Exec(ctx); err != nil {
+
+			return err
+		}
+	}
+
+	if exists, err := FromContext(ctx).RefreshToken.Query().Where((refreshtoken.HasOwnerWith(user.ID(id)))).Exist(ctx); err == nil && exists {
+		if _, err := FromContext(ctx).RefreshToken.Delete().Where(refreshtoken.HasOwnerWith(user.ID(id))).Exec(ctx); err != nil {
 
 			return err
 		}

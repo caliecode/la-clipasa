@@ -14,6 +14,7 @@ import (
 	"github.com/caliecode/la-clipasa/internal/ent/generated/comment"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/post"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/postcategory"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/refreshtoken"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
 	"github.com/google/uuid"
 )
@@ -745,6 +746,135 @@ func newPostCategoryPaginateArgs(rv map[string]any) *postcategoryPaginateArgs {
 	}
 	if v, ok := rv[whereField].(*PostCategoryWhereInput); ok {
 		args.opts = append(args.opts, WithPostCategoryFilter(v.Filter))
+	}
+	return args
+}
+
+// CollectFields tells the query-builder to eagerly load connected nodes by resolver context.
+func (rt *RefreshTokenQuery) CollectFields(ctx context.Context, satisfies ...string) (*RefreshTokenQuery, error) {
+	fc := graphql.GetFieldContext(ctx)
+	if fc == nil {
+		return rt, nil
+	}
+	if err := rt.collectField(ctx, false, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
+		return nil, err
+	}
+	return rt, nil
+}
+
+func (rt *RefreshTokenQuery) collectField(ctx context.Context, oneNode bool, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
+	path = append([]string(nil), path...)
+	var (
+		unknownSeen    bool
+		fieldSeen      = make(map[string]struct{}, len(refreshtoken.Columns))
+		selectedFields = []string{refreshtoken.FieldID}
+	)
+	for _, field := range graphql.CollectFields(opCtx, collected.Selections, satisfies) {
+		switch field.Name {
+
+		case "owner":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&UserClient{config: rt.config}).Query()
+			)
+			if err := query.collectField(ctx, oneNode, opCtx, field, path, mayAddCondition(satisfies, userImplementors)...); err != nil {
+				return err
+			}
+			rt.withOwner = query
+			if _, ok := fieldSeen[refreshtoken.FieldOwnerID]; !ok {
+				selectedFields = append(selectedFields, refreshtoken.FieldOwnerID)
+				fieldSeen[refreshtoken.FieldOwnerID] = struct{}{}
+			}
+		case "updatedAt":
+			if _, ok := fieldSeen[refreshtoken.FieldUpdatedAt]; !ok {
+				selectedFields = append(selectedFields, refreshtoken.FieldUpdatedAt)
+				fieldSeen[refreshtoken.FieldUpdatedAt] = struct{}{}
+			}
+		case "createdAt":
+			if _, ok := fieldSeen[refreshtoken.FieldCreatedAt]; !ok {
+				selectedFields = append(selectedFields, refreshtoken.FieldCreatedAt)
+				fieldSeen[refreshtoken.FieldCreatedAt] = struct{}{}
+			}
+		case "expiresAt":
+			if _, ok := fieldSeen[refreshtoken.FieldExpiresAt]; !ok {
+				selectedFields = append(selectedFields, refreshtoken.FieldExpiresAt)
+				fieldSeen[refreshtoken.FieldExpiresAt] = struct{}{}
+			}
+		case "revoked":
+			if _, ok := fieldSeen[refreshtoken.FieldRevoked]; !ok {
+				selectedFields = append(selectedFields, refreshtoken.FieldRevoked)
+				fieldSeen[refreshtoken.FieldRevoked] = struct{}{}
+			}
+		case "ipAddress":
+			if _, ok := fieldSeen[refreshtoken.FieldIPAddress]; !ok {
+				selectedFields = append(selectedFields, refreshtoken.FieldIPAddress)
+				fieldSeen[refreshtoken.FieldIPAddress] = struct{}{}
+			}
+		case "userAgent":
+			if _, ok := fieldSeen[refreshtoken.FieldUserAgent]; !ok {
+				selectedFields = append(selectedFields, refreshtoken.FieldUserAgent)
+				fieldSeen[refreshtoken.FieldUserAgent] = struct{}{}
+			}
+		case "id":
+		case "__typename":
+		default:
+			unknownSeen = true
+		}
+	}
+	if !unknownSeen {
+		rt.Select(selectedFields...)
+	}
+	return nil
+}
+
+type refreshtokenPaginateArgs struct {
+	first, last   *int
+	after, before *Cursor
+	opts          []RefreshTokenPaginateOption
+}
+
+func newRefreshTokenPaginateArgs(rv map[string]any) *refreshtokenPaginateArgs {
+	args := &refreshtokenPaginateArgs{}
+	if rv == nil {
+		return args
+	}
+	if v := rv[firstField]; v != nil {
+		args.first = v.(*int)
+	}
+	if v := rv[lastField]; v != nil {
+		args.last = v.(*int)
+	}
+	if v := rv[afterField]; v != nil {
+		args.after = v.(*Cursor)
+	}
+	if v := rv[beforeField]; v != nil {
+		args.before = v.(*Cursor)
+	}
+	if v, ok := rv[orderByField]; ok {
+		switch v := v.(type) {
+		case map[string]any:
+			var (
+				err1, err2 error
+				order      = &RefreshTokenOrder{Field: &RefreshTokenOrderField{}, Direction: entgql.OrderDirectionAsc}
+			)
+			if d, ok := v[directionField]; ok {
+				err1 = order.Direction.UnmarshalGQL(d)
+			}
+			if f, ok := v[fieldField]; ok {
+				err2 = order.Field.UnmarshalGQL(f)
+			}
+			if err1 == nil && err2 == nil {
+				args.opts = append(args.opts, WithRefreshTokenOrder(order))
+			}
+		case *RefreshTokenOrder:
+			if v != nil {
+				args.opts = append(args.opts, WithRefreshTokenOrder(v))
+			}
+		}
+	}
+	if v, ok := rv[whereField].(*RefreshTokenWhereInput); ok {
+		args.opts = append(args.opts, WithRefreshTokenFilter(v.Filter))
 	}
 	return args
 }

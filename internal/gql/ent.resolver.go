@@ -2,6 +2,7 @@ package gql
 
 import (
 	"context"
+	"fmt"
 
 	"entgo.io/contrib/entgql"
 	"github.com/caliecode/la-clipasa/internal/ent/generated"
@@ -93,6 +94,11 @@ func (r *queryResolver) PostCategories(ctx context.Context, after *entgql.Cursor
 	}
 
 	return res, nil
+}
+
+// RefreshTokens is the resolver for the refreshTokens field.
+func (r *queryResolver) RefreshTokens(ctx context.Context, after *entgql.Cursor[uuid.UUID], first *int, before *entgql.Cursor[uuid.UUID], last *int, orderBy *generated.RefreshTokenOrder, where *generated.RefreshTokenWhereInput) (*generated.RefreshTokenConnection, error) {
+	panic(fmt.Errorf("not implemented: RefreshTokens - refreshTokens"))
 }
 
 // Users is the resolver for the users field.

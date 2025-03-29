@@ -63,9 +63,11 @@ type UserEdges struct {
 	Comments []*Comment `json:"comments,omitempty"`
 	// APIKeys holds the value of the api_keys edge.
 	APIKeys []*ApiKey `json:"api_keys,omitempty"`
+	// RefreshTokens holds the value of the refresh_tokens edge.
+	RefreshTokens []*RefreshToken `json:"refresh_tokens,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [5]bool
+	loadedTypes [6]bool
 	// totalCount holds the count of the edges above.
 	totalCount [5]map[string]int
 
@@ -74,6 +76,7 @@ type UserEdges struct {
 	namedPublishedPosts map[string][]*Post
 	namedComments       map[string][]*Comment
 	namedAPIKeys        map[string][]*ApiKey
+	namedRefreshTokens  map[string][]*RefreshToken
 }
 
 // SavedPostsOrErr returns the SavedPosts value or an error if the edge
@@ -119,6 +122,15 @@ func (e UserEdges) APIKeysOrErr() ([]*ApiKey, error) {
 		return e.APIKeys, nil
 	}
 	return nil, &NotLoadedError{edge: "api_keys"}
+}
+
+// RefreshTokensOrErr returns the RefreshTokens value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) RefreshTokensOrErr() ([]*RefreshToken, error) {
+	if e.loadedTypes[5] {
+		return e.RefreshTokens, nil
+	}
+	return nil, &NotLoadedError{edge: "refresh_tokens"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -274,6 +286,11 @@ func (u *User) QueryComments() *CommentQuery {
 // QueryAPIKeys queries the "api_keys" edge of the User entity.
 func (u *User) QueryAPIKeys() *ApiKeyQuery {
 	return NewUserClient(u.config).QueryAPIKeys(u)
+}
+
+// QueryRefreshTokens queries the "refresh_tokens" edge of the User entity.
+func (u *User) QueryRefreshTokens() *RefreshTokenQuery {
+	return NewUserClient(u.config).QueryRefreshTokens(u)
 }
 
 // Update returns a builder for updating this User.
@@ -464,6 +481,30 @@ func (u *User) appendNamedAPIKeys(name string, edges ...*ApiKey) {
 		u.Edges.namedAPIKeys[name] = []*ApiKey{}
 	} else {
 		u.Edges.namedAPIKeys[name] = append(u.Edges.namedAPIKeys[name], edges...)
+	}
+}
+
+// NamedRefreshTokens returns the RefreshTokens named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (u *User) NamedRefreshTokens(name string) ([]*RefreshToken, error) {
+	if u.Edges.namedRefreshTokens == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := u.Edges.namedRefreshTokens[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (u *User) appendNamedRefreshTokens(name string, edges ...*RefreshToken) {
+	if u.Edges.namedRefreshTokens == nil {
+		u.Edges.namedRefreshTokens = make(map[string][]*RefreshToken)
+	}
+	if len(edges) == 0 {
+		u.Edges.namedRefreshTokens[name] = []*RefreshToken{}
+	} else {
+		u.Edges.namedRefreshTokens[name] = append(u.Edges.namedRefreshTokens[name], edges...)
 	}
 }
 

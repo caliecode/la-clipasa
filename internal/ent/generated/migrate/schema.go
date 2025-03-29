@@ -159,6 +159,49 @@ var (
 			},
 		},
 	}
+	// RefreshTokensColumns holds the columns for the "refresh_tokens" table.
+	RefreshTokensColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "token_hash", Type: field.TypeString, Unique: true},
+		{Name: "expires_at", Type: field.TypeTime},
+		{Name: "revoked", Type: field.TypeBool, Default: false},
+		{Name: "ip_address", Type: field.TypeString, Nullable: true},
+		{Name: "user_agent", Type: field.TypeString, Nullable: true},
+		{Name: "owner_id", Type: field.TypeUUID},
+	}
+	// RefreshTokensTable holds the schema information for the "refresh_tokens" table.
+	RefreshTokensTable = &schema.Table{
+		Name:       "refresh_tokens",
+		Columns:    RefreshTokensColumns,
+		PrimaryKey: []*schema.Column{RefreshTokensColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "refresh_tokens_users_refresh_tokens",
+				Columns:    []*schema.Column{RefreshTokensColumns[8]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "refreshtoken_token_hash",
+				Unique:  false,
+				Columns: []*schema.Column{RefreshTokensColumns[3]},
+			},
+			{
+				Name:    "refreshtoken_expires_at",
+				Unique:  false,
+				Columns: []*schema.Column{RefreshTokensColumns[4]},
+			},
+			{
+				Name:    "refreshtoken_revoked_expires_at_owner_id",
+				Unique:  false,
+				Columns: []*schema.Column{RefreshTokensColumns[5], RefreshTokensColumns[4], RefreshTokensColumns[8]},
+			},
+		},
+	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID, Unique: true},
@@ -238,6 +281,7 @@ var (
 		CommentsTable,
 		PostsTable,
 		PostCategoriesTable,
+		RefreshTokensTable,
 		UsersTable,
 		UserSavedPostsTable,
 		UserLikedPostsTable,
@@ -250,6 +294,7 @@ func init() {
 	CommentsTable.ForeignKeys[1].RefTable = UsersTable
 	PostsTable.ForeignKeys[0].RefTable = UsersTable
 	PostCategoriesTable.ForeignKeys[0].RefTable = PostsTable
+	RefreshTokensTable.ForeignKeys[0].RefTable = UsersTable
 	UserSavedPostsTable.ForeignKeys[0].RefTable = UsersTable
 	UserSavedPostsTable.ForeignKeys[1].RefTable = PostsTable
 	UserLikedPostsTable.ForeignKeys[0].RefTable = UsersTable
