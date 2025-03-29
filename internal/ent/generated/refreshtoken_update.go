@@ -51,6 +51,34 @@ func (rtu *RefreshTokenUpdate) SetNillableOwnerID(u *uuid.UUID) *RefreshTokenUpd
 	return rtu
 }
 
+// SetTokenHash sets the "token_hash" field.
+func (rtu *RefreshTokenUpdate) SetTokenHash(s string) *RefreshTokenUpdate {
+	rtu.mutation.SetTokenHash(s)
+	return rtu
+}
+
+// SetNillableTokenHash sets the "token_hash" field if the given value is not nil.
+func (rtu *RefreshTokenUpdate) SetNillableTokenHash(s *string) *RefreshTokenUpdate {
+	if s != nil {
+		rtu.SetTokenHash(*s)
+	}
+	return rtu
+}
+
+// SetExpiresAt sets the "expires_at" field.
+func (rtu *RefreshTokenUpdate) SetExpiresAt(t time.Time) *RefreshTokenUpdate {
+	rtu.mutation.SetExpiresAt(t)
+	return rtu
+}
+
+// SetNillableExpiresAt sets the "expires_at" field if the given value is not nil.
+func (rtu *RefreshTokenUpdate) SetNillableExpiresAt(t *time.Time) *RefreshTokenUpdate {
+	if t != nil {
+		rtu.SetExpiresAt(*t)
+	}
+	return rtu
+}
+
 // SetRevoked sets the "revoked" field.
 func (rtu *RefreshTokenUpdate) SetRevoked(b bool) *RefreshTokenUpdate {
 	rtu.mutation.SetRevoked(b)
@@ -165,6 +193,11 @@ func (rtu *RefreshTokenUpdate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (rtu *RefreshTokenUpdate) check() error {
+	if v, ok := rtu.mutation.TokenHash(); ok {
+		if err := refreshtoken.TokenHashValidator(v); err != nil {
+			return &ValidationError{Name: "token_hash", err: fmt.Errorf(`generated: validator failed for field "RefreshToken.token_hash": %w`, err)}
+		}
+	}
 	if rtu.mutation.OwnerCleared() && len(rtu.mutation.OwnerIDs()) > 0 {
 		return errors.New(`generated: clearing a required unique edge "RefreshToken.owner"`)
 	}
@@ -191,6 +224,12 @@ func (rtu *RefreshTokenUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := rtu.mutation.UpdatedAt(); ok {
 		_spec.SetField(refreshtoken.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := rtu.mutation.TokenHash(); ok {
+		_spec.SetField(refreshtoken.FieldTokenHash, field.TypeString, value)
+	}
+	if value, ok := rtu.mutation.ExpiresAt(); ok {
+		_spec.SetField(refreshtoken.FieldExpiresAt, field.TypeTime, value)
 	}
 	if value, ok := rtu.mutation.Revoked(); ok {
 		_spec.SetField(refreshtoken.FieldRevoked, field.TypeBool, value)
@@ -274,6 +313,34 @@ func (rtuo *RefreshTokenUpdateOne) SetOwnerID(u uuid.UUID) *RefreshTokenUpdateOn
 func (rtuo *RefreshTokenUpdateOne) SetNillableOwnerID(u *uuid.UUID) *RefreshTokenUpdateOne {
 	if u != nil {
 		rtuo.SetOwnerID(*u)
+	}
+	return rtuo
+}
+
+// SetTokenHash sets the "token_hash" field.
+func (rtuo *RefreshTokenUpdateOne) SetTokenHash(s string) *RefreshTokenUpdateOne {
+	rtuo.mutation.SetTokenHash(s)
+	return rtuo
+}
+
+// SetNillableTokenHash sets the "token_hash" field if the given value is not nil.
+func (rtuo *RefreshTokenUpdateOne) SetNillableTokenHash(s *string) *RefreshTokenUpdateOne {
+	if s != nil {
+		rtuo.SetTokenHash(*s)
+	}
+	return rtuo
+}
+
+// SetExpiresAt sets the "expires_at" field.
+func (rtuo *RefreshTokenUpdateOne) SetExpiresAt(t time.Time) *RefreshTokenUpdateOne {
+	rtuo.mutation.SetExpiresAt(t)
+	return rtuo
+}
+
+// SetNillableExpiresAt sets the "expires_at" field if the given value is not nil.
+func (rtuo *RefreshTokenUpdateOne) SetNillableExpiresAt(t *time.Time) *RefreshTokenUpdateOne {
+	if t != nil {
+		rtuo.SetExpiresAt(*t)
 	}
 	return rtuo
 }
@@ -405,6 +472,11 @@ func (rtuo *RefreshTokenUpdateOne) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (rtuo *RefreshTokenUpdateOne) check() error {
+	if v, ok := rtuo.mutation.TokenHash(); ok {
+		if err := refreshtoken.TokenHashValidator(v); err != nil {
+			return &ValidationError{Name: "token_hash", err: fmt.Errorf(`generated: validator failed for field "RefreshToken.token_hash": %w`, err)}
+		}
+	}
 	if rtuo.mutation.OwnerCleared() && len(rtuo.mutation.OwnerIDs()) > 0 {
 		return errors.New(`generated: clearing a required unique edge "RefreshToken.owner"`)
 	}
@@ -448,6 +520,12 @@ func (rtuo *RefreshTokenUpdateOne) sqlSave(ctx context.Context) (_node *RefreshT
 	}
 	if value, ok := rtuo.mutation.UpdatedAt(); ok {
 		_spec.SetField(refreshtoken.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := rtuo.mutation.TokenHash(); ok {
+		_spec.SetField(refreshtoken.FieldTokenHash, field.TypeString, value)
+	}
+	if value, ok := rtuo.mutation.ExpiresAt(); ok {
+		_spec.SetField(refreshtoken.FieldExpiresAt, field.TypeTime, value)
 	}
 	if value, ok := rtuo.mutation.Revoked(); ok {
 		_spec.SetField(refreshtoken.FieldRevoked, field.TypeBool, value)

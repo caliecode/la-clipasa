@@ -1423,6 +1423,7 @@ export type UpdatePostInput = {
 export type UpdateRefreshTokenInput = {
   clearIPAddress?: InputMaybe<Scalars['Boolean']['input']>
   clearUserAgent?: InputMaybe<Scalars['Boolean']['input']>
+  expiresAt?: InputMaybe<Scalars['Time']['input']>
   ipAddress?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   revoked?: InputMaybe<Scalars['Boolean']['input']>

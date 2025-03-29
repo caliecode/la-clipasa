@@ -30,12 +30,10 @@ func (RefreshToken) Fields() []ent.Field {
 		field.String("token_hash").
 			NotEmpty().
 			Unique().
-			Immutable().
 			Annotations(
 				entgql.Skip(),
 			),
-		field.Time("expires_at").
-			Immutable(),
+		field.Time("expires_at"),
 		field.Bool("revoked").
 			Default(false),
 		field.String("ip_address").

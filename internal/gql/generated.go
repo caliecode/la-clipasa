@@ -21018,13 +21018,20 @@ func (ec *executionContext) unmarshalInputUpdateRefreshTokenInput(ctx context.Co
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"revoked", "ipAddress", "clearIPAddress", "userAgent", "clearUserAgent", "ownerID"}
+	fieldsInOrder := [...]string{"expiresAt", "revoked", "ipAddress", "clearIPAddress", "userAgent", "clearUserAgent", "ownerID"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
+		case "expiresAt":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expiresAt"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ExpiresAt = data
 		case "revoked":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("revoked"))
 			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)

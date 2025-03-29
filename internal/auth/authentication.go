@@ -225,18 +225,8 @@ func (a *Authentication) ValidateAndRotateRefreshToken(ctx context.Context, oldR
 	refreshTokenHash := sha256.Sum256([]byte(oldRefreshTokenString))
 	refreshTokenHashString := base64.URLEncoding.EncodeToString(refreshTokenHash[:])
 
-	tx, err := a.entc.Tx(ctx)
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to start transaction: %w", err)
-	}
-	defer func() {
-		if v := recover(); v != nil {
-			_ = tx.Rollback()
-			panic(v)
-		}
-	}()
-
-	rt, err := tx.RefreshToken.Query().
+	// we use entgql.Transactioner in all gql api ops.
+	rt, err := a.entc.RefreshToken.Query().
 		Where(
 			refreshtoken.TokenHashEQ(refreshTokenHashString),
 			refreshtoken.RevokedEQ(false),
@@ -245,11 +235,10 @@ func (a *Authentication) ValidateAndRotateRefreshToken(ctx context.Context, oldR
 		WithOwner().
 		Only(ctx)
 	if err != nil {
-		_ = tx.Rollback()
 		if generated.IsNotFound(err) {
 			exists, _ := a.entc.RefreshToken.Query().
 				Where(refreshtoken.TokenHashEQ(refreshTokenHashString)).
-				Exist(ctx) // use original client for this
+				Exist(ctx)
 			if exists {
 				// could be either revoked or expired, just assume revoked
 				return nil, nil, ErrRefreshTokenRevoked
@@ -261,39 +250,55 @@ func (a *Authentication) ValidateAndRotateRefreshToken(ctx context.Context, oldR
 
 	// explicitly check expiry and revoked status again
 	if rt.Revoked {
-		_ = tx.Rollback()
 		return nil, nil, ErrRefreshTokenRevoked
 	}
 	if rt.ExpiresAt.Before(time.Now()) {
-		_ = tx.Rollback()
 		return nil, nil, ErrRefreshTokenExpired
 	}
 
 	user := rt.Edges.Owner
-	ctx = internal.SetUserCtx(token.NewContextWithSystemCallToken(ctx), user)
-	_, err = tx.RefreshToken.UpdateOne(rt).SetRevoked(true).Save(ctx)
+	sysCtx := internal.SetUserCtx(token.NewContextWithSystemCallToken(ctx), user)
+	_, err = a.entc.RefreshToken.UpdateOne(rt).SetRevoked(true).Save(sysCtx)
 	if err != nil {
-		_ = tx.Rollback()
 		return nil, nil, fmt.Errorf("failed to revoke old refresh token: %w", err)
 	}
 
-	newTokenPair, err := a.IssueTokenPair(ctx, user)
+	newAccessToken, err := a.CreateAccessTokenForUser(sysCtx, user) // Use original user context is fine here
 	if err != nil {
-		// should revocation persist instead?
-		// for now rolling back and user might be able to refresh if it was a transient error
-		// TODO: notify - user may not be able to log in from now on
-		_ = tx.Rollback()
-		return nil, nil, fmt.Errorf("failed to issue new token pair: %w", err)
+		return nil, nil, fmt.Errorf("failed to create new access token during refresh: %w", err)
 	}
 
-	if err := tx.Commit(); err != nil {
-		return nil, nil, fmt.Errorf("failed to commit refresh token transaction: %w", err)
+	rb := make([]byte, RefreshTokenBytes)
+	if _, err := rand.Read(rb); err != nil {
+		return nil, nil, fmt.Errorf("failed to generate new refresh token bytes: %w", err)
 	}
+	newRefreshTokenString := base64.URLEncoding.EncodeToString(rb)
 
-	return user, newTokenPair, nil
+	newRefreshTokenHash := sha256.Sum256([]byte(newRefreshTokenString))
+	newRefreshTokenHashString := base64.URLEncoding.EncodeToString(newRefreshTokenHash[:])
+
+	newExpiresAt := time.Now().Add(RefreshTokenLifeTime)
+
+	// update the existing token, so that user will still be able to see the same list
+	// of existing sessions
+	_, err = a.entc.RefreshToken.UpdateOne(rt).
+		SetTokenHash(newRefreshTokenHashString).
+		SetExpiresAt(newExpiresAt).
+		SetRevoked(false).
+		// TODO:
+		// SetIPAddress(c.ClientIP()).
+		// SetUserAgent(c.Request.UserAgent()).
+		Save(sysCtx)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to update refresh token during rotation: %w", err)
+	}
+	return user, &TokenPair{
+		AccessToken:  newAccessToken,
+		RefreshToken: newRefreshTokenString,
+	}, nil
 }
 
-func (a *Authentication) IssueTokenPair(ctx context.Context, user *generated.User) (*TokenPair, error) {
+func (a *Authentication) IssueNewTokenPair(ctx context.Context, user *generated.User) (*TokenPair, error) {
 	accessToken, err := a.CreateAccessTokenForUser(ctx, user)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create access token: %w", err)

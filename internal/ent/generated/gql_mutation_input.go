@@ -344,6 +344,7 @@ func (c *RefreshTokenCreate) SetInput(i CreateRefreshTokenInput) *RefreshTokenCr
 
 // UpdateRefreshTokenInput represents a mutation input for updating refreshtokens.
 type UpdateRefreshTokenInput struct {
+	ExpiresAt      *time.Time
 	Revoked        *bool
 	ClearIPAddress bool
 	IPAddress      *string
@@ -354,6 +355,9 @@ type UpdateRefreshTokenInput struct {
 
 // Mutate applies the UpdateRefreshTokenInput on the RefreshTokenMutation builder.
 func (i *UpdateRefreshTokenInput) Mutate(m *RefreshTokenMutation) {
+	if v := i.ExpiresAt; v != nil {
+		m.SetExpiresAt(*v)
+	}
 	if v := i.Revoked; v != nil {
 		m.SetRevoked(*v)
 	}
