@@ -15,6 +15,7 @@ import (
 	"github.com/caliecode/la-clipasa/internal/ent/generated/apikey"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/refreshtoken"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
+	"github.com/caliecode/la-clipasa/internal/ent/privacy/token"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
@@ -22,7 +23,7 @@ import (
 )
 
 const (
-	AccessTokenLifeTime     = 15 * time.Minute
+	AccessTokenLifeTime     = 15 * time.Second
 	RefreshTokenLifeTime    = 365 * 24 * time.Hour
 	RefreshTokenBytes       = 32
 	RefreshTokenCookieName  = "rt"
@@ -31,6 +32,7 @@ const (
 )
 
 var (
+	ErrExpiredToken         = jwt.ErrTokenExpired
 	ErrRefreshTokenNotFound = errors.New("refresh token not found")
 	ErrRefreshTokenExpired  = errors.New("refresh token expired")
 	ErrRefreshTokenRevoked  = errors.New("refresh token revoked")
@@ -160,39 +162,6 @@ func (a *Authentication) GetOrRegisterUserFromUserInfo(c *gin.Context, userinfo 
 	return u, nil
 }
 
-// IssueTokenPair generates a new access token and refresh token pair for a user.
-func (a *Authentication) IssueTokenPair(ctx context.Context, user *generated.User) (*TokenPair, error) {
-	accessToken, err := a.CreateAccessTokenForUser(ctx, user)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create access token: %w", err)
-	}
-
-	rb := make([]byte, RefreshTokenBytes)
-	if _, err := rand.Read(rb); err != nil {
-		return nil, fmt.Errorf("failed to generate refresh token bytes: %w", err)
-	}
-	refreshTokenString := base64.URLEncoding.EncodeToString(rb)
-
-	refreshTokenHash := sha256.Sum256([]byte(refreshTokenString))
-	refreshTokenHashString := base64.URLEncoding.EncodeToString(refreshTokenHash[:])
-
-	refreshExpiresAt := time.Now().Add(RefreshTokenLifeTime)
-
-	_, err = a.entc.RefreshToken.Create().
-		SetOwner(user).
-		SetTokenHash(refreshTokenHashString).
-		SetExpiresAt(refreshExpiresAt).
-		Save(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("failed to save refresh token: %w", err)
-	}
-
-	return &TokenPair{
-		AccessToken:  accessToken,
-		RefreshToken: refreshTokenString,
-	}, nil
-}
-
 // CreateAccessTokenForUser creates just the JWT access token.
 func (a *Authentication) CreateAccessTokenForUser(ctx context.Context, user *generated.User) (string, error) {
 	claims := AppClaims{
@@ -231,29 +200,43 @@ func (a *Authentication) CreateAPIKeyForUser(ctx context.Context, user *generate
 // ParseToken parses and validates the JWT access token.
 func (a *Authentication) ParseToken(ctx context.Context, token string) (*AppClaims, error) {
 	jwtToken, err := jwt.ParseWithClaims(token, &AppClaims{}, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("%w: unexpected signing method: %v", ErrInvalidSigningMethod, token.Header["alg"])
+		}
 		return a.signingKey, nil
 	})
-	if err != nil || jwtToken == nil {
-		return nil, fmt.Errorf("could not parse token: %w", err)
-	}
-
-	if _, ok := jwtToken.Method.(*jwt.SigningMethodHMAC); !ok {
-		return nil, fmt.Errorf("unexpected signing method: %v", jwtToken.Header["alg"])
+	// check specific JWT errors before claims or validity
+	if err != nil {
+		// return the original error so downstream can check it
+		return nil, fmt.Errorf("%w: %w", ErrParseToken, err)
 	}
 
 	claims, ok := jwtToken.Claims.(*AppClaims)
 	if !ok || !jwtToken.Valid {
-		return nil, fmt.Errorf("could not parse token string: %w", err)
+		return nil, fmt.Errorf("%w: token claims invalid or token is not valid", ErrInvalidTokenClaims)
 	}
 
 	return claims, nil
 }
 
-func (a *Authentication) ValidateAndRotateRefreshToken(ctx context.Context, oldRefreshTokenString string) (*TokenPair, error) {
+// ValidateAndRotateRefreshToken validates an old refresh token, revokes it,
+// issues a new pair, and returns the associated user and the new token pair.
+func (a *Authentication) ValidateAndRotateRefreshToken(ctx context.Context, oldRefreshTokenString string) (*generated.User, *TokenPair, error) {
 	refreshTokenHash := sha256.Sum256([]byte(oldRefreshTokenString))
 	refreshTokenHashString := base64.URLEncoding.EncodeToString(refreshTokenHash[:])
 
-	rt, err := a.entc.RefreshToken.Query().
+	tx, err := a.entc.Tx(ctx)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to start transaction: %w", err)
+	}
+	defer func() {
+		if v := recover(); v != nil {
+			_ = tx.Rollback()
+			panic(v)
+		}
+	}()
+
+	rt, err := tx.RefreshToken.Query().
 		Where(
 			refreshtoken.TokenHashEQ(refreshTokenHashString),
 			refreshtoken.RevokedEQ(false),
@@ -262,26 +245,84 @@ func (a *Authentication) ValidateAndRotateRefreshToken(ctx context.Context, oldR
 		WithOwner().
 		Only(ctx)
 	if err != nil {
+		_ = tx.Rollback()
 		if generated.IsNotFound(err) {
-			return nil, ErrRefreshTokenNotFound
+			exists, _ := a.entc.RefreshToken.Query().
+				Where(refreshtoken.TokenHashEQ(refreshTokenHashString)).
+				Exist(ctx) // use original client for this
+			if exists {
+				// could be either revoked or expired, just assume revoked
+				return nil, nil, ErrRefreshTokenRevoked
+			}
+			return nil, nil, ErrRefreshTokenNotFound
 		}
-		return nil, fmt.Errorf("failed to query refresh token: %w", err)
+		return nil, nil, fmt.Errorf("failed to query refresh token: %w", err)
 	}
 
-	_, err = a.entc.RefreshToken.UpdateOne(rt).SetRevoked(true).Save(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("failed to revoke old refresh token: %w", err)
+	// explicitly check expiry and revoked status again
+	if rt.Revoked {
+		_ = tx.Rollback()
+		return nil, nil, ErrRefreshTokenRevoked
+	}
+	if rt.ExpiresAt.Before(time.Now()) {
+		_ = tx.Rollback()
+		return nil, nil, ErrRefreshTokenExpired
 	}
 
 	user := rt.Edges.Owner
+	ctx = internal.SetUserCtx(token.NewContextWithSystemCallToken(ctx), user)
+	_, err = tx.RefreshToken.UpdateOne(rt).SetRevoked(true).Save(ctx)
+	if err != nil {
+		_ = tx.Rollback()
+		return nil, nil, fmt.Errorf("failed to revoke old refresh token: %w", err)
+	}
 
 	newTokenPair, err := a.IssueTokenPair(ctx, user)
 	if err != nil {
-		// TODO: notify - user can't log in now
-		return nil, fmt.Errorf("failed to issue new token pair: %w", err)
+		// should revocation persist instead?
+		// for now rolling back and user might be able to refresh if it was a transient error
+		// TODO: notify - user may not be able to log in from now on
+		_ = tx.Rollback()
+		return nil, nil, fmt.Errorf("failed to issue new token pair: %w", err)
 	}
 
-	return newTokenPair, nil
+	if err := tx.Commit(); err != nil {
+		return nil, nil, fmt.Errorf("failed to commit refresh token transaction: %w", err)
+	}
+
+	return user, newTokenPair, nil
+}
+
+func (a *Authentication) IssueTokenPair(ctx context.Context, user *generated.User) (*TokenPair, error) {
+	accessToken, err := a.CreateAccessTokenForUser(ctx, user)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create access token: %w", err)
+	}
+
+	rb := make([]byte, RefreshTokenBytes)
+	if _, err := rand.Read(rb); err != nil {
+		return nil, fmt.Errorf("failed to generate refresh token bytes: %w", err)
+	}
+	refreshTokenString := base64.URLEncoding.EncodeToString(rb)
+
+	refreshTokenHash := sha256.Sum256([]byte(refreshTokenString))
+	refreshTokenHashString := base64.URLEncoding.EncodeToString(refreshTokenHash[:])
+
+	refreshExpiresAt := time.Now().Add(RefreshTokenLifeTime)
+
+	_, err = a.entc.RefreshToken.Create().
+		SetOwner(user).
+		SetTokenHash(refreshTokenHashString).
+		SetExpiresAt(refreshExpiresAt).
+		Save(internal.SetUserCtx(ctx, user))
+	if err != nil {
+		return nil, fmt.Errorf("failed to save refresh token: %w", err)
+	}
+
+	return &TokenPair{
+		AccessToken:  accessToken,
+		RefreshToken: refreshTokenString,
+	}, nil
 }
 
 // RevokeRefreshToken explicitly revokes a single refresh token.

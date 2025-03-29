@@ -82,11 +82,14 @@ func (RefreshToken) Policy() ent.Policy {
 			ent.OpCreate|ent.OpUpdateOne,
 			rule.AllowIfSeedingData(),
 			rule.AllowIfContextHasPrivacyTokenOfType(&token.Oauth2Token{}),
+			rule.AllowIfContextHasPrivacyTokenOfType(&token.SystemCallToken{}),
 			rule.AllowIfSelfOrHasRole(user.RoleADMIN),
 		),
 		policy.WithOnMutationRules(
 			ent.OpUpdate|ent.OpDeleteOne|ent.OpDelete,
 			rule.AllowIfSeedingData(),
+			rule.AllowIfContextHasPrivacyTokenOfType(&token.SystemCallToken{}),
+			rule.AllowIfContextHasPrivacyTokenOfType(&token.SystemCallToken{}),
 			rule.AllowIfSelfOrHasRole(user.RoleADMIN),
 		),
 	)

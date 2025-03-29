@@ -229,21 +229,15 @@ func (h *Handlers) twitchCallback(c *gin.Context) {
 		httputil.RenderError(c, "OIDC", internal.WrapErrorf(err, internal.ErrorCodeOIDC, "could not get or register user"))
 	}
 
-	accessToken, err := h.authn.CreateAccessTokenForUser(ctxWithPrivacyToken, u)
+	tokenPair, err := h.authn.IssueTokenPair(ctxWithPrivacyToken, u)
 	if err != nil {
-		httputil.RenderError(c, "OIDC", internal.WrapErrorf(err, internal.ErrorCodeOIDC, "could not create access token"))
+		h.logger.Errorf("Failed to issue token pair for user %s: %v", u.ID, err)
+		httputil.RenderError(c, "Auth", internal.WrapErrorf(err, internal.ErrorCodeUnknown, "could not issue session tokens"))
+		return
 	}
 
-	http.SetCookie(c.Writer, &http.Cookie{
-		Name:     internal.Config.LoginCookieKey,
-		Value:    accessToken,
-		Path:     "/",
-		MaxAge:   3600 * 24 * 7,
-		Domain:   internal.Config.CookieDomain,
-		Secure:   true,
-		HttpOnly: false, // must access via JS
-		SameSite: http.SameSiteNoneMode,
-	})
+	setRefreshTokenCookie(c, tokenPair.RefreshToken)
+	setAccessTokenCookie(c, tokenPair.AccessToken)
 
 	c.String(200, "Successfully logged in")
 
