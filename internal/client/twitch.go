@@ -89,7 +89,7 @@ func (h *TwitchHandlers) refreshTwitchToken(c *gin.Context, tokenInfo *models.Tw
 			Value:    base64.URLEncoding.EncodeToString(tokenJSON),
 			Path:     "/",
 			Expires:  newToken.Expiry,
-			HttpOnly: true,
+			HttpOnly: true, // prevent js access
 			Secure:   true,
 		})
 	} else {

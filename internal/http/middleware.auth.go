@@ -4,12 +4,12 @@ import (
 	"errors"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/caliecode/la-clipasa/internal"
 	"github.com/caliecode/la-clipasa/internal/auth"
 	"github.com/caliecode/la-clipasa/internal/ent/generated"
 	"github.com/caliecode/la-clipasa/internal/ent/privacy/token"
+	"github.com/caliecode/la-clipasa/internal/http/httputil"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 	"go.uber.org/zap"
@@ -28,44 +28,6 @@ func NewAuthMiddleware(
 		logger: logger,
 		authn:  authn,
 	}
-}
-
-// Helper function to clear refresh token cookie
-func clearRefreshTokenCookie(c *gin.Context) {
-	http.SetCookie(c.Writer, &http.Cookie{
-		Name:     auth.RefreshTokenCookieName,
-		Value:    "",
-		MaxAge:   -1, // deletes
-		Path:     "/",
-		Secure:   true,
-		HttpOnly: true, // crucial
-		Domain:   internal.Config.CookieDomain,
-	})
-}
-
-func setRefreshTokenCookie(c *gin.Context, token string) {
-	http.SetCookie(c.Writer, &http.Cookie{
-		Name:     auth.RefreshTokenCookieName,
-		Value:    token,
-		Path:     "/",
-		Expires:  time.Unix(time.Now().Add(auth.RefreshTokenLifeTime).Unix(), 0),
-		Secure:   true,
-		HttpOnly: true, // prevent js access
-		Domain:   internal.Config.CookieDomain,
-	})
-}
-
-func setAccessTokenCookie(c *gin.Context, token string) {
-	http.SetCookie(c.Writer, &http.Cookie{
-		Name:     internal.Config.LoginCookieKey,
-		Value:    token,
-		Path:     "/",
-		MaxAge:   3600 * 24 * 7,
-		Domain:   internal.Config.CookieDomain,
-		Secure:   true,
-		HttpOnly: false, // must access via JS
-		SameSite: http.SameSiteNoneMode,
-	})
 }
 
 // TryAuthentication stores the caller in the context if any or continues unauthenticated.
@@ -100,21 +62,21 @@ func (m *authMiddleware) TryAuthentication() gin.HandlerFunc {
 				if errors.Is(err, auth.ErrExpiredToken) || errors.Is(err, jwt.ErrTokenExpired) {
 					logger.Debugf("Access token expired, attempting refresh due to: %v", err)
 
-					refreshTokenCookie, cookieErr := c.Cookie(auth.RefreshTokenCookieName)
+					refreshTokenCookie, cookieErr := c.Cookie(httputil.RefreshTokenCookieName)
 					if cookieErr == nil && refreshTokenCookie != "" {
 						// try to use cookie
 						refreshedUser, newTokenPair, refreshErr := m.authn.ValidateAndRotateRefreshToken(sysCtx, refreshTokenCookie)
 						if refreshErr == nil {
 							u = refreshedUser
 							m.logger.Debugw("Setting refresh+access token cookie", "user_id", u.ID)
-							setRefreshTokenCookie(c, newTokenPair.RefreshToken) // refresh token rotation
-							setAccessTokenCookie(c, newTokenPair.AccessToken)
+							httputil.SetRefreshTokenCookie(c, newTokenPair.RefreshToken, auth.RefreshTokenLifeTime) // refresh token rotation
+							httputil.SetAccessTokenCookie(c, newTokenPair.AccessToken)
 
 							c.Header("X-Access-Token-Refreshed", "true")
 						} else {
 							// invalid, expired, revoked refresh token, db error, etc.
 							logger.Warnw("Failed to refresh token", "error", refreshErr)
-							clearRefreshTokenCookie(c)
+							httputil.ClearRefreshTokenCookie(c)
 							// u remains nil
 						}
 					} else {

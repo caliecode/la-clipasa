@@ -19,6 +19,7 @@ import (
 	"github.com/zitadel/oidc/v3/pkg/oidc"
 
 	"github.com/caliecode/la-clipasa/internal"
+	"github.com/caliecode/la-clipasa/internal/auth"
 	"github.com/caliecode/la-clipasa/internal/ent/privacy/token"
 	"github.com/caliecode/la-clipasa/internal/http/httputil"
 	"github.com/caliecode/la-clipasa/internal/models"
@@ -211,7 +212,7 @@ func (h *Handlers) twitchCallback(c *gin.Context) {
 		Path:     "/",
 		Expires:  twitchTokenInfo.Expiry.Add(7 * 24 * time.Hour), // we will verify manually token expiration manually and use refresh token
 		Secure:   true,
-		HttpOnly: false, // must access via JS
+		HttpOnly: true, // prevent js access
 		Domain:   internal.Config.CookieDomain,
 		SameSite: http.SameSiteNoneMode,
 	})
@@ -236,8 +237,8 @@ func (h *Handlers) twitchCallback(c *gin.Context) {
 		return
 	}
 
-	setRefreshTokenCookie(c, tokenPair.RefreshToken)
-	setAccessTokenCookie(c, tokenPair.AccessToken)
+	httputil.SetRefreshTokenCookie(c, tokenPair.RefreshToken, auth.AccessTokenLifeTime)
+	httputil.SetAccessTokenCookie(c, tokenPair.AccessToken)
 
 	c.String(200, "Successfully logged in")
 
