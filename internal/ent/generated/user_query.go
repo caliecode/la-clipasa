@@ -18,6 +18,7 @@ import (
 	"github.com/caliecode/la-clipasa/internal/ent/generated/comment"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/post"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/predicate"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/refreshtoken"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
 	"github.com/google/uuid"
 )
@@ -34,6 +35,7 @@ type UserQuery struct {
 	withPublishedPosts      *PostQuery
 	withComments            *CommentQuery
 	withAPIKeys             *ApiKeyQuery
+	withRefreshTokens       *RefreshTokenQuery
 	loadTotal               []func(context.Context, []*User) error
 	modifiers               []func(*sql.Selector)
 	withNamedSavedPosts     map[string]*PostQuery
@@ -41,6 +43,7 @@ type UserQuery struct {
 	withNamedPublishedPosts map[string]*PostQuery
 	withNamedComments       map[string]*CommentQuery
 	withNamedAPIKeys        map[string]*ApiKeyQuery
+	withNamedRefreshTokens  map[string]*RefreshTokenQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -180,6 +183,28 @@ func (uq *UserQuery) QueryAPIKeys() *ApiKeyQuery {
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(apikey.Table, apikey.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.APIKeysTable, user.APIKeysColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryRefreshTokens chains the current query on the "refresh_tokens" edge.
+func (uq *UserQuery) QueryRefreshTokens() *RefreshTokenQuery {
+	query := (&RefreshTokenClient{config: uq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := uq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := uq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(refreshtoken.Table, refreshtoken.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.RefreshTokensTable, user.RefreshTokensColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
 		return fromU, nil
@@ -384,6 +409,7 @@ func (uq *UserQuery) Clone() *UserQuery {
 		withPublishedPosts: uq.withPublishedPosts.Clone(),
 		withComments:       uq.withComments.Clone(),
 		withAPIKeys:        uq.withAPIKeys.Clone(),
+		withRefreshTokens:  uq.withRefreshTokens.Clone(),
 		// clone intermediate query.
 		sql:       uq.sql.Clone(),
 		path:      uq.path,
@@ -443,6 +469,17 @@ func (uq *UserQuery) WithAPIKeys(opts ...func(*ApiKeyQuery)) *UserQuery {
 		opt(query)
 	}
 	uq.withAPIKeys = query
+	return uq
+}
+
+// WithRefreshTokens tells the query-builder to eager-load the nodes that are connected to
+// the "refresh_tokens" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithRefreshTokens(opts ...func(*RefreshTokenQuery)) *UserQuery {
+	query := (&RefreshTokenClient{config: uq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	uq.withRefreshTokens = query
 	return uq
 }
 
@@ -530,12 +567,13 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	var (
 		nodes       = []*User{}
 		_spec       = uq.querySpec()
-		loadedTypes = [5]bool{
+		loadedTypes = [6]bool{
 			uq.withSavedPosts != nil,
 			uq.withLikedPosts != nil,
 			uq.withPublishedPosts != nil,
 			uq.withComments != nil,
 			uq.withAPIKeys != nil,
+			uq.withRefreshTokens != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -594,6 +632,13 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 			return nil, err
 		}
 	}
+	if query := uq.withRefreshTokens; query != nil {
+		if err := uq.loadRefreshTokens(ctx, query, nodes,
+			func(n *User) { n.Edges.RefreshTokens = []*RefreshToken{} },
+			func(n *User, e *RefreshToken) { n.Edges.RefreshTokens = append(n.Edges.RefreshTokens, e) }); err != nil {
+			return nil, err
+		}
+	}
 	for name, query := range uq.withNamedSavedPosts {
 		if err := uq.loadSavedPosts(ctx, query, nodes,
 			func(n *User) { n.appendNamedSavedPosts(name) },
@@ -626,6 +671,13 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 		if err := uq.loadAPIKeys(ctx, query, nodes,
 			func(n *User) { n.appendNamedAPIKeys(name) },
 			func(n *User, e *ApiKey) { n.appendNamedAPIKeys(name, e) }); err != nil {
+			return nil, err
+		}
+	}
+	for name, query := range uq.withNamedRefreshTokens {
+		if err := uq.loadRefreshTokens(ctx, query, nodes,
+			func(n *User) { n.appendNamedRefreshTokens(name) },
+			func(n *User, e *RefreshToken) { n.appendNamedRefreshTokens(name, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -850,6 +902,36 @@ func (uq *UserQuery) loadAPIKeys(ctx context.Context, query *ApiKeyQuery, nodes 
 	}
 	return nil
 }
+func (uq *UserQuery) loadRefreshTokens(ctx context.Context, query *RefreshTokenQuery, nodes []*User, init func(*User), assign func(*User, *RefreshToken)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(refreshtoken.FieldOwnerID)
+	}
+	query.Where(predicate.RefreshToken(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.RefreshTokensColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.OwnerID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "owner_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
 
 func (uq *UserQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := uq.querySpec()
@@ -1037,6 +1119,20 @@ func (uq *UserQuery) WithNamedAPIKeys(name string, opts ...func(*ApiKeyQuery)) *
 		uq.withNamedAPIKeys = make(map[string]*ApiKeyQuery)
 	}
 	uq.withNamedAPIKeys[name] = query
+	return uq
+}
+
+// WithNamedRefreshTokens tells the query-builder to eager-load the nodes that are connected to the "refresh_tokens"
+// edge with the given name. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithNamedRefreshTokens(name string, opts ...func(*RefreshTokenQuery)) *UserQuery {
+	query := (&RefreshTokenClient{config: uq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	if uq.withNamedRefreshTokens == nil {
+		uq.withNamedRefreshTokens = make(map[string]*RefreshTokenQuery)
+	}
+	uq.withNamedRefreshTokens[name] = query
 	return uq
 }
 

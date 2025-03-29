@@ -312,6 +312,84 @@ func (c *PostCategoryUpdateOne) SetInput(i UpdatePostCategoryInput) *PostCategor
 	return c
 }
 
+// CreateRefreshTokenInput represents a mutation input for creating refreshtokens.
+type CreateRefreshTokenInput struct {
+	ExpiresAt time.Time
+	Revoked   *bool
+	IPAddress *string
+	UserAgent *string
+	OwnerID   uuid.UUID
+}
+
+// Mutate applies the CreateRefreshTokenInput on the RefreshTokenMutation builder.
+func (i *CreateRefreshTokenInput) Mutate(m *RefreshTokenMutation) {
+	m.SetExpiresAt(i.ExpiresAt)
+	if v := i.Revoked; v != nil {
+		m.SetRevoked(*v)
+	}
+	if v := i.IPAddress; v != nil {
+		m.SetIPAddress(*v)
+	}
+	if v := i.UserAgent; v != nil {
+		m.SetUserAgent(*v)
+	}
+	m.SetOwnerID(i.OwnerID)
+}
+
+// SetInput applies the change-set in the CreateRefreshTokenInput on the RefreshTokenCreate builder.
+func (c *RefreshTokenCreate) SetInput(i CreateRefreshTokenInput) *RefreshTokenCreate {
+	i.Mutate(c.Mutation())
+	return c
+}
+
+// UpdateRefreshTokenInput represents a mutation input for updating refreshtokens.
+type UpdateRefreshTokenInput struct {
+	ExpiresAt      *time.Time
+	Revoked        *bool
+	ClearIPAddress bool
+	IPAddress      *string
+	ClearUserAgent bool
+	UserAgent      *string
+	OwnerID        *uuid.UUID
+}
+
+// Mutate applies the UpdateRefreshTokenInput on the RefreshTokenMutation builder.
+func (i *UpdateRefreshTokenInput) Mutate(m *RefreshTokenMutation) {
+	if v := i.ExpiresAt; v != nil {
+		m.SetExpiresAt(*v)
+	}
+	if v := i.Revoked; v != nil {
+		m.SetRevoked(*v)
+	}
+	if i.ClearIPAddress {
+		m.ClearIPAddress()
+	}
+	if v := i.IPAddress; v != nil {
+		m.SetIPAddress(*v)
+	}
+	if i.ClearUserAgent {
+		m.ClearUserAgent()
+	}
+	if v := i.UserAgent; v != nil {
+		m.SetUserAgent(*v)
+	}
+	if v := i.OwnerID; v != nil {
+		m.SetOwnerID(*v)
+	}
+}
+
+// SetInput applies the change-set in the UpdateRefreshTokenInput on the RefreshTokenUpdate builder.
+func (c *RefreshTokenUpdate) SetInput(i UpdateRefreshTokenInput) *RefreshTokenUpdate {
+	i.Mutate(c.Mutation())
+	return c
+}
+
+// SetInput applies the change-set in the UpdateRefreshTokenInput on the RefreshTokenUpdateOne builder.
+func (c *RefreshTokenUpdateOne) SetInput(i UpdateRefreshTokenInput) *RefreshTokenUpdateOne {
+	i.Mutate(c.Mutation())
+	return c
+}
+
 // CreateUserInput represents a mutation input for creating users.
 type CreateUserInput struct {
 	DisplayName        string

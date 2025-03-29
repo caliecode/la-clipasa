@@ -114,6 +114,14 @@ func (pc *PostCategory) Post(ctx context.Context) (*Post, error) {
 	return result, MaskNotFound(err)
 }
 
+func (rt *RefreshToken) Owner(ctx context.Context) (*User, error) {
+	result, err := rt.Edges.OwnerOrErr()
+	if IsNotLoaded(err) {
+		result, err = rt.QueryOwner().Only(ctx)
+	}
+	return result, err
+}
+
 func (u *User) SavedPosts(ctx context.Context) (result []*Post, err error) {
 	if fc := graphql.GetFieldContext(ctx); fc != nil && fc.Field.Alias != "" {
 		result, err = u.NamedSavedPosts(graphql.GetFieldContext(ctx).Field.Alias)

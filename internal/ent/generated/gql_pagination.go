@@ -18,6 +18,7 @@ import (
 	"github.com/caliecode/la-clipasa/internal/ent/generated/comment"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/post"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/postcategory"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/refreshtoken"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
 	"github.com/google/uuid"
 	"github.com/vektah/gqlparser/v2/gqlerror"
@@ -1483,6 +1484,320 @@ func (pc *PostCategory) ToEdge(order *PostCategoryOrder) *PostCategoryEdge {
 	return &PostCategoryEdge{
 		Node:   pc,
 		Cursor: order.Field.toCursor(pc),
+	}
+}
+
+// RefreshTokenEdge is the edge representation of RefreshToken.
+type RefreshTokenEdge struct {
+	Node   *RefreshToken `json:"node"`
+	Cursor Cursor        `json:"cursor"`
+}
+
+// RefreshTokenConnection is the connection containing edges to RefreshToken.
+type RefreshTokenConnection struct {
+	Edges      []*RefreshTokenEdge `json:"edges"`
+	PageInfo   PageInfo            `json:"pageInfo"`
+	TotalCount int                 `json:"totalCount"`
+}
+
+func (c *RefreshTokenConnection) build(nodes []*RefreshToken, pager *refreshtokenPager, after *Cursor, first *int, before *Cursor, last *int) {
+	c.PageInfo.HasNextPage = before != nil
+	c.PageInfo.HasPreviousPage = after != nil
+	if first != nil && *first+1 == len(nodes) {
+		c.PageInfo.HasNextPage = true
+		nodes = nodes[:len(nodes)-1]
+	} else if last != nil && *last+1 == len(nodes) {
+		c.PageInfo.HasPreviousPage = true
+		nodes = nodes[:len(nodes)-1]
+	}
+	var nodeAt func(int) *RefreshToken
+	if last != nil {
+		n := len(nodes) - 1
+		nodeAt = func(i int) *RefreshToken {
+			return nodes[n-i]
+		}
+	} else {
+		nodeAt = func(i int) *RefreshToken {
+			return nodes[i]
+		}
+	}
+	c.Edges = make([]*RefreshTokenEdge, len(nodes))
+	for i := range nodes {
+		node := nodeAt(i)
+		c.Edges[i] = &RefreshTokenEdge{
+			Node:   node,
+			Cursor: pager.toCursor(node),
+		}
+	}
+	if l := len(c.Edges); l > 0 {
+		c.PageInfo.StartCursor = &c.Edges[0].Cursor
+		c.PageInfo.EndCursor = &c.Edges[l-1].Cursor
+	}
+	if c.TotalCount == 0 {
+		c.TotalCount = len(nodes)
+	}
+}
+
+// RefreshTokenPaginateOption enables pagination customization.
+type RefreshTokenPaginateOption func(*refreshtokenPager) error
+
+// WithRefreshTokenOrder configures pagination ordering.
+func WithRefreshTokenOrder(order *RefreshTokenOrder) RefreshTokenPaginateOption {
+	if order == nil {
+		order = DefaultRefreshTokenOrder
+	}
+	o := *order
+	return func(pager *refreshtokenPager) error {
+		if err := o.Direction.Validate(); err != nil {
+			return err
+		}
+		if o.Field == nil {
+			o.Field = DefaultRefreshTokenOrder.Field
+		}
+		pager.order = &o
+		return nil
+	}
+}
+
+// WithRefreshTokenFilter configures pagination filter.
+func WithRefreshTokenFilter(filter func(*RefreshTokenQuery) (*RefreshTokenQuery, error)) RefreshTokenPaginateOption {
+	return func(pager *refreshtokenPager) error {
+		if filter == nil {
+			return errors.New("RefreshTokenQuery filter cannot be nil")
+		}
+		pager.filter = filter
+		return nil
+	}
+}
+
+type refreshtokenPager struct {
+	reverse bool
+	order   *RefreshTokenOrder
+	filter  func(*RefreshTokenQuery) (*RefreshTokenQuery, error)
+}
+
+func newRefreshTokenPager(opts []RefreshTokenPaginateOption, reverse bool) (*refreshtokenPager, error) {
+	pager := &refreshtokenPager{reverse: reverse}
+	for _, opt := range opts {
+		if err := opt(pager); err != nil {
+			return nil, err
+		}
+	}
+	if pager.order == nil {
+		pager.order = DefaultRefreshTokenOrder
+	}
+	return pager, nil
+}
+
+func (p *refreshtokenPager) applyFilter(query *RefreshTokenQuery) (*RefreshTokenQuery, error) {
+	if p.filter != nil {
+		return p.filter(query)
+	}
+	return query, nil
+}
+
+func (p *refreshtokenPager) toCursor(rt *RefreshToken) Cursor {
+	return p.order.Field.toCursor(rt)
+}
+
+func (p *refreshtokenPager) applyCursors(query *RefreshTokenQuery, after, before *Cursor) (*RefreshTokenQuery, error) {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	for _, predicate := range entgql.CursorsPredicate(after, before, DefaultRefreshTokenOrder.Field.column, p.order.Field.column, direction) {
+		query = query.Where(predicate)
+	}
+	return query, nil
+}
+
+func (p *refreshtokenPager) applyOrder(query *RefreshTokenQuery) *RefreshTokenQuery {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	query = query.Order(p.order.Field.toTerm(direction.OrderTermOption()))
+	if p.order.Field != DefaultRefreshTokenOrder.Field {
+		query = query.Order(DefaultRefreshTokenOrder.Field.toTerm(direction.OrderTermOption()))
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(p.order.Field.column)
+	}
+	return query
+}
+
+func (p *refreshtokenPager) orderExpr(query *RefreshTokenQuery) sql.Querier {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(p.order.Field.column)
+	}
+	return sql.ExprFunc(func(b *sql.Builder) {
+		b.Ident(p.order.Field.column).Pad().WriteString(string(direction))
+		if p.order.Field != DefaultRefreshTokenOrder.Field {
+			b.Comma().Ident(DefaultRefreshTokenOrder.Field.column).Pad().WriteString(string(direction))
+		}
+	})
+}
+
+// Paginate executes the query and returns a relay based cursor connection to RefreshToken.
+func (rt *RefreshTokenQuery) Paginate(
+	ctx context.Context, after *Cursor, first *int,
+	before *Cursor, last *int, opts ...RefreshTokenPaginateOption,
+) (*RefreshTokenConnection, error) {
+	if err := validateFirstLast(first, last); err != nil {
+		return nil, err
+	}
+	pager, err := newRefreshTokenPager(opts, last != nil)
+	if err != nil {
+		return nil, err
+	}
+	if rt, err = pager.applyFilter(rt); err != nil {
+		return nil, err
+	}
+	conn := &RefreshTokenConnection{Edges: []*RefreshTokenEdge{}}
+	ignoredEdges := !hasCollectedField(ctx, edgesField)
+	if hasCollectedField(ctx, totalCountField) || hasCollectedField(ctx, pageInfoField) {
+		hasPagination := after != nil || first != nil || before != nil || last != nil
+		if hasPagination || ignoredEdges {
+			c := rt.Clone()
+			c.ctx.Fields = nil
+			if conn.TotalCount, err = c.Count(ctx); err != nil {
+				return nil, err
+			}
+			conn.PageInfo.HasNextPage = first != nil && conn.TotalCount > 0
+			conn.PageInfo.HasPreviousPage = last != nil && conn.TotalCount > 0
+		}
+	}
+	if ignoredEdges || (first != nil && *first == 0) || (last != nil && *last == 0) {
+		return conn, nil
+	}
+	if rt, err = pager.applyCursors(rt, after, before); err != nil {
+		return nil, err
+	}
+	limit := paginateLimit(first, last)
+	if limit != 0 {
+		rt.Limit(limit)
+	}
+	if field := collectedField(ctx, edgesField, nodeField); field != nil {
+		if err := rt.collectField(ctx, limit == 1, graphql.GetOperationContext(ctx), *field, []string{edgesField, nodeField}); err != nil {
+			return nil, err
+		}
+	}
+	rt = pager.applyOrder(rt)
+	nodes, err := rt.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	conn.build(nodes, pager, after, first, before, last)
+	return conn, nil
+}
+
+var (
+	// RefreshTokenOrderFieldUpdatedAt orders RefreshToken by updated_at.
+	RefreshTokenOrderFieldUpdatedAt = &RefreshTokenOrderField{
+		Value: func(rt *RefreshToken) (ent.Value, error) {
+			return rt.UpdatedAt, nil
+		},
+		column: refreshtoken.FieldUpdatedAt,
+		toTerm: refreshtoken.ByUpdatedAt,
+		toCursor: func(rt *RefreshToken) Cursor {
+			return Cursor{
+				ID:    rt.ID,
+				Value: rt.UpdatedAt,
+			}
+		},
+	}
+	// RefreshTokenOrderFieldCreatedAt orders RefreshToken by created_at.
+	RefreshTokenOrderFieldCreatedAt = &RefreshTokenOrderField{
+		Value: func(rt *RefreshToken) (ent.Value, error) {
+			return rt.CreatedAt, nil
+		},
+		column: refreshtoken.FieldCreatedAt,
+		toTerm: refreshtoken.ByCreatedAt,
+		toCursor: func(rt *RefreshToken) Cursor {
+			return Cursor{
+				ID:    rt.ID,
+				Value: rt.CreatedAt,
+			}
+		},
+	}
+)
+
+// String implement fmt.Stringer interface.
+func (f RefreshTokenOrderField) String() string {
+	var str string
+	switch f.column {
+	case RefreshTokenOrderFieldUpdatedAt.column:
+		str = "UPDATED_AT"
+	case RefreshTokenOrderFieldCreatedAt.column:
+		str = "CREATED_AT"
+	}
+	return str
+}
+
+// MarshalGQL implements graphql.Marshaler interface.
+func (f RefreshTokenOrderField) MarshalGQL(w io.Writer) {
+	io.WriteString(w, strconv.Quote(f.String()))
+}
+
+// UnmarshalGQL implements graphql.Unmarshaler interface.
+func (f *RefreshTokenOrderField) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("RefreshTokenOrderField %T must be a string", v)
+	}
+	switch str {
+	case "UPDATED_AT":
+		*f = *RefreshTokenOrderFieldUpdatedAt
+	case "CREATED_AT":
+		*f = *RefreshTokenOrderFieldCreatedAt
+	default:
+		return fmt.Errorf("%s is not a valid RefreshTokenOrderField", str)
+	}
+	return nil
+}
+
+// RefreshTokenOrderField defines the ordering field of RefreshToken.
+type RefreshTokenOrderField struct {
+	// Value extracts the ordering value from the given RefreshToken.
+	Value    func(*RefreshToken) (ent.Value, error)
+	column   string // field or computed.
+	toTerm   func(...sql.OrderTermOption) refreshtoken.OrderOption
+	toCursor func(*RefreshToken) Cursor
+}
+
+// RefreshTokenOrder defines the ordering of RefreshToken.
+type RefreshTokenOrder struct {
+	Direction OrderDirection          `json:"direction"`
+	Field     *RefreshTokenOrderField `json:"field"`
+}
+
+// DefaultRefreshTokenOrder is the default ordering of RefreshToken.
+var DefaultRefreshTokenOrder = &RefreshTokenOrder{
+	Direction: entgql.OrderDirectionAsc,
+	Field: &RefreshTokenOrderField{
+		Value: func(rt *RefreshToken) (ent.Value, error) {
+			return rt.ID, nil
+		},
+		column: refreshtoken.FieldID,
+		toTerm: refreshtoken.ByID,
+		toCursor: func(rt *RefreshToken) Cursor {
+			return Cursor{ID: rt.ID}
+		},
+	},
+}
+
+// ToEdge converts RefreshToken into RefreshTokenEdge.
+func (rt *RefreshToken) ToEdge(order *RefreshTokenOrder) *RefreshTokenEdge {
+	if order == nil {
+		order = DefaultRefreshTokenOrder
+	}
+	return &RefreshTokenEdge{
+		Node:   rt,
+		Cursor: order.Field.toCursor(rt),
 	}
 }
 
