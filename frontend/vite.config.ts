@@ -7,6 +7,7 @@ import { resolve } from 'path'
 import dynamicImport from 'vite-plugin-dynamic-import'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import { patchCssModules } from 'vite-css-modules'
+import { VitePWA } from 'vite-plugin-pwa'
 
 dotenv.config()
 
@@ -24,6 +25,44 @@ export default ({ mode }) => {
       }),
       tsconfigPaths({ root: '.' }),
       dynamicImport({}),
+      VitePWA({
+        includeAssets: ['favicon.ico', 'maskable_icon.png', 'icon_x192.png', 'icon_x512.png'],
+        manifest: {
+          name: 'La Clipasa',
+          short_name: 'la-clipasa',
+          description: 'El mejor evento de todo Twitch International',
+          start_url: '/',
+          display: 'standalone',
+          background_color: '#682692',
+          theme_color: '#000000',
+          icons: [
+            {
+              src: 'icon_x192.png',
+              sizes: '192x192',
+              type: 'image/png',
+              purpose: 'any maskable',
+            },
+            {
+              src: 'icon_x512.png',
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'any maskable',
+            },
+          ],
+          share_target: {
+            action: '/shared-resource',
+            method: 'GET',
+            params: {
+              title: 'shared_title',
+              text: 'shared_text',
+              url: 'shared_url',
+            },
+          },
+        },
+        devOptions: {
+          enabled: true,
+        },
+      }),
       // nodePolyfills(),
     ],
     server: {

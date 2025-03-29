@@ -13,6 +13,7 @@ node_modules
 dist
 dist-ssr
 *.local
+dev-dist
 .env.staging
 # Editor directories and files
 !.vscode/extensions.json
