@@ -145,11 +145,15 @@ export const PostPage = () => {
     <Container fluid h="100dvh" p={0} m={0}>
       {!isSharedPost && (
         <Group justify="center">
-          <Tooltip label="Back to list view">
-            <ActionIcon id="back-to-list" variant="light" size="lg" radius="xl" onClick={handleBackToList}>
-              <IconArrowLeft size={20} />
-            </ActionIcon>
-          </Tooltip>
+          <Button
+            onClick={handleBackToList}
+            radius="xl"
+            size="xs"
+            variant="light"
+            leftSection={<IconArrowLeft size={16} />}
+          >
+            Back to list view
+          </Button>
         </Group>
       )}
       <Space h="sm" />
@@ -157,7 +161,8 @@ export const PostPage = () => {
         {!isSharedPost && !isMobile && (
           <Container p={0}>
             <Button
-              variant="filled"
+              variant="light"
+              color="var(--mantine-primary-color-4)"
               radius={'var(--mantine-radius-md) 0px 0px var(--mantine-radius-md)'}
               h="100%"
               onClick={() => previousPost && setPost(previousPost)}
@@ -243,7 +248,8 @@ export const PostPage = () => {
         {!isSharedPost && !isMobile && (
           <Container p={0}>
             <Button
-              variant="filled"
+              variant="light"
+              color="var(--mantine-primary-color-4)"
               radius={'0px var(--mantine-radius-md) var(--mantine-radius-md) 0px'}
               h="100%"
               onClick={() => nextPost && setPost(nextPost)}
