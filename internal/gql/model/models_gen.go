@@ -116,6 +116,30 @@ type PostUpdatePayload struct {
 	Post *generated.Post `json:"post"`
 }
 
+// Return response for createBulkRefreshToken mutation
+type RefreshTokenBulkCreatePayload struct {
+	// Created refreshTokens
+	RefreshTokens []*generated.RefreshToken `json:"refreshTokens,omitempty"`
+}
+
+// Return response for createRefreshToken mutation
+type RefreshTokenCreatePayload struct {
+	// Created refreshToken
+	RefreshToken *generated.RefreshToken `json:"refreshToken"`
+}
+
+// Return response for deleteRefreshToken mutation
+type RefreshTokenDeletePayload struct {
+	// Deleted refreshToken ID
+	DeletedID uuid.UUID `json:"deletedID"`
+}
+
+// Return response for updateRefreshToken mutation
+type RefreshTokenUpdatePayload struct {
+	// Updated refreshToken
+	RefreshToken *generated.RefreshToken `json:"refreshToken"`
+}
+
 type SearchResultConnection struct {
 	// Information to aid in pagination.
 	Page *entgql.PageInfo[uuid.UUID] `json:"page"`

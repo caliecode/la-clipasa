@@ -80,6 +80,11 @@ func (User) Edges() []ent.Edge {
 			Annotations(
 				entx.CascadeAnnotationField("Owner"), // for edge_cleanup gen
 			),
+		edge.To("refresh_tokens", RefreshToken.Type).
+			Annotations(
+				entgql.Skip(),
+				entx.CascadeAnnotationField("Owner"), // for edge_cleanup gen
+			),
 	}
 }
 
