@@ -1,6 +1,6 @@
 import { Text, Space, ScrollArea, Drawer, Flex, LoadingOverlay, Group, Loader, Button, Skeleton } from '@mantine/core'
 import { useEffect, useRef, useState } from 'react'
-import { Virtuoso } from 'react-virtuoso'
+import { Virtuoso, VirtuosoHandle } from 'react-virtuoso'
 import PageTemplate from 'src/components/PageTemplate'
 import SaveButton from 'src/components/Post/buttons/SaveButton'
 import { PostCard } from 'src/components/Post/components/Post.Card'
@@ -26,7 +26,7 @@ const scrollablePadding = 16
 
 export default function LandingPage() {
   const [isSharedPost, setIsSharedPost] = useState<boolean | null>(null)
-  const { queryParams, sort, postActions, posts: allPosts } = usePostsSlice()
+  const { queryParams, sort, scrollToIndexOnLoad, postActions, posts: allPosts } = usePostsSlice()
   const { burgerOpened, setBurgerOpened } = useUISlice()
   const [isFetchingMore, setIsFetchingMore] = useState(false)
   const [showBackToTop, setShowBackToTop] = useState(false)
@@ -40,6 +40,7 @@ export default function LandingPage() {
   const fetchedPostsCount = allPosts.length
   const totalCount = posts.data?.posts.totalCount
   const hasNextPage = posts.data?.posts.pageInfo.hasNextPage
+  const virtuosoRef = useRef<VirtuosoHandle>(null)
 
   useEffect(() => {
     const isSharedPost = location.search.includes('ref=share') ? true : false
@@ -91,6 +92,17 @@ export default function LandingPage() {
     }
   }, [posts.data?.posts.edges, postActions])
 
+  useEffect(() => {
+    if (scrollToIndexOnLoad !== null && virtuosoRef.current && allPosts.length > scrollToIndexOnLoad) {
+      virtuosoRef.current.scrollToIndex({
+        index: scrollToIndexOnLoad,
+        align: 'center',
+        behavior: 'smooth',
+      })
+      postActions.clearScrollToIndex()
+    }
+  }, [scrollToIndexOnLoad, postActions, allPosts])
+
   function handleFetchMorePosts() {
     if (!posts.fetching && hasNextPage) {
       setIsFetchingMore(true)
@@ -120,6 +132,7 @@ export default function LandingPage() {
               </Text>
             ) : null}
             <Virtuoso
+              ref={virtuosoRef}
               useWindowScroll
               style={{
                 width: `calc(100% - ${scrollablePadding}px)`,

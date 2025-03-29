@@ -17,6 +17,10 @@ body {
   overflow: visible;
 }
 
+.highlight {
+  box-shadow: 5px 5px 5px 5px light-dark(var(--mantine-primary-color-5), var(--mantine-primary-color-5));
+}
+
 .disable-select {
   -webkit-touch-callout: none !important;
   -webkit-user-select: none !important;

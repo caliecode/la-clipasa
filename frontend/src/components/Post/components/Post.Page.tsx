@@ -1,8 +1,10 @@
-import { Group, Container, Button, Space, Box, Card } from '@mantine/core'
+import { Group, Container, Button, Space, Box, Card, ActionIcon, Tooltip } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
+import { IconArrowLeft } from '@tabler/icons'
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
 import dayjs from 'dayjs'
 import { useEffect, useState, useRef, TouchEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Post } from 'src/components/Post/components/Post'
 import { PostEmbed } from 'src/components/Post/components/Post.Embed'
 import { PostSkeleton } from 'src/components/Post/components/Post.Skeleton'
@@ -18,7 +20,7 @@ import { getPostIdFromRoute, withBaseURL } from 'src/utils/urls'
 const SWIPE_THRESHOLD = 50
 
 export const PostPage = () => {
-  const { posts } = usePostsSlice()
+  const { posts, postActions } = usePostsSlice()
   const { post, setPost, setCalloutErrors } = usePostContext()
   const [refreshState, refreshDiscordLink] = useRefreshDiscordLinkMutation()
   const [refreshed, setRefreshed] = useState(false)
@@ -64,6 +66,7 @@ export const PostPage = () => {
   const cardBackgroundImage = categoryImage || 'auto'
 
   const isMobile = useMediaQuery('(max-width: 768px)', window.innerWidth < 768)
+  const navigate = useNavigate()
 
   const swipeStartXRef = useRef(0)
   const swipeCurrentXRef = useRef(0)
@@ -128,8 +131,28 @@ export const PostPage = () => {
   const showRightIndicator = isMobile && nextPost && swipeDirection === 'left'
   const indicatorOpacity = swipeIntensity * 2
 
+  const handleBackToList = () => {
+    const indexToScroll = posts.findIndex((p) => p.id === post.id)
+    if (indexToScroll !== -1) {
+      postActions.setScrollToIndex(indexToScroll)
+    } else {
+      postActions.clearScrollToIndex()
+    }
+    navigate('/')
+  }
+
   return (
-    <Container fluid h="100dvh" p={0} m={0} style={{ overflow: 'hidden' }}>
+    <Container fluid h="100dvh" p={0} m={0}>
+      {!isSharedPost && (
+        <Group justify="center">
+          <Tooltip label="Back to list view">
+            <ActionIcon id="back-to-list" variant="light" size="lg" radius="xl" onClick={handleBackToList}>
+              <IconArrowLeft size={20} />
+            </ActionIcon>
+          </Tooltip>
+        </Group>
+      )}
+      <Space h="sm" />
       <Group gap={0} align="stretch" wrap="nowrap">
         {!isSharedPost && !isMobile && (
           <Container p={0}>
@@ -234,7 +257,7 @@ export const PostPage = () => {
         )}
       </Group>
 
-      <Space h="xl" />
+      <Space h="md" />
       <PostEmbed inline />
     </Container>
   )

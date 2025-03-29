@@ -14,6 +14,7 @@ type PostsState = {
   sort: SortSelectOption
   queryParams: QueryPostsArgs
   posts: PostContextType['post'][]
+  scrollToIndexOnLoad: number | null
   postActions: {
     replacePosts: (posts: PostContextType['post'][]) => void
     appendPosts: (posts: PostContextType['post'][]) => void
@@ -26,6 +27,8 @@ type PostsState = {
     setTextFilter: (text: Nullable<string>) => void
     toggleCategory: (category: Nullable<PostCategoryCategory>) => void
     setCursor: (cursor: Nullable<string>) => void
+    setScrollToIndex: (index: number | null) => void
+    clearScrollToIndex: () => void
     // setState: (fn: (state: Omit<PostsState, 'postActions'>) => void) => void
   }
 }
@@ -33,6 +36,7 @@ type PostsState = {
 const initialState: Omit<PostsState, 'postActions'> = {
   lastSeenCursor: undefined,
   sort: 'creationDate',
+  scrollToIndexOnLoad: null,
   queryParams: {
     where: { isModerated: true },
     orderBy: { field: 'CREATED_AT', direction: 'DESC' },
@@ -63,6 +67,8 @@ export const usePostsSlice = create<PostsState>()(
         return {
           ...initialState,
           postActions: {
+            setScrollToIndex: (index) => set({ scrollToIndexOnLoad: index }),
+            clearScrollToIndex: () => set({ scrollToIndexOnLoad: null }),
             replacePosts: (newPosts) =>
               set(
                 produce<PostsState>((state) => {

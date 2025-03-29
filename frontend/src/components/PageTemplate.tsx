@@ -1,4 +1,4 @@
-import React, { type ReactElement, useEffect, useState } from 'react'
+import React, { type ReactElement } from 'react'
 import { Container, Paper, ScrollArea, useMantineColorScheme, useMantineTheme } from '@mantine/core'
 import styles from './PageTemplate.module.css'
 import { useMediaQuery } from '@mantine/hooks'
@@ -18,26 +18,28 @@ const PageTemplate = ({ children, minWidth, maxWidth, sidePanel }: PageTemplateP
   return (
     <Container fluid className={styles.container}>
       <Paper
-        style={{ flex: 1, maxWidth: maxWidth || '100%' }}
+        style={{
+          flex: 1,
+          maxWidth: maxWidth || '100%',
+          minHeight: '100%',
+        }}
         p={isMobile ? 'sm' : 'md'}
         shadow="lg"
         radius={isMobile ? 0 : 'sm'}
-        c={theme.primaryColor}
         bg={colorScheme === 'dark' ? theme.colors.gray[8] : theme.colors.gray[0]}
-        h="100%"
       >
         {children}
       </Paper>
 
       {sidePanel && (
         <aside className={styles.stickyAside}>
-          <ScrollArea.Autosize h="100%" type="auto">
+          <ScrollArea.Autosize mah="100%" type="auto">
             <Paper
               p="md"
               shadow="lg"
               w="100%"
-              c={theme.primaryColor}
               bg={colorScheme === 'dark' ? theme.colors.gray[8] : theme.colors.gray[0]}
+              mih="100%"
             >
               {sidePanel}
             </Paper>

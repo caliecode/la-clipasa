@@ -11,7 +11,7 @@ interface PostEmbedProps {
 export const PostEmbed = ({ inline = false }: PostEmbedProps) => {
   const { post } = usePostContext()
   const embedStyle: React.CSSProperties = inline
-    ? { minWidth: '100%', height: '20vh' }
+    ? { minWidth: '100%', height: '100%' }
     : { height: '100%', width: '100%' }
 
   const Embed = useMemo(() => {
@@ -21,7 +21,7 @@ export const PostEmbed = ({ inline = false }: PostEmbedProps) => {
       case 'twitter':
         return <XEmbed url={post.link} width="100%" />
       case 'youtube':
-        return <YouTubeEmbed url={post.link} width="100%" />
+        return <YouTubeEmbed url={post.link} width="100%" style={{ borderRadius: 10, border: 'none' }} />
       case 'tiktok':
         return <TikTokEmbed url={post.link} width="100%" />
       case 'discord':

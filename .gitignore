@@ -10,6 +10,7 @@ openapi.exploded.yaml
 openapi.yaml.temp
 .generate.cache*
 __debug_bin*
+dump.txt
 **/*.so
 **/build
 .envrc.local
