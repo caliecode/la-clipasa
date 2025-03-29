@@ -22,6 +22,7 @@ func NewAuthMiddleware(
 ) *authMiddleware {
 	return &authMiddleware{
 		logger: logger,
+		authn:  authn,
 	}
 }
 

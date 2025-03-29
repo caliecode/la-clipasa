@@ -162,7 +162,6 @@ func (h *Handlers) codeExchange(c *gin.Context) {
 	}
 	tokenJSON, err := json.Marshal(twitchTokenInfo)
 	if err == nil {
-		fmt.Printf("string(tokenJSON): %v\n", string(tokenJSON))
 		c.Set(twitchAuthInfoCtxKey, tokenJSON) // will set cookie in callback so that response set-cookie works as expected
 	} else {
 		h.logger.Errorf("failed to marshal twitch token: %w", err)
