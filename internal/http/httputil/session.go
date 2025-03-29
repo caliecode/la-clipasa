@@ -13,14 +13,6 @@ const RefreshTokenCookieName = "rt"
 // SignOutUser completely signs out the user from the app.
 func SignOutUser(c *gin.Context) {
 	http.SetCookie(c.Writer, &http.Cookie{
-		Name:     internal.Config.LoginCookieKey,
-		Value:    "",
-		Path:     "/",
-		Expires:  time.Unix(0, 0),
-		HttpOnly: false,
-		Secure:   true,
-	})
-	http.SetCookie(c.Writer, &http.Cookie{
 		Name:     internal.Config.Twitch.AuthInfoCookieKey,
 		Value:    "",
 		Path:     "/",
@@ -28,6 +20,8 @@ func SignOutUser(c *gin.Context) {
 		HttpOnly: true,
 		Secure:   true,
 	})
+	ClearAccessTokenCookie(c)
+	ClearRefreshTokenCookie(c)
 
 	RenderError(c, "Sign out", internal.NewErrorf(internal.ErrorCodeSignedOut, "sign out"), RenderWithoutPanic())
 

@@ -21,6 +21,7 @@ const (
 	twitchAPIBase     = "https://api.twitch.tv/helix"
 	twitchValidateURL = "https://id.twitch.tv/oauth2/validate"
 	twitchRefreshURL  = "https://id.twitch.tv/oauth2/token"
+	maxRetries        = 2
 )
 
 type TwitchHandlers struct{}
@@ -98,7 +99,8 @@ func (h *TwitchHandlers) refreshTwitchToken(c *gin.Context, tokenInfo *models.Tw
 	return &newToken, nil
 }
 
-func (h *TwitchHandlers) makeUserTwitchRequest(c *gin.Context, endpoint string, queryParams map[string]string) (*http.Response, error) {
+// ValidateTwitchToken validates the Twitch token without attempting refresh on failure.
+func (h *TwitchHandlers) ValidateTwitchToken(c *gin.Context) (*models.TwitchTokenValidateResponse, error) {
 	tokenInfo, err := h.getTwitchToken(c)
 	if err != nil {
 		return nil, err
@@ -109,6 +111,7 @@ func (h *TwitchHandlers) makeUserTwitchRequest(c *gin.Context, endpoint string, 
 		return nil, err
 	}
 	req.Header.Set("Authorization", "OAuth "+tokenInfo.AccessToken)
+
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
@@ -116,17 +119,28 @@ func (h *TwitchHandlers) makeUserTwitchRequest(c *gin.Context, endpoint string, 
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusUnauthorized {
-		tokenInfo, err = h.refreshTwitchToken(c, tokenInfo)
-		if err != nil {
-			httputil.SignOutUser(c)
-			return nil, fmt.Errorf("error refreshing twitch token: %w", err)
-		}
+		httputil.SignOutUser(c)
+		return nil, errors.New("twitch token invalid; user signed out")
+	}
+
+	var result models.TwitchTokenValidateResponse
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+func (h *TwitchHandlers) makeUserTwitchRequest(c *gin.Context, endpoint string, queryParams map[string]string) (*http.Response, error) {
+	tokenInfo, err := h.getTwitchToken(c)
+	if err != nil {
+		return nil, err
 	}
 
 	if time.Now().After(tokenInfo.Expiry) {
 		tokenInfo, err = h.refreshTwitchToken(c, tokenInfo)
 		if err != nil {
-			return nil, err
+			httputil.SignOutUser(c)
+			return nil, fmt.Errorf("error refreshing expired twitch token: %w", err)
 		}
 	}
 
@@ -139,27 +153,42 @@ func (h *TwitchHandlers) makeUserTwitchRequest(c *gin.Context, endpoint string, 
 		reqURL += "?" + q.Encode()
 	}
 
-	req, err = http.NewRequest(http.MethodGet, reqURL, nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("Authorization", "Bearer "+tokenInfo.AccessToken)
-	req.Header.Set("Client-Id", internal.Config.TwitchOIDC.ClientID)
+	var resp *http.Response
+	for attempt := 0; attempt <= maxRetries; attempt++ {
+		req, err := http.NewRequest(http.MethodGet, reqURL, nil)
+		if err != nil {
+			return nil, err
+		}
+		req.Header.Set("Authorization", "Bearer "+tokenInfo.AccessToken)
+		req.Header.Set("Client-Id", internal.Config.TwitchOIDC.ClientID)
 
-	resp, err = http.DefaultClient.Do(req)
-	if err != nil {
-		return nil, err
+		resp, err = http.DefaultClient.Do(req)
+		if err != nil {
+			return nil, err
+		}
+
+		if resp.StatusCode != http.StatusUnauthorized {
+			return resp, nil
+		}
+
+		resp.Body.Close()
+
+		if attempt < maxRetries {
+			tokenInfo, err = h.refreshTwitchToken(c, tokenInfo)
+			if err != nil {
+				httputil.SignOutUser(c)
+				return nil, fmt.Errorf("error refreshing twitch token on retry: %w", err)
+			}
+		}
 	}
 
-	if resp.StatusCode == http.StatusUnauthorized {
-		return nil, errors.New("twitch API unauthorized")
-	}
-
-	return resp, nil
+	httputil.SignOutUser(c)
+	return nil, errors.New("twitch API unauthorized after token refresh")
 }
 
 func (h *TwitchHandlers) makeBroadcasterTwitchRequest(c *gin.Context, endpoint string, queryParams map[string]string) (*http.Response, error) {
-	// TODO: code flow before app released and refresh token stored in .env
+	// TODO: broadcaster uses code flow method "get broadcaster token" before app released and we store refresh token, etc in secrets
+	// and call twitch's validate every hour or on every app startup (gocron)
 	return nil, fmt.Errorf("not implemented")
 }
 
@@ -212,36 +241,6 @@ func (h *TwitchHandlers) GetUserFollower(c *gin.Context, twitchUserID string) (m
 		return result, err
 	}
 
-	return result, nil
-}
-
-func (h *TwitchHandlers) ValidateTwitchToken(c *gin.Context) (models.TwitchTokenValidateResponse, error) {
-	tokenInfo, err := h.getTwitchToken(c)
-	if err != nil {
-		return models.TwitchTokenValidateResponse{}, err
-	}
-
-	req, err := http.NewRequest(http.MethodGet, twitchValidateURL, nil)
-	if err != nil {
-		return models.TwitchTokenValidateResponse{}, err
-	}
-	req.Header.Set("Authorization", "OAuth "+tokenInfo.AccessToken)
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return models.TwitchTokenValidateResponse{}, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode == http.StatusUnauthorized {
-		httputil.SignOutUser(c)
-		return models.TwitchTokenValidateResponse{}, errors.New("twitch token invalid; user signed out")
-	}
-
-	var result models.TwitchTokenValidateResponse
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return result, err
-	}
 	return result, nil
 }
 

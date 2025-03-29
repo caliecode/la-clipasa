@@ -29,13 +29,6 @@
   }
 }
 
-.modalIframe {
-  * > iframe {
-    width: 100%;
-    height: 600px;
-  }
-}
-
 .skeletonCard {
   composes: card;
   border-radius: 15px;

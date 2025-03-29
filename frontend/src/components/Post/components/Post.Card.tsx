@@ -1,6 +1,6 @@
-import { Card, Group, Space, Text, useMantineColorScheme } from '@mantine/core'
+import { Card, Group, Space, Text, useMantineColorScheme, ActionIcon, Tooltip } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
-import { IconShieldOff } from '@tabler/icons-react'
+import { IconShieldOff, IconEye, IconEyeClosed } from '@tabler/icons-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PostCallout } from 'src/components/Post/components/Post.Callout'
@@ -15,6 +15,7 @@ import { PostActions } from './Post.Actions'
 import { Post } from 'src/components/Post/components/Post'
 import { PostModal } from 'src/components/Post/components/Post.Modal'
 import { useCardBackground } from 'src/hooks/ui/usePostCardBackground'
+import { getServiceAndId } from 'src/services/linkServices'
 
 type PostCardProps = {
   className?: string
@@ -27,18 +28,25 @@ export const PostCard = ({ className, backgroundImage, ...htmlProps }: PostCardP
   const [fullScreenModal, setFullScreenModal] = useState(false)
   const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false)
   const navigate = useNavigate()
+  const [isSeen, setIsSeen] = useState(false)
 
   const { image: categoryImage, color: categoryColor } = useCardBackground(post)
   const cardBackgroundImage = backgroundImage || categoryImage || 'auto'
 
+  const handleCardClick = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    navigate(uiPath('/post/:postId', { postId: post.id }))
+  }
+
+  const handlePreviewClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    openModal()
+    setIsSeen(true)
+  }
+
   return (
     <>
-      <div
-        onClick={() => {
-          window.scrollTo({ top: 0, behavior: 'smooth' })
-          navigate(uiPath('/post/:postId', { postId: post.id }))
-        }}
-      >
+      <div onClick={handleCardClick}>
         <Card
           {...htmlProps}
           p="lg"
@@ -51,9 +59,30 @@ export const PostCard = ({ className, backgroundImage, ...htmlProps }: PostCardP
             backgroundBlendMode: 'overlay',
             backgroundColor: categoryColor,
             filter: post.deletedAt ? 'grayscale(80%)' : undefined,
+            position: 'relative',
           }}
         >
           <Post />
+
+          {getServiceAndId(post.link).service !== 'unknown' && (
+            <Tooltip label="Preview post" withArrow>
+              <ActionIcon
+                variant="filled"
+                size="md"
+                radius="xl"
+                color={isSeen ? 'var(--mantine-color-violet-5)' : 'var(--mantine-color-blue-9)'}
+                style={{
+                  position: 'absolute',
+                  bottom: '10px',
+                  right: '10px',
+                  zIndex: 10,
+                }}
+                onClick={handlePreviewClick}
+              >
+                {isSeen ? <IconEyeClosed size={18} /> : <IconEye size={18} />}
+              </ActionIcon>
+            </Tooltip>
+          )}
         </Card>
       </div>
 

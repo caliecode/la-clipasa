@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { ActionIcon, Popover } from '@mantine/core'
+import { ActionIcon, Popover, Tooltip } from '@mantine/core'
 import { useClickOutside } from '@mantine/hooks'
 import { IconPlus } from '@tabler/icons-react'
 import ProtectedComponent from 'src/components/Permissions/ProtectedComponent'
@@ -96,20 +96,22 @@ export default function CategoryEditButton() {
           closeOnClickOutside
         >
           <Popover.Target ref={containerRef}>
-            <ActionIcon
-              radius="xl"
-              size={22}
-              onClick={(e) => {
-                e.stopPropagation()
-                setPopoverOpened((o) => !o)
-              }}
-            >
-              <IconPlus
-                color={colorScheme === 'light' ? 'var(--mantine-color-dark-6)' : 'var(--mantine-color-gray-1)'}
-                size={12}
-                stroke={2.5}
-              />
-            </ActionIcon>
+            <Tooltip label={'Edit categories'}>
+              <ActionIcon
+                radius="xl"
+                size={22}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setPopoverOpened((o) => !o)
+                }}
+              >
+                <IconPlus
+                  color={colorScheme === 'light' ? 'var(--mantine-color-dark-6)' : 'var(--mantine-color-gray-1)'}
+                  size={12}
+                  stroke={2.5}
+                />
+              </ActionIcon>
+            </Tooltip>
           </Popover.Target>
 
           <Popover.Dropdown ref={dropdownRef} onClick={(e) => e.stopPropagation()}>

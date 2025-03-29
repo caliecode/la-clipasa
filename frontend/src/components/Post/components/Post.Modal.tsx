@@ -18,10 +18,12 @@ interface PostModalProps {
 export const PostModal = ({ isOpen, onClose, isFullScreen, onToggleFullScreen, post }: PostModalProps) => {
   return (
     <Modal
-      className={styles.modalIframe}
       styles={{
         title: {
           width: '100%',
+        },
+        content: {
+          height: '80vh',
         },
       }}
       opened={isOpen}
@@ -52,7 +54,7 @@ export const PostModal = ({ isOpen, onClose, isFullScreen, onToggleFullScreen, p
       }
     >
       <PostProvider post={post}>
-        <PostEmbed inline />
+        <PostEmbed />
       </PostProvider>
     </Modal>
   )
