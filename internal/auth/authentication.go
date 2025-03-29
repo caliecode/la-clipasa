@@ -23,8 +23,8 @@ import (
 )
 
 const (
-	AccessTokenLifeTime     = 15 * time.Second
-	RefreshTokenLifeTime    = 365 * 24 * time.Hour
+	AccessTokenLifeTime     = 1 * time.Hour
+	RefreshTokenLifeTime    = 20 * 365 * 24 * time.Hour
 	RefreshTokenBytes       = 32
 	RefreshTokenCookieName  = "rt"
 	AccessTokenHeaderName   = "Authorization"
