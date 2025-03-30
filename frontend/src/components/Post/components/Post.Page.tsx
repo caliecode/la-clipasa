@@ -3,8 +3,8 @@ import { useMediaQuery } from '@mantine/hooks'
 import { IconArrowLeft } from '@tabler/icons'
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
 import dayjs from 'dayjs'
-import { useEffect, useState, useRef, TouchEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState, useRef, TouchEvent, useCallback } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { Post } from 'src/components/Post/components/Post'
 import { PostEmbed } from 'src/components/Post/components/Post.Embed'
 import { PostSkeleton } from 'src/components/Post/components/Post.Skeleton'
@@ -13,7 +13,7 @@ import { usePostContext } from 'src/components/Post/Post.context'
 import { useRefreshDiscordLinkMutation } from 'src/graphql/gen'
 import { useCardBackground } from 'src/hooks/ui/usePostCardBackground'
 import { usePostsSlice } from 'src/slices/posts'
-import { uiPath } from 'src/ui-paths'
+import { parseUrl, uiPath } from 'src/ui-paths'
 import { extractGqlErrors } from 'src/utils/errors'
 import { getPostIdFromRoute, withBaseURL } from 'src/utils/urls'
 
@@ -24,11 +24,37 @@ export const PostPage = () => {
   const { post, setPost, setCalloutErrors } = usePostContext()
   const [refreshState, refreshDiscordLink] = useRefreshDiscordLinkMutation()
   const [refreshed, setRefreshed] = useState(false)
+  const navigate = useNavigate()
+  const location = useLocation()
 
   const currentIndex = posts.findIndex((p) => p.id === post.id)
   const previousPost = currentIndex > 0 ? posts[currentIndex - 1] : null
   const nextPost = currentIndex < posts.length - 1 ? posts[currentIndex + 1] : null
   const isSharedPost = window.location.search.includes('ref=share')
+
+  const handleBackToList = () => {
+    const indexToScroll = posts.findIndex((p) => p.id === post.id)
+    if (indexToScroll !== -1) {
+      postActions.setScrollToIndex(indexToScroll)
+    } else {
+      postActions.clearScrollToIndex()
+    }
+
+    navigate('/')
+  }
+  useEffect(() => {
+    const handlePopState = (event) => {
+      if (parseUrl(window.location.href)?.routePattern === '/') {
+        handleBackToList()
+      }
+    }
+
+    window.addEventListener('popstate', handlePopState)
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState)
+    }
+  }, [post.id, posts, postActions])
 
   useEffect(() => {
     async function refreshLink() {
@@ -53,7 +79,6 @@ export const PostPage = () => {
     }
 
     const currentPostId = getPostIdFromRoute()
-
     if (post?.id && currentPostId !== post.id) {
       window.history.pushState(null, '', withBaseURL(uiPath('/post/:postId', { postId: post.id })))
     }
@@ -66,7 +91,6 @@ export const PostPage = () => {
   const cardBackgroundImage = categoryImage || 'auto'
 
   const isMobile = useMediaQuery('(max-width: 768px)', window.innerWidth < 768)
-  const navigate = useNavigate()
 
   const swipeStartXRef = useRef(0)
   const swipeCurrentXRef = useRef(0)
@@ -130,16 +154,6 @@ export const PostPage = () => {
   const showLeftIndicator = isMobile && previousPost && swipeDirection === 'right'
   const showRightIndicator = isMobile && nextPost && swipeDirection === 'left'
   const indicatorOpacity = swipeIntensity * 2
-
-  const handleBackToList = () => {
-    const indexToScroll = posts.findIndex((p) => p.id === post.id)
-    if (indexToScroll !== -1) {
-      postActions.setScrollToIndex(indexToScroll)
-    } else {
-      postActions.clearScrollToIndex()
-    }
-    navigate('/')
-  }
 
   return (
     <Container fluid h="100dvh" p={0} m={0}>

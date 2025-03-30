@@ -25,7 +25,7 @@ export function uiPath<P extends UiRoutes>(...args: Parameters<typeof generatePa
  */
 export function parseUrl(url: string) {
   const urlObj = new URL(url)
-  const path = urlObj.pathname.split(import.meta.env.BASE_URL || '').pop() || ''
+  const path = urlObj.pathname.split(import.meta.env.BASE_URL).pop() || '/'
 
   for (const [routeName, routePattern] of entries(routes)) {
     if (routePattern === '*') {
