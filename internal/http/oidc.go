@@ -237,7 +237,7 @@ func (h *Handlers) twitchCallback(c *gin.Context) {
 		return
 	}
 
-	httputil.SetRefreshTokenCookie(c, tokenPair.RefreshToken, auth.AccessTokenLifeTime)
+	httputil.SetRefreshTokenCookie(c, tokenPair.RefreshToken, auth.RefreshTokenLifeTime)
 	httputil.SetAccessTokenCookie(c, tokenPair.AccessToken)
 
 	c.String(200, "Successfully logged in")
