@@ -15,6 +15,7 @@ import (
 	"github.com/caliecode/la-clipasa/internal/ent/interceptors"
 	"github.com/caliecode/la-clipasa/internal/ent/privacy/policy"
 	"github.com/caliecode/la-clipasa/internal/ent/privacy/rule"
+	"github.com/caliecode/la-clipasa/internal/ent/privacy/token"
 	"github.com/caliecode/la-clipasa/internal/ent/schema/mixins"
 	"github.com/caliecode/la-clipasa/internal/gql/extramodel"
 )
@@ -125,6 +126,7 @@ func (Post) Policy() ent.Policy {
 			// token sign up for update operations as well
 			ent.OpCreate|ent.OpUpdateOne,
 			rule.AllowIfSeedingData(),
+			rule.AllowIfContextHasPrivacyTokenOfType(&token.SystemCallToken{}), // for discord link update without authn
 			rule.AllowIfSelfOrHasRole(user.RoleMODERATOR),
 		),
 		policy.WithOnMutationRules(

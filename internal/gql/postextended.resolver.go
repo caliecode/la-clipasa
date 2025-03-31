@@ -10,6 +10,7 @@ import (
 	"github.com/caliecode/la-clipasa/internal/ent/generated"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/post"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/privacy"
+	"github.com/caliecode/la-clipasa/internal/ent/privacy/token"
 	"github.com/caliecode/la-clipasa/internal/gql/extramodel"
 	"github.com/caliecode/la-clipasa/internal/gql/model"
 	"github.com/caliecode/la-clipasa/internal/utils/pointers"
@@ -83,7 +84,9 @@ func (r *mutationResolver) RestorePost(ctx context.Context, id uuid.UUID) (*bool
 
 // RefreshDiscordLink is the resolver for the refreshDiscordLink field.
 func (r *mutationResolver) RefreshDiscordLink(ctx context.Context, id uuid.UUID) (*string, error) {
-	ctx = entx.SkipSoftDelete(ctx) // maybe a mod wants to see a deleted post
+	ctx = entx.SkipSoftDelete(ctx)                    // maybe a mod wants to see a deleted post
+	ctx = token.NewContextWithSystemCallToken(ctx)    // so unauthn users can update
+	ctx = privacy.DecisionContext(ctx, privacy.Allow) // skip user owned hook
 	p, err := r.ent.Post.Get(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get post: %w", err)

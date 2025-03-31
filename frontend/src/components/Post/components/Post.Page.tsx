@@ -61,11 +61,11 @@ export const PostPage = () => {
       if (
         !refreshed &&
         !refreshState.fetching &&
+        !refreshState.error &&
         post.metadata?.service === 'DISCORD' &&
         post.metadata.discord?.expiration &&
         dayjs(post.metadata.discord.expiration).isBefore(dayjs())
       ) {
-        setRefreshed(true)
         const res = await refreshDiscordLink({ id: post.id })
         const newLink = res.data?.refreshDiscordLink
         if (newLink) {
@@ -73,8 +73,8 @@ export const PostPage = () => {
         }
         if (res.error) {
           setCalloutErrors(extractGqlErrors(res.error?.graphQLErrors))
-          setRefreshed(false)
         }
+        setRefreshed(true) // prevent all further calls
       }
     }
 
