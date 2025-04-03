@@ -141,7 +141,7 @@ func (userOwned UserOwnedMixin) Hooks() []ent.Hook {
 					}
 				} else {
 					// filter by owner on update and delete mutations
-					_, ok := m.(interface {
+					mx, ok := m.(interface {
 						SetOp(ent.Op)
 						Client() *generated.Client
 						WhereP(...func(*sql.Selector))
@@ -150,9 +150,10 @@ func (userOwned UserOwnedMixin) Hooks() []ent.Hook {
 						return nil, errors.New("unexpected mutation type")
 					}
 
-					// this breaks when we allow access to other users by role since they're not the owner
+					// NOTE: this breaks when we allow access to other users by role since they're not the owner
 					// previous role or admin checks will already add the clause
-					// userOwned.P(mx, u.ID.String())
+					// should skip predicate in that case, would have owner filter already
+					userOwned.P(mx, u.ID.String())
 				}
 
 				return next.Mutate(ctx, m)

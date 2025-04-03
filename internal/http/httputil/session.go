@@ -29,6 +29,7 @@ func SignOutUser(c *gin.Context) {
 }
 
 func ClearRefreshTokenCookie(c *gin.Context) {
+	c.Header("X-Refresh-Token-Deleted", "true")
 	http.SetCookie(c.Writer, &http.Cookie{
 		Name:     RefreshTokenCookieName,
 		Value:    "",

@@ -13,12 +13,12 @@ import (
 	"github.com/caliecode/la-clipasa/internal/client"
 	"github.com/caliecode/la-clipasa/internal/ent/generated"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/apikey"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/privacy"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/refreshtoken"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
 	"github.com/caliecode/la-clipasa/internal/ent/privacy/token"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/google/uuid"
 	"github.com/zitadel/oidc/v3/pkg/oidc"
 )
 
@@ -262,7 +262,7 @@ func (a *Authentication) ValidateAndRotateRefreshToken(ctx context.Context, oldR
 		return nil, nil, fmt.Errorf("failed to revoke old refresh token: %w", err)
 	}
 
-	newAccessToken, err := a.CreateAccessTokenForUser(sysCtx, user) // Use original user context is fine here
+	newAccessToken, err := a.CreateAccessTokenForUser(sysCtx, user)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to create new access token during refresh: %w", err)
 	}
@@ -278,23 +278,41 @@ func (a *Authentication) ValidateAndRotateRefreshToken(ctx context.Context, oldR
 
 	newExpiresAt := time.Now().Add(RefreshTokenLifeTime)
 
-	// update the existing token, so that user will still be able to see the same list
-	// of existing sessions
-	_, err = a.entc.RefreshToken.UpdateOne(rt).
+	// always creating prevents race conditions with refresh token rotation
+	_, err = a.entc.RefreshToken.Create().
 		SetTokenHash(newRefreshTokenHashString).
 		SetExpiresAt(newExpiresAt).
-		SetRevoked(false).
 		// TODO:
 		// SetIPAddress(c.ClientIP()).
 		// SetUserAgent(c.Request.UserAgent()).
 		Save(sysCtx)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to update refresh token during rotation: %w", err)
+		return nil, nil, fmt.Errorf("failed to create new refresh token during rotation: %w", err)
 	}
+
 	return user, &TokenPair{
 		AccessToken:  newAccessToken,
 		RefreshToken: newRefreshTokenString,
 	}, nil
+}
+
+// CleanupExpiredAndRevokedTokens removes old tokens to prevent database bloat
+func (a *Authentication) CleanupExpiredAndRevokedTokens(ctx context.Context) {
+	a.entc.Logger.Info("Cleaning up expired and revoked tokens")
+	ctx = token.NewContextWithSystemCallToken(ctx)
+	ctx = privacy.DecisionContext(ctx, privacy.Allow)
+
+	_, err := a.entc.RefreshToken.Delete().
+		Where(
+			refreshtoken.Or(
+				refreshtoken.RevokedEQ(true),
+				refreshtoken.ExpiresAtLT(time.Now()),
+			),
+		).
+		Exec(ctx)
+	if err != nil {
+		fmt.Printf("Error cleaning up tokens: %v\n", err)
+	}
 }
 
 func (a *Authentication) IssueNewTokenPair(ctx context.Context, user *generated.User) (*TokenPair, error) {
@@ -327,44 +345,4 @@ func (a *Authentication) IssueNewTokenPair(ctx context.Context, user *generated.
 		AccessToken:  accessToken,
 		RefreshToken: refreshTokenString,
 	}, nil
-}
-
-// RevokeRefreshToken explicitly revokes a single refresh token.
-func (a *Authentication) RevokeRefreshToken(ctx context.Context, refreshTokenString string) error {
-	refreshTokenHash := sha256.Sum256([]byte(refreshTokenString))
-	refreshTokenHashString := base64.URLEncoding.EncodeToString(refreshTokenHash[:])
-
-	rt, err := a.entc.RefreshToken.Query().
-		Where(
-			refreshtoken.TokenHashEQ(refreshTokenHashString),
-			refreshtoken.RevokedEQ(false),
-		).
-		Only(ctx)
-	if err != nil {
-		if generated.IsNotFound(err) {
-			return ErrRefreshTokenNotFound // skip if already revoked
-		}
-		return fmt.Errorf("failed to query refresh token for revocation: %w", err)
-	}
-
-	_, err = a.entc.RefreshToken.UpdateOne(rt).SetRevoked(true).Save(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to revoke refresh token: %w", err)
-	}
-	return nil
-}
-
-// RevokeAllRefreshTokensForUser revokes all active refresh tokens for a specific user.
-func (a *Authentication) RevokeAllRefreshTokensForUser(ctx context.Context, userID uuid.UUID) (int, error) {
-	count, err := a.entc.RefreshToken.Update().
-		Where(
-			refreshtoken.HasOwnerWith(user.ID(userID)),
-			refreshtoken.RevokedEQ(false),
-		).
-		SetRevoked(true).
-		Save(ctx)
-	if err != nil {
-		return 0, fmt.Errorf("failed to revoke refresh tokens for user %s: %w", userID, err)
-	}
-	return count, nil
 }

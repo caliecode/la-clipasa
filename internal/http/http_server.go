@@ -288,6 +288,13 @@ func NewServer(ctx context.Context, conf Config, opts ...ServerOption) (*Server,
 		authn: authn,
 	}
 
+	go func() {
+		ticker := time.NewTicker(time.Hour)
+		for range ticker.C {
+			authn.CleanupExpiredAndRevokedTokens(ctx)
+		}
+	}()
+
 	switch cfg.AppEnv {
 	case internal.AppEnvProd, internal.AppEnvE2E:
 		rlMw := newRateLimitMiddleware(conf.Logger, 15, 5)
