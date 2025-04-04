@@ -289,6 +289,7 @@ func NewServer(ctx context.Context, conf Config, opts ...ServerOption) (*Server,
 	}
 
 	go func() {
+		authn.CleanupExpiredAndRevokedTokens(ctx)
 		ticker := time.NewTicker(time.Hour)
 		for range ticker.C {
 			authn.CleanupExpiredAndRevokedTokens(ctx)
