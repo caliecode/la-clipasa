@@ -86,12 +86,14 @@ func (h *TwitchHandlers) refreshTwitchToken(c *gin.Context, tokenInfo *models.Tw
 	tokenJSON, err := json.Marshal(newToken)
 	if err == nil {
 		http.SetCookie(c.Writer, &http.Cookie{
-			Name:     internal.Config.Twitch.AuthInfoCookieKey,
-			Value:    base64.URLEncoding.EncodeToString(tokenJSON),
-			Path:     "/",
-			Expires:  newToken.Expiry,
+			Name:  internal.Config.Twitch.AuthInfoCookieKey,
+			Value: base64.URLEncoding.EncodeToString(tokenJSON),
+			Path:  "/",
+			// if it were removed at the same time the token expires, the user would be signed out. we will refresh when needed
+			Expires:  time.Now().Add(time.Hour * 24 * 7 * 365),
 			HttpOnly: true, // prevent js access
 			Secure:   true,
+			Domain:   internal.Config.CookieDomain,
 		})
 	} else {
 		logger.Warnf("failed to marshal twitch token: %v", err)
