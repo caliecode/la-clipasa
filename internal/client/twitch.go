@@ -36,7 +36,7 @@ func (h *TwitchHandlers) getTwitchToken(c *gin.Context) (*models.TwitchTokenInfo
 		// for calls not part of oidc flow
 		cookieVal, err := c.Cookie(internal.Config.Twitch.AuthInfoCookieKey)
 		if err != nil {
-			httputil.SignOutUser(c)
+			httputil.SignOutUser(c) // if unset then we cannot refresh twitch tokens, etc. so must do oidc flow
 			return nil, fmt.Errorf("failed to get twitch token cookie: %w", err)
 		}
 		tokenJSON, err = base64.URLEncoding.DecodeString(cookieVal)
@@ -90,7 +90,7 @@ func (h *TwitchHandlers) refreshTwitchToken(c *gin.Context, tokenInfo *models.Tw
 			Value: base64.URLEncoding.EncodeToString(tokenJSON),
 			Path:  "/",
 			// if it were removed at the same time the token expires, the user would be signed out. we will refresh when needed
-			Expires:  time.Now().Add(time.Hour * 24 * 7 * 365),
+			Expires:  time.Now().Add(time.Hour * 24 * 365),
 			HttpOnly: true, // prevent js access
 			Secure:   true,
 			Domain:   internal.Config.CookieDomain,
