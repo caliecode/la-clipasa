@@ -38,6 +38,7 @@ func ClearRefreshTokenCookie(c *gin.Context) {
 		Secure:   true,
 		HttpOnly: true, // prevent js access
 		Domain:   internal.Config.CookieDomain,
+		SameSite: http.SameSiteLaxMode,
 	})
 }
 
@@ -46,10 +47,11 @@ func SetRefreshTokenCookie(c *gin.Context, token string, ttl time.Duration) {
 		Name:     RefreshTokenCookieName,
 		Value:    token,
 		Path:     "/",
-		Expires:  time.Unix(time.Now().Add(ttl).Unix(), 0),
+		MaxAge:   int(ttl.Seconds()),
 		Secure:   true,
 		HttpOnly: true, // prevent js access
 		Domain:   internal.Config.CookieDomain,
+		SameSite: http.SameSiteLaxMode,
 	})
 }
 
@@ -58,7 +60,7 @@ func SetAccessTokenCookie(c *gin.Context, token string) {
 		Name:     internal.Config.LoginCookieKey,
 		Value:    token,
 		Path:     "/",
-		MaxAge:   3600 * 24 * 7,
+		MaxAge:   3600 * 24 * 365,
 		Domain:   internal.Config.CookieDomain,
 		Secure:   true,
 		HttpOnly: false, // must access via JS
