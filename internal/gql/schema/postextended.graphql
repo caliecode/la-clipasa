@@ -13,10 +13,17 @@ input CreatePostWithCategoriesInput {
     video: Upload
 }
 
+input UpdatePostWithCategoriesInput {
+    base: UpdatePostInput!
+    categories: [PostCategoryCategory!]
+    video: Upload
+}
+
 extend type Mutation {
     createPostWithCategories(input: CreatePostWithCategoriesInput!): PostCreatePayload!
     restorePost(id: ID!): Boolean @hasRole(role: MODERATOR)
     refreshDiscordLink(id: ID!): String
+    updatePostWithCategories(id: ID!, input: UpdatePostWithCategoriesInput!): PostUpdatePayload!
 }
 
 enum PostService {

@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/caliecode/la-clipasa/internal/client"
 	"github.com/caliecode/la-clipasa/internal/ent/generated"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/post"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/postcategory"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/privacy"
 	"github.com/caliecode/la-clipasa/internal/ent/privacy/token"
 	"github.com/caliecode/la-clipasa/internal/gql/extramodel"
@@ -22,22 +22,7 @@ import (
 func (r *mutationResolver) CreatePostWithCategories(ctx context.Context, input model.CreatePostWithCategoriesInput) (*model.PostCreatePayload, error) {
 	metadata := newPostMetadata()
 	if input.Video != nil {
-		video, err := r.discord.UploadFile(ctx, *input.Video)
-		if err != nil {
-			return nil, fmt.Errorf("failed to upload video to discord: %w", err)
-		}
-
-		input.Base.Link = video.Attachments[0].URL
-
-		exp, err := client.ParseDiscordExpirationTime(video.Attachments[0].URL)
-		if err != nil {
-			return nil, fmt.Errorf("failed to parse discord CDN link expiration time: %w", err)
-		}
-		metadata.Service = extramodel.PostServiceDiscord
-		metadata.DiscordVideo = &extramodel.DiscordVideoMetadata{
-			ID:         video.ID,
-			Expiration: *exp,
-		}
+		input.Base.Link, metadata, _ = r.DiscordUpload(ctx, *input.Video)
 	}
 
 	postPayload, err := r.CreatePost(ctx, *input.Base)
@@ -108,6 +93,58 @@ func (r *mutationResolver) RefreshDiscordLink(ctx context.Context, id uuid.UUID)
 		return nil, fmt.Errorf("failed to update post: %w", err)
 	}
 	return pointers.New(res.URL), nil
+}
+
+// UpdatePostWithCategories is the resolver for the updatePostWithCategories field.
+func (r *mutationResolver) UpdatePostWithCategories(ctx context.Context, id uuid.UUID, input model.UpdatePostWithCategoriesInput) (*model.PostUpdatePayload, error) {
+	var metadata *extramodel.PostMetadata
+	if input.Video != nil {
+		link, meta, err := r.DiscordUpload(ctx, *input.Video)
+		if err != nil {
+			return nil, fmt.Errorf("failed to process video upload: %w", err)
+		}
+		input.Base.Link = &link
+		metadata = meta
+	}
+
+	updatedPost, err := r.ent.Post.UpdateOneID(id).SetInput(*input.Base).Save(ctx)
+	if err != nil {
+		return nil, parseRequestError(err, action{action: ActionUpdate, object: "post"})
+	}
+
+	if metadata != nil {
+		_, err = r.ent.Post.UpdateOneID(id).SetMetadata(*metadata).Save(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("failed to update post metadata: %w", err)
+		}
+	}
+
+	// if any provided, recreate edges
+	if input.Categories != nil {
+		_, err := r.ent.PostCategory.Delete().Where(postcategory.HasPostWith(post.IDEQ(id))).Exec(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("failed to clear existing categories: %w", err)
+		}
+
+		if len(input.Categories) > 0 {
+			builders := make([]*generated.PostCategoryCreate, len(input.Categories))
+			for i, category := range input.Categories {
+				builders[i] = r.ent.PostCategory.Create().
+					SetCategory(category).
+					SetPostID(id)
+			}
+
+			createdCategories, err := r.ent.PostCategory.CreateBulk(builders...).Save(ctx)
+			if err != nil {
+				return nil, parseRequestError(err, action{action: ActionCreate, object: "post category"})
+			}
+			updatedPost.Edges.Categories = createdCategories
+		}
+	}
+
+	return &model.PostUpdatePayload{
+		Post: updatedPost,
+	}, nil
 }
 
 // ToHTML is the resolver for the toHTML field.
