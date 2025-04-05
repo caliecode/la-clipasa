@@ -1,72 +1,45 @@
-import React, { useEffect, useRef, useState, useMemo } from 'react'
-import {
-  Button,
-  Group,
-  Modal,
-  Popover,
-  Text,
-  Textarea,
-  TextInput,
-  Tooltip,
-  Space,
-  useMantineTheme,
-  FileInput, // Added for potential styling needs
-} from '@mantine/core'
+import React, { useEffect, useRef, useState } from 'react'
+import { Button, Group, Modal, Popover, Text, Textarea, TextInput, Tooltip, Space, FileInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { showNotification } from '@mantine/notifications'
-import { IconEyeCheck, IconSend, IconAlertTriangle, IconCircleCheck, IconUpload } from '@tabler/icons-react' // Removed IconUpload
+import { IconEyeCheck, IconSend, IconAlertTriangle, IconCircleCheck, IconUpload } from '@tabler/icons-react'
 import ErrorCallout from 'src/components/Callout/ErrorCallout'
 import { CategoriesSelect } from 'src/components/CategorySelect'
-import { PostCategoryNames } from 'src/services/categories' // Use full names for editing
+import { PostCategoryNames, PostCategoryNamesOnCreate } from 'src/services/categories'
 import { emotesTextToHtml } from 'src/services/twitch'
-import { useUISlice } from 'src/slices/ui'
 import { sanitizeContentEditableInputBeforeSubmit } from 'src/utils/strings'
 import { isValidURL } from 'src/utils/urls'
 import { keys } from 'src/utils/object'
 import styles from './PostFilters.module.css'
 import useAuthenticatedUser from 'src/hooks/auth/useAuthenticatedUser'
-import {
-  PostFragment, // Use the Post fragment type
-  UpdatePostInput,
-  useUpdatePostMutation,
-  useCreatePostCategoryMutation,
-  useDeletePostCategoryMutation,
-  PostCategoryCategory, // Import the enum type
-} from 'src/graphql/gen'
+import { PostFragment, UpdatePostInput, useUpdatePostMutation, PostCategoryCategory } from 'src/graphql/gen'
 import { extractGqlErrors } from 'src/utils/errors'
 import { getServiceAndId } from 'src/services/linkServices'
-import { CombinedError } from 'urql'
 import { PaginatedPostResponse } from 'src/graphql/extended-types'
 
-// Define the shape of the form data for editing
 interface EditPostFormData {
   title: string
   link: string
   content?: string | null
-  categories: PostCategoryCategory[] // Store enum values
+  categories: PostCategoryCategory[]
 }
 
 type EditPostModalProps = {
   opened: boolean
   onClose: () => void
-  post: PostFragment | null // The post to edit
-  onSuccess: (post: PaginatedPostResponse) => void // Callback for successful update
+  post: PostFragment | null
+  onSuccess: (post: PaginatedPostResponse) => void
 }
 
 export default function EditPostModal({ opened, onClose, post, onSuccess }: EditPostModalProps): JSX.Element | null {
-  const { user } = useAuthenticatedUser() // Still useful for context, maybe permissions later
+  const { user } = useAuthenticatedUser()
   const [updatePostMutation, updatePost] = useUpdatePostMutation()
-  const [createCategoryMutation, createPostCategory] = useCreatePostCategoryMutation()
-  const [deleteCategoryMutation, deletePostCategory] = useDeletePostCategoryMutation()
 
   const [titlePreviewPopoverOpened, setTitlePreviewPopoverOpened] = useState<boolean>(false)
   const [calloutErrors, setCalloutErrors] = useState<string[]>([])
-  const [videoFile, setVideoFile] = useState<File | null>(null) // Video file upload commented out for edit
+  const [videoFile, setVideoFile] = useState<File | null>(null)
   const titleInputRef = useRef<HTMLTextAreaElement>(null)
   const EMOJI_SIZE = 24
-
-  // Store initial categories to compare later
-  const [initialCategories, setInitialCategories] = useState<Array<{ id: string; category: PostCategoryCategory }>>([])
 
   const editPostForm = useForm<EditPostFormData>({
     initialValues: {
@@ -81,8 +54,7 @@ export default function EditPostModal({ opened, onClose, post, onSuccess }: Edit
         if (value?.length > 150) return 'Title can have at most 150 characters.'
       },
       link: (value) => {
-        // Allow potentially expired discord links during edit, maybe backend refreshes?
-        if (videoFile) return null // Video upload commented out
+        if (videoFile) return null
         if (!isValidURL(value)) return 'Link is not a valid URL'
         if (value?.length > 250) return 'Link can have at most 250 characters.'
       },
@@ -90,7 +62,6 @@ export default function EditPostModal({ opened, onClose, post, onSuccess }: Edit
     },
   })
 
-  // Effect to populate form when modal opens or post changes
   useEffect(() => {
     if (opened && post) {
       editPostForm.setValues({
@@ -99,71 +70,45 @@ export default function EditPostModal({ opened, onClose, post, onSuccess }: Edit
         content: post.content || '',
         categories: post.categories?.map((c) => c.category) || [],
       })
-      setInitialCategories(post.categories || [])
-      setCalloutErrors([]) // Clear errors when opening
-    } else if (!opened) {
-      // Optional: Reset form when modal is closed externally
-      // editPostForm.reset();
-      // setInitialCategories([]);
+      setCalloutErrors([])
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [opened, post]) // Rerun when modal opens or the specific post changes
-
-  // Calculate category changes
-  const categoriesToAdd = useMemo(() => {
-    return editPostForm.values.categories.filter(
-      (newCat) => !initialCategories.some((initialCat) => initialCat.category === newCat),
-    )
-  }, [editPostForm.values.categories, initialCategories])
-
-  const categoriesToRemove = useMemo(() => {
-    return initialCategories.filter((initialCat) => !editPostForm.values.categories.includes(initialCat.category))
-  }, [editPostForm.values.categories, initialCategories])
+  }, [opened, post])
 
   const handleSubmit = editPostForm.onSubmit(async (values) => {
     if (!post) return
 
     setCalloutErrors([])
-    const encounteredErrors: CombinedError[] = []
-
-    const updateInput: UpdatePostInput = {
-      title: sanitizeContentEditableInputBeforeSubmit(values.title),
-      link: values.link,
-      content: values.content ? values.content : undefined,
-      clearContent: !values.content,
-    }
 
     try {
-      // TODO: discord link update like CreatePostWithCategories
-      const res = await updatePost({ id: post.id, input: updateInput })
+      const updateInput: UpdatePostInput = {
+        title: sanitizeContentEditableInputBeforeSubmit(values.title),
+        link: values.link,
+        content: values.content ? values.content : undefined,
+        clearContent: !values.content,
+      }
+
+      const res = await updatePost({
+        id: post.id,
+        input: {
+          base: updateInput,
+          categories: editPostForm.values.categories,
+          video: videoFile,
+        },
+      })
+
       if (res.error) {
-        encounteredErrors.push(res.error)
-        throw res.error
-      }
-
-      for (const catToRemove of categoriesToRemove) {
-        const delRes = await deletePostCategory({ id: catToRemove.id })
-        if (delRes.error) encounteredErrors.push(delRes.error)
-      }
-
-      for (const catToAdd of categoriesToAdd) {
-        const addRes = await createPostCategory({ input: { postID: post.id, category: catToAdd } })
-        if (addRes.error) encounteredErrors.push(addRes.error)
-      }
-
-      if (encounteredErrors.length > 0) {
-        const errorMessages = encounteredErrors.flatMap((err) => extractGqlErrors(err.graphQLErrors))
-        if (errorMessages.length === 0) {
-          errorMessages.push(...encounteredErrors.map((err) => err.message))
-        }
-        setCalloutErrors(errorMessages)
+        const errors = extractGqlErrors(res.error.graphQLErrors)
+        if (errors.length === 0) errors.push(res.error.message)
+        setCalloutErrors(errors)
         return
       }
 
-      if (!res.data?.updatePost?.post) {
+      if (!res.data?.updatePostWithCategories?.post) {
         setCalloutErrors(['Failed to update post from response'])
+        return
       }
-      onSuccess(res.data!.updatePost.post)
+
+      onSuccess(res.data.updatePostWithCategories.post)
       onClose()
       showNotification({
         id: 'post-updated',
@@ -175,14 +120,7 @@ export default function EditPostModal({ opened, onClose, post, onSuccess }: Edit
       })
     } catch (error) {
       console.error('Post update error:', error)
-      if (encounteredErrors.length === 0 && error instanceof CombinedError) {
-        encounteredErrors.push(error)
-      }
-      const errorMessages = encounteredErrors.flatMap((err) => extractGqlErrors(err.graphQLErrors))
-      if (errorMessages.length === 0) {
-        errorMessages.push(error instanceof Error ? error.message : 'Failed to update post')
-      }
-      setCalloutErrors(errorMessages)
+      setCalloutErrors([error instanceof Error ? error.message : 'Failed to update post'])
     }
   })
 
@@ -284,7 +222,7 @@ export default function EditPostModal({ opened, onClose, post, onSuccess }: Edit
           {...editPostForm.getInputProps('categories')}
           selectedCategories={editPostForm.values.categories || []}
           onCategoriesChange={(categories) => editPostForm.setFieldValue('categories', categories)}
-          allowedCategories={keys(PostCategoryNames)}
+          allowedCategories={keys(PostCategoryNamesOnCreate)}
         />
         <Space h="md" />
 
@@ -309,7 +247,7 @@ export default function EditPostModal({ opened, onClose, post, onSuccess }: Edit
             variant="gradient"
             gradient={{ from: '#1864ab', to: '#326798', deg: 225 }}
             type="submit"
-            loading={updatePostMutation.fetching || createCategoryMutation.fetching || deleteCategoryMutation.fetching}
+            loading={updatePostMutation.fetching}
           >
             Update
           </Button>

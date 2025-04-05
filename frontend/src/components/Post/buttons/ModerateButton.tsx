@@ -17,7 +17,7 @@ export default function ModerateButton({}: ModerateButtonProps) {
 
     const res = await updatePost({
       id: post?.id,
-      input: { isModerated: !post.isModerated },
+      input: { base: { isModerated: !post.isModerated } },
     })
     if (res.error?.message !== undefined) {
       setCalloutErrors([res.error!.message])

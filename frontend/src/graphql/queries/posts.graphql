@@ -80,8 +80,8 @@ mutation RestorePost($id: ID!) {
   restorePost(id: $id)
 }
 
-mutation UpdatePost($id: ID!, $input: UpdatePostInput!) {
-  updatePost(id: $id, input: $input) {
+mutation UpdatePost($id: ID!, $input: UpdatePostWithCategoriesInput!) {
+  updatePostWithCategories(id: $id, input: $input) {
     post {
       ...Post
     }

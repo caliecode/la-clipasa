@@ -24,7 +24,7 @@ import (
 
 const (
 	AccessTokenLifeTime     = 1 * time.Hour
-	RefreshTokenLifeTime    = 20 * 365 * 24 * time.Hour
+	RefreshTokenLifeTime    = 1 * 365 * 24 * time.Hour // 1 year for db and cookie, so db is cleaned up if unused
 	RefreshTokenBytes       = 32
 	AccessTokenHeaderName   = "Authorization"
 	AccessTokenBearerPrefix = "Bearer "
@@ -257,43 +257,16 @@ func (a *Authentication) ValidateAndRotateRefreshToken(ctx context.Context, oldR
 
 	user := rt.Edges.Owner
 	sysCtx := internal.SetUserCtx(token.NewContextWithSystemCallToken(ctx), user)
+	// only revoke the current session before reissuing, not all
 	_, err = a.entc.RefreshToken.UpdateOne(rt).SetRevoked(true).Save(sysCtx)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to revoke old refresh token: %w", err)
 	}
 
-	newAccessToken, err := a.CreateAccessTokenForUser(sysCtx, user)
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to create new access token during refresh: %w", err)
-	}
-
-	rb := make([]byte, RefreshTokenBytes)
-	if _, err := rand.Read(rb); err != nil {
-		return nil, nil, fmt.Errorf("failed to generate new refresh token bytes: %w", err)
-	}
-	newRefreshTokenString := base64.URLEncoding.EncodeToString(rb)
-
-	newRefreshTokenHash := sha256.Sum256([]byte(newRefreshTokenString))
-	newRefreshTokenHashString := base64.URLEncoding.EncodeToString(newRefreshTokenHash[:])
-
-	newExpiresAt := time.Now().Add(RefreshTokenLifeTime)
-
 	// always creating prevents race conditions with refresh token rotation
-	_, err = a.entc.RefreshToken.Create().
-		SetTokenHash(newRefreshTokenHashString).
-		SetExpiresAt(newExpiresAt).
-		// TODO:
-		// SetIPAddress(c.ClientIP()).
-		// SetUserAgent(c.Request.UserAgent()).
-		Save(sysCtx)
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to create new refresh token during rotation: %w", err)
-	}
+	tp, err := a.IssueNewTokenPair(sysCtx, user)
 
-	return user, &TokenPair{
-		AccessToken:  newAccessToken,
-		RefreshToken: newRefreshTokenString,
-	}, nil
+	return user, tp, nil
 }
 
 // CleanupExpiredAndRevokedTokens removes old tokens to prevent database bloat
@@ -336,6 +309,9 @@ func (a *Authentication) IssueNewTokenPair(ctx context.Context, user *generated.
 		SetOwner(user).
 		SetTokenHash(refreshTokenHashString).
 		SetExpiresAt(refreshExpiresAt).
+		// TODO:
+		// SetIPAddress(c.ClientIP()).
+		// SetUserAgent(c.Request.UserAgent()).
 		Save(internal.SetUserCtx(ctx, user))
 	if err != nil {
 		return nil, fmt.Errorf("failed to save refresh token: %w", err)

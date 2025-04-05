@@ -149,6 +149,12 @@ type SearchResultConnection struct {
 	Nodes []SearchResult `json:"nodes"`
 }
 
+type UpdatePostWithCategoriesInput struct {
+	Base       *generated.UpdatePostInput `json:"base"`
+	Categories []postcategory.Category    `json:"categories,omitempty"`
+	Video      *graphql.Upload            `json:"video,omitempty"`
+}
+
 // Return response for createBulkUser mutation
 type UserBulkCreatePayload struct {
 	// Created users

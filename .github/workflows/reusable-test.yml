@@ -40,6 +40,8 @@ jobs:
 
           project test.frontend
 
+          cd frontend && pnpm run tsc
+
       - name: Diff check
         run: |
           # debug gen: run with --x-force-regen
