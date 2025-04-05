@@ -21,7 +21,7 @@ export default function DeleteButton({}: DeleteButtonButtonProps) {
   const theme = useMantineTheme()
 
   const canDeleteOrRestorePost =
-    post.owner?.displayName === user?.id || checkAuthorization({ user, requiredRole: 'MODERATOR' }).authorized
+    post.owner?.id === user?.id || checkAuthorization({ user, requiredRole: 'MODERATOR' }).authorized
 
   const [, restorePost] = useRestorePostMutation()
   const handleRestoreButtonClick = async (e) => {

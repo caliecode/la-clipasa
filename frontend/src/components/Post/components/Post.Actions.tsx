@@ -21,8 +21,8 @@ export const PostActions = () => {
           <SaveButton />
           <LastSeenButton />
           <ShareButton />
-          <ModerateButton />
           <EditButton />
+          <ModerateButton />
         </>
       )}
       <DeleteButton />

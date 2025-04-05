@@ -60,6 +60,11 @@ const routes = Object.freeze({
   '/profile': <LandingPage />,
 } satisfies Readonly<Record<UiRoutes, React.ReactNode>>)
 
+const modals = {
+  // editPostModal: EditPostModal,
+  // other context modals...
+}
+
 export default function App() {
   return (
     <>
@@ -76,6 +81,7 @@ export default function App() {
           })}
         >
           <ModalsProvider
+            modals={modals}
             labels={{ confirm: 'Submit', cancel: 'Cancel' }}
             modalProps={{ styles: { root: { marginTop: '100px', zIndex: 20000 } } }}
           >
