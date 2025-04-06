@@ -40,6 +40,7 @@ import {
   IconBrandInstagram,
   IconBrandTwitch,
   IconUsers,
+  IconBrandGithub,
 } from '@tabler/icons'
 import useAuthenticatedUser, { logUserOut } from 'src/hooks/auth/useAuthenticatedUser'
 import { useQueryClient } from '@tanstack/react-query'
@@ -216,6 +217,13 @@ export default function Layout({ children }: LayoutProps) {
                       </Menu.Item>
                     </>
                   )}
+                  <Menu.Divider />
+                  <Menu.Item
+                    leftSection={<IconBrandGithub size={14} stroke={1.5} />}
+                    onClick={() => window.open('https://github.com/caliecode/la-clipasa', '_blank')}
+                  >
+                    Contribute to La Clipasa
+                  </Menu.Item>
                   <Menu.Divider />
                   <Menu.Label>Settings</Menu.Label>
                   <Menu.Item leftSection={<IconSettings size={14} stroke={1.5} />}>Account settings</Menu.Item>
