@@ -1,5 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Button, Group, Modal, Popover, Text, Textarea, TextInput, Tooltip, Space, FileInput } from '@mantine/core'
+import {
+  Button,
+  Group,
+  Modal,
+  Popover,
+  Text,
+  Textarea,
+  TextInput,
+  Tooltip,
+  Space,
+  FileInput,
+  Input,
+} from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { showNotification } from '@mantine/notifications'
 import { IconEyeCheck, IconSend, IconAlertTriangle, IconCircleCheck, IconUpload } from '@tabler/icons-react'
@@ -16,6 +28,7 @@ import { PostFragment, UpdatePostInput, useUpdatePostMutation, PostCategoryCateg
 import { extractGqlErrors } from 'src/utils/errors'
 import { getServiceAndId } from 'src/services/linkServices'
 import { PaginatedPostResponse } from 'src/graphql/extended-types'
+import { EmoteInput } from 'src/components/EmoteInput'
 
 interface EditPostFormData {
   title: string
@@ -153,32 +166,16 @@ export default function EditPostModal({ opened, onClose, post, onSuccess }: Edit
         >
           <Popover.Target>
             <div>
-              <Textarea
-                {...editPostForm.getInputProps('title')}
-                ref={titleInputRef}
-                data-autofocus
-                withAsterisk
-                label="Title"
-                placeholder="Enter a title"
-                onClick={() => setTitlePreviewPopoverOpened(true)}
-                onFocus={() => setTitlePreviewPopoverOpened(true)}
-                onBlur={() => setTitlePreviewPopoverOpened(false)}
-                rightSection={
-                  <Tooltip label="Preview">
-                    <Group>
-                      <IconEyeCheck
-                        color="#4077aa"
-                        size={20}
-                        className={styles.iconClickable}
-                        onClick={() => setTitlePreviewPopoverOpened(!titlePreviewPopoverOpened)}
-                      />
-                    </Group>
-                  </Tooltip>
-                }
-                autosize
-                minRows={2}
-              />
-              <Text size="xs" opacity={0.6}>
+              <Input.Wrapper label="Title" withAsterisk error={editPostForm.errors.title} size="sm" mb="md">
+                <EmoteInput
+                  placeholder="Enter a title with emotes like calieAMOR2"
+                  data-autofocus
+                  {...editPostForm.getInputProps('title')}
+                  error={!!editPostForm.errors.title}
+                  size="sm"
+                />
+              </Input.Wrapper>
+              <Text size="xs" c="dimmed" mt={-10} mb="md">
                 You can use channel emotes here.
               </Text>
             </div>

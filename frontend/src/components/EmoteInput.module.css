@@ -1,0 +1,49 @@
+.contentEditableWrapper {
+  position: relative;
+  cursor: text;
+}
+
+.contentEditable {
+  outline: none;
+  word-break: break-word;
+  white-space: pre-wrap;
+  position: relative;
+  z-index: 1;
+  cursor: inherit;
+
+  background-color: transparent;
+}
+
+.placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: var(--mantine-color-placeholder);
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
+.popoverDropdown {
+  max-height: rem(400px);
+  overflow-y: auto;
+}
+
+.suggestionItem {
+  &:hover {
+    background-color: var(--mantine-color-action-hover);
+  }
+
+  border-radius: var(--mantine-radius-sm);
+
+  padding: var(--mantine-spacing-xs);
+}
+
+.suggestionItem[data-selected] {
+  background-color: var(--mantine-color-primary-light);
+  color: var(--mantine-color-primary-light-color);
+
+  &:hover {
+    background-color: var(--mantine-color-primary-light-hover);
+  }
+}

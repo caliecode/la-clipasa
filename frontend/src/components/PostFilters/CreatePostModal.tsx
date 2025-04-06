@@ -12,6 +12,7 @@ import {
   Stack,
   Progress,
   Space,
+  Input,
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { showNotification } from '@mantine/notifications'
@@ -35,6 +36,7 @@ import { uiPath } from 'src/ui-paths'
 import { extractGqlErrors } from 'src/utils/errors'
 import { IconAlertTriangle, IconCircleCheck } from '@tabler/icons'
 import { getServiceAndId } from 'src/services/linkServices'
+import { EmoteInput } from 'src/components/EmoteInput'
 
 type CreatePostModalProps = {
   opened: boolean
@@ -140,31 +142,15 @@ export default function CreatePostModal({ opened, onClose }: CreatePostModalProp
         >
           <Popover.Target>
             <div>
-              <Textarea
-                {...postCreateForm.getInputProps('base.title')}
-                ref={titleInputRef}
-                data-autofocus
-                withAsterisk
-                label="Title"
-                placeholder="Enter a title"
-                onClick={() => setTitlePreviewPopoverOpened(true)}
-                onFocus={() => setTitlePreviewPopoverOpened(true)}
-                onBlur={() => setTitlePreviewPopoverOpened(false)}
-                rightSection={
-                  <Tooltip label="Preview">
-                    <Group>
-                      <IconEyeCheck
-                        color="#4077aa"
-                        size={20}
-                        className={styles.iconClickable}
-                        onClick={() => setTitlePreviewPopoverOpened(!titlePreviewPopoverOpened)}
-                      />
-                    </Group>
-                  </Tooltip>
-                }
-                autosize
-                minRows={2}
-              />
+              <Input.Wrapper label="Title" withAsterisk error={postCreateForm.errors['base.title']} size="sm" mb="md">
+                <EmoteInput
+                  placeholder="Enter a title with emotes like calieAMOR2"
+                  data-autofocus
+                  {...postCreateForm.getInputProps('base.title')}
+                  error={!!postCreateForm.errors['base.title']}
+                  size="sm"
+                />
+              </Input.Wrapper>
               <Text size="xs" opacity={0.6}>
                 You can use channel emotes here.
               </Text>

@@ -19,6 +19,66 @@ export function getCaretCoordinates() {
   return { x, y }
 }
 
+export function setCaretPosition(element: Node, offset: number) {
+  const range = document.createRange()
+  const sel = window.getSelection()
+
+  let charCount = 0
+  let found = false
+
+  function traverseNodes(node: Node) {
+    if (found) return // Stop traversing once the position is set
+
+    if (node.nodeType === Node.TEXT_NODE) {
+      const textLength = node.textContent?.length ?? 0
+      if (offset >= charCount && offset <= charCount + textLength) {
+        range.setStart(node, offset - charCount)
+        range.collapse(true) // Collapse the range to a single point (the caret)
+        found = true
+      } else {
+        charCount += textLength
+      }
+    } else if (node.nodeType === Node.ELEMENT_NODE && (node as HTMLElement).tagName === 'IMG') {
+      // Treat images (emotes) as a single character for positioning purposes
+      const emoteLength = (node as HTMLElement).getAttribute('title')?.length ?? 1 // Use title length or 1 as length
+      if (offset >= charCount && offset < charCount + emoteLength) {
+        // Position caret *after* the image
+        range.setStartAfter(node)
+        range.collapse(true)
+        found = true
+      } else {
+        charCount += emoteLength
+      }
+    } else {
+      // Recursively traverse child nodes
+      for (let i = 0; i < node.childNodes.length; i++) {
+        traverseNodes(node.childNodes[i]!)
+        if (found) break // Exit loop if position is set
+      }
+    }
+  }
+
+  traverseNodes(element)
+
+  if (sel && found) {
+    sel.removeAllRanges()
+    sel.addRange(range)
+  } else if (sel && !found && element.childNodes.length > 0) {
+    // If offset is beyond content length, place cursor at the very end
+    const lastNode = element.childNodes[element.childNodes.length - 1]
+    if (lastNode) {
+      if (lastNode.nodeType === Node.TEXT_NODE) {
+        range.setStart(lastNode, lastNode.textContent?.length ?? 0)
+      } else {
+        range.setStartAfter(lastNode)
+      }
+      range.collapse(true)
+      sel.removeAllRanges()
+      sel.addRange(range)
+    }
+  }
+}
+
 export function getCaretIndex(element) {
   let position = 0
   const isSupported = typeof window.getSelection !== 'undefined'
