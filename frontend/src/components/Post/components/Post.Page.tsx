@@ -12,7 +12,6 @@ import { usePostContext } from 'src/components/Post/Post.context'
 
 import { useRefreshDiscordLinkMutation } from 'src/graphql/gen'
 import { useCardBackground } from 'src/hooks/post/usePostCardBackground'
-import { useDiscordLinkRefresh } from 'src/hooks/post/useRefreshDiscordLink'
 import { usePostsSlice } from 'src/slices/posts'
 import { parseUrl, uiPath } from 'src/ui-paths'
 import { extractGqlErrors } from 'src/utils/errors'
@@ -57,15 +56,6 @@ export const PostPage = () => {
     }
   }, [post.id, posts, postActions])
 
-  // https://discord.com/developers/docs/reference#signed-attachment-cdn-urls
-  const { refreshLink } = useDiscordLinkRefresh({
-    onRefresh: (newLink) => {
-      setPost((currentPost) => ({ ...currentPost, link: newLink }))
-    },
-    onError: (errors) => {
-      setCalloutErrors(errors)
-    },
-  })
   const { image: categoryImage, color: categoryColor } = useCardBackground(post)
   const cardBackgroundImage = categoryImage || 'auto'
 
@@ -135,15 +125,11 @@ export const PostPage = () => {
   const indicatorOpacity = swipeIntensity * 2
 
   useEffect(() => {
-    if (post?.id) {
-      refreshLink(post)
-    }
-
     const currentPostId = getPostIdFromRoute()
     if (post?.id && currentPostId !== post.id) {
       window.history.pushState(null, '', withBaseURL(uiPath('/post/:postId', { postId: post.id })))
     }
-  }, [post, refreshLink])
+  }, [post])
 
   return (
     <Container fluid h="100dvh" p={0} m={0}>

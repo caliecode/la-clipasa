@@ -3,13 +3,30 @@ import { usePostContext } from '../Post.context'
 import { getServiceAndId } from 'src/services/linkServices'
 import styles from '../Post.module.css'
 import { useMantineColorScheme } from '@mantine/core'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
+import { useDiscordLinkRefresh } from 'src/hooks/post/useRefreshDiscordLink'
+
 interface PostEmbedProps {
   inline?: boolean
 }
 
 export const PostEmbed = ({ inline = false }: PostEmbedProps) => {
-  const { post } = usePostContext()
+  const { setPost, post, setCalloutErrors } = usePostContext()
+  const { refreshLink } = useDiscordLinkRefresh({
+    onRefresh: (newLink) => {
+      setPost((currentPost) => ({ ...currentPost, link: newLink }))
+    },
+    onError: (errors) => {
+      setCalloutErrors(errors)
+    },
+  })
+
+  useEffect(() => {
+    if (post.metadata?.service === 'DISCORD') {
+      refreshLink(post)
+    }
+  }, [post])
+
   const embedStyle: React.CSSProperties = inline
     ? { minWidth: '100%', height: '100%' }
     : { height: '100%', width: '100%' }

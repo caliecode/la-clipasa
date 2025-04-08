@@ -19,9 +19,7 @@ export const useDiscordLinkRefresh = (options?: UseDiscordLinkRefreshOptions) =>
         !refreshState.fetching &&
         !refreshState.error &&
         !isRefreshingRef.current &&
-        post?.metadata?.service === 'DISCORD' &&
-        post.metadata?.discord?.expiration &&
-        dayjs(post.metadata.discord.expiration).isBefore(dayjs())
+        post?.metadata?.service === 'DISCORD'
       ) {
         try {
           isRefreshingRef.current = true
