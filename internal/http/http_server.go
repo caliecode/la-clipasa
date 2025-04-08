@@ -329,6 +329,7 @@ func NewServer(ctx context.Context, conf Config, opts ...ServerOption) (*Server,
 	})
 
 	baseUrl := "/ui"
+	router.Use(static.Serve(baseUrl, newStaticFileSystem()))     // does show at broken routes eg https://localhost:8090/ui/fds
 	router.Use(static.Serve(baseUrl+"/", newStaticFileSystem())) // does show at broken routes eg https://localhost:8090/ui/fds
 
 	// Client-side routing fallback
@@ -586,20 +587,40 @@ func (s *staticFileSystem) Open(name string) (http.File, error) {
 func (s *staticFileSystem) Exists(prefix string, path string) bool {
 	cleanPath := strings.TrimPrefix(path, prefix)
 	cleanPath = strings.TrimPrefix(cleanPath, "/")
-
-	f, err := s.httpFs.Open(cleanPath)
-	if err != nil {
-		// Check if directory with index.html exists
-		if entries, err := fs.ReadDir(laclipasa.FrontendBuildFS, filepath.Join("frontend/build", cleanPath)); err == nil {
-			for _, entry := range entries {
-				if entry.Name() == "index.html" {
-					return true
-				}
-			}
+	if cleanPath == "" {
+		f, err := s.httpFs.Open("ui/index.html")
+		if err == nil {
+			f.Close()
+			return true
 		}
 		return false
 	}
-	defer f.Close()
 
-	return true
+	f, err := s.httpFs.Open(cleanPath)
+	if err == nil {
+		if stat, err := f.Stat(); err == nil && stat.IsDir() {
+			f.Close()
+			indexFile, err := s.httpFs.Open(filepath.Join(cleanPath, "index.html"))
+			if err == nil {
+				indexFile.Close()
+				return true
+			}
+			return false
+		}
+		f.Close()
+		return true
+	}
+
+	if !strings.HasSuffix(cleanPath, "/") {
+		cleanPath = cleanPath + "/"
+	}
+
+	indexPath := filepath.Join(cleanPath, "index.html")
+	f, err = s.httpFs.Open(indexPath)
+	if err == nil {
+		f.Close()
+		return true
+	}
+
+	return false
 }
