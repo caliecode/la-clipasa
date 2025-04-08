@@ -11,7 +11,8 @@ import { PostSkeleton } from 'src/components/Post/components/Post.Skeleton'
 import { usePostContext } from 'src/components/Post/Post.context'
 
 import { useRefreshDiscordLinkMutation } from 'src/graphql/gen'
-import { useCardBackground } from 'src/hooks/ui/usePostCardBackground'
+import { useCardBackground } from 'src/hooks/post/usePostCardBackground'
+import { useDiscordLinkRefresh } from 'src/hooks/post/useRefreshDiscordLink'
 import { usePostsSlice } from 'src/slices/posts'
 import { parseUrl, uiPath } from 'src/ui-paths'
 import { extractGqlErrors } from 'src/utils/errors'
@@ -56,37 +57,15 @@ export const PostPage = () => {
     }
   }, [post.id, posts, postActions])
 
-  useEffect(() => {
-    async function refreshLink() {
-      if (
-        !refreshed &&
-        !refreshState.fetching &&
-        !refreshState.error &&
-        post.metadata?.service === 'DISCORD' &&
-        post.metadata.discord?.expiration &&
-        dayjs(post.metadata.discord.expiration).isBefore(dayjs())
-      ) {
-        const res = await refreshDiscordLink({ id: post.id })
-        const newLink = res.data?.refreshDiscordLink
-        if (newLink) {
-          setPost((currentPost) => ({ ...currentPost, link: newLink }))
-        }
-        if (res.error) {
-          setCalloutErrors(extractGqlErrors(res.error?.graphQLErrors))
-        }
-        setRefreshed(true) // prevent all further calls
-      }
-    }
-
-    const currentPostId = getPostIdFromRoute()
-    if (post?.id && currentPostId !== post.id) {
-      window.history.pushState(null, '', withBaseURL(uiPath('/post/:postId', { postId: post.id })))
-    }
-
-    // https://discord.com/developers/docs/reference#signed-attachment-cdn-urls
-    if (post?.id) refreshLink()
-  }, [post, refreshState.fetching, refreshed, setPost, setCalloutErrors, refreshDiscordLink])
-
+  // https://discord.com/developers/docs/reference#signed-attachment-cdn-urls
+  const { refreshLink } = useDiscordLinkRefresh({
+    onRefresh: (newLink) => {
+      setPost((currentPost) => ({ ...currentPost, link: newLink }))
+    },
+    onError: (errors) => {
+      setCalloutErrors(errors)
+    },
+  })
   const { image: categoryImage, color: categoryColor } = useCardBackground(post)
   const cardBackgroundImage = categoryImage || 'auto'
 
@@ -154,6 +133,17 @@ export const PostPage = () => {
   const showLeftIndicator = isMobile && previousPost && swipeDirection === 'right'
   const showRightIndicator = isMobile && nextPost && swipeDirection === 'left'
   const indicatorOpacity = swipeIntensity * 2
+
+  useEffect(() => {
+    if (post?.id) {
+      refreshLink(post)
+    }
+
+    const currentPostId = getPostIdFromRoute()
+    if (post?.id && currentPostId !== post.id) {
+      window.history.pushState(null, '', withBaseURL(uiPath('/post/:postId', { postId: post.id })))
+    }
+  }, [post, refreshLink])
 
   return (
     <Container fluid h="100dvh" p={0} m={0}>

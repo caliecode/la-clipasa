@@ -1,11 +1,13 @@
 import { ActionIcon, Flex, Modal, ScrollArea, Text } from '@mantine/core'
 import { IconArrowsMaximize, IconArrowsMinimize, IconX } from '@tabler/icons-react'
 import { truncate } from 'lodash'
-import { PostProvider } from 'src/components/Post/Post.context'
+import { useEffect } from 'react'
+import { PostProvider, usePostContext } from 'src/components/Post/Post.context'
 import { PostEmbed } from 'src/components/Post/components/Post.Embed'
 import styles from '../Post.module.css'
 import { emotesTextToHtml } from 'src/services/twitch'
 import { PostCoreProps } from 'src/components/Post/Post.core'
+import { useDiscordLinkRefresh } from 'src/hooks/post/useRefreshDiscordLink'
 
 interface PostModalProps {
   isOpen: boolean
@@ -16,6 +18,26 @@ interface PostModalProps {
 }
 
 export const PostModal = ({ isOpen, onClose, isFullScreen, onToggleFullScreen, post }: PostModalProps) => {
+  const { setPost, setCalloutErrors } = usePostContext()
+  const { refreshLink } = useDiscordLinkRefresh({
+    onRefresh: (newLink) => {
+      setPost((currentPost) => ({ ...currentPost, link: newLink }))
+    },
+    onError: (errors) => {
+      setCalloutErrors(errors)
+    },
+  })
+
+  useEffect(() => {
+    if (isOpen && post.metadata?.service === 'DISCORD') {
+      refreshLink(post)
+    }
+  }, [isOpen, post])
+
+  const ModalContent = () => {
+    return <PostEmbed />
+  }
+
   return (
     <Modal
       styles={{
@@ -54,7 +76,7 @@ export const PostModal = ({ isOpen, onClose, isFullScreen, onToggleFullScreen, p
       }
     >
       <PostProvider post={post}>
-        <PostEmbed />
+        <ModalContent />
       </PostProvider>
     </Modal>
   )

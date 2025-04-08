@@ -14,7 +14,7 @@ import { PostContent } from './Post.Content'
 import { PostActions } from './Post.Actions'
 import { Post } from 'src/components/Post/components/Post'
 import { PostModal } from 'src/components/Post/components/Post.Modal'
-import { useCardBackground } from 'src/hooks/ui/usePostCardBackground'
+import { useCardBackground } from 'src/hooks/post/usePostCardBackground'
 import { getServiceAndId } from 'src/services/linkServices'
 
 type PostCardProps = {
