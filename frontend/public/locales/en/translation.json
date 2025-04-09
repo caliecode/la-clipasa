@@ -1,0 +1,245 @@
+{
+  "time": {
+    "justNow": "Just now",
+    "minutesAgo_one": "{{count}} minute ago",
+    "minutesAgo_other": "{{count}} minutes ago",
+    "hoursAgo_one": "{{count}} hour ago",
+    "hoursAgo_other": "{{count}} hours ago",
+    "daysAgo_one": "{{count}} day ago",
+    "daysAgo_other": "{{count}} days ago"
+  },
+  "common": {
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "update": "Update",
+    "edit": "Edit",
+    "delete": "Delete",
+    "restore": "Restore",
+    "share": "Share",
+    "copied": "Copied!",
+    "login": "Login",
+    "logout": "Logout",
+    "all": "All",
+    "categories": "Categories",
+    "selectCategories": "Select categories",
+    "noMatches": "No matches",
+    "typeToSearch": "Type to search",
+    "showingResults": "Showing {{count}} of {{total}} results",
+    "error": "Error",
+    "unknownError": "An unknown error occurred",
+    "validationError": "Validation error",
+    "unauthenticated": "Unauthenticated",
+    "unauthorized": "Unauthorized",
+    "errorUpdatingPost": "Error updating post",
+    "missingRole": "Missing role {{role}}",
+    "authenticatingUser": "Authenticating user",
+    "filters": {
+      "showingAll": "Showing all {{entity}}",
+      "showingDeletedOnly": "Showing deleted {{entity}} only",
+      "hidingDeleted": "Hiding deleted {{entity}}",
+      "filterValues": "Filter values",
+      "searchLabel": "Search",
+      "clearSearch": "Clear search",
+      "clearFilters": "Clear filters",
+      "filterByPlaceholder": "Filter by {{column}}",
+      "min": "Min",
+      "max": "Max",
+      "minDate": "Min date",
+      "maxDate": "Max date",
+      "extraMode": "Extra mode",
+      "between": "Between",
+      "betweenInclusive": "Between Inclusive",
+      "empty": "Is Empty",
+      "notEmpty": "Is Not Empty",
+      "equals": "Equals",
+      "notEquals": "Not Equals",
+      "greaterThan": "Greater Than",
+      "greaterThanOrEqualTo": "Greater Than Or Equal To",
+      "lessThan": "Less Than",
+      "lessThanOrEqualTo": "Less Than Or Equal To",
+      "contains": "Contains",
+      "startsWith": "Starts With",
+      "endsWith": "Ends With",
+      "fuzzy": "Fuzzy"
+    },
+    "table": {
+      "showActionsTooltip": "Show actions",
+      "messageMembers": "Message members"
+    }
+  },
+  "layout": {
+    "pageTitle": "La Clipasa",
+    "pageDescription": "The best event in all of Twitch International",
+    "pageMetaTitle": "La Clipasa - Caliebre",
+    "closeNavigation": "Close navigation",
+    "openNavigation": "Open navigation",
+    "loggingIn": "Logging in...",
+    "loggingOut": "Logging out...",
+    "userManagement": "User management",
+    "contribute": "Contribute to La Clipasa",
+    "accountSettings": "Account settings",
+    "broadcasterToken": "Broadcaster token",
+    "footer": {
+      "madeWithLove": "Made with <0></0> for <2>caliebre</2>",
+      "followTwitter": "Follow caliebre on Twitter",
+      "followYoutube": "Follow caliebre on YouTube",
+      "followInstagram": "Follow caliebre on Instagram",
+      "followTwitch": "Follow caliebre on Twitch"
+    }
+  },
+  "broadcasterTokenModal": {
+    "title": "Generate Authentication Token",
+    "description": "You will be redirected to authenticate and generate secure tokens. These tokens grant access to sensitive features and should be kept private.",
+    "confirmPrompt": "Do you want to proceed?"
+  },
+  "landingPage": {
+    "postsFound_one": "Found {{count}} post",
+    "postsFound_other": "Found {{count}} posts",
+    "backToTop": "Back to Top"
+  },
+  "post": {
+    "previewTooltip": "Preview post",
+    "commentsCount_one": "{{count}} comment",
+    "commentsCount_other": "{{count}} comments",
+    "backToList": "Back to list view",
+    "previousPostAriaLabel": "Previous Post",
+    "nextPostAriaLabel": "Next Post",
+    "create": {
+      "modalTitle": "Create a new post",
+      "titlePlaceholder": "Enter a title with emotes like calieAMOR2",
+      "helpText": "You can use channel emotes here",
+      "unrecognizedServiceWarning": "WARNING: unrecognized service. Embeds may not work correctly.",
+      "contentHelpText": "Optional: add a message",
+      "videoUploadLabel": "Upload a video",
+      "videoUploadHelpText": "Optional: upload a video (Max 10MB)",
+      "failedToCreate": "Failed to create post"
+    },
+    "edit": {
+      "modalTitle": "Edit Post",
+      "videoReplaceHelpText": "Optional: replace the current video (Max 10MB)",
+      "failedToUpdate": "Failed to update post"
+    },
+    "fields": {
+      "title": "Title",
+      "link": "Link",
+      "content": "Content",
+      "categories": "Categories"
+    },
+    "filters": {
+      "activeCategoryFilters": "Active category filters",
+      "filterByCategory": "Filter by category",
+      "submitPost": "Submit post",
+      "moderation": {
+        "title": "Moderator filters",
+        "statusLabel": "Moderation status",
+        "moderated": "Moderated",
+        "notModerated": "Not moderated",
+        "statusPlaceholder": "Select posts to show",
+        "deletion": {
+          "showAll": "Show all posts",
+          "excludeDeleted": "Exclude deleted posts",
+          "showDeletedOnly": "Show only deleted posts",
+          "label": "Deletion status",
+          "placeholder": "Select deletion status"
+        }
+      },
+      "personal": {
+        "title": "Personal filters",
+        "liked": "Liked",
+        "saved": "Saved",
+        "myPosts": "My posts"
+      },
+      "search": {
+        "placeholder": "Filter by title, link or content",
+        "authorLabel": "Author",
+        "authorLoadingPlaceholder": "Loading author...",
+        "authorSearchPlaceholder": "Search authors",
+        "fromDate": "From date",
+        "toDate": "To date",
+        "datePlaceholder": "Select date"
+      },
+      "sort": {
+        "label": "Sort by",
+        "placeholder": "Select post ordering",
+        "toggleDirectionTooltip": "Toggle sort direction",
+        "creationDate_asc": "Creation date (newest last)",
+        "creationDate_desc": "Creation date (newest first)",
+        "lastSeen_asc": "From last seen (ascending creation date)",
+        "lastSeen_desc": "From last seen (descending creation date)",
+        "mostLiked": "Most liked"
+      }
+    },
+    "buttons": {
+      "editCategoriesTooltip": "Edit categories",
+      "markLastSeenTooltip": "Mark as last seen",
+      "likeTooltip": "Like",
+      "bookmarkTooltip": "Bookmark",
+      "unmoderateTooltip": "Mark as not moderated",
+      "approveTooltip": "Approve"
+    }
+  },
+  "userPermissions": {
+    "title": "User permissions",
+    "selectUserLabel": "Select user",
+    "searchUserPlaceholder": "Search users",
+    "updateRoleLabel": "Update role",
+    "updateAuthButton": "Update authorization settings",
+    "confirmModal": {
+      "title": "Update auth information",
+      "body": "You're about to update auth information for <1>{{displayName}}</1>. <3>Are you sure you want to do this?</3>"
+    }
+  },
+  "notifications": {
+    "loginErrorTitle": "Login error",
+    "loginErrorMessage": "We're having trouble logging you in from your previous session. Please log in again.",
+    "userUpdateErrorTitle": "Error updating user",
+    "userUpdateRoleErrorMessage": "Couldn't update user's role",
+    "userUpdateRoleSuccessMessage": "User role updated successfully",
+    "postCreatedTitle": "Post submitted",
+    "postCreatedMessage": "Post created successfully",
+    "postUpdatedTitle": "Post updated",
+    "postUpdatedMessage": "Post updated successfully",
+    "postRestoreErrorTitle": "Error restoring post",
+    "postDeletedTitle": "Post deleted",
+    "postDeletedMessage": "Post deleted successfully",
+    "postDeleteErrorTitle": "Error deleting post",
+    "postLikeError": "Could not like post",
+    "postUnlikeError": "Could not unlike post",
+    "testNotificationTitle": "Hello world!",
+    "testNotificationBody": "Push notification.\n\nUse this to test the notification system.",
+    "accessDeniedTitle": "Notification access denied",
+    "accessDeniedMessage": "Please enable it via \"View site information\" at the top bar 🛈 icon"
+  },
+  "errorPage": {
+    "backHomeButton": "Take me back to the home page",
+    "backPreviousButton": "Take me back to the previous page",
+    "unknown": {
+      "description": "An unknown error occurred."
+    },
+    "status404": {
+      "description": "You may have mistyped the address, or the page has been moved to another URL."
+    },
+    "status403": {
+      "description": "You don't have the required permissions to access this content."
+    },
+    "status401": {
+      "description": "You need to log in before accessing this content."
+    },
+    "status418": {
+      "description": "I'm a teapot"
+    }
+  },
+  "validation": {
+    "title": {
+      "required": "Title cannot be empty",
+      "maxLength": "Title can have at most {{count}} characters."
+    },
+    "link": {
+      "invalidUrl": "Link is not a valid URL",
+      "maxLength": "Link can have at most {{count}} characters."
+    },
+    "content": {
+      "maxLength": "Message can have at most {{count}} characters."
+    }
+  }
+}

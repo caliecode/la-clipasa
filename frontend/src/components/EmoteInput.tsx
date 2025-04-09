@@ -13,10 +13,10 @@ import {
 } from '@mantine/core'
 import { useWindowEvent } from '@mantine/hooks'
 import { EMOTES } from 'src/assets/img/emotes'
+import { useTranslation } from 'react-i18next'
 import styles from './EmoteInput.module.css'
 
 const EMOTE_IMG_SIZE = 24
-
 /**
  * Converts HTML string within the contentEditable to plain text,
  * replacing emote images with their alt text (emote code).
@@ -178,10 +178,10 @@ export function EmoteInput({
   error,
   ...props
 }: EmoteInputProps) {
+  const { t } = useTranslation()
   const theme = useMantineTheme()
   const contentEditableRef = useRef<HTMLDivElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
-
   const [popoverOpened, setPopoverOpened] = useState(false)
   const [suggestions, setSuggestions] = useState<{ key: string; src: string }[]>([])
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(0)
@@ -524,7 +524,6 @@ export function EmoteInput({
             />
           </Box>
         </Popover.Target>
-
         <Popover.Dropdown ref={popoverRef} p="xs" className={styles.popoverDropdown}>
           {suggestions.length > 0 ? (
             suggestions.map((emote, index) => (
@@ -559,10 +558,10 @@ export function EmoteInput({
             ))
           ) : (
             <Text size="xs" c="dimmed">
-              No matches
+              {t('common.noMatches')}
             </Text>
           )}
-        </Popover.Dropdown>
+        </Popover.Dropdown>{' '}
       </Popover>
     </Input.Wrapper>
   )

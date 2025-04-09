@@ -3,15 +3,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Button, Modal, Text, Stack, useMantineTheme } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { faTwitch } from '@fortawesome/free-brands-svg-icons'
+import { useTranslation } from 'react-i18next'
 import { redirectToBroadcasterAuthLogin } from 'src/services/authorization'
 
-type BroadcasterTokenModalProps = {
-  isOpen: boolean
-  onClose: () => void
-  onConfirm: () => void
-}
+type BroadcasterTokenModalProps = { isOpen: boolean; onClose: () => void; onConfirm: () => void }
 
 export default function BroadcasterTokenModal({ isOpen, onClose, onConfirm }: BroadcasterTokenModalProps) {
+  const { t } = useTranslation()
   const { colors } = useMantineTheme()
 
   const handleConfirm = () => {

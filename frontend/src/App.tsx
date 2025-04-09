@@ -24,13 +24,13 @@ import { AppTourProvider } from 'src/tours/AppTourProvider'
 import 'src/utils/dayjs'
 import { UiRoutes } from 'src/ui-paths'
 import { createUrqlClient } from 'src/services/urql'
+import { useTranslation } from 'react-i18next'
 import { Provider } from 'urql'
 import useAuthenticatedUser from 'src/hooks/auth/useAuthenticatedUser'
-
 function ErrorFallback({ error }: any) {
   return (
     <div role="alert">
-      <p>Something went wrong:</p>
+      <p>Something went wrong:</p> {/* Assuming this is developer-only */}
       <pre style={{ color: 'red' }}>{error.message}</pre>
     </div>
   )
@@ -66,9 +66,11 @@ const modals = {
 }
 
 export default function App() {
+  const { t } = useTranslation()
   return (
     <>
       <Provider value={createUrqlClient()}>
+        {' '}
         <MantineProvider
           colorSchemeManager={colorSchemeManager}
           defaultColorScheme="dark"
@@ -82,10 +84,10 @@ export default function App() {
         >
           <ModalsProvider
             modals={modals}
-            labels={{ confirm: 'Submit', cancel: 'Cancel' }}
+            labels={{ confirm: t('common.submit'), cancel: t('common.cancel') }}
             modalProps={{ styles: { root: { marginTop: '100px', zIndex: 20000 } } }}
           >
-            <Notifications />
+            <Notifications />{' '}
             <BrowserRouter basename={import.meta.env.BASE_URL}>
               <React.Suspense
                 fallback={<div style={{ backgroundColor: 'rgb(20, 21, 25)', height: '100vh', width: '100vw' }} />}

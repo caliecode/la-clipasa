@@ -1,5 +1,6 @@
 import { Flex, Select, Text } from '@mantine/core'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { usePostsSlice } from 'src/slices/posts'
 
 type DeletionFilter = 'all' | 'deleted' | 'default'
@@ -7,11 +8,11 @@ type SelectData = { value: DeletionFilter; label: string }[]
 
 export default function DeletionStatusFilter() {
   const { postActions } = usePostsSlice()
-
+  const { t } = useTranslation()
   const deletionSelectData: SelectData = [
-    { value: 'all', label: 'Show all posts' },
-    { value: 'default', label: 'Exclude deleted posts' },
-    { value: 'deleted', label: 'Show only deleted posts' },
+    { value: 'all', label: t('post.filters.moderation.deletion.showAll') },
+    { value: 'default', label: t('post.filters.moderation.deletion.excludeDeleted') },
+    { value: 'deleted', label: t('post.filters.moderation.deletion.showDeletedOnly') },
   ]
 
   const [deletionStatus, setDeletionStatus] = useState<DeletionFilter>('default')
@@ -38,10 +39,10 @@ export default function DeletionStatusFilter() {
   return (
     <Flex direction="column" style={{ flexGrow: 10, minWidth: '100%' }}>
       <Select
-        label="Deletion status"
+        label={t('post.filters.moderation.deletion.label')}
         data={deletionSelectData}
         onChange={(value) => setDeletionStatus((value as DeletionFilter) || 'all')}
-        placeholder="Select deletion filter"
+        placeholder={t('post.filters.moderation.deletion.placeholder')}
         value={deletionStatus}
       />
     </Flex>

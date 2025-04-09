@@ -1,33 +1,35 @@
 import { ActionIcon, Flex, Select, Tooltip } from '@mantine/core'
 import { IconSortAscending, IconSortDescending } from '@tabler/icons'
+import { useTranslation } from 'react-i18next'
 import { SortSelectOption, usePostsSlice } from 'src/slices/posts'
 
 type SelectData<T> = { value: T; label: string }[]
 
 export default function SortSelect(): JSX.Element {
   const { sort, queryParams, postActions } = usePostsSlice()
-
+  const { t } = useTranslation()
   const sortDirection = queryParams.orderBy?.direction
 
   const sortSelectData: SelectData<SortSelectOption> = [
     {
       value: 'creationDate',
-      label: `Creation date ${sortDirection === 'ASC' ? '(newest last)' : '(newest first)'}`,
+      label:
+        sortDirection === 'ASC' ? t('post.filters.sort.creationDate_asc') : t('post.filters.sort.creationDate_desc'),
     },
     {
       value: 'lastSeen',
-      label: `From last seen ${sortDirection === 'ASC' ? '(ascending creation date)' : '(descending creation date)'}`,
+      label: sortDirection === 'ASC' ? t('post.filters.sort.lastSeen_asc') : t('post.filters.sort.lastSeen_desc'),
     },
     {
       value: 'mostLiked',
-      label: `Most liked`,
+      label: t('post.filters.sort.mostLiked'),
     },
   ]
 
   return (
     <Flex mt={10} gap="md" justify="space-between" align="center" direction="row" wrap="wrap">
       <Select
-        label="Sort by"
+        label={t('post.filters.sort.label')}
         style={{ flexGrow: 10, minWidth: '100%' }}
         data={sortSelectData}
         onChange={(value: SortSelectOption) => {

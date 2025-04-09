@@ -2,6 +2,7 @@ import { ActionIcon, Tooltip } from '@mantine/core'
 import { IconEye } from '@tabler/icons'
 import { useContext, useState } from 'react'
 import useAuthenticatedUser from 'src/hooks/auth/useAuthenticatedUser'
+import { useTranslation } from 'react-i18next'
 import { usePostsSlice } from 'src/slices/posts'
 import { useUISlice } from 'src/slices/ui'
 import styles from './buttons.module.css'
@@ -13,10 +14,10 @@ import { useUpdateUserMutation } from 'src/graphql/gen'
 interface LastSeenButtonProps {}
 
 export default function LastSeenButton({}: LastSeenButtonProps) {
+  const { t } = useTranslation()
   const { post } = usePostContext()
   const [, updateUser] = useUpdateUserMutation()
-  const { isAuthenticated, user, refetchUser } = useAuthenticatedUser()
-  /**
+  const { isAuthenticated, user, refetchUser } = useAuthenticatedUser() /**
    * TODO background image if lastSeenCursor !== post.id overriding existing one (or some kind of filter)
    */
   const { postActions, lastSeenCursor } = usePostsSlice()
@@ -41,7 +42,11 @@ export default function LastSeenButton({}: LastSeenButtonProps) {
   if (lastSeenCursor === post.nodeId || !isAuthenticated) return null
 
   return (
-    <Tooltip label={lastSeenCursor === post.nodeId ? '' : 'Mark as last seen'} arrowPosition="center" withArrow>
+    <Tooltip
+      label={lastSeenCursor === post.nodeId ? '' : t('post.buttons.markLastSeenTooltip')}
+      arrowPosition="center"
+      withArrow
+    >
       <ActionIcon
         className={`${styles.action} ${lastSeenBeacon ? 'beacon' : ''}`}
         onClick={handleLastSeenButtonClick}

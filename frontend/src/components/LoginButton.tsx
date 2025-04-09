@@ -5,9 +5,11 @@ import { apiPath } from 'src/services/apiPaths'
 import { faSignIn } from '@fortawesome/free-solid-svg-icons'
 import { redirectToUserAuthLogin } from 'src/services/authorization'
 import { faTwitch } from '@fortawesome/free-brands-svg-icons'
+import { useTranslation } from 'react-i18next'
 
 export default function LoginButton() {
   const { colors } = useMantineTheme()
+  const { t } = useTranslation()
 
   return (
     <Button
@@ -20,7 +22,7 @@ export default function LoginButton() {
       }}
       leftSection={<FontAwesomeIcon icon={faTwitch} size="xl" />}
     >
-      Login
+      {t('common.login')}
     </Button>
   )
 }

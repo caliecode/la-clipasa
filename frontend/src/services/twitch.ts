@@ -1,10 +1,10 @@
 import { EMOTES } from 'src/assets/img/emotes'
 import { sanitizeContentEditableInput } from 'src/utils/strings'
 
+// Inline styles are generally harder to manage with themes/dark mode. Consider CSS classes.
 export const imgAttributes = 'style="pointer-events: none;"'
 
 export const anyKnownEmoteRe = `${Object.keys(EMOTES).join('|')}`
-
 /**
  * Returns an html string with known emotes replaced.
  * @example
@@ -26,7 +26,7 @@ export function emotesTextToHtml(text: string, size: number) {
     )
   })
 
-  return newHtml
+  return newHtml // This replaces case-insensitively but uses the canonical case from EMOTES for the title/className.
 }
 
 export function htmlToEmotesText(html: string) {

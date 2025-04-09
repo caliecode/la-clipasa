@@ -29,6 +29,7 @@ import { extractGqlErrors } from 'src/utils/errors'
 import { getServiceAndId } from 'src/services/linkServices'
 import { PaginatedPostResponse } from 'src/graphql/extended-types'
 import { EmoteInput } from 'src/components/EmoteInput'
+import { useTranslation } from 'react-i18next'
 
 interface EditPostFormData {
   title: string
@@ -47,6 +48,7 @@ type EditPostModalProps = {
 export default function EditPostModal({ opened, onClose, post, onSuccess }: EditPostModalProps): JSX.Element | null {
   const { user } = useAuthenticatedUser()
   const [updatePostMutation, updatePost] = useUpdatePostMutation()
+  const { t } = useTranslation()
 
   const [titlePreviewPopoverOpened, setTitlePreviewPopoverOpened] = useState<boolean>(false)
   const [calloutErrors, setCalloutErrors] = useState<string[]>([])
@@ -63,15 +65,15 @@ export default function EditPostModal({ opened, onClose, post, onSuccess }: Edit
     },
     validate: {
       title: (value) => {
-        if (!value || value.trim() === '' || value.trim() === '<br>') return 'Title cannot be empty'
-        if (value?.length > 150) return 'Title can have at most 150 characters.'
+        if (!value || value.trim() === '' || value.trim() === '<br>') return t('validation.title.required')
+        if (value?.length > 150) return t('validation.title.maxLength', { count: 150 })
       },
       link: (value) => {
         if (videoFile) return null
-        if (!isValidURL(value)) return 'Link is not a valid URL'
-        if (value?.length > 250) return 'Link can have at most 250 characters.'
+        if (!isValidURL(value)) return t('validation.link.invalidUrl')
+        if (value?.length > 250) return t('validation.link.maxLength', { count: 250 })
       },
-      content: (value) => (value && value.length > 400 ? 'Message can have at most 400 characters.' : null),
+      content: (value) => (value && value.length > 400 ? t('validation.content.maxLength', { count: 400 }) : null),
     },
   })
 
@@ -117,7 +119,7 @@ export default function EditPostModal({ opened, onClose, post, onSuccess }: Edit
       }
 
       if (!res.data?.updatePostWithCategories?.post) {
-        setCalloutErrors(['Failed to update post from response'])
+        setCalloutErrors([t('post.edit.failedToUpdate')])
         return
       }
 
@@ -125,15 +127,15 @@ export default function EditPostModal({ opened, onClose, post, onSuccess }: Edit
       onClose()
       showNotification({
         id: 'post-updated',
-        title: 'Post updated',
-        message: 'Post updated successfully',
+        title: t('notifications.postUpdatedTitle'),
+        message: t('notifications.postUpdatedMessage'),
         color: 'green',
         icon: <IconSend size={18} />,
         autoClose: 5000,
       })
     } catch (error) {
       console.error('Post update error:', error)
-      setCalloutErrors([error instanceof Error ? error.message : 'Failed to update post'])
+      setCalloutErrors([error instanceof Error ? error.message : t('post.edit.failedToUpdate')])
     }
   })
 
@@ -151,11 +153,11 @@ export default function EditPostModal({ opened, onClose, post, onSuccess }: Edit
       onClose={() => {
         onClose()
       }}
-      title="Edit Post"
+      title={t('post.edit.modalTitle')}
       closeOnEscape={false}
       closeOnClickOutside
     >
-      <ErrorCallout title="Error updating post" errors={calloutErrors} />
+      <ErrorCallout title={t('common.errorUpdatingPost')} errors={calloutErrors} />
       <form onSubmit={handleSubmit}>
         <Popover
           opened={titlePreviewPopoverOpened}
@@ -166,9 +168,15 @@ export default function EditPostModal({ opened, onClose, post, onSuccess }: Edit
         >
           <Popover.Target>
             <div>
-              <Input.Wrapper label="Title" withAsterisk error={editPostForm.errors.title} size="sm" mb="md">
+              <Input.Wrapper
+                label={t('post.fields.title')}
+                withAsterisk
+                error={editPostForm.errors.title}
+                size="sm"
+                mb="md"
+              >
                 <EmoteInput
-                  placeholder="Enter a title with emotes like calieAMOR2"
+                  placeholder={t('post.create.titlePlaceholder')}
                   data-autofocus
                   {...editPostForm.getInputProps('title')}
                   error={!!editPostForm.errors.title}
@@ -176,7 +184,7 @@ export default function EditPostModal({ opened, onClose, post, onSuccess }: Edit
                 />
               </Input.Wrapper>
               <Text size="xs" c="dimmed" mt={-10} mb="md">
-                You can use channel emotes here.
+                {t('post.create.helpText')}
               </Text>
             </div>
           </Popover.Target>
@@ -194,25 +202,25 @@ export default function EditPostModal({ opened, onClose, post, onSuccess }: Edit
           rightSectionPointerEvents="all"
           rightSection={
             unknownLinkService ? (
-              <Tooltip label="Unrecognized service. Embeds might not work.">
+              <Tooltip label={t('post.create.unrecognizedServiceWarning')}>
                 <IconAlertTriangle size={16} color="var(--mantine-color-orange-5)" />
               </Tooltip>
             ) : (
               <IconCircleCheck size={16} color="var(--mantine-color-green-6)" />
             )
           }
-          label="Link"
+          label={t('post.fields.link')}
           {...editPostForm.getInputProps('link')}
         />
         {unknownLinkService && (
           <Text size="xs" opacity={0.6} c="var(--mantine-color-orange-5)">
-            WARNING: unrecognized service. Embeds may not work correctly.
+            {t('post.create.unrecognizedServiceWarning')}
           </Text>
         )}
 
-        <TextInput label="Content" {...editPostForm.getInputProps('content')} />
+        <TextInput label={t('post.fields.content')} {...editPostForm.getInputProps('content')} />
         <Text size="xs" opacity={0.6}>
-          Optional: add a message
+          {t('post.create.contentHelpText')}
         </Text>
 
         <CategoriesSelect
@@ -224,8 +232,8 @@ export default function EditPostModal({ opened, onClose, post, onSuccess }: Edit
         <Space h="md" />
 
         <FileInput
-          label="Replace Video (Optional)"
-          placeholder="Select new video file to replace existing"
+          label={t('post.edit.videoReplaceHelpText')}
+          placeholder={t('post.create.videoUploadHelpText')}
           accept="video/mp4,video/mpeg,video/quicktime"
           leftSection={<IconUpload size={16} />}
           value={videoFile}
@@ -236,7 +244,7 @@ export default function EditPostModal({ opened, onClose, post, onSuccess }: Edit
           }}
         />
         <Text size="xs" opacity={0.6}>
-          Optional: replace the current video (Max 10MB)
+          {t('post.edit.videoReplaceHelpText')}
         </Text>
 
         <Group justify="end" mt="md">
@@ -246,7 +254,7 @@ export default function EditPostModal({ opened, onClose, post, onSuccess }: Edit
             type="submit"
             loading={updatePostMutation.fetching}
           >
-            Update
+            {t('common.update')}
           </Button>
         </Group>
       </form>

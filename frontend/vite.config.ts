@@ -8,6 +8,7 @@ import dynamicImport from 'vite-plugin-dynamic-import'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import { patchCssModules } from 'vite-css-modules'
 import { VitePWA } from 'vite-plugin-pwa'
+import i18nextLoader from 'vite-plugin-i18next-loader'
 
 dotenv.config()
 
@@ -19,6 +20,7 @@ export default ({ mode }) => {
   return defineConfig({
     base: '/ui',
     plugins: [
+      i18nextLoader({ paths: ['./public/locales/'], namespaceResolution: 'basename' }),
       patchCssModules(),
       react({
         jsxRuntime: 'automatic',

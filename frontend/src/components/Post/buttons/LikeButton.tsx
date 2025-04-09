@@ -2,6 +2,7 @@ import { ActionIcon, Button, Tooltip, useMantineTheme } from '@mantine/core'
 import { IconBookmark, IconHeart } from '@tabler/icons'
 import { useContext, useEffect, useState } from 'react'
 import { usePostsSlice } from 'src/slices/posts'
+import { useTranslation } from 'react-i18next'
 import ProtectedComponent from 'src/components/Permissions/ProtectedComponent'
 import { useUpdatePostMutation, useUpdateUserMutation } from 'src/graphql/gen'
 import { usePostContext } from 'src/components/Post/Post.context'
@@ -14,9 +15,9 @@ import { notifications } from '@mantine/notifications'
 interface LikeButtonProps {}
 
 export default function LikeButton({}: LikeButtonProps) {
+  const { t } = useTranslation()
   const theme = useMantineTheme()
   const { post, setPost } = usePostContext()
-
   const [, updateUser] = useUpdateUserMutation()
   const [likeBeacon, setLikeBeacon] = useState(false)
   const [isLiked, setIsLiked] = useState(false)
@@ -36,8 +37,8 @@ export default function LikeButton({}: LikeButtonProps) {
     })
     if (r?.error) {
       notifications.show({
-        title: 'Error',
-        message: `Could not ${isLiked ? 'unlike' : 'like'} post`,
+        title: t('common.error'),
+        message: t(isLiked ? 'notifications.postUnlikeError' : 'notifications.postLikeError'),
         color: 'red',
         icon: <IconBookmark size={18} />,
       })
@@ -61,7 +62,7 @@ export default function LikeButton({}: LikeButtonProps) {
   const disabled = !user
 
   return (
-    <Tooltip label="Like" arrowPosition="center" withArrow disabled={disabled}>
+    <Tooltip label={t('post.buttons.likeTooltip')} arrowPosition="center" withArrow disabled={disabled}>
       <Button
         className={`${isLiked && styles.likedAction} ${styles.action} ${likeBeacon ? styles.beacon : ''}`}
         onClick={handleLikeButtonClick}

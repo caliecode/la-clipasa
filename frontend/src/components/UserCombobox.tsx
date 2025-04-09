@@ -3,10 +3,10 @@ import { useCombobox, Combobox, InputBase, ScrollArea, Text, Space, Input, Group
 import { useDebounce } from 'usehooks-ts'
 import { Virtuoso } from 'react-virtuoso'
 import { useUsersQuery } from 'src/graphql/gen'
+import { useTranslation } from 'react-i18next'
 import UserComboboxOption from 'src/components/Combobox/UserComboboxOption'
 import InfiniteLoader from 'src/components/Loading/InfiniteLoader'
 import { IUser } from 'src/types/ui'
-
 interface UserComboboxProps {
   onChange: (user: IUser | null) => void
   value?: IUser | null
@@ -33,6 +33,7 @@ export function UserCombobox({
     },
     pause: !debouncedSearch,
   })
+  const { t } = useTranslation()
 
   const combobox = useCombobox({
     onDropdownClose: () => {
@@ -94,12 +95,11 @@ export function UserCombobox({
           )}
         </InputBase>
       </Combobox.Target>
-
       <Combobox.Dropdown>
         <Combobox.Search
           value={search}
           onChange={(event) => setSearch(event.currentTarget.value)}
-          placeholder="Type to search"
+          placeholder={t('common.typeToSearch')}
         />
         <Combobox.Options mah={200} style={{ overflowY: 'auto' }}>
           <ScrollArea.Autosize mah={200} type="scroll">
@@ -118,11 +118,9 @@ export function UserCombobox({
         </Combobox.Options>
         <Space p={4} />
         {options.length ? (
-          <Text size="sm">
-            Showing {options.length} of {data?.users.totalCount} results
-          </Text>
+          <Text size="sm">{t('common.showingResults', { count: options.length, total: data?.users.totalCount })}</Text>
         ) : null}
-      </Combobox.Dropdown>
+      </Combobox.Dropdown>{' '}
     </Combobox>
   )
 }

@@ -8,9 +8,11 @@ import { Client, Exchange, fetchExchange, subscriptionExchange } from 'urql'
 import { ToastId } from 'src/utils/toasts'
 import { IconForbid, IconX } from '@tabler/icons'
 
+import { useTranslation } from 'react-i18next' // Import useTranslation
 import { pipe, tap } from 'wonka'
 import { AxiosApiError, UrqlApiError } from 'src/api/backend-mutator'
 
+// Note: createUrqlClient cannot use hooks directly. Translations for errors here might need to be handled differently, e.g., passing `t` function or using error codes.
 export const createUrqlClient = () => {
   return new Client({
     url: apiPath('/graphql'),

@@ -7,6 +7,7 @@ import { PostCallout } from 'src/components/Post/components/Post.Callout'
 import { PostCategories } from 'src/components/Post/components/Post.Categories'
 import { usePostContext } from 'src/components/Post/Post.context'
 import { memo } from 'react'
+import { useTranslation } from 'react-i18next'
 
 interface PostProps {
   showCategories?: boolean
@@ -15,6 +16,7 @@ interface PostProps {
 }
 
 const PostComponent = ({ showCategories = true, showCommentCount = true, showModerationIcon = true }: PostProps) => {
+  const { t } = useTranslation()
   const { post } = usePostContext()
 
   return (
@@ -41,17 +43,15 @@ const PostComponent = ({ showCategories = true, showCommentCount = true, showMod
       </Group>
       <Space h="md" />
       <PostContent />
-
       <Space h="sm" />
-
       <Group align="center">
         <PostActions />
         {showCommentCount && (
           <Text size="xs" c="dimmed">
-            {post.comments.totalCount} comment{post.comments.totalCount === 1 ? '' : 's'}
+            {t('post.commentsCount', { count: post.comments.totalCount })}
           </Text>
         )}
-      </Group>
+      </Group>{' '}
     </div>
   )
 }

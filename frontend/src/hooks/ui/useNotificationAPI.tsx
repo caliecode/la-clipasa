@@ -3,14 +3,17 @@ import { ToastId } from 'src/utils/toasts'
 import { useUISlice } from 'src/slices/ui'
 import { notifications } from '@mantine/notifications'
 import { IconForbid } from '@tabler/icons'
+import { useTranslation } from 'react-i18next'
 
 export const useNotificationAPI = () => {
+  const { t } = useTranslation()
   const createTestNotification = (email: string) => {
-    new Notification('Hello world!', {
-      body: 'Push notification.\n\nUse this to test the notification system.',
+    new Notification(t('notifications.testNotificationTitle'), {
+      body: t('notifications.testNotificationBody'),
       // image: './notification_icon.png',
       icon: createAvatarImageDataUrl(email),
       data: {
+        // Developer-only data, no translation needed
         test: 'test',
       },
     })
@@ -48,14 +51,13 @@ export const useNotificationAPI = () => {
   function addNotificationAccessDeniedToast() {
     notifications.show({
       id: ToastId.NoticationAPIAccessDenied,
-      title: `Notification access denied`,
+      title: t('notifications.accessDeniedTitle'),
       color: 'danger',
       icon: <IconForbid size="1.2rem" />,
       autoClose: 15000,
-      message: `Please enable it via "View site information" at the top bar 🛈 icon`,
+      message: t('notifications.accessDeniedMessage'),
     })
   }
-
   return {
     showTestNotification,
     verifyNotificationPermission,

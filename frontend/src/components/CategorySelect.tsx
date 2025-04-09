@@ -3,16 +3,19 @@ import { IconCheck } from '@tabler/icons'
 import { PostCategoryCategory } from 'src/graphql/gen'
 import { categoryEmojis, emojiInversion, PostCategoryNames, EMOJI_SIZE } from 'src/services/categories'
 import { ComponentProps, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 
 type CategoriesSelectProps = {
   selectedCategories: PostCategoryCategory[]
   onCategoriesChange: (categories: PostCategoryCategory[]) => void
   allowedCategories: PostCategoryCategory[]
   optionsVisible?: boolean
+  label?: string
   errorOccurred?: number // This will be a counter or timestamp that changes when error occurs
 } & ComponentProps<typeof Combobox>
 
 function CategoryPill({ value, onRemove }: { value: PostCategoryCategory; onRemove: () => void }) {
+  const { t } = useTranslation()
   const { colorScheme } = useMantineColorScheme()
 
   return (
@@ -40,9 +43,11 @@ export function CategoriesSelect({
   onCategoriesChange,
   allowedCategories,
   optionsVisible = true,
+  label,
   errorOccurred = 0,
   ...props
 }: CategoriesSelectProps) {
+  const { t } = useTranslation()
   const { colorScheme } = useMantineColorScheme()
   const combobox = useCombobox({
     onDropdownClose: () => combobox.resetSelectedOption(),
@@ -96,17 +101,18 @@ export function CategoriesSelect({
     <Combobox {...props} store={combobox} onOptionSubmit={(val) => handleCategoryToggle(val as PostCategoryCategory)}>
       <Combobox.Target>
         <PillsInput
-          label="Categories"
+          label={label || t('common.categories')}
           pointer
           onClick={(e) => {
             e.stopPropagation()
             combobox.toggleDropdown()
           }}
         >
-          <Pill.Group>{values.length > 0 ? values : <PillsInput.Field placeholder="Select categories" />}</Pill.Group>
+          <Pill.Group>
+            {values.length > 0 ? values : <PillsInput.Field placeholder={t('common.selectCategories')} />}
+          </Pill.Group>
         </PillsInput>
       </Combobox.Target>
-
       <Combobox.Dropdown>
         <Combobox.Options>{optionsVisible ? options : null}</Combobox.Options>
       </Combobox.Dropdown>

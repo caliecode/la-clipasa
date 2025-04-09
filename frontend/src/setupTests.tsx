@@ -17,6 +17,7 @@ AxiosInterceptors.setupAxiosInstance(AXIOS_INSTANCE, '')
 // some calls in App.tsx should be abstracted as init.ts or the like
 // so we just import that both in setupTests and App.tsx
 import 'src/utils/dayjs'
+import './i18n'
 
 // runs a cleanup after each test case
 afterEach(() => {

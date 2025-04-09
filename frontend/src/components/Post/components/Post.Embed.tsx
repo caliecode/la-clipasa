@@ -4,6 +4,7 @@ import { getServiceAndId } from 'src/services/linkServices'
 import styles from '../Post.module.css'
 import { useMantineColorScheme } from '@mantine/core'
 import { useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useDiscordLinkRefresh } from 'src/hooks/post/useRefreshDiscordLink'
 
 interface PostEmbedProps {
@@ -12,6 +13,7 @@ interface PostEmbedProps {
 
 export const PostEmbed = ({ inline = false }: PostEmbedProps) => {
   const { setPost, post, setCalloutErrors } = usePostContext()
+  const { t } = useTranslation()
   const { refreshLink } = useDiscordLinkRefresh({
     onRefresh: (newLink) => {
       setPost((currentPost) => ({ ...currentPost, link: newLink }))

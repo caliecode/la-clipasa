@@ -1,5 +1,6 @@
 import { Alert, List } from '@mantine/core'
 import { IconAlertCircle } from '@tabler/icons'
+import { useTranslation } from 'react-i18next'
 
 interface WarningCalloutProps {
   title: string
@@ -7,6 +8,7 @@ interface WarningCalloutProps {
 }
 
 export default function WarningCallout({ title, warnings }: WarningCalloutProps) {
+  const { t } = useTranslation()
   if (!warnings || warnings.length === 0) return null
 
   return (

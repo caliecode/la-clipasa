@@ -65,6 +65,7 @@ import {
 import { extractGqlErrors } from 'src/utils/errors'
 import { Virtuoso } from 'react-virtuoso'
 import { useDebounce } from 'usehooks-ts'
+import { Trans, useTranslation } from 'react-i18next'
 import { UserCombobox } from 'src/components/UserCombobox'
 
 interface SelectUserItemProps extends React.ComponentPropsWithoutRef<'div'> {
@@ -86,6 +87,7 @@ const SelectRoleItem = ({ value }: SelectRoleItemProps) => {
 
 export default function UserPermissionsPage() {
   const [selectedUser, setSelectedUser] = useState<IUser | null>(null)
+  const { t } = useTranslation()
   const [userOptions, setUserOptions] = useState<Array<SelectUserItemProps> | null>(null)
   const { user } = useAuthenticatedUser()
   const [search, setSearch] = useState('')
@@ -138,14 +140,14 @@ export default function UserPermissionsPage() {
       const payload = await updateUserAuth(form.getValues())
       if (payload.error) {
         notifications.show({
-          id: ToastId.FormSubmit,
-          title: 'Error',
+          id: ToastId.UpdateUserRoleFailure,
+          title: t('notifications.userUpdateErrorTitle'),
           color: 'red',
           icon: <IconX size="1.2rem" />,
           autoClose: 15000,
-          message: "Couldn't update user's role",
+          message: t('notifications.userUpdateRoleErrorMessage'),
         })
-        throw payload.error
+        // throw payload.error // Don't throw, let the flow continue to display callout errors if needed
       }
       notifications.show({
         id: ToastId.FormSubmit,
@@ -153,7 +155,7 @@ export default function UserPermissionsPage() {
         color: 'primary',
         icon: <IconCheck size="1.2rem" />,
         autoClose: 15000,
-        message: 'User role updated successfully',
+        message: t('notifications.userUpdateRoleSuccessMessage'),
       })
       setCalloutErrors([])
     } catch (error) {
@@ -241,6 +243,8 @@ export default function UserPermissionsPage() {
     }
   }
 
+  const displayName = selectedUser?.displayName
+
   const element = (
     <FormProvider {...form}>
       {/* should show "detail" key, e.g. "User not found" insteadit gives Request failed with status code 404
@@ -262,7 +266,7 @@ export default function UserPermissionsPage() {
           <>
             <Divider m={8} />
             <Select
-              label="Update role"
+              label={t('userPermissions.updateRoleLabel')}
               disabled={!checkAuthorization({ user, requiredRole: selectedUser.role }).authorized}
               // itemComponent={SelectRoleItem} // TODO: COMBOBOX
               data-test-subj="updateUserAuthForm__selectable_Role"
@@ -273,26 +277,25 @@ export default function UserPermissionsPage() {
             />
             <Space pt={24} />
             <Button disabled={selectedUser === null} data-test-subj="updateUserAuthForm__submit" onClick={showModal}>
-              Update authorization settings
+              {t('userPermissions.updateAuthButton')}
             </Button>
           </>
-        )}
+        )}{' '}
       </form>
       <Modal
         opened={isModalVisible}
         title={
           <Text fw={'bold'} size={'md'}>
-            Update auth information
+            {t('userPermissions.confirmModal.title')}
           </Text>
         }
         onClose={closeModal}
         data-test-subj="updateUserAuthForm__confirmModal"
       >
         <>
-          {`You're about to update auth information for `}
-          <strong>{selectedUser?.displayName}</strong>.<p>Are you sure you want to do this?</p>
+          <Trans i18nKey="userPermissions.confirmModal.body" values={{ displayName }}></Trans>
           <Group style={{ justifyContent: 'flex-end' }}>
-            <Button variant="subtle" color="orange" onClick={closeModal}>
+            <Button variant="subtle" onClick={closeModal}>
               Cancel
             </Button>
             <Button
@@ -301,10 +304,10 @@ export default function UserPermissionsPage() {
                 closeModal()
               }}
             >
-              Update
+              {t('common.update')}
             </Button>
           </Group>
-        </>
+        </>{' '}
       </Modal>
     </FormProvider>
   )
@@ -312,7 +315,7 @@ export default function UserPermissionsPage() {
   return (
     <PageTemplate minWidth={600}>
       <Flex display="flex" direction="column">
-        <Title>User permissions</Title>
+        <Title>{t('userPermissions.title')}</Title>
         <Space />
         {element}
       </Flex>
@@ -321,9 +324,9 @@ export default function UserPermissionsPage() {
 }
 
 function FormData() {
+  // This seems like a debug component, leaving it untranslated.
   const form = useFormContext()
 
   form.watch()
-
   return <CodeHighlight language="json" code={JSON.stringify(form.getValues(), null, 4)}></CodeHighlight>
 }

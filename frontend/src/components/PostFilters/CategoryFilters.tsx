@@ -4,9 +4,11 @@ import { PostCategoryNames } from 'src/services/categories'
 import { usePostsSlice } from 'src/slices/posts'
 import styles from './PostFilters.module.css'
 import { PostCategoryCategory } from 'src/graphql/gen'
+import { useTranslation } from 'react-i18next'
 
 export default function CategoryFilters(): JSX.Element {
   const { queryParams, postActions } = usePostsSlice()
+  const { t } = useTranslation()
 
   function renderActiveCategoryFilters() {
     return queryParams.where?.hasCategoriesWith?.map(
@@ -55,7 +57,7 @@ export default function CategoryFilters(): JSX.Element {
     <>
       <Card.Section className={styles.section}>
         <Text mt="md" className={styles.label} c="dimmed">
-          Active category filters
+          {t('post.filters.activeCategoryFilters')}
         </Text>
         <Group gap={7} mt={5}>
           {renderActiveCategoryFilters()}
@@ -63,7 +65,7 @@ export default function CategoryFilters(): JSX.Element {
       </Card.Section>
       <Card.Section className={styles.section}>
         <Text mt="md" className={styles.label} c="dimmed">
-          Filter by category
+          {t('post.filters.filterByCategory')}
         </Text>
         <Group gap={7} mt={5}>
           {renderCategoryFilters()}

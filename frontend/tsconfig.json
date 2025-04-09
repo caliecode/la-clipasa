@@ -5,7 +5,9 @@
     "**/*.d.ts"
   ],
   "compilerOptions": {
-    "types": [],
+    "types": [
+      "./@types/i18next.d.ts"
+    ],
     "target": "ESNext",
     "useDefineForClassFields": true,
     "lib": [

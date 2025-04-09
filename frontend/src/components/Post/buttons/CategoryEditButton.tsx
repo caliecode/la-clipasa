@@ -12,10 +12,12 @@ import useAuthenticatedUser from 'src/hooks/auth/useAuthenticatedUser'
 import styles from './buttons.module.css'
 import { CategoriesSelect } from 'src/components/CategorySelect'
 import { PostCategoryNames } from 'src/services/categories'
+import { useTranslation } from 'react-i18next'
 import { keys } from 'src/utils/object'
 
 export default function CategoryEditButton() {
   const user = useAuthenticatedUser()
+  const { t } = useTranslation()
   const { post, setPost } = usePostContext()
   const { colorScheme } = useMantineColorScheme()
   const [, createPostCategory] = useCreatePostCategoryMutation()
@@ -96,7 +98,7 @@ export default function CategoryEditButton() {
           closeOnClickOutside
         >
           <Popover.Target ref={containerRef}>
-            <Tooltip label={'Edit categories'}>
+            <Tooltip label={t('post.buttons.editCategoriesTooltip')}>
               <ActionIcon
                 radius="xl"
                 size={22}
@@ -115,7 +117,7 @@ export default function CategoryEditButton() {
           </Popover.Target>
 
           <Popover.Dropdown ref={dropdownRef} onClick={(e) => e.stopPropagation()}>
-            <ErrorCallout title="Error updating post" errors={errors} />
+            <ErrorCallout title={t('common.errorUpdatingPost')} errors={errors} />
             <CategoriesSelect
               selectedCategories={post.categories?.map((c) => c.category) || []}
               onCategoriesChange={handleCategoriesChange}

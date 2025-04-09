@@ -37,6 +37,7 @@ import { extractGqlErrors } from 'src/utils/errors'
 import { IconAlertTriangle, IconCircleCheck } from '@tabler/icons'
 import { getServiceAndId } from 'src/services/linkServices'
 import { EmoteInput } from 'src/components/EmoteInput'
+import { useTranslation } from 'react-i18next'
 
 type CreatePostModalProps = {
   opened: boolean
@@ -46,6 +47,7 @@ type CreatePostModalProps = {
 export default function CreatePostModal({ opened, onClose }: CreatePostModalProps): JSX.Element {
   const { user } = useAuthenticatedUser()
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [createPostMutation, createPost] = useCreatePostMutation()
   const { setBurgerOpened } = useUISlice()
 
@@ -99,8 +101,8 @@ export default function CreatePostModal({ opened, onClose }: CreatePostModalProp
       setBurgerOpened(false)
       showNotification({
         id: 'post-created',
-        title: 'Post submitted',
-        message: 'Post created successfully',
+        title: t('notifications.postCreatedTitle'),
+        message: t('notifications.postCreatedMessage'),
         color: 'green',
         icon: <IconSend size={18} />,
         autoClose: 5000,
@@ -128,10 +130,10 @@ export default function CreatePostModal({ opened, onClose }: CreatePostModalProp
         postCreateForm.reset()
         setVideoFile(null)
       }}
-      title="Create a new post"
+      title={t('post.create.modalTitle')}
       closeOnEscape={false}
     >
-      <ErrorCallout title="Error uploading post" errors={calloutErrors} />
+      <ErrorCallout title={t('common.error')} errors={calloutErrors} />
       <form onSubmit={handleSubmit}>
         <Popover
           opened={titlePreviewPopoverOpened}
@@ -144,7 +146,7 @@ export default function CreatePostModal({ opened, onClose }: CreatePostModalProp
             <div>
               <Input.Wrapper label="Title" withAsterisk error={postCreateForm.errors['base.title']} size="sm" mb="md">
                 <EmoteInput
-                  placeholder="Enter a title with emotes like calieAMOR2"
+                  placeholder={t('post.create.titlePlaceholder')}
                   data-autofocus
                   {...postCreateForm.getInputProps('base.title')}
                   error={!!postCreateForm.errors['base.title']}
@@ -152,7 +154,7 @@ export default function CreatePostModal({ opened, onClose }: CreatePostModalProp
                 />
               </Input.Wrapper>
               <Text size="xs" opacity={0.6}>
-                You can use channel emotes here.
+                {t('post.create.helpText')}
               </Text>
             </div>
           </Popover.Target>
@@ -179,12 +181,12 @@ export default function CreatePostModal({ opened, onClose }: CreatePostModalProp
         />
         {unknownLinkService && (
           <Text size="xs" opacity={0.6} c="var(--mantine-color-red-5)">
-            WARNING: unrecognized service. Embeds will not work
+            {t('post.create.unrecognizedServiceWarning')}
           </Text>
         )}
         <TextInput label="Content" {...postCreateForm.getInputProps('base.content')} />
         <Text size="xs" opacity={0.6}>
-          Optional: add a message
+          {t('post.create.contentHelpText')}
         </Text>
         <CategoriesSelect
           {...postCreateForm.getInputProps('categories')}
@@ -194,8 +196,8 @@ export default function CreatePostModal({ opened, onClose }: CreatePostModalProp
         />
         <Space h="md" />
         <FileInput
-          label="Video Upload"
-          placeholder="Select video file"
+          label={t('post.create.videoUploadLabel')}
+          placeholder={t('post.create.videoUploadHelpText')}
           accept="video/mp4,video/mpeg,video/quicktime"
           leftSection={<IconUpload size={16} />}
           value={videoFile}
@@ -207,7 +209,7 @@ export default function CreatePostModal({ opened, onClose }: CreatePostModalProp
           }}
         />
         <Text size="xs" opacity={0.6}>
-          Optional: upload a video (Max 10MB)
+          {t('post.create.videoUploadHelpText')}
         </Text>
 
         <Group justify="end" mt="md">

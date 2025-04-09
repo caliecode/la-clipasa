@@ -1,17 +1,17 @@
 import { ActionIcon, Tooltip } from '@mantine/core'
 import { IconShieldCheck, IconShieldOff } from '@tabler/icons'
 import styles from './buttons.module.css'
+import { useTranslation } from 'react-i18next'
 import { usePostContext } from 'src/components/Post/Post.context'
 import ProtectedComponent from 'src/components/Permissions/ProtectedComponent'
 import { useUpdatePostMutation } from 'src/graphql/gen'
-
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface ModerateButtonProps {}
 
 export default function ModerateButton({}: ModerateButtonProps) {
+  const { t } = useTranslation()
   const { post, setPost, calloutErrors, setCalloutErrors } = usePostContext()
   const [updatePostState, updatePost] = useUpdatePostMutation()
-
   const handleModerateButtonClick = async (e) => {
     e.stopPropagation()
 
@@ -34,7 +34,11 @@ export default function ModerateButton({}: ModerateButtonProps) {
 
   return (
     <ProtectedComponent requiredRole="MODERATOR">
-      <Tooltip label={post.isModerated ? 'Mark as not moderated' : 'Approve'} arrowPosition="center" withArrow>
+      <Tooltip
+        label={post.isModerated ? t('post.buttons.unmoderateTooltip') : t('post.buttons.approveTooltip')}
+        arrowPosition="center"
+        withArrow
+      >
         <ActionIcon
           className={styles.action}
           onClick={handleModerateButtonClick}

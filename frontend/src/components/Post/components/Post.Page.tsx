@@ -15,16 +15,17 @@ import { useCardBackground } from 'src/hooks/post/usePostCardBackground'
 import { usePostsSlice } from 'src/slices/posts'
 import { parseUrl, uiPath } from 'src/ui-paths'
 import { extractGqlErrors } from 'src/utils/errors'
+import { useTranslation } from 'react-i18next'
 import { getPostIdFromRoute, withBaseURL } from 'src/utils/urls'
 
 const SWIPE_THRESHOLD = 50
-
 export const PostPage = () => {
   const { posts, postActions } = usePostsSlice()
   const { post, setPost, setCalloutErrors } = usePostContext()
   const [refreshState, refreshDiscordLink] = useRefreshDiscordLinkMutation()
   const [refreshed, setRefreshed] = useState(false)
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const location = useLocation()
 
   const currentIndex = posts.findIndex((p) => p.id === post.id)
@@ -142,10 +143,10 @@ export const PostPage = () => {
             variant="light"
             leftSection={<IconArrowLeft size={16} />}
           >
-            Back to list view
+            {t('post.backToList')}
           </Button>
         </Group>
-      )}
+      )}{' '}
       <Space h="sm" />
       <Group gap={0} align="stretch" wrap="nowrap">
         {!isSharedPost && !isMobile && (
@@ -157,10 +158,10 @@ export const PostPage = () => {
               h="100%"
               onClick={() => previousPost && setPost(previousPost)}
               disabled={!previousPost}
-              aria-label="Previous Post"
+              aria-label={t('post.previousPostAriaLabel')}
               p={4}
             >
-              <IconChevronLeft />
+              <IconChevronLeft />{' '}
             </Button>
           </Container>
         )}
@@ -244,15 +245,14 @@ export const PostPage = () => {
               h="100%"
               onClick={() => nextPost && setPost(nextPost)}
               disabled={!nextPost}
-              aria-label="Next Post"
+              aria-label={t('post.nextPostAriaLabel')}
               p={4}
             >
-              <IconChevronRight />
+              <IconChevronRight />{' '}
             </Button>
           </Container>
         )}
       </Group>
-
       <Space h="md" />
       <PostEmbed inline />
     </Container>

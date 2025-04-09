@@ -3,6 +3,7 @@ import { IconForbid, IconX } from '@tabler/icons'
 import { QueryClient, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 import Cookies from 'js-cookie'
+import { useTranslation } from 'react-i18next'
 import { useEffect, useRef, useState } from 'react'
 import { AxiosApiError, AXIOS_INSTANCE, UrqlApiError } from 'src/api/backend-mutator'
 import { useMeQuery } from 'src/graphql/gen'
@@ -17,6 +18,7 @@ import { useIsFirstRender } from 'usehooks-ts'
 let isFirstRender = false
 
 export default function useAuthenticatedUser() {
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const { user, actions } = useAuthSlice()
   const [failedAuthentication, setFailedAuthentication] = useState(false)
@@ -45,15 +47,14 @@ export default function useAuthenticatedUser() {
   useEffect(() => {
     if (failedAuthentication) {
       notifications.show({
-        id: ToastId.AuthnError,
-        title: `Login error`,
+        id: ToastId.AuthnError, // Keep specific ID
+        title: t('notifications.loginErrorTitle'),
         color: 'red',
         icon: <IconX size="1.2rem" />,
-        autoClose: 15000,
+        autoClose: 15000, // Consider making this configurable or shorter
         message: `We're having trouble login you in from your previous session. Please log in again`,
       })
     }
-
     AxiosInterceptors.setupAxiosInstance(AXIOS_INSTANCE, ui.accessToken)
 
     return () => {

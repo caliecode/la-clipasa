@@ -14,9 +14,9 @@ import { useNavigate } from 'react-router-dom'
 import HttpStatus from 'src/utils/httpStatus'
 import classes from './ErrorPage.module.css'
 import { Authorization } from 'src/services/authorization'
+import { useTranslation } from 'react-i18next'
 import { sentenceCase } from 'src/utils/strings'
 import { upperFirst } from 'lodash'
-
 interface ErrorPageProps {
   status: number
   authResult?: Authorization
@@ -44,6 +44,8 @@ export function ErrorPage({ status, authResult, text }: ErrorPageProps) {
   if (text) {
     _text = text
   }
+
+  const { t } = useTranslation()
 
   return (
     <Flex direction={'column'} align={'center'} className={classes.root}>
@@ -76,7 +78,7 @@ export function ErrorPage({ status, authResult, text }: ErrorPageProps) {
             navigate(-1)
           }}
         >
-          Take me back to the previous page
+          {t('errorPage.backPreviousButton')}
         </Button>
       </Group>
     </Flex>

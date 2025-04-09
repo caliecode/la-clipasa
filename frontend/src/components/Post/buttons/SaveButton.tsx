@@ -3,6 +3,7 @@ import { IconBookmark } from '@tabler/icons'
 import { useContext, useEffect, useState } from 'react'
 import { usePostsSlice } from 'src/slices/posts'
 import ProtectedComponent from 'src/components/Permissions/ProtectedComponent'
+import { useTranslation } from 'react-i18next'
 import { useUpdatePostMutation, useUpdateUserMutation } from 'src/graphql/gen'
 import { usePostContext } from 'src/components/Post/Post.context'
 import styles from './buttons.module.css'
@@ -13,6 +14,7 @@ interface SaveButtonProps {}
 
 export default function SaveButton({}: SaveButtonProps) {
   const { post } = usePostContext()
+  const { t } = useTranslation()
 
   const [, updateUser] = useUpdateUserMutation()
   const [saveBeacon, setSaveBeacon] = useState(false)
@@ -40,7 +42,7 @@ export default function SaveButton({}: SaveButtonProps) {
 
   return (
     <ProtectedComponent requiredRole="GUEST">
-      <Tooltip label="Bookmark" arrowPosition="center" withArrow>
+      <Tooltip label={t('post.buttons.bookmarkTooltip')} arrowPosition="center" withArrow>
         <ActionIcon
           className={`${isSaved && styles.savedAction} ${styles.action} ${saveBeacon ? styles.beacon : ''}`}
           onClick={handleSaveButtonClick}

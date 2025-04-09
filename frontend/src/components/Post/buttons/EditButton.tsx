@@ -2,6 +2,7 @@ import { ActionIcon, Tooltip, useMantineTheme } from '@mantine/core'
 import { IconEdit } from '@tabler/icons'
 import { useQueryClient } from '@tanstack/react-query'
 import { usePostsSlice } from 'src/slices/posts'
+import { useTranslation } from 'react-i18next'
 import styles from './buttons.module.css'
 import ProtectedComponent from 'src/components/Permissions/ProtectedComponent'
 import { usePostContext } from 'src/components/Post/Post.context'
@@ -15,6 +16,7 @@ import { PaginatedPostResponse } from 'src/graphql/extended-types'
 interface EditButtonProps {}
 
 export default function EditButton({}: EditButtonProps) {
+  const { t } = useTranslation()
   const theme = useMantineTheme()
   const { user } = useAuthenticatedUser()
   const [opened, { open, close }] = useDisclosure(false)
@@ -39,7 +41,7 @@ export default function EditButton({}: EditButtonProps) {
 
   return (
     <>
-      <Tooltip label={'Edit'} arrowPosition="center" withArrow>
+      <Tooltip label={t('common.edit')} arrowPosition="center" withArrow>
         <ActionIcon className={styles.action} onClick={handleEditButtonClick}>
           <IconEdit size={16} color={theme.colors.blue[4]} stroke={1.5} />
         </ActionIcon>

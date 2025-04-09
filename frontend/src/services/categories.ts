@@ -33,13 +33,12 @@ export const PostCategoryNamesOnCreate: Partial<typeof PostCategoryNames> = {
   RAGUUUL: 'RAGUUUL',
 }
 
-// must be subset of PostCategoryCategory
 export type UniqueCategories = Record<Extract<PostCategoryCategory, 'DIAMANTE' | 'RANA' | 'ORO'>, string>
 
 /**
  * Restricted to 1 per post.
  */
-export const uniqueCategories: UniqueCategories = {
+export const uniqueCategories: Partial<Record<PostCategoryCategory, string>> = {
   DIAMANTE: '',
   ORO: '',
   RANA: '',

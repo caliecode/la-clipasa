@@ -1,13 +1,14 @@
 import { Avatar, Flex, Group, Text } from '@mantine/core'
 import { useContext } from 'react'
 import { nameInitials } from 'src/utils/strings'
-import { showRelativeTimestamp } from 'src/utils/date'
 import dayjs from 'dayjs'
 import { usePostContext } from 'src/components/Post/Post.context'
 import { withBaseURL } from 'src/utils/urls'
+import { useRelativeTimestamp } from 'src/utils/date'
 
 export const PostMetadata = () => {
   const { post } = usePostContext()
+  const { showRelativeTimestamp } = useRelativeTimestamp()
 
   return (
     <Group>

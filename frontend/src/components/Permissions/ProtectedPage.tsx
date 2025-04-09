@@ -1,5 +1,6 @@
 import { Flex, Text } from '@mantine/core'
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import InfiniteLoader from 'src/components/Loading/InfiniteLoader'
 import useAuthenticatedUser from 'src/hooks/auth/useAuthenticatedUser'
 import { ErrorPage } from 'src/components/ErrorPage/ErrorPage'
@@ -12,9 +13,9 @@ type ProtectedPageProps = {
 }
 
 export default function ProtectedPage({ children, authResult }: ProtectedPageProps) {
+  const { t } = useTranslation()
   const { isAuthenticating } = useAuthenticatedUser()
   const [dotCount, setDotCount] = useState(1)
-
   useEffect(() => {
     const intervalId = setInterval(() => {
       setDotCount((prevCount) => (prevCount % 3) + 1)
@@ -28,7 +29,8 @@ export default function ProtectedPage({ children, authResult }: ProtectedPagePro
       <Flex p={50} direction={'column'} justify="center" align="center">
         <InfiniteLoader />
         <Text pt={20} size="lg">
-          Authenticating user{'.'.repeat(dotCount)}
+          {t('common.authenticatingUser')}
+          {'.'.repeat(dotCount)}
         </Text>
       </Flex>
     )

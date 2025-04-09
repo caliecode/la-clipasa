@@ -1,5 +1,6 @@
 import { Alert, List } from '@mantine/core'
 import { IconAlertCircle } from '@tabler/icons'
+import { useTranslation } from 'react-i18next'
 
 interface ErrorCalloutProps {
   title: string
@@ -8,7 +9,6 @@ interface ErrorCalloutProps {
 
 export default function ErrorCallout({ title, errors }: ErrorCalloutProps) {
   if (!errors || errors.length === 0 || !title) return null
-
   return (
     <Alert mb={12} icon={<IconAlertCircle size={16} />} title={title} color="red">
       {errors && (

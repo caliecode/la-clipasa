@@ -3,6 +3,7 @@ import { openConfirmModal } from '@mantine/modals'
 import { showNotification } from '@mantine/notifications'
 import { IconTrash, IconRefresh } from '@tabler/icons'
 import { InfiniteData, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { useContext, useState } from 'react'
 import useAuthenticatedUser from 'src/hooks/auth/useAuthenticatedUser'
 import { usePostsSlice } from 'src/slices/posts'
@@ -15,6 +16,7 @@ import { checkAuthorization } from 'src/services/authorization'
 interface DeleteButtonButtonProps {}
 
 export default function DeleteButton({}: DeleteButtonButtonProps) {
+  const { t } = useTranslation()
   const { post, setPost } = usePostContext()
   const [deletePostMutation, deletePost] = useDeletePostMutation()
   const { user, isAuthenticated } = useAuthenticatedUser()
@@ -31,7 +33,7 @@ export default function DeleteButton({}: DeleteButtonButtonProps) {
     if (r.error) {
       showNotification({
         id: 'post-restore-error',
-        title: 'Error restoring post',
+        title: t('notifications.postRestoreErrorTitle'),
         message: r.error.message,
         color: 'red',
         icon: <IconRefresh size={18} />,
@@ -54,8 +56,8 @@ export default function DeleteButton({}: DeleteButtonButtonProps) {
       .then(() => {
         showNotification({
           id: 'post-deleted',
-          title: 'Post deleted',
-          message: 'Post deleted successfully',
+          title: t('notifications.postDeletedTitle'),
+          message: t('notifications.postDeletedMessage'),
           color: 'yellow',
           icon: <IconTrash size={18} />,
           autoClose: 3000,
@@ -69,7 +71,7 @@ export default function DeleteButton({}: DeleteButtonButtonProps) {
       .catch((error) => {
         showNotification({
           id: 'post-delete-error',
-          title: 'Error deleting post',
+          title: t('notifications.postDeleteErrorTitle'),
           message: error.message,
           color: 'red',
           icon: <IconTrash size={18} />,
@@ -79,10 +81,10 @@ export default function DeleteButton({}: DeleteButtonButtonProps) {
   }
 
   return (
-    <Tooltip label={post.deletedAt ? 'Restore' : 'Delete'} arrowPosition="center" withArrow>
+    <Tooltip label={post.deletedAt ? t('common.restore') : t('common.delete')} arrowPosition="center" withArrow>
       {post.deletedAt ? (
         <ActionIcon onClick={handleRestoreButtonClick} className={styles.action} loading={deletePostMutation.fetching}>
-          <IconRefresh size={16} color={theme.colors.green[6]} stroke={1.5} />
+          <IconRefresh size={16} color={theme.colors.green[6]} stroke={1.5} />{' '}
         </ActionIcon>
       ) : (
         <ActionIcon onClick={handleDeleteButtonClick} className={styles.action} loading={deletePostMutation.fetching}>

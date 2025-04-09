@@ -16,6 +16,7 @@ import { Post } from 'src/components/Post/components/Post'
 import { PostModal } from 'src/components/Post/components/Post.Modal'
 import { useCardBackground } from 'src/hooks/post/usePostCardBackground'
 import { getServiceAndId } from 'src/services/linkServices'
+import { useTranslation } from 'react-i18next'
 
 type PostCardProps = {
   className?: string
@@ -24,6 +25,7 @@ type PostCardProps = {
 
 export const PostCard = ({ className, backgroundImage, ...htmlProps }: PostCardProps) => {
   const { post } = usePostContext()
+  const { t } = useTranslation()
   const { colorScheme } = useMantineColorScheme()
   const [fullScreenModal, setFullScreenModal] = useState(false)
   const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false)
@@ -65,7 +67,7 @@ export const PostCard = ({ className, backgroundImage, ...htmlProps }: PostCardP
           <Post />
 
           {getServiceAndId(post.link).service !== 'unknown' && (
-            <Tooltip label="Preview post" withArrow>
+            <Tooltip label={t('post.previewTooltip')} withArrow>
               <ActionIcon
                 variant="filled"
                 size="md"

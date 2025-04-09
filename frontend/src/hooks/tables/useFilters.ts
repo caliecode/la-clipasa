@@ -1,9 +1,11 @@
 import { pluralize } from 'inflection'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 const DELETED_ENTITY_FILTER_STATES = [null, true, false]
 
 export const useDeletedEntityFilter = (entity: string) => {
+  const { t } = useTranslation()
   const [deletedEntityFilter, setDeletedEntityFilter] = useState(0)
 
   const toggleDeletedUsersFilter = () => {
@@ -14,11 +16,11 @@ export const useDeletedEntityFilter = (entity: string) => {
   const getLabelText = () => {
     switch (DELETED_ENTITY_FILTER_STATES[deletedEntityFilter]) {
       case null:
-        return `Showing all ${pluralize(entity)}`
+        return t('common.filters.showingAll', { entity: pluralize(entity) })
       case true:
-        return `Showing deleted ${pluralize(entity)} only`
+        return t('common.filters.showingDeletedOnly', { entity: pluralize(entity) })
       case false:
-        return `Hiding deleted ${pluralize(entity)}`
+        return t('common.filters.hidingDeleted', { entity: pluralize(entity) })
       default:
         return ''
     }

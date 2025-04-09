@@ -16,6 +16,7 @@ import { IconArrowUp } from '@tabler/icons-react'
 import { parseUrl, uiPath } from 'src/ui-paths'
 import { useLocation } from 'react-router-dom'
 import { PostContextType } from 'src/components/Post/Post.context'
+import { useTranslation } from 'react-i18next'
 import { PostPage } from 'src/components/Post/components/Post.Page'
 import { getPostIdFromRoute, withBaseURL } from 'src/utils/urls'
 import { PostSkeleton } from 'src/components/Post/components/Post.Skeleton'
@@ -32,6 +33,7 @@ export default function LandingPage() {
   const [showBackToTop, setShowBackToTop] = useState(false)
   const [activePostId, setActivePostId] = useState(getPostIdFromRoute())
   const location = useLocation()
+  const { t } = useTranslation()
 
   const [posts, refetchPosts] = usePostsQuery({
     variables: activePostId && isSharedPost ? { where: { id: activePostId } } : queryParams,
@@ -128,7 +130,7 @@ export default function LandingPage() {
           <Group justify="center">
             {totalCount !== undefined ? (
               <Text size="sm" fw={500} c="dimmed">
-                Found {totalCount} post{totalCount === 1 ? '' : 's'}
+                {t('landingPage.postsFound', { count: totalCount })}
               </Text>
             ) : null}
             <Virtuoso

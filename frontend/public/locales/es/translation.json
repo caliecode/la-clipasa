@@ -1,0 +1,245 @@
+{
+  "time": {
+    "justNow": "Justo ahora",
+    "minutesAgo_one": "hace {{count}} minuto",
+    "minutesAgo_other": "hace {{count}} minutos",
+    "hoursAgo_one": "hace {{count}} hora",
+    "hoursAgo_other": "hace {{count}} horas",
+    "daysAgo_one": "hace {{count}} día",
+    "daysAgo_other": "hace {{count}} días"
+  },
+  "common": {
+    "submit": "Enviar",
+    "cancel": "Cancelar",
+    "update": "Actualizar",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "restore": "Restaurar",
+    "share": "Compartir",
+    "copied": "¡Copiado!",
+    "login": "Iniciar sesión",
+    "logout": "Cerrar sesión",
+    "all": "Todo",
+    "categories": "Categorías",
+    "selectCategories": "Seleccionar categorías",
+    "noMatches": "No hay coincidencias",
+    "typeToSearch": "Escribe para buscar",
+    "showingResults": "Mostrando {{count}} de {{total}} resultados",
+    "error": "Error",
+    "unknownError": "Ocurrió un error desconocido",
+    "validationError": "Error de validación",
+    "unauthenticated": "No autenticado",
+    "unauthorized": "No autorizado",
+    "errorUpdatingPost": "Error al actualizar la publicación",
+    "missingRole": "Falta el rol {{role}}",
+    "authenticatingUser": "Autenticando usuario",
+    "filters": {
+      "showingAll": "Mostrando todos {{entity}}",
+      "showingDeletedOnly": "Mostrando solo {{entity}} eliminados",
+      "hidingDeleted": "Ocultando {{entity}} eliminados",
+      "filterValues": "Filtrar valores",
+      "searchLabel": "Búsqueda",
+      "clearSearch": "Limpiar búsqueda",
+      "clearFilters": "Limpiar filtros",
+      "filterByPlaceholder": "Filtrar por {{column}}",
+      "min": "Mín",
+      "max": "Máx",
+      "minDate": "Fecha mín",
+      "maxDate": "Fecha máx",
+      "extraMode": "Modo extra",
+      "between": "Entre",
+      "betweenInclusive": "Entre (incl.)",
+      "empty": "Está vacío",
+      "notEmpty": "No está vacío",
+      "equals": "Igual a",
+      "notEquals": "No igual a",
+      "greaterThan": "Mayor que",
+      "greaterThanOrEqualTo": "Mayor o igual que",
+      "lessThan": "Menor que",
+      "lessThanOrEqualTo": "Menor o igual que",
+      "contains": "Contiene",
+      "startsWith": "Empieza por",
+      "endsWith": "Termina por",
+      "fuzzy": "Aproximado"
+    },
+    "table": {
+      "showActionsTooltip": "Mostrar acciones",
+      "messageMembers": "Enviar mensaje a miembros"
+    }
+  },
+  "layout": {
+    "pageTitle": "La Clipasa",
+    "pageDescription": "El mejor evento de todo Twitch International",
+    "pageMetaTitle": "La Clipasa - Caliebre",
+    "closeNavigation": "Cerrar navegación",
+    "openNavigation": "Abrir navegación",
+    "loggingIn": "Iniciando sesión...",
+    "loggingOut": "Cerrando sesión...",
+    "userManagement": "Gestión de usuarios",
+    "contribute": "Contribuye a La Clipasa",
+    "accountSettings": "Ajustes de cuenta",
+    "broadcasterToken": "Token de Broadcaster",
+    "footer": {
+      "madeWithLove": "Hecho con <0></0> para <2>caliebre</2>",
+      "followTwitter": "Sigue a caliebre en Twitter",
+      "followYoutube": "Sigue a caliebre en YouTube",
+      "followInstagram": "Sigue a caliebre en Instagram",
+      "followTwitch": "Sigue a caliebre en Twitch"
+    }
+  },
+  "broadcasterTokenModal": {
+    "title": "Generar Token de Autenticación",
+    "description": "Serás redirigido para autenticarte y generar tokens seguros. Estos tokens otorgan acceso a funciones sensibles y deben mantenerse privados.",
+    "confirmPrompt": "¿Deseas continuar?"
+  },
+  "landingPage": {
+    "postsFound_one": "{{count}} publicación encontrada",
+    "postsFound_other": "{{count}} publicaciones encontradas",
+    "backToTop": "Volver arriba"
+  },
+  "post": {
+    "previewTooltip": "Previsualizar publicación",
+    "commentsCount_one": "{{count}} comentario",
+    "commentsCount_other": "{{count}} comentarios",
+    "backToList": "Volver a la lista",
+    "previousPostAriaLabel": "Publicación anterior",
+    "nextPostAriaLabel": "Publicación siguiente",
+    "create": {
+      "modalTitle": "Crear nueva publicación",
+      "titlePlaceholder": "Introduce un título con emotes como calieAMOR2",
+      "helpText": "Puedes usar emotes del canal",
+      "unrecognizedServiceWarning": "ADVERTENCIA: servicio no reconocido. Los embeds podrían no funcionar.",
+      "contentHelpText": "Opcional: añade un mensaje",
+      "videoUploadLabel": "Subir un vídeo",
+      "videoUploadHelpText": "Opcional: sube un vídeo (Máx 10MB)",
+      "failedToCreate": "Fallo al crear la publicación"
+    },
+    "edit": {
+      "modalTitle": "Editar publicación",
+      "videoReplaceHelpText": "Opcional: reemplaza el vídeo actual (Máx 10MB)",
+      "failedToUpdate": "Fallo al actualizar la publicación"
+    },
+    "fields": {
+      "title": "Título",
+      "link": "Enlace",
+      "content": "Contenido",
+      "categories": "Categorías"
+    },
+    "filters": {
+      "activeCategoryFilters": "Filtros de categoría activos",
+      "filterByCategory": "Filtrar por categoría",
+      "submitPost": "Crear publicación",
+      "moderation": {
+        "title": "Filtros de moderador",
+        "statusLabel": "Estado de moderación",
+        "moderated": "Moderado",
+        "notModerated": "No moderado",
+        "statusPlaceholder": "Seleccionar publicaciones a mostrar",
+        "deletion": {
+          "showAll": "Mostrar todas las publicaciones",
+          "excludeDeleted": "Excluir publicaciones eliminadas",
+          "showDeletedOnly": "Mostrar solo publicaciones eliminadas",
+          "label": "Estado de eliminación",
+          "placeholder": "Seleccionar estado de eliminación"
+        }
+      },
+      "personal": {
+        "title": "Filtros personales",
+        "liked": "Me gusta",
+        "saved": "Guardado",
+        "myPosts": "Mis publicaciones"
+      },
+      "search": {
+        "placeholder": "Filtrar por título, enlace o contenido",
+        "authorLabel": "Seleccionar autor",
+        "authorLoadingPlaceholder": "Cargando autor...",
+        "authorSearchPlaceholder": "Buscar autores",
+        "fromDate": "Desde fecha",
+        "toDate": "Hasta fecha",
+        "datePlaceholder": "Seleccionar fecha"
+      },
+      "sort": {
+        "label": "Ordenar por",
+        "placeholder": "Seleccionar ordenación",
+        "toggleDirectionTooltip": "Cambiar dirección de ordenación",
+        "creationDate_asc": "Fecha de creación (más antiguas primero)",
+        "creationDate_desc": "Fecha de creación (más nuevas primero)",
+        "lastSeen_asc": "Desde la última vista (fecha creación asc.)",
+        "lastSeen_desc": "Desde la última vista (fecha creación desc.)",
+        "mostLiked": "Más Me gusta"
+      }
+    },
+    "buttons": {
+      "editCategoriesTooltip": "Editar categorías",
+      "markLastSeenTooltip": "Marcar como última vista",
+      "likeTooltip": "Me gusta",
+      "bookmarkTooltip": "Guardar",
+      "unmoderateTooltip": "Marcar como no moderado",
+      "approveTooltip": "Aprobar"
+    }
+  },
+  "userPermissions": {
+    "title": "Permisos de usuario",
+    "selectUserLabel": "Seleccionar usuario",
+    "searchUserPlaceholder": "Buscar usuarios",
+    "updateRoleLabel": "Actualizar rol",
+    "updateAuthButton": "Actualizar ajustes de autorización",
+    "confirmModal": {
+      "title": "Actualizar información de autenticación",
+      "body": "Estás a punto de actualizar la información de autenticación para <1>{{displayName}}</1>. <3>¿Estás seguro de que quieres hacer esto?</3>"
+    }
+  },
+  "notifications": {
+    "loginErrorTitle": "Error de inicio de sesión",
+    "loginErrorMessage": "Estamos teniendo problemas para iniciar sesión desde tu sesión anterior. Por favor, inicia sesión de nuevo.",
+    "userUpdateErrorTitle": "Error al actualizar usuario",
+    "userUpdateRoleErrorMessage": "No se pudo actualizar el rol del usuario",
+    "userUpdateRoleSuccessMessage": "Rol de usuario actualizado correctamente",
+    "postCreatedTitle": "Publicación creada",
+    "postCreatedMessage": "Publicación creada correctamente",
+    "postUpdatedTitle": "Publicación actualizada",
+    "postUpdatedMessage": "Publicación actualizada correctamente",
+    "postRestoreErrorTitle": "Error al restaurar publicación",
+    "postDeletedTitle": "Publicación eliminada",
+    "postDeletedMessage": "Publicación eliminada correctamente",
+    "postDeleteErrorTitle": "Error al eliminar publicación",
+    "postLikeError": "No se pudo dar Me gusta a la publicación",
+    "postUnlikeError": "No se pudo quitar el Me gusta de la publicación",
+    "testNotificationTitle": "¡Hola mundo!",
+    "testNotificationBody": "Notificación push.\n\nUsa esto para probar el sistema de notificaciones.",
+    "accessDeniedTitle": "Acceso a notificaciones denegado",
+    "accessDeniedMessage": "Por favor, habilítalo a través de \"Ver información del sitio\" en el icono 🛈 de la barra superior"
+  },
+  "errorPage": {
+    "backHomeButton": "Llévame a la página de inicio",
+    "backPreviousButton": "Llévame a la página anterior",
+    "unknown": {
+      "description": "Ocurrió un error desconocido."
+    },
+    "status404": {
+      "description": "Puede que hayas escrito mal la dirección, o que la página se haya movido a otra URL."
+    },
+    "status403": {
+      "description": "No tienes los permisos necesarios para acceder a este contenido."
+    },
+    "status401": {
+      "description": "Necesitas iniciar sesión antes de acceder a este contenido."
+    },
+    "status418": {
+      "description": "Soy una tetera"
+    }
+  },
+  "validation": {
+    "title": {
+      "required": "El título no puede estar vacío",
+      "maxLength": "El título puede tener como máximo {{count}} caracteres."
+    },
+    "link": {
+      "invalidUrl": "El enlace no es una URL válida",
+      "maxLength": "El enlace puede tener como máximo {{count}} caracteres."
+    },
+    "content": {
+      "maxLength": "El mensaje puede tener como máximo {{count}} caracteres."
+    }
+  }
+}

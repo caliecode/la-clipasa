@@ -7,6 +7,7 @@ import { IUser } from 'src/types/ui'
 import { usePostsSlice } from 'src/slices/posts'
 import { DatePickerInput } from '@mantine/dates'
 import { useUsersQuery } from 'src/graphql/gen'
+import { useTranslation } from 'react-i18next'
 
 const DEBOUNCE_DELAY_MS = 300
 
@@ -16,6 +17,7 @@ type SearchFiltersProps = {
 }
 
 export default function SearchFilters({ searchInputValue, setSearchInputValue }: SearchFiltersProps): JSX.Element {
+  const { t } = useTranslation()
   const { queryParams, postActions } = usePostsSlice()
   const [debouncedSearchValue] = useDebouncedValue(searchInputValue, DEBOUNCE_DELAY_MS)
 
@@ -96,9 +98,9 @@ export default function SearchFilters({ searchInputValue, setSearchInputValue }:
   return (
     <>
       <TextInput
-        label="Search"
+        label={t('common.filters.searchLabel')}
         id="post-search-box"
-        placeholder="Filter by title, link or content"
+        placeholder={t('post.filters.search.placeholder')}
         // rightSection={postActions.fetching && <Loader size={18} />}
         value={searchInputValue}
         onChange={(e) => setSearchInputValue(e.target.value)}
@@ -108,16 +110,20 @@ export default function SearchFilters({ searchInputValue, setSearchInputValue }:
       <UserCombobox
         onChange={handleUserSelect}
         value={selectedUser}
-        label="Select author"
-        placeholder={fetchingUser ? 'Loading author...' : 'Search authors'}
+        label={t('post.filters.search.authorLabel')}
+        placeholder={
+          fetchingUser
+            ? t('post.filters.search.authorLoadingPlaceholder')
+            : t('post.filters.search.authorSearchPlaceholder')
+        }
         disabled={fetchingUser}
       />
 
       <Flex mt={10} gap="md" h="100%" justify="space-between" align="start" direction="row" wrap="wrap">
         <DatePickerInput
-          label="From date"
+          label={t('post.filters.search.fromDate')}
           highlightToday
-          placeholder="Select start date"
+          placeholder={t('post.filters.search.datePlaceholder')}
           value={dateRange?.[0] || null}
           onChange={(value) => setDateRange([value, dateRange?.[1] || null])}
           leftSection={<IconCalendar size={16} />}
@@ -126,9 +132,9 @@ export default function SearchFilters({ searchInputValue, setSearchInputValue }:
           style={{ flex: 1, minWidth: '45%' }}
         />
         <DatePickerInput
-          label="To date"
+          label={t('post.filters.search.toDate')}
           highlightToday
-          placeholder="Select end date"
+          placeholder={t('post.filters.search.datePlaceholder')}
           value={dateRange?.[1] || null}
           onChange={(value) => setDateRange([dateRange?.[0] || null, value])}
           leftSection={<IconCalendar size={16} />}

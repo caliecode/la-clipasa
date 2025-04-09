@@ -13,11 +13,13 @@ import ModerationFilters from 'src/components/PostFilters/ModerationFilters'
 import PersonalFilters from 'src/components/PostFilters/PersonalFilters'
 import SearchFilters from 'src/components/PostFilters/SearchFilters'
 import SortSelect from 'src/components/PostFilters/SortFilter'
+import { useTranslation } from 'react-i18next'
 
 type PostFiltersProps = HTMLProps<HTMLDivElement>
 
 export default function PostFilters(props: PostFiltersProps): JSX.Element {
   const { ...htmlProps } = props
+  const { t } = useTranslation()
   const [newPostModalOpened, setNewPostModalOpened] = useState(false)
   const { isAuthenticated, user, isAuthenticating } = useAuthenticatedUser()
   const textQuery = usePostsSlice((state) => state.queryParams.where?.titleContains)
@@ -40,7 +42,7 @@ export default function PostFilters(props: PostFiltersProps): JSX.Element {
                 style={{ flex: 1 }}
                 onClick={() => setNewPostModalOpened(true)}
               >
-                Submit post
+                {t('post.filters.submitPost')}
               </Button>
             </Group>
           )}

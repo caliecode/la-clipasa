@@ -3,6 +3,7 @@ import { UserRole } from 'src/graphql/gen'
 import useAuthenticatedUser from 'src/hooks/auth/useAuthenticatedUser'
 import { apiPath } from 'src/services/apiPaths'
 import { joinWithAnd } from 'src/utils/format'
+import { useTranslation } from 'react-i18next' // Import useTranslation
 import { keys } from 'src/utils/object'
 
 interface CheckAuthorizationParams {
@@ -24,10 +25,9 @@ export function checkAuthorization({ user, requiredRole = null }: CheckAuthoriza
   }
 
   if (!user) {
-    result.errorMessage = 'User not authenticated. Please log in'
+    result.errorMessage = 'User not authenticated. Please log in' // Use t() here if needed externally
     return result
   }
-
   if (requiredRole !== null) {
     if (ROLES[user.role].rank < ROLES[requiredRole].rank) {
       result.missingRole = requiredRole
@@ -60,11 +60,12 @@ export const redirectToBroadcasterAuthLogin = () => {
   )
 }
 const getUnauthorizedMessage = (authResult: Authorization): string => {
+  // Assuming this is primarily for internal use or ErrorPage component handles translation
   if (!authResult.authorized) {
     const messages: string[] = []
 
     if (authResult.missingRole) {
-      messages.push(`missing role ${authResult.missingRole}`)
+      messages.push(`missing role ${authResult.missingRole}`) // Could use t('common.missingRole', { role: authResult.missingRole })
     }
 
     return joinWithAnd(messages)

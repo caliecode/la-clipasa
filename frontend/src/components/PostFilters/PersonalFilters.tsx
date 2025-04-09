@@ -2,6 +2,7 @@ import { Card, Chip, Flex, Text, useMantineTheme } from '@mantine/core'
 import { IconBookmark, IconHeart } from '@tabler/icons'
 import { usePostsSlice } from 'src/slices/posts'
 import styles from './PostFilters.module.css'
+import { useTranslation } from 'react-i18next'
 
 type PersonalFiltersProps = {
   userId: string | undefined
@@ -10,6 +11,7 @@ type PersonalFiltersProps = {
 export default function PersonalFilters({ userId }: PersonalFiltersProps): JSX.Element {
   const { queryParams, postActions } = usePostsSlice()
   const theme = useMantineTheme()
+  const { t } = useTranslation()
 
   const withLikedFilter = queryParams.where?.hasLikedByWith?.some((u) => u.id === userId)
   const withSavedFilter = queryParams.where?.hasSavedByWith?.some((u) => u.id === userId)
@@ -18,7 +20,7 @@ export default function PersonalFilters({ userId }: PersonalFiltersProps): JSX.E
   return (
     <Card.Section className={styles.section}>
       <Text mt="md" className={styles.label} c="dimmed">
-        Personal filters
+        {t('post.filters.personal.title')}
       </Text>
       <Flex mt={10} gap="md" justify="center" align="center" direction="row" wrap="wrap">
         <Chip
@@ -39,7 +41,7 @@ export default function PersonalFilters({ userId }: PersonalFiltersProps): JSX.E
             />
           }
         >
-          Liked
+          {t('post.filters.personal.liked')}
         </Chip>
         <Chip
           variant="filled"
@@ -59,7 +61,7 @@ export default function PersonalFilters({ userId }: PersonalFiltersProps): JSX.E
             />
           }
         >
-          Saved
+          {t('post.filters.personal.saved')}
         </Chip>
         <Chip
           variant="filled"
@@ -71,7 +73,7 @@ export default function PersonalFilters({ userId }: PersonalFiltersProps): JSX.E
             })
           }
         >
-          My posts
+          {t('post.filters.personal.myPosts')}
         </Chip>
       </Flex>
     </Card.Section>

@@ -4,10 +4,12 @@ import { AxiosApiError, ApiHTTPError } from 'src/api/backend-mutator'
 import { type CalloutError, useFormSlice } from 'src/slices/form'
 import type { AppError } from 'src/types/ui'
 import { entries } from 'src/utils/object'
+import { useTranslation } from 'react-i18next'
 
 const unknownError = 'An unknown error ocurred'
 
 export const useCalloutErrors = (formName: string) => {
+  const { t } = useTranslation()
   const formSlice = useFormSlice()
   const form = useFormSlice((state) => state.form[formName])
   const calloutErrors = useFormSlice((state) => state.form[formName]?.calloutErrors)
@@ -89,7 +91,7 @@ export const useCalloutErrors = (formName: string) => {
     }
 
     // errors unrelated to api calls and validation
-    return unknownError
+    return t('common.unknownError')
   }
 
   return {

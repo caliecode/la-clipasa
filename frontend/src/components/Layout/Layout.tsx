@@ -67,6 +67,8 @@ import homeBackground from 'src/assets/img/background-la-clipassa.jpg'
 import styles from './Layout.module.css'
 import PostFilters from 'src/components/PostFilters/PostFilters'
 import { withBaseURL } from 'src/utils/urls'
+import { useTranslation } from 'react-i18next'
+import LanguageToggle from 'src/components/LanguageToggle'
 
 type LayoutProps = {
   children: React.ReactElement
@@ -75,6 +77,7 @@ type LayoutProps = {
 export default function Layout({ children }: LayoutProps) {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [avatarMenuOpened, { toggle }] = useDisclosure(false)
   const [userMenuOpened, setUserMenuOpened] = useState(false)
   const { user, isAuthenticating } = useAuthenticatedUser()
@@ -91,7 +94,7 @@ export default function Layout({ children }: LayoutProps) {
 
   const [logo, setLogo] = useState<string>(colorScheme === 'dark' ? logoDark : logoLight)
   const ui = useUISlice()
-  const title = burgerOpened ? 'Close navigation' : 'Open navigation'
+  const title = burgerOpened ? t('layout.closeNavigation') : t('layout.openNavigation')
 
   useEffect(() => {
     setLogo(colorScheme === 'dark' ? logoDark : logoLight)
@@ -107,11 +110,10 @@ export default function Layout({ children }: LayoutProps) {
       return (
         <Group gap={'md'} align="center">
           <Loader size={'sm'} variant="dots"></Loader>
-          {isAuthenticating && <Text>Logging in...</Text>}
-          {ui.isLoggingOut && <Text>Logging out...</Text>}
+          {isAuthenticating && <Text>{t('layout.loggingIn')}</Text>}
+          {ui.isLoggingOut && <Text>{t('layout.loggingOut')}</Text>}
         </Group>
       )
-
     return user ? (
       <UnstyledButton className={cx(styles.user, { [styles.userActive as string]: userMenuOpened })}>
         <Group gap={'xs'} m={4} align="center">
@@ -130,11 +132,11 @@ export default function Layout({ children }: LayoutProps) {
   return (
     <Fragment>
       <Helmet>
-        <title>La Clipasa</title>
-        <meta name="description" content="El mejor evento de todo Twitch International" title="La Clipasa - Caliebre" />
+        <title>{t('layout.pageTitle')}</title>
+        <meta name="description" content={t('layout.pageDescription')} title={t('layout.pageMetaTitle')} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
-      </Helmet>
+      </Helmet>{' '}
       <Banner />
       <AppShell
         style={{
@@ -187,6 +189,7 @@ export default function Layout({ children }: LayoutProps) {
               <div></div>
             )} */}
             <Group>
+              <LanguageToggle />
               <Menu
                 width={220}
                 position="bottom-end"
@@ -214,30 +217,33 @@ export default function Layout({ children }: LayoutProps) {
                         onClick={() => navigate(uiPath('/admin/users-management'))}
                       >
                         User management
-                      </Menu.Item>
+                      </Menu.Item>{' '}
+                      {t('layout.userManagement')}
                     </>
                   )}
-                  <Menu.Divider />
+                  <Menu.Divider />{' '}
                   <Menu.Item
                     leftSection={<IconBrandGithub size={14} stroke={1.5} />}
                     onClick={() => window.open('https://github.com/caliecode/la-clipasa', '_blank')}
                   >
-                    Contribute to La Clipasa
+                    {t('layout.contribute')}
                   </Menu.Item>
                   <Menu.Divider />
                   <Menu.Label>Settings</Menu.Label>
-                  <Menu.Item leftSection={<IconSettings size={14} stroke={1.5} />}>Account settings</Menu.Item>
+                  <Menu.Item leftSection={<IconSettings size={14} stroke={1.5} />}>
+                    {t('layout.accountSettings')}
+                  </Menu.Item>
                   <Menu.Item
                     onClick={() => openBroadcasterToken()}
                     leftSection={<IconBrandTwitch size={14} stroke={1.5} />}
                   >
-                    Broadcaster token
+                    {t('layout.broadcasterToken')}
                   </Menu.Item>
                   <Menu.Divider />
                   <Menu.Item leftSection={<IconLogout size={14} stroke={1.5} />} onClick={onLogout}>
                     Logout
                   </Menu.Item>
-                </Menu.Dropdown>
+                </Menu.Dropdown>{' '}
               </Menu>
             </Group>
           </Group>
@@ -276,9 +282,10 @@ export default function Layout({ children }: LayoutProps) {
           {user?.twitchInfo?.isBanned ? (
             <ErrorPage status={HttpStatus.I_AM_A_TEAPOT_418} text="You are banned from using this service" />
           ) : (
+            // TODO: Translate this specific ban message
             children
           )}
-        </AppShell.Main>
+        </AppShell.Main>{' '}
         <Drawer
           className={styles.drawer}
           transitionProps={{ transition: 'fade', duration: 200, timingFunction: 'ease' }}
@@ -292,7 +299,6 @@ export default function Layout({ children }: LayoutProps) {
           </Flex>
         </Drawer>
         {/* <AppShell.Aside p="md">Aside</AppShell.Aside> */}
-
         <BroadcasterTokenModal
           isOpen={broadcasterTokenOpened}
           onClose={closeBroadcasterToken}
@@ -317,28 +323,28 @@ export default function Layout({ children }: LayoutProps) {
             </Text>
 
             <Group gap={5} align="end" wrap="nowrap" className={styles.links}>
-              <Tooltip label={`Follow caliebre on Twitter`}>
+              <Tooltip label={t('layout.footer.followTwitter')}>
                 <ActionIcon size="lg" variant="subtle">
                   <a href="https://www.twitter.com/caliebre" target="_blank" rel="noopener noreferrer">
-                    <IconBrandTwitter size={18} stroke={1.5} color="#2d8bb3" />
+                    <IconBrandTwitter size={18} stroke={1.5} color="#2d8bb3" />{' '}
                   </a>
                 </ActionIcon>
               </Tooltip>
-              <Tooltip label={`Follow caliebre on YouTube`}>
+              <Tooltip label={t('layout.footer.followYoutube')}>
                 <ActionIcon size="lg" variant="subtle">
                   <a href="https://youtube.com/caliebre" target="_blank" rel="noopener noreferrer">
                     <IconBrandYoutube size={18} stroke={1.5} color="#d63808" />
                   </a>
                 </ActionIcon>
               </Tooltip>
-              <Tooltip label={`Follow caliebre on Instagram`}>
+              <Tooltip label={t('layout.footer.followInstagram')}>
                 <ActionIcon size="lg" variant="subtle">
                   <a href="http://www.instagram.com/caliebre" target="_blank" rel="noopener noreferrer">
                     <IconBrandInstagram size={18} stroke={1.5} color="#e15d16" />
                   </a>
                 </ActionIcon>
               </Tooltip>
-              <Tooltip label={`Follow caliebre on Twitch`}>
+              <Tooltip label={t('layout.footer.followTwitch')}>
                 <ActionIcon size="lg" variant="subtle">
                   <a href="https://www.twitch.tv/caliebre" target="_blank" rel="noopener noreferrer">
                     <IconBrandTwitch size={18} stroke={1.5} color="#a970ff" />
@@ -349,7 +355,6 @@ export default function Layout({ children }: LayoutProps) {
           </Container>
         </AppShell.Footer>
       </AppShell>
-
       {/* </ThemeProvider> */}
     </Fragment>
   )
