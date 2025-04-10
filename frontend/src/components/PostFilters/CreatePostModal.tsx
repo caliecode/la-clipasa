@@ -144,7 +144,7 @@ export default function CreatePostModal({ opened, onClose }: CreatePostModalProp
         >
           <Popover.Target>
             <div>
-              <Input.Wrapper label="Title" withAsterisk error={postCreateForm.errors['base.title']} size="sm" mb="md">
+              <Input.Wrapper label="Title" withAsterisk error={postCreateForm.errors['base.title']} size="sm">
                 <EmoteInput
                   placeholder={t('post.create.titlePlaceholder')}
                   data-autofocus
@@ -153,9 +153,6 @@ export default function CreatePostModal({ opened, onClose }: CreatePostModalProp
                   size="sm"
                 />
               </Input.Wrapper>
-              <Text size="xs" opacity={0.6}>
-                {t('post.create.helpText')}
-              </Text>
             </div>
           </Popover.Target>
           <Popover.Dropdown>

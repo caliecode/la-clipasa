@@ -80,7 +80,7 @@
     "accountSettings": "Account settings",
     "broadcasterToken": "Broadcaster token",
     "footer": {
-      "madeWithLove": "Made with <0></0> for <2>caliebre</2>",
+      "madeWithLove": "Made with <love/> for <link/>",
       "followTwitter": "Follow caliebre on Twitter",
       "followYoutube": "Follow caliebre on YouTube",
       "followInstagram": "Follow caliebre on Instagram",
@@ -186,7 +186,7 @@
     "updateAuthButton": "Update authorization settings",
     "confirmModal": {
       "title": "Update auth information",
-      "body": "You're about to update auth information for <1>{{displayName}}</1>. <3>Are you sure you want to do this?</3>"
+      "body": "You're about to update auth information for <name>{{displayName}}</name>. <strong>Are you sure you want to do this?</strong>"
     }
   },
   "notifications": {

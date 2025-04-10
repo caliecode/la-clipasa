@@ -80,7 +80,7 @@
     "accountSettings": "Ajustes de cuenta",
     "broadcasterToken": "Token de Broadcaster",
     "footer": {
-      "madeWithLove": "Hecho con <0></0> para <2>caliebre</2>",
+      "madeWithLove": "Hecho con <love/> para <link/>",
       "followTwitter": "Sigue a caliebre en Twitter",
       "followYoutube": "Sigue a caliebre en YouTube",
       "followInstagram": "Sigue a caliebre en Instagram",
@@ -186,7 +186,7 @@
     "updateAuthButton": "Actualizar ajustes de autorización",
     "confirmModal": {
       "title": "Actualizar información de autenticación",
-      "body": "Estás a punto de actualizar la información de autenticación para <1>{{displayName}}</1>. <3>¿Estás seguro de que quieres hacer esto?</3>"
+      "body": "Estás a punto de actualizar la información de autenticación para <name>{{displayName}}</name>. <strong>¿Estás seguro de que quieres hacer esto?</strong>"
     }
   },
   "notifications": {

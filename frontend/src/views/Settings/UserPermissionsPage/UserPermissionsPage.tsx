@@ -280,7 +280,7 @@ export default function UserPermissionsPage() {
               {t('userPermissions.updateAuthButton')}
             </Button>
           </>
-        )}{' '}
+        )}
       </form>
       <Modal
         opened={isModalVisible}
@@ -293,10 +293,14 @@ export default function UserPermissionsPage() {
         data-test-subj="updateUserAuthForm__confirmModal"
       >
         <>
-          <Trans i18nKey="userPermissions.confirmModal.body" values={{ displayName }}></Trans>
+          <Trans
+            i18nKey="userPermissions.confirmModal.body"
+            values={{ displayName }}
+            components={{ name: <strong /> }}
+          ></Trans>
           <Group style={{ justifyContent: 'flex-end' }}>
             <Button variant="subtle" onClick={closeModal}>
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               onClick={async () => {

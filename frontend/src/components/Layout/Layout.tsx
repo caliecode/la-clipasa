@@ -67,7 +67,7 @@ import homeBackground from 'src/assets/img/background-la-clipassa.jpg'
 import styles from './Layout.module.css'
 import PostFilters from 'src/components/PostFilters/PostFilters'
 import { withBaseURL } from 'src/utils/urls'
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 import LanguageToggle from 'src/components/LanguageToggle'
 
 type LayoutProps = {
@@ -216,12 +216,11 @@ export default function Layout({ children }: LayoutProps) {
                         leftSection={<IconUsers size={14} stroke={1.5} />}
                         onClick={() => navigate(uiPath('/admin/users-management'))}
                       >
-                        User management
-                      </Menu.Item>{' '}
-                      {t('layout.userManagement')}
+                        {t('layout.userManagement')}
+                      </Menu.Item>
                     </>
                   )}
-                  <Menu.Divider />{' '}
+                  <Menu.Divider />
                   <Menu.Item
                     leftSection={<IconBrandGithub size={14} stroke={1.5} />}
                     onClick={() => window.open('https://github.com/caliecode/la-clipasa', '_blank')}
@@ -308,17 +307,22 @@ export default function Layout({ children }: LayoutProps) {
           <Container className={styles.inner}>
             <Text fz="xs">
               <Group gap={5} align="start" wrap="nowrap">
-                Made with
-                <Image src={EMOTES.calieAMOR2} width={20} height={20}></Image>
-                for{' '}
-                <a
-                  href="https://www.twitch.tv/caliebre"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: 'orange' }}
-                >
-                  caliebre
-                </a>
+                <Trans
+                  i18nKey="layout.footer.madeWithLove"
+                  components={{
+                    love: <Image src={EMOTES.calieAMOR2} width={20} height={20}></Image>,
+                    link: (
+                      <a
+                        href="https://www.twitch.tv/caliebre"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: 'orange' }}
+                      >
+                        caliebre
+                      </a>
+                    ),
+                  }}
+                ></Trans>
               </Group>
             </Text>
 
