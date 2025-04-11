@@ -174,9 +174,7 @@ export default function Layout({ children }: LayoutProps) {
                 <Image
                   alt="la clipasa"
                   src={logo}
-                  height={20}
-                  width={20}
-                  style={{ cursor: 'pointer' }}
+                  style={{ width: '20px', height: '20px', cursor: 'pointer' }}
                   className={styles.logo}
                   onClick={() => navigate('/')}
                 />
@@ -310,7 +308,7 @@ export default function Layout({ children }: LayoutProps) {
                 <Trans
                   i18nKey="layout.footer.madeWithLove"
                   components={{
-                    love: <Image src={EMOTES.calieAMOR2} width={20} height={20}></Image>,
+                    love: <Image src={EMOTES.calieAMOR2} style={{ width: '20px', height: '20px' }}></Image>,
                     link: (
                       <a
                         href="https://www.twitch.tv/caliebre"

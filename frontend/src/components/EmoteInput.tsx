@@ -545,7 +545,7 @@ export function EmoteInput({
                   },
                 }}
               >
-                <Image src={emote.src} alt="" w={EMOTE_IMG_SIZE} h={EMOTE_IMG_SIZE} mr="xs" />{' '}
+                <Image src={emote.src} alt="" style={{ width: EMOTE_IMG_SIZE, height: EMOTE_IMG_SIZE }} mr="xs" />
                 <Text size="sm" component="span" style={{ flexGrow: 1 }}>
                   {emote.key}
                 </Text>

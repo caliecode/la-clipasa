@@ -52,10 +52,10 @@ function CategoryBadge(props: CategoryBadgeProps) {
           className={styles.emoji}
           style={{
             '--emoji-filter': emojiInversion[category] ? 'invert(100%)' : 'none', // Dynamic CSS variable
+            width: EMOJI_SIZE,
+            height: EMOJI_SIZE,
           }}
           src={emojis[category]}
-          height={EMOJI_SIZE}
-          width={EMOJI_SIZE}
         />
       )
     )

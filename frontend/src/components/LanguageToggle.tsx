@@ -22,7 +22,7 @@ export default function LanguageToggle() {
   const items = languages.map((item) => (
     <Menu.Item onClick={() => handleLanguageChange(item.value)} key={item.value} lang={item.value}>
       <Group>
-        <Image src={item.image} width={16} height={16} alt={item.label} />
+        <Image src={item.image} style={{ width: '16px', height: '16px' }} alt={item.label} />
         {item.label}
       </Group>
     </Menu.Item>
@@ -34,7 +34,7 @@ export default function LanguageToggle() {
         <Menu.Target>
           <UnstyledButton className={classes.control} data-expanded={opened || undefined} p={6}>
             <Group gap="4">
-              <Image src={selected.image} width={22} height={22} />
+              <Image src={selected.image} style={{ width: '22px', height: '22px' }} />
               <IconChevronDown size={16} stroke={3} />
             </Group>
           </UnstyledButton>
