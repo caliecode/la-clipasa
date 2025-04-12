@@ -19,15 +19,18 @@ import (
 type authMiddleware struct {
 	logger *zap.SugaredLogger
 	authn  *auth.Authentication
+	client *generated.Client
 }
 
 func NewAuthMiddleware(
 	logger *zap.SugaredLogger,
 	authn *auth.Authentication,
+	client *generated.Client,
 ) *authMiddleware {
 	return &authMiddleware{
 		logger: logger,
 		authn:  authn,
+		client: client,
 	}
 }
 
@@ -78,7 +81,7 @@ func (m *authMiddleware) TryAuthentication() gin.HandlerFunc {
 						} else {
 							// invalid, expired, revoked refresh token, db error, etc.
 							logger.Warnw("Failed to refresh token", "error", refreshErr)
-							httputil.SignOutUser(c)
+							httputil.SignOutUser(c, *m.client)
 							// u remains nil
 						}
 					} else {
@@ -87,7 +90,7 @@ func (m *authMiddleware) TryAuthentication() gin.HandlerFunc {
 						if cookieErr != http.ErrNoCookie {
 							logger.Warnw("Error reading refresh token cookie", "error", cookieErr)
 						}
-						httputil.SignOutUser(c)
+						httputil.SignOutUser(c, *m.client)
 					}
 				} else {
 					// invalid signature, user not found, etc.

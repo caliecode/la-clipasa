@@ -1,17 +1,21 @@
 package httputil
 
 import (
+	"crypto/sha256"
+	"encoding/base64"
 	"net/http"
 	"time"
 
 	"github.com/caliecode/la-clipasa/internal"
+	"github.com/caliecode/la-clipasa/internal/ent/generated"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/refreshtoken"
 	"github.com/gin-gonic/gin"
 )
 
 const RefreshTokenCookieName = "rt"
 
 // SignOutUser completely signs out the user from the app.
-func SignOutUser(c *gin.Context) {
+func SignOutUser(c *gin.Context, client generated.Client) {
 	http.SetCookie(c.Writer, &http.Cookie{
 		Name:     internal.Config.Twitch.AuthInfoCookieKey,
 		Value:    "",
@@ -21,15 +25,23 @@ func SignOutUser(c *gin.Context) {
 		Secure:   true,
 	})
 	ClearAccessTokenCookie(c)
-	ClearRefreshTokenCookie(c)
+	ClearRefreshTokenCookie(c, client)
 
 	RenderError(c, "Sign out", internal.NewErrorf(internal.ErrorCodeSignedOut, "sign out"), RenderWithoutPanic())
 
 	c.Redirect(http.StatusFound, "/")
 }
 
-func ClearRefreshTokenCookie(c *gin.Context) {
+func ClearRefreshTokenCookie(c *gin.Context, entClient generated.Client) {
 	c.Header("X-Refresh-Token-Deleted", "true")
+
+	rt, err := c.Cookie(RefreshTokenCookieName)
+	if err == nil {
+		refreshTokenHash := sha256.Sum256([]byte(rt))
+		refreshTokenHashString := base64.URLEncoding.EncodeToString(refreshTokenHash[:])
+		_, _ = entClient.RefreshToken.Delete().Where(refreshtoken.TokenHash(refreshTokenHashString)).Exec(c.Request.Context())
+	}
+
 	http.SetCookie(c.Writer, &http.Cookie{
 		Name:     RefreshTokenCookieName,
 		Value:    "",

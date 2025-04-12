@@ -13,6 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/caliecode/la-clipasa/internal"
+	"github.com/caliecode/la-clipasa/internal/ent/generated"
 	"github.com/caliecode/la-clipasa/internal/http/httputil"
 	"github.com/caliecode/la-clipasa/internal/models"
 )
@@ -24,10 +25,14 @@ const (
 	maxRetries        = 2
 )
 
-type TwitchHandlers struct{}
+type TwitchHandlers struct {
+	client *generated.Client
+}
 
-func NewTwitchHandlers() *TwitchHandlers {
-	return &TwitchHandlers{}
+func NewTwitchHandlers(client *generated.Client) *TwitchHandlers {
+	return &TwitchHandlers{
+		client: client,
+	}
 }
 
 func (h *TwitchHandlers) getTwitchToken(c *gin.Context) (*models.TwitchTokenInfo, error) {
@@ -36,12 +41,12 @@ func (h *TwitchHandlers) getTwitchToken(c *gin.Context) (*models.TwitchTokenInfo
 		// for calls not part of oidc flow
 		cookieVal, err := c.Cookie(internal.Config.Twitch.AuthInfoCookieKey)
 		if err != nil {
-			httputil.SignOutUser(c) // if unset then we cannot refresh twitch tokens, etc. so must do oidc flow
+			httputil.SignOutUser(c, *h.client) // if unset then we cannot refresh twitch tokens, etc. so must do oidc flow
 			return nil, fmt.Errorf("failed to get twitch token cookie: %w", err)
 		}
 		tokenJSON, err = base64.URLEncoding.DecodeString(cookieVal)
 		if err != nil {
-			httputil.SignOutUser(c) // migrated cookie structure, etc
+			httputil.SignOutUser(c, *h.client) // migrated cookie structure, etc
 			return nil, fmt.Errorf("failed to decode twitch token cookie: %w", err)
 		}
 	}
@@ -121,7 +126,7 @@ func (h *TwitchHandlers) ValidateTwitchToken(c *gin.Context) (*models.TwitchToke
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusUnauthorized {
-		httputil.SignOutUser(c)
+		httputil.SignOutUser(c, *h.client)
 		return nil, errors.New("twitch token invalid; user signed out")
 	}
 
@@ -141,7 +146,7 @@ func (h *TwitchHandlers) makeUserTwitchRequest(c *gin.Context, endpoint string, 
 	if time.Now().After(tokenInfo.Expiry) {
 		tokenInfo, err = h.refreshTwitchToken(c, tokenInfo)
 		if err != nil {
-			httputil.SignOutUser(c)
+			httputil.SignOutUser(c, *h.client)
 			return nil, fmt.Errorf("error refreshing expired twitch token: %w", err)
 		}
 	}
@@ -178,13 +183,13 @@ func (h *TwitchHandlers) makeUserTwitchRequest(c *gin.Context, endpoint string, 
 		if attempt < maxRetries {
 			tokenInfo, err = h.refreshTwitchToken(c, tokenInfo)
 			if err != nil {
-				httputil.SignOutUser(c)
+				httputil.SignOutUser(c, *h.client)
 				return nil, fmt.Errorf("error refreshing twitch token on retry: %w", err)
 			}
 		}
 	}
 
-	httputil.SignOutUser(c)
+	httputil.SignOutUser(c, *h.client)
 	return nil, errors.New("twitch API unauthorized after token refresh")
 }
 

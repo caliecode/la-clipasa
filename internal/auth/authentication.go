@@ -62,7 +62,7 @@ type Authentication struct {
 
 // NewAuthentication returns a new authentication service.
 func NewAuthentication(entc *generated.Client) *Authentication {
-	twitch := client.NewTwitchHandlers()
+	twitch := client.NewTwitchHandlers(entc)
 	cfg := internal.Config
 
 	return &Authentication{
