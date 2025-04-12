@@ -1,10 +1,13 @@
-/**
- * Import to extend dayjs functionality.
- */
-
+import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import dayjs from 'dayjs'
+import localizedFormat from 'dayjs/plugin/localizedFormat'
+import i18n from 'src/i18n'
+
+// dynamic import of dayjs/esm/locale/{language}.js
+// doesn't work
+import 'dayjs/locale/es'
+import 'dayjs/locale/en'
 
 const rfc3339NanoPlugin = (option, dayjsClass, dayjsFactory) => {
   dayjsClass.prototype.toRFC3339NANO = function () {
@@ -20,17 +23,35 @@ const rfc3339NanoPlugin = (option, dayjsClass, dayjsFactory) => {
     }
   }
 }
+
 dayjs.extend(rfc3339NanoPlugin)
 dayjs.extend(utc)
 dayjs.extend(relativeTime)
+dayjs.extend(localizedFormat)
 
-// when importing this file for extensions, we also get the types we declare.
-// FIXME: however this is .d.ts is not getting added automatically without imports.
-// should maybe use .namespace files
-// https://stackoverflow.com/questions/51983175/usage-of-types-and-interface-without-importing
+export const updateDayjsLocale = (language) => {
+  const languageBase = language.split('-')[0].toLowerCase()
+
+  try {
+    dayjs.locale(languageBase)
+    console.log(`Set dayjs locale to: ${languageBase}`)
+  } catch (error) {
+    console.warn(`Error setting dayjs locale: ${error}`)
+    dayjs.locale('en')
+  }
+}
+
+updateDayjsLocale(i18n.language)
+
+i18n.on('languageChanged', (lng) => {
+  updateDayjsLocale(lng)
+})
+
 declare module 'dayjs' {
   interface Dayjs {
     /** app backend timestamps will default to RFC 3339 with nanoseconds */
     toRFC3339NANO(): string
   }
 }
+
+export default dayjs

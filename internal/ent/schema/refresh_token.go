@@ -8,7 +8,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 
-	"github.com/caliecode/la-clipasa/internal/ent/generated/privacy"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
 	"github.com/caliecode/la-clipasa/internal/ent/interceptors"
 	"github.com/caliecode/la-clipasa/internal/ent/privacy/policy"
@@ -74,7 +73,7 @@ func (RefreshToken) Annotations() []schema.Annotation {
 func (RefreshToken) Policy() ent.Policy {
 	return policy.NewPolicy(
 		policy.WithQueryRules(
-			privacy.AlwaysAllowRule(),
+			rule.AllowIfSelfOrHasRoleQuery(user.RoleADMIN),
 		),
 		policy.WithOnMutationRules(
 			ent.OpCreate|ent.OpUpdateOne,

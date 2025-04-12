@@ -62,7 +62,7 @@ export function ErrorPage({ status, authResult, text }: ErrorPageProps) {
           </Flex>
         </>
       )}
-      <Group align="center">
+      <Group align="center" justify="center">
         <Button
           size="md"
           color="teal"
@@ -70,7 +70,7 @@ export function ErrorPage({ status, authResult, text }: ErrorPageProps) {
             navigate('/')
           }}
         >
-          Take me back to the home page
+          {t('errorPage.backHomeButton')}
         </Button>
         <Button
           size="md"

@@ -1,0 +1,5 @@
+.tableContainer {
+  position: relative;
+  min-height: 150px; /* Ensure space for loader */
+  overflow-x: auto; /* Add scroll for smaller screens if needed */
+}

@@ -1,17 +1,26 @@
 {
-  "time": {
-    "justNow": "Justo ahora",
-    "minutesAgo_one": "hace {{count}} minuto",
-    "minutesAgo_other": "hace {{count}} minutos",
-    "hoursAgo_one": "hace {{count}} hora",
-    "hoursAgo_other": "hace {{count}} horas",
-    "daysAgo_one": "hace {{count}} día",
-    "daysAgo_other": "hace {{count}} días"
+  "sessionManagement": {
+    "title": "Gestión de Sesiones",
+    "description": "Aquí puedes ver y gestionar tus sesiones activas en diferentes dispositivos. Revoca cualquier sesión que no reconozcas.",
+    "revokeConfirmTitle": "Revocar Sesión",
+    "revokeConfirmMessage": "¿Estás seguro de que quieres revocar esta sesión? Se cerrará la sesión en ese dispositivo.",
+    "revokeConfirmMessageCurrent": "¿Estás seguro de que quieres revocar esta sesión? Esta podría ser tu sesión actual, y revocarla te desconectará.",
+    "revokeButton": "Revocar",
+    "revokeErrorTitle": "Error al Revocar Sesión",
+    "revokeSuccessTitle": "Sesión Revocada",
+    "revokeSuccessMessage": "La sesión ha sido revocada correctamente.",
+    "headerDevice": "Dispositivo / Navegador",
+    "headerLastActive": "Creada",
+    "headerExpires": "Expira",
+    "headerActions": "Acciones",
+    "noSessions": "No se encontraron sesiones activas.",
+    "expires": "Expira"
   },
   "common": {
     "submit": "Enviar",
     "cancel": "Cancelar",
     "update": "Actualizar",
+    "loading": "Cargando",
     "edit": "Editar",
     "delete": "Eliminar",
     "restore": "Restaurar",
@@ -68,6 +77,7 @@
     }
   },
   "layout": {
+    "sessionManagement": "Gestión de Sesiones",
     "pageTitle": "La Clipasa",
     "pageDescription": "El mejor evento de todo Twitch International",
     "pageMetaTitle": "La Clipasa - Caliebre",

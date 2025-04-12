@@ -69,6 +69,7 @@ import PostFilters from 'src/components/PostFilters/PostFilters'
 import { withBaseURL } from 'src/utils/urls'
 import { Trans, useTranslation } from 'react-i18next'
 import LanguageToggle from 'src/components/LanguageToggle'
+import { IconDeviceDesktopAnalytics } from '@tabler/icons-react'
 
 type LayoutProps = {
   children: React.ReactElement
@@ -231,6 +232,12 @@ export default function Layout({ children }: LayoutProps) {
                     {t('layout.accountSettings')}
                   </Menu.Item>
                   <Menu.Item
+                    leftSection={<IconDeviceDesktopAnalytics size={14} stroke={1.5} />}
+                    onClick={() => navigate(uiPath('/settings/sessions'))}
+                  >
+                    {t('layout.sessionManagement')}
+                  </Menu.Item>
+                  <Menu.Item
                     onClick={() => openBroadcasterToken()}
                     leftSection={<IconBrandTwitch size={14} stroke={1.5} />}
                   >
@@ -282,7 +289,7 @@ export default function Layout({ children }: LayoutProps) {
             // TODO: Translate this specific ban message
             children
           )}
-        </AppShell.Main>{' '}
+        </AppShell.Main>
         <Drawer
           className={styles.drawer}
           transitionProps={{ transition: 'fade', duration: 200, timingFunction: 'ease' }}

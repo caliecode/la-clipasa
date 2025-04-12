@@ -9,6 +9,7 @@ const routes = {
   ADMIN_USERS: '/admin/users-management',
   ADMIN_POSTS: '/admin/posts-management',
   PROFILE: '/profile',
+  SESSION_SETTINGS: '/settings/sessions',
 } as const
 
 export type UiRoutes = (typeof routes)[keyof typeof routes]

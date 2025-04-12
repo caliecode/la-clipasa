@@ -18,7 +18,22 @@ func AllowIfSelfOrHasRole(role user.Role) privacy.MutationRule {
 		}
 		// this changes the query and adds an owner where clause to the authenticated user
 		// which can't be removed, therefore call last. Always returns Allow so query can run.
-		// TODO: instead of post not found error due to not being owner return not authorized
+		// TODO: instead of not found error due to not being owner return not authorized
 		return AllowIfSelf().EvalMutation(ctx, m)
+	})
+}
+
+// AllowIfSelfOrHasRoleQuery determines whether a query operation should be allowed
+// if the user either owns the entity or has the specified role.
+// If the user does not have the role, the query is modified to filter by owner ID.
+func AllowIfSelfOrHasRoleQuery(role user.Role) privacy.QueryRule {
+	return privacy.QueryRuleFunc(func(ctx context.Context, q ent.Query) error {
+		if err := AllowIfRole(role).EvalQuery(ctx, q); errors.Is(err, privacy.Allow) {
+			// User has the required role, allow the query as is (without owner filtering which would set caller as owner).
+			return privacy.Allow
+		}
+
+		// TODO: instead of not found error due to not being owner return not authorized
+		return AllowIfSelf().EvalQuery(ctx, q)
 	})
 }

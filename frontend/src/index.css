@@ -102,13 +102,13 @@ https://github.com/KevinVandy/mantine-react-table/blob/v2/packages/mantine-react
 }
 
 .hideOnLarge {
-  @media (min-width: 1200px) {
+  @media (min-width: 1100px) {
     display: none;
   }
 }
 
 .showOnLargeOnly {
-  @media (max-width: 1200px) {
+  @media (max-width: 1100px) {
     display: none;
   }
 }

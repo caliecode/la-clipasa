@@ -245,6 +245,9 @@ importers:
       regenerator-runtime:
         specifier: ^0.13.11
         version: 0.13.11
+      ua-parser-js:
+        specifier: ^2.0.3
+        version: 2.0.3(encoding@0.1.13)
       urql:
         specifier: ^4.2.1
         version: 4.2.2(@urql/core@5.1.1(graphql@16.10.0))(react@18.3.1)
@@ -315,6 +318,9 @@ importers:
       '@types/react-dom':
         specifier: ^18.0.9
         version: 18.3.5(@types/react@18.3.18)
+      '@types/ua-parser-js':
+        specifier: ^0.7.39
+        version: 0.7.39
       '@types/uuid':
         specifier: ^9.0.0
         version: 9.0.8
@@ -2266,6 +2272,9 @@ packages:
   '@types/lodash@4.17.16':
     resolution: {integrity: sha512-HX7Em5NYQAXKW+1T+FiuG27NGwzJfCX3s1GjOa7ujxZa52kjJLOr4FUxT+giF6Tgxv1e+/czV/iTtBw27WTU9g==}
 
+  '@types/node-fetch@2.6.12':
+    resolution: {integrity: sha512-8nneRWKCg3rMtF69nLQJnOYUcbafYeFSjqkw3jCRLsqkWFlHaoQrr5mXmofFGOx3DKn7UfmBMyov8ySvLRVldA==}
+
   '@types/node@22.13.10':
     resolution: {integrity: sha512-I6LPUvlRH+O6VRUqYOcMudhaIdUVWfsjnZavnsraHvpBwaEyMN29ry+0UVJhImYL16xsscu0aske3yA+uPOWfw==}
 
@@ -2310,6 +2319,9 @@ packages:
 
   '@types/trusted-types@2.0.7':
     resolution: {integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==}
+
+  '@types/ua-parser-js@0.7.39':
+    resolution: {integrity: sha512-P/oDfpofrdtF5xw433SPALpdSchtJmY7nsJItf8h3KXqOslkbySh8zq4dSWXH2oTjRvJ5PczVEoCZPow6GicLg==}
 
   '@types/urijs@1.19.25':
     resolution: {integrity: sha512-XOfUup9r3Y06nFAZh3WvO0rBU4OtlfPB/vgxpjg+NRdGU6CN6djdc6OEiH+PcqHCY6eFLo9Ista73uarf4gnBg==}
@@ -3275,6 +3287,9 @@ packages:
 
   des.js@1.1.0:
     resolution: {integrity: sha512-r17GxjhUCjSRy8aiJpr8/UadFIzMzJGexI3Nmz4ADi9LYSFx4gTBp80+NaX/YsXWWLhpZ7v/v/ubEc/bCNfKwg==}
+
+  detect-europe-js@0.1.2:
+    resolution: {integrity: sha512-lgdERlL3u0aUdHocoouzT10d9I89VVhk0qNRmll7mXdGfJT1/wqZ2ZLA4oJAjeACPY5fT1wsbq2AT+GkuInsow==}
 
   detect-indent@6.1.0:
     resolution: {integrity: sha512-reYkTUJAZb9gUuZ2RvVCNhVHdg62RHnJ7WJl8ftMi4diZ6NWlciOzQN88pUhSELEwflJht4oQDv0F0BMlwaYtA==}
@@ -4357,6 +4372,9 @@ packages:
   is-shared-array-buffer@1.0.4:
     resolution: {integrity: sha512-ISWac8drv4ZGfwKl5slpHG9OwPNty4jOWPRIhBpxOoD+hqITiwuipOQ2bNthAzwA3B4fIjO4Nln74N0S9byq8A==}
     engines: {node: '>= 0.4'}
+
+  is-standalone-pwa@0.1.1:
+    resolution: {integrity: sha512-9Cbovsa52vNQCjdXOzeQq5CnCbAcRk05aU62K20WO372NrTv0NxibLFCK6lQ4/iZEFdEA3p3t2VNOn8AJ53F5g==}
 
   is-stream@1.1.0:
     resolution: {integrity: sha512-uQPm8kcs47jx38atAcWTVxyltQYoPT68y9aWYdV6yWXSyW8mzSat0TL6CiWdZeCdF3KrAvpVtnHbTv4RN+rqdQ==}
@@ -6383,12 +6401,19 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
+  ua-is-frozen@0.1.2:
+    resolution: {integrity: sha512-RwKDW2p3iyWn4UbaxpP2+VxwqXh0jpvdxsYpZ5j/MLLiQOfbsV5shpgQiw93+KMYQPcteeMQ289MaAFzs3G9pw==}
+
   ua-parser-js@0.7.40:
     resolution: {integrity: sha512-us1E3K+3jJppDBa3Tl0L3MOJiGhe1C6P0+nIvQAFYbxlMAx0h81eOwLmU57xgqToduDDPx3y5QsdjPfDu+FgOQ==}
     hasBin: true
 
   ua-parser-js@1.0.40:
     resolution: {integrity: sha512-z6PJ8Lml+v3ichVojCiB8toQJBuwR42ySM4ezjXIqXK3M0HczmKQ3LF4rhU55PfD99KEEXQG6yb7iOMyvYuHew==}
+    hasBin: true
+
+  ua-parser-js@2.0.3:
+    resolution: {integrity: sha512-LZyXZdNttONW8LjzEH3Z8+6TE7RfrEiJqDKyh0R11p/kxvrV2o9DrT2FGZO+KVNs3k+drcIQ6C3En6wLnzJGpw==}
     hasBin: true
 
   ufo@1.5.4:
@@ -9407,6 +9432,11 @@ snapshots:
 
   '@types/lodash@4.17.16': {}
 
+  '@types/node-fetch@2.6.12':
+    dependencies:
+      '@types/node': 22.13.10
+      form-data: 4.0.2
+
   '@types/node@22.13.10':
     dependencies:
       undici-types: 6.20.0
@@ -9451,6 +9481,8 @@ snapshots:
   '@types/tough-cookie@4.0.5': {}
 
   '@types/trusted-types@2.0.7': {}
+
+  '@types/ua-parser-js@0.7.39': {}
 
   '@types/urijs@1.19.25': {}
 
@@ -10638,6 +10670,8 @@ snapshots:
     dependencies:
       inherits: 2.0.4
       minimalistic-assert: 1.0.1
+
+  detect-europe-js@0.1.2: {}
 
   detect-indent@6.1.0: {}
 
@@ -11966,6 +12000,8 @@ snapshots:
   is-shared-array-buffer@1.0.4:
     dependencies:
       call-bound: 1.0.4
+
+  is-standalone-pwa@0.1.1: {}
 
   is-stream@1.1.0: {}
 
@@ -14218,9 +14254,21 @@ snapshots:
 
   typescript@5.8.2: {}
 
+  ua-is-frozen@0.1.2: {}
+
   ua-parser-js@0.7.40: {}
 
   ua-parser-js@1.0.40: {}
+
+  ua-parser-js@2.0.3(encoding@0.1.13):
+    dependencies:
+      '@types/node-fetch': 2.6.12
+      detect-europe-js: 0.1.2
+      is-standalone-pwa: 0.1.1
+      node-fetch: 2.7.0(encoding@0.1.13)
+      ua-is-frozen: 0.1.2
+    transitivePeerDependencies:
+      - encoding
 
   ufo@1.5.4: {}
 

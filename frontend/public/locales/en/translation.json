@@ -1,17 +1,26 @@
 {
-  "time": {
-    "justNow": "Just now",
-    "minutesAgo_one": "{{count}} minute ago",
-    "minutesAgo_other": "{{count}} minutes ago",
-    "hoursAgo_one": "{{count}} hour ago",
-    "hoursAgo_other": "{{count}} hours ago",
-    "daysAgo_one": "{{count}} day ago",
-    "daysAgo_other": "{{count}} days ago"
+  "sessionManagement": {
+    "title": "Session Management",
+    "description": "Here you can see and manage your active login sessions across different devices. Revoke any sessions you do not recognize.",
+    "revokeConfirmTitle": "Revoke Session",
+    "revokeConfirmMessage": "Are you sure you want to revoke this session? You will be logged out on that device.",
+    "revokeConfirmMessageCurrent": "Are you sure you want to revoke this session? This might be your current session, and revoking it will log you out.",
+    "revokeButton": "Revoke",
+    "revokeErrorTitle": "Error Revoking Session",
+    "revokeSuccessTitle": "Session Revoked",
+    "revokeSuccessMessage": "The session has been successfully revoked.",
+    "headerDevice": "Device / Browser",
+    "headerLastActive": "Created",
+    "headerExpires": "Expires",
+    "headerActions": "Actions",
+    "noSessions": "No active sessions found.",
+    "expires": "Expires"
   },
   "common": {
     "submit": "Submit",
     "cancel": "Cancel",
     "update": "Update",
+    "loading": "Loading",
     "edit": "Edit",
     "delete": "Delete",
     "restore": "Restore",
@@ -68,6 +77,7 @@
     }
   },
   "layout": {
+    "sessionManagement": "Manage Sessions",
     "pageTitle": "La Clipasa",
     "pageDescription": "The best event in all of Twitch International",
     "pageMetaTitle": "La Clipasa - Caliebre",

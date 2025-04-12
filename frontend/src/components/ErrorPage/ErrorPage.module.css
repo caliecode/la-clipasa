@@ -7,7 +7,7 @@
 .label {
   text-align: center;
   font-weight: 900;
-  font-size: 220px;
+  font-size: 200px;
   line-height: 1;
   margin-bottom: var(--mantine-spacing-xl);
   color: light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-4));

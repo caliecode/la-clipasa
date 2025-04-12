@@ -1792,6 +1792,15 @@ export type PostFragment = {
   } | null
 }
 
+export type RefreshTokenFragment = {
+  __typename?: 'RefreshToken'
+  id: string
+  createdAt: any
+  expiresAt: any
+  ipAddress?: string | null
+  userAgent?: string | null
+}
+
 export type UserFragment = {
   __typename?: 'User'
   id: string
@@ -2036,6 +2045,46 @@ export type DeletePostMutation = {
   deletePost: { __typename?: 'PostDeletePayload'; deletedID: string }
 }
 
+export type MyRefreshTokensQueryVariables = Exact<{
+  where?: InputMaybe<RefreshTokenWhereInput>
+}>
+
+export type MyRefreshTokensQuery = {
+  __typename?: 'Query'
+  refreshTokens: {
+    __typename?: 'RefreshTokenConnection'
+    totalCount: number
+    pageInfo: {
+      __typename?: 'PageInfo'
+      hasNextPage: boolean
+      hasPreviousPage: boolean
+      startCursor?: any | null
+      endCursor?: any | null
+    }
+    edges?: Array<{
+      __typename?: 'RefreshTokenEdge'
+      cursor: any
+      node?: {
+        __typename?: 'RefreshToken'
+        id: string
+        createdAt: any
+        expiresAt: any
+        ipAddress?: string | null
+        userAgent?: string | null
+      } | null
+    } | null> | null
+  }
+}
+
+export type DeleteRefreshTokenMutationVariables = Exact<{
+  id: Scalars['ID']['input']
+}>
+
+export type DeleteRefreshTokenMutation = {
+  __typename?: 'Mutation'
+  deleteRefreshToken: { __typename?: 'RefreshTokenDeletePayload'; deletedID: string }
+}
+
 export type MeQueryVariables = Exact<{ [key: string]: never }>
 
 export type MeQuery = {
@@ -2190,6 +2239,15 @@ export const PostFragmentDoc = gql`
     createdAt
     updatedAt
     deletedAt
+  }
+`
+export const RefreshTokenFragmentDoc = gql`
+  fragment RefreshToken on RefreshToken {
+    id
+    createdAt
+    expiresAt
+    ipAddress
+    userAgent
   }
 `
 export const UserFragmentDoc = gql`
@@ -2379,6 +2437,54 @@ export const DeletePostComponent = (
 
 export function useDeletePostMutation() {
   return Urql.useMutation<DeletePostMutation, DeletePostMutationVariables>(DeletePostDocument)
+}
+export const MyRefreshTokensDocument = gql`
+  query MyRefreshTokens($where: RefreshTokenWhereInput) {
+    refreshTokens(where: $where) {
+      pageInfo {
+        ...PaginationFragment
+      }
+      edges {
+        cursor
+        node {
+          ...RefreshToken
+        }
+      }
+      totalCount
+    }
+  }
+  ${PaginationFragmentFragmentDoc}
+  ${RefreshTokenFragmentDoc}
+`
+
+export const MyRefreshTokensComponent = (
+  props: Omit<Urql.QueryProps<MyRefreshTokensQuery, MyRefreshTokensQueryVariables>, 'query'> & {
+    variables?: MyRefreshTokensQueryVariables
+  },
+) => <Urql.Query {...props} query={MyRefreshTokensDocument} />
+
+export function useMyRefreshTokensQuery(options?: Omit<Urql.UseQueryArgs<MyRefreshTokensQueryVariables>, 'query'>) {
+  return Urql.useQuery<MyRefreshTokensQuery, MyRefreshTokensQueryVariables>({
+    query: MyRefreshTokensDocument,
+    ...options,
+  })
+}
+export const DeleteRefreshTokenDocument = gql`
+  mutation DeleteRefreshToken($id: ID!) {
+    deleteRefreshToken(id: $id) {
+      deletedID
+    }
+  }
+`
+
+export const DeleteRefreshTokenComponent = (
+  props: Omit<Urql.MutationProps<DeleteRefreshTokenMutation, DeleteRefreshTokenMutationVariables>, 'query'> & {
+    variables?: DeleteRefreshTokenMutationVariables
+  },
+) => <Urql.Mutation {...props} query={DeleteRefreshTokenDocument} />
+
+export function useDeleteRefreshTokenMutation() {
+  return Urql.useMutation<DeleteRefreshTokenMutation, DeleteRefreshTokenMutationVariables>(DeleteRefreshTokenDocument)
 }
 export const MeDocument = gql`
   query Me {

@@ -4,11 +4,9 @@ import { nameInitials } from 'src/utils/strings'
 import dayjs from 'dayjs'
 import { usePostContext } from 'src/components/Post/Post.context'
 import { withBaseURL } from 'src/utils/urls'
-import { useRelativeTimestamp } from 'src/utils/date'
 
 export const PostMetadata = () => {
   const { post } = usePostContext()
-  const { showRelativeTimestamp } = useRelativeTimestamp()
 
   return (
     <Group>
@@ -26,7 +24,7 @@ export const PostMetadata = () => {
           {post.owner?.displayName}
         </Text>
         <Text size="xs" c="dimmed">
-          {showRelativeTimestamp(dayjs(post.createdAt)?.toISOString())}
+          {dayjs(post.createdAt)?.fromNow()}
         </Text>
       </Flex>
     </Group>

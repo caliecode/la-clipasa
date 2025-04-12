@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"errors"
 	"net/http"
 	"strings"
@@ -65,6 +66,7 @@ func (m *authMiddleware) TryAuthentication() gin.HandlerFunc {
 					refreshTokenCookie, cookieErr := c.Cookie(httputil.RefreshTokenCookieName)
 					if cookieErr == nil && refreshTokenCookie != "" {
 						// try to use cookie
+						sysCtx := context.WithValue(ctx, "GinContextKey", c)
 						refreshedUser, newTokenPair, refreshErr := m.authn.ValidateAndRotateRefreshToken(sysCtx, refreshTokenCookie)
 						if refreshErr == nil {
 							u = refreshedUser
@@ -76,7 +78,7 @@ func (m *authMiddleware) TryAuthentication() gin.HandlerFunc {
 						} else {
 							// invalid, expired, revoked refresh token, db error, etc.
 							logger.Warnw("Failed to refresh token", "error", refreshErr)
-							httputil.ClearRefreshTokenCookie(c)
+							httputil.SignOutUser(c)
 							// u remains nil
 						}
 					} else {
@@ -85,10 +87,12 @@ func (m *authMiddleware) TryAuthentication() gin.HandlerFunc {
 						if cookieErr != http.ErrNoCookie {
 							logger.Warnw("Error reading refresh token cookie", "error", cookieErr)
 						}
+						httputil.SignOutUser(c)
 					}
 				} else {
 					// invalid signature, user not found, etc.
 					logger.Warnw("Failed to validate access token", "error", err)
+					httputil.SignOutUser(c)
 					// u remains nil
 				}
 			}

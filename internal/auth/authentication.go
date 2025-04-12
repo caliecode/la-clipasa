@@ -265,8 +265,15 @@ func (a *Authentication) ValidateAndRotateRefreshToken(ctx context.Context, oldR
 		return nil, nil, fmt.Errorf("failed to revoke old refresh token: %w", err)
 	}
 
+	ginCtx, ok := ctx.Value("GinContextKey").(*gin.Context)
+	if !ok {
+		return nil, nil, fmt.Errorf("failed to get gin context: %w", err)
+	}
 	// always creating prevents race conditions with refresh token rotation
-	tp, err := a.IssueNewTokenPair(sysCtx, user)
+	tp, err := a.IssueNewTokenPair(sysCtx, user, ginCtx.ClientIP(), ginCtx.Request.UserAgent())
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to issue new token pair: %w", err)
+	}
 
 	return user, tp, nil
 }
@@ -290,7 +297,7 @@ func (a *Authentication) CleanupExpiredAndRevokedTokens(ctx context.Context) {
 	}
 }
 
-func (a *Authentication) IssueNewTokenPair(ctx context.Context, user *generated.User) (*TokenPair, error) {
+func (a *Authentication) IssueNewTokenPair(ctx context.Context, user *generated.User, ipAddress, userAgent string) (*TokenPair, error) {
 	accessToken, err := a.CreateAccessTokenForUser(ctx, user)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create access token: %w", err)
@@ -311,9 +318,8 @@ func (a *Authentication) IssueNewTokenPair(ctx context.Context, user *generated.
 		SetOwner(user).
 		SetTokenHash(refreshTokenHashString).
 		SetExpiresAt(refreshExpiresAt).
-		// TODO:
-		// SetIPAddress(c.ClientIP()).
-		// SetUserAgent(c.Request.UserAgent()).
+		SetIPAddress(ipAddress).
+		SetUserAgent(userAgent).
 		Save(internal.SetUserCtx(ctx, user))
 	if err != nil {
 		return nil, fmt.Errorf("failed to save refresh token: %w", err)

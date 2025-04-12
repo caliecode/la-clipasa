@@ -1,0 +1,29 @@
+fragment RefreshToken on RefreshToken {
+  id
+  createdAt
+  expiresAt
+  ipAddress
+  userAgent
+}
+
+# Query to get the refresh tokens for the currently authenticated user
+query MyRefreshTokens($where: RefreshTokenWhereInput) {
+  refreshTokens(where: $where) {
+    pageInfo {
+      ...PaginationFragment
+    }
+    edges {
+      cursor
+      node {
+        ...RefreshToken
+      }
+    }
+    totalCount
+  }
+}
+
+mutation DeleteRefreshToken($id: ID!) {
+  deleteRefreshToken(id: $id) {
+    deletedID
+  }
+}

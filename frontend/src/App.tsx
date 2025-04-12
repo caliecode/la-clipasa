@@ -39,6 +39,7 @@ function ErrorFallback({ error }: any) {
 const Layout = React.lazy(() => import('./components/Layout/Layout'))
 const LandingPage = React.lazy(() => import('./views/LandingPage/LandingPage'))
 const UserPermissionsPage = React.lazy(() => import('src/views/Settings/UserPermissionsPage/UserPermissionsPage'))
+const SessionManagementPage = React.lazy(() => import('src/views/Settings/SessionManagementPage/SessionManagementPage'))
 
 const colorSchemeManager = localStorageColorSchemeManager({ key: 'theme' })
 
@@ -49,7 +50,7 @@ const routes = Object.freeze({
     </ProtectedRoute>
   ),
   '/admin/users-management': (
-    <ProtectedRoute>
+    <ProtectedRoute requiredRole="MODERATOR">
       <UserPermissionsPage />
     </ProtectedRoute>
   ),
@@ -58,6 +59,11 @@ const routes = Object.freeze({
   '/admin/posts-management': <LandingPage />,
   '/post/:postId': <LandingPage />,
   '/profile': <LandingPage />,
+  '/settings/sessions': (
+    <ProtectedRoute>
+      <SessionManagementPage />
+    </ProtectedRoute>
+  ),
 } satisfies Readonly<Record<UiRoutes, React.ReactNode>>)
 
 const modals = {
@@ -70,7 +76,6 @@ export default function App() {
   return (
     <>
       <Provider value={createUrqlClient()}>
-        {' '}
         <MantineProvider
           colorSchemeManager={colorSchemeManager}
           defaultColorScheme="dark"

@@ -32,7 +32,13 @@ func (r *mutationResolver) UpdateRefreshToken(ctx context.Context, id uuid.UUID,
 
 // DeleteRefreshToken is the resolver for the deleteRefreshToken field.
 func (r *mutationResolver) DeleteRefreshToken(ctx context.Context, id uuid.UUID) (*model.RefreshTokenDeletePayload, error) {
-	panic(fmt.Errorf("not implemented: DeleteRefreshToken - deleteRefreshToken"))
+	if err := r.ent.RefreshToken.DeleteOneID(id).Exec(ctx); err != nil {
+		return nil, parseRequestError(err, action{action: ActionDelete, object: "refresh token"})
+	}
+
+	return &model.RefreshTokenDeletePayload{
+		DeletedID: id,
+	}, nil
 }
 
 // RefreshToken is the resolver for the refreshToken field.
