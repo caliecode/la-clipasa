@@ -1,7 +1,7 @@
 {
   "pwa": {
     "updateAvailableTitle": "Update Available",
-    "updateAvailableMessage": "A new update is available. Please refresh the page to get the latest version."
+    "updateAvailableMessage": "Please refresh the page to get the latest version."
   },
   "sessionManagement": {
     "title": "Session Management",

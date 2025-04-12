@@ -151,27 +151,27 @@ export default function Layout({ children }: LayoutProps) {
     if (needRefresh) {
       if (!notificationIdRef.current || !notifications.update) {
         const id = notifications.show({
-          // ... (same notification config as before) ...
           id: 'pwa-update',
           title: t('pwa.updateAvailableTitle', 'Update Available'),
           message: (
-            <>
+            <Flex direction="column" gap={8}>
               {t('pwa.updateAvailableMessage', 'A new version of the application is ready.')}
               <Button
                 variant="light"
                 color="blue"
                 size="xs"
-                ml="md"
+                w="100%"
                 onClick={() => {
                   notifications.hide('pwa-update')
                   notificationIdRef.current = null
-                  // Make sure page reloads after update in dev too
                   updateServiceWorker(true)
+                  console.log('Forcing window reload...')
+                  window.location.reload()
                 }}
               >
                 {t('common.update', 'Update Now')}
               </Button>
-            </>
+            </Flex>
           ),
           color: 'blue',
           autoClose: false,

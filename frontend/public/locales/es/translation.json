@@ -1,7 +1,7 @@
 {
   "pwa": {
     "updateAvailableTitle": "Actualización disponible",
-    "updateAvailableMessage": "Una nueva actualización está disponible. Por favor, actualice la página para obtener la versión más reciente."
+    "updateAvailableMessage": "Por favor, actualice la página para obtener la versión más reciente."
   },
   "sessionManagement": {
     "title": "Gestión de Sesiones",

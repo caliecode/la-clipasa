@@ -62,6 +62,24 @@ export default ({ mode }) => {
             },
           },
         },
+        workbox: {
+          // what the service worker will precache:
+          globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+          // ensure dynamic imports are also cached
+          runtimeCaching: [
+            {
+              urlPattern: /^https:\/\/laclipasa\.fly\.dev\/ui\/_app\/immutable\/.*/i,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'app-chunks',
+                expiration: {
+                  maxEntries: 100,
+                  maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+                },
+              },
+            },
+          ],
+        },
         devOptions: {
           enabled: true,
         },
