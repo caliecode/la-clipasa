@@ -258,7 +258,9 @@ func (a *Authentication) ValidateAndRotateRefreshToken(ctx context.Context, oldR
 	user := rt.Edges.Owner
 	sysCtx := internal.SetUserCtx(token.NewContextWithSystemCallToken(ctx), user)
 	// only revoke the current session before reissuing, not all
-	_, err = a.entc.RefreshToken.UpdateOne(rt).SetRevoked(true).Save(sysCtx)
+	// instead of revoking instantly, set exp to 1min ahead to allow for concurrent queries
+	// to also rotate the rt and prevent 401s and sign outs
+	_, err = a.entc.RefreshToken.UpdateOne(rt).SetExpiresAt(time.Now().Add(time.Minute)).Save(sysCtx)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to revoke old refresh token: %w", err)
 	}
