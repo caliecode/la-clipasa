@@ -73,6 +73,7 @@ func (RefreshToken) Annotations() []schema.Annotation {
 func (RefreshToken) Policy() ent.Policy {
 	return policy.NewPolicy(
 		policy.WithQueryRules(
+			rule.AllowIfContextHasPrivacyTokenOfType(&token.SystemCallToken{}),
 			rule.AllowIfSelfOrHasRoleQuery(user.RoleADMIN),
 		),
 		policy.WithOnMutationRules(

@@ -224,30 +224,21 @@ func (a *Authentication) ValidateAndRotateRefreshToken(ctx context.Context, oldR
 	refreshTokenHash := sha256.Sum256([]byte(oldRefreshTokenString))
 	refreshTokenHashString := base64.URLEncoding.EncodeToString(refreshTokenHash[:])
 
+	ctx = token.NewContextWithSystemCallToken(ctx)
 	// we use entgql.Transactioner in all gql api ops.
 	rt, err := a.entc.RefreshToken.Query().
 		Where(
 			refreshtoken.TokenHashEQ(refreshTokenHashString),
-			refreshtoken.RevokedEQ(false),
-			refreshtoken.ExpiresAtGT(time.Now()),
 		).
 		WithOwner().
 		Only(ctx)
 	if err != nil {
 		if generated.IsNotFound(err) {
-			exists, _ := a.entc.RefreshToken.Query().
-				Where(refreshtoken.TokenHashEQ(refreshTokenHashString)).
-				Exist(ctx)
-			if exists {
-				// could be either revoked or expired, just assume revoked
-				return nil, nil, ErrRefreshTokenRevoked
-			}
 			return nil, nil, ErrRefreshTokenNotFound
 		}
 		return nil, nil, fmt.Errorf("failed to query refresh token: %w", err)
 	}
 
-	// explicitly check expiry and revoked status again
 	if rt.Revoked {
 		return nil, nil, ErrRefreshTokenRevoked
 	}
@@ -256,11 +247,11 @@ func (a *Authentication) ValidateAndRotateRefreshToken(ctx context.Context, oldR
 	}
 
 	user := rt.Edges.Owner
-	sysCtx := internal.SetUserCtx(token.NewContextWithSystemCallToken(ctx), user)
+	ctxWithOwner := internal.SetUserCtx(ctx, user)
 	// only revoke the current session before reissuing, not all
 	// instead of revoking instantly, set exp to 1min ahead to allow for concurrent queries
 	// to also rotate the rt and prevent 401s and sign outs
-	_, err = a.entc.RefreshToken.UpdateOne(rt).SetExpiresAt(time.Now().Add(time.Minute)).Save(sysCtx)
+	_, err = a.entc.RefreshToken.UpdateOne(rt).SetExpiresAt(time.Now().Add(time.Minute)).Save(ctxWithOwner)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to revoke old refresh token: %w", err)
 	}
@@ -270,7 +261,7 @@ func (a *Authentication) ValidateAndRotateRefreshToken(ctx context.Context, oldR
 		return nil, nil, fmt.Errorf("failed to get gin context: %w", err)
 	}
 	// always creating prevents race conditions with refresh token rotation
-	tp, err := a.IssueNewTokenPair(sysCtx, user, ginCtx.ClientIP(), ginCtx.Request.UserAgent())
+	tp, err := a.IssueNewTokenPair(ctx, user, ginCtx.ClientIP(), ginCtx.Request.UserAgent())
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to issue new token pair: %w", err)
 	}

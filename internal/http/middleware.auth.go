@@ -9,6 +9,7 @@ import (
 	"github.com/caliecode/la-clipasa/internal"
 	"github.com/caliecode/la-clipasa/internal/auth"
 	"github.com/caliecode/la-clipasa/internal/ent/generated"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/privacy"
 	"github.com/caliecode/la-clipasa/internal/ent/privacy/token"
 	"github.com/caliecode/la-clipasa/internal/http/httputil"
 	"github.com/gin-gonic/gin"
@@ -46,6 +47,7 @@ func (m *authMiddleware) TryAuthentication() gin.HandlerFunc {
 		authHeader := c.Request.Header.Get(AuthorizationHeaderKey)
 
 		sysCtx := token.NewContextWithSystemCallToken(ctx)
+		sysCtx = privacy.DecisionContext(sysCtx, privacy.Allow)
 		if apiKey != "" {
 			apiKeyUser, err := m.authn.GetUserFromAPIKey(sysCtx, apiKey)
 			if err == nil {
@@ -69,7 +71,8 @@ func (m *authMiddleware) TryAuthentication() gin.HandlerFunc {
 					refreshTokenCookie, cookieErr := c.Cookie(httputil.RefreshTokenCookieName)
 					if cookieErr == nil && refreshTokenCookie != "" {
 						// try to use cookie
-						sysCtx := context.WithValue(ctx, "GinContextKey", c)
+						sysCtx = context.WithValue(ctx, "GinContextKey", c)
+
 						refreshedUser, newTokenPair, refreshErr := m.authn.ValidateAndRotateRefreshToken(sysCtx, refreshTokenCookie)
 						if refreshErr == nil {
 							u = refreshedUser
