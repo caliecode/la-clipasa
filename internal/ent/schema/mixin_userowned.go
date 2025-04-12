@@ -122,6 +122,8 @@ func (userOwned UserOwnedMixin) Indexes() []ent.Index {
 func (userOwned UserOwnedMixin) Hooks() []ent.Hook {
 	return []ent.Hook{
 		func(next ent.Mutator) ent.Mutator {
+			// FIXME: policies  should be able to also allow skipping user owner mixin,
+			// else not found error since owner_id=(caller user id) is being set
 			return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
 				// skip hook if strictly set to allow
 				if _, allow := privacy.DecisionFromContext(ctx); allow {

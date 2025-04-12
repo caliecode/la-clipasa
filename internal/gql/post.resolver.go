@@ -40,6 +40,10 @@ func (r *mutationResolver) CreateBulkCSVPost(ctx context.Context, input graphql.
 
 // UpdatePost is the resolver for the updatePost field.
 func (r *mutationResolver) UpdatePost(ctx context.Context, id uuid.UUID, input generated.UpdatePostInput) (*model.PostUpdatePayload, error) {
+	// TODO: if user role rank > mod and we are exclysively updating the moderated field,
+	// ctx = privacy.DecisionContext(ctx, privacy.Allow)
+	// else userowned interceptor sets the caller -> 404
+	// alternative is to have a dedicated mutation, like DeletePost with its directive
 	p, err := r.ent.Post.UpdateOneID(id).SetInput(input).Save(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("could not update post: %w", err)
@@ -52,7 +56,7 @@ func (r *mutationResolver) UpdatePost(ctx context.Context, id uuid.UUID, input g
 
 // DeletePost is the resolver for the deletePost field.
 func (r *mutationResolver) DeletePost(ctx context.Context, id uuid.UUID) (*model.PostDeletePayload, error) {
-	// already has role privacy, and else we can't query the post
+	// since it already has role directive, and else we can't query the post (not found)
 	ctx = privacy.DecisionContext(ctx, privacy.Allow)
 	if err := r.ent.Post.DeleteOneID(id).Exec(ctx); err != nil {
 		return nil, fmt.Errorf("could not delete post: %w", err)
