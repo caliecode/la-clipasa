@@ -95,6 +95,7 @@ export default function Layout({ children }: LayoutProps) {
     needRefresh: [needRefresh],
     updateServiceWorker,
   } = useRegisterSW({
+    immediate: true,
     onRegisteredSW(swUrl, r) {
       console.log(`Service Worker registered: ${swUrl}`)
       if (r) {
