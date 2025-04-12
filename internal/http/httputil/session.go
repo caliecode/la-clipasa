@@ -21,8 +21,7 @@ func SignOutUser(c *gin.Context, client generated.Client) {
 	ClearRefreshTokenCookie(c, client)
 
 	c.Status(http.StatusOK)
-
-	// FIXME: cookies not set via signout handler call
+	// FIXME: works in prod but not localhost (bad domain due to port prob?)
 }
 
 func ClearTwitchAuthCookie(c *gin.Context) {

@@ -99,7 +99,7 @@ export async function logUserOut(queryClient: QueryClient) {
   // await queryClient.invalidateQueries()
   // queryClient.clear()
   localStorage.removeItem(UI_SLICE_PERSIST_KEY)
-  // window.location.reload()
+  window.location.reload()
 }
 
 /**

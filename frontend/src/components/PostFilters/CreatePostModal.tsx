@@ -186,7 +186,7 @@ export default function CreatePostModal({ opened, onClose }: CreatePostModalProp
             {t('post.create.unrecognizedServiceWarning')}
           </Text>
         )}
-        <TextInput label="Content" {...postCreateForm.getInputProps('base.content')} />
+        <TextInput label={t('post.fields.content')} {...postCreateForm.getInputProps('base.content')} />
         <Text size="xs" opacity={0.6}>
           {t('post.create.contentHelpText')}
         </Text>
