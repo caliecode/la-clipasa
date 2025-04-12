@@ -93,6 +93,7 @@ export default function useAuthenticatedUser() {
 
 // TODO doesnt seem to clear react query
 export async function logUserOut(queryClient: QueryClient) {
+  // TODO: instead call /api/signout which calls signOutUser and removes all relevant cookies and db entries
   Cookies.remove(LOGIN_COOKIE_KEY, {
     expires: 365,
     sameSite: 'none',
