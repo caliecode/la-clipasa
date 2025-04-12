@@ -92,7 +92,7 @@ func (m *authMiddleware) TryAuthentication() gin.HandlerFunc {
 				} else {
 					// invalid signature, user not found, etc.
 					logger.Warnw("Failed to validate access token", "error", err)
-					httputil.SignOutUser(c)
+					// don't sign out
 					// u remains nil
 				}
 			}
