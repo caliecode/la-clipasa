@@ -107,10 +107,13 @@ func (r *mutationResolver) UpdatePostWithCategories(ctx context.Context, id uuid
 		metadata = meta
 	}
 
-	updatedPost, err := r.ent.Post.UpdateOneID(id).SetInput(*input.Base).Save(ctx)
-	if err != nil {
-		return nil, parseRequestError(err, action{action: ActionUpdate, object: "post"})
+	// base post update logic at resolver level
+	updatedPostResponse, err := r.UpdatePost(ctx, id, *input.Base)
+	if err != nil || updatedPostResponse == nil {
+		return nil, fmt.Errorf("failed to update post: %w", err)
 	}
+
+	updatedPost := updatedPostResponse.Post
 
 	if metadata != nil {
 		_, err = r.ent.Post.UpdateOneID(id).SetMetadata(*metadata).Save(ctx)

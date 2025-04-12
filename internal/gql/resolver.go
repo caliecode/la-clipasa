@@ -49,7 +49,7 @@ func hasRoleDirective(ctx context.Context, obj any, next graphql.Resolver, role 
 		return nil, internal.WrapErrorf(errors.New("has role directive: unauthenticated"), internal.ErrorCodeUnauthenticated, "unauthenticated")
 	}
 
-	if auth.RoleRank.Get(u.Role) < auth.RoleRank.Get(role) {
+	if !auth.IsAuthorized(u, role) {
 		return nil, internal.WrapErrorf(errors.New("has role directive: unauthorized"), internal.ErrorCodeUnauthorized, "unauthorized")
 	}
 

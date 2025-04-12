@@ -1,6 +1,9 @@
 package auth
 
-import "github.com/caliecode/la-clipasa/internal/ent/generated/user"
+import (
+	"github.com/caliecode/la-clipasa/internal/ent/generated"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
+)
 
 // Role ranks by user role.
 type roleRank struct {
@@ -11,10 +14,15 @@ func (r roleRank) Get(role user.Role) int {
 	return r.m[role]
 }
 
+func IsAuthorized(u *generated.User, role user.Role) bool {
+	return RoleRank.Get(u.Role) > RoleRank.Get(role)
+}
+
 var RoleRank = roleRank{
 	m: map[user.Role]int{
-		user.RoleUSER:      0,
-		user.RoleMODERATOR: 1,
-		user.RoleADMIN:     2,
+		user.RoleGUEST:     0,
+		user.RoleUSER:      1,
+		user.RoleMODERATOR: 2,
+		user.RoleADMIN:     3,
 	},
 }

@@ -7,8 +7,11 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/caliecode/la-clipasa/internal"
+	"github.com/caliecode/la-clipasa/internal/auth"
 	"github.com/caliecode/la-clipasa/internal/ent/generated"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/privacy"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
+	"github.com/caliecode/la-clipasa/internal/ent/privacy/token"
 	"github.com/caliecode/la-clipasa/internal/gql/model"
 	"github.com/google/uuid"
 )
@@ -40,10 +43,11 @@ func (r *mutationResolver) CreateBulkCSVPost(ctx context.Context, input graphql.
 
 // UpdatePost is the resolver for the updatePost field.
 func (r *mutationResolver) UpdatePost(ctx context.Context, id uuid.UUID, input generated.UpdatePostInput) (*model.PostUpdatePayload, error) {
-	// TODO: if user role rank > mod and we are exclysively updating the moderated field,
-	// ctx = privacy.DecisionContext(ctx, privacy.Allow)
-	// else userowned interceptor sets the caller -> 404
-	// alternative is to have a dedicated mutation, like DeletePost with its directive
+	if auth.IsAuthorized(internal.GetUserFromCtx(ctx), user.RoleMODERATOR) {
+		// allow moderators to update any post field
+		ctx = privacy.DecisionContext(ctx, privacy.Allow)
+		ctx = token.NewContextWithSystemCallToken(ctx)
+	}
 	p, err := r.ent.Post.UpdateOneID(id).SetInput(input).Save(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("could not update post: %w", err)
