@@ -88,34 +88,74 @@ export default function Layout({ children }: LayoutProps) {
   const { burgerOpened, setBurgerOpened } = useUISlice()
   const [broadcasterTokenOpened, { open: openBroadcasterToken, close: closeBroadcasterToken }] = useDisclosure(false)
   const notificationIdRef = useRef<string | null>(null)
+  const swRegistrationRef = useRef<ServiceWorkerRegistration | null>(null)
 
+  // --- PWA Update Logic ---
   const {
     needRefresh: [needRefresh],
     updateServiceWorker,
   } = useRegisterSW({
     onRegisteredSW(swUrl, r) {
       console.log(`Service Worker registered: ${swUrl}`)
+      if (r) {
+        console.log('Workbox registration object available:', r)
+        swRegistrationRef.current = r
+      }
       setInterval(
         () => {
+          console.log('Checking for SW update...')
           r?.update()
         },
         15 * 60 * 1000,
-      ) // e.g., check every 15min
+      )
     },
     onRegisterError(error) {
       console.error('Service Worker registration error:', error)
     },
   })
 
+  const handleManualUpdateCheck = () => {
+    console.log('Manually triggering SW update check...')
+    if (!swRegistrationRef.current) {
+      console.warn('SW Registration not available yet.')
+      notifications.show({
+        color: 'orange',
+        title: 'PWA Info',
+        message: 'Service Worker registration not ready yet. Try again in a moment.',
+      })
+      return
+    }
+    swRegistrationRef.current
+      .update()
+      .then((hasUpdate) => {
+        // Note: .update() itself doesn't directly return if needRefresh will trigger.
+        // It just initiates the check. We rely on the useRegisterSW hook's
+        // internal logic watching for the 'waiting' state.
+        console.log('SW update check initiated.')
+        if (!needRefresh) {
+          notifications.show({
+            color: 'green',
+            title: 'PWA Info',
+            message: 'No new version detected by the hook yet.',
+          })
+        }
+      })
+      .catch((err) => {
+        console.error('Error checking for SW update:', err)
+        notifications.show({ color: 'red', title: 'PWA Error', message: 'Failed to check for updates.' })
+      })
+  }
+
   useEffect(() => {
     if (needRefresh) {
       if (!notificationIdRef.current || !notifications.update) {
         const id = notifications.show({
+          // ... (same notification config as before) ...
           id: 'pwa-update',
-          title: t('pwa.updateAvailableTitle'),
+          title: t('pwa.updateAvailableTitle', 'Update Available'),
           message: (
             <>
-              {t('pwa.updateAvailableMessage')}
+              {t('pwa.updateAvailableMessage', 'A new version of the application is ready.')}
               <Button
                 variant="light"
                 color="blue"
@@ -124,10 +164,11 @@ export default function Layout({ children }: LayoutProps) {
                 onClick={() => {
                   notifications.hide('pwa-update')
                   notificationIdRef.current = null
+                  // Make sure page reloads after update in dev too
                   updateServiceWorker(true)
                 }}
               >
-                {t('common.update')}
+                {t('common.update', 'Update Now')}
               </Button>
             </>
           ),
@@ -135,19 +176,23 @@ export default function Layout({ children }: LayoutProps) {
           autoClose: false,
           withCloseButton: true,
           onClose: () => {
-            // potentially shown again later if needRefresh is still true
             notificationIdRef.current = null
           },
         })
         notificationIdRef.current = id
+        console.log('PWA Update notification shown.')
+      } else {
+        console.log('PWA Update notification already shown.')
       }
     } else {
       if (notificationIdRef.current) {
+        console.log('Hiding PWA Update notification as needRefresh is false.')
         notifications.hide(notificationIdRef.current)
         notificationIdRef.current = null
       }
     }
   }, [needRefresh, updateServiceWorker, t])
+  // --- End PWA Update Logic ---
 
   const tabs = []
   const tabComponents = tabs.map((tab) => (
@@ -234,6 +279,12 @@ export default function Layout({ children }: LayoutProps) {
                 onClick={() => setBurgerOpened(!burgerOpened)}
                 title={title}
               />
+
+              {import.meta.env.DEV && (
+                <Button onClick={handleManualUpdateCheck} variant="outline" color="grape">
+                  Dev: Check for PWA Update
+                </Button>
+              )}
               {window.innerWidth < 768 && (
                 <Image
                   alt="la clipasa"
