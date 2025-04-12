@@ -86,7 +86,6 @@ func (RefreshToken) Policy() ent.Policy {
 			ent.OpUpdate|ent.OpDeleteOne|ent.OpDelete,
 			rule.AllowIfSeedingData(),
 			rule.AllowIfContextHasPrivacyTokenOfType(&token.SystemCallToken{}),
-			rule.AllowIfContextHasPrivacyTokenOfType(&token.SystemCallToken{}),
 			rule.AllowIfSelfOrHasRole(user.RoleADMIN),
 		),
 	)

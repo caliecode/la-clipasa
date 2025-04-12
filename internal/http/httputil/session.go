@@ -10,6 +10,7 @@ import (
 	"github.com/caliecode/la-clipasa/internal/ent/generated"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/privacy"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/refreshtoken"
+	"github.com/caliecode/la-clipasa/internal/ent/privacy/token"
 	"github.com/gin-gonic/gin"
 )
 
@@ -47,6 +48,7 @@ func ClearRefreshTokenCookie(c *gin.Context, entClient generated.Client) {
 		refreshTokenHash := sha256.Sum256([]byte(rt))
 		refreshTokenHashString := base64.URLEncoding.EncodeToString(refreshTokenHash[:])
 		ctx := privacy.DecisionContext(c.Request.Context(), privacy.Allow) // httpOnly cookie so should be safe
+		ctx = token.NewContextWithSystemCallToken(ctx)                     // for updateone on refresh token
 		_, _ = entClient.RefreshToken.Delete().Where(refreshtoken.TokenHash(refreshTokenHashString)).Exec(ctx)
 	}
 
