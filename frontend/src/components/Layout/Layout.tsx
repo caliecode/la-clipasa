@@ -364,7 +364,7 @@ export default function Layout({ children }: LayoutProps) {
                     Logout
                   </Menu.Item>
                   <Menu.Label c="dimmed" style={{ display: 'none' }}>
-                    Version: {import.meta.env.VITE_BUILD_VERSION}
+                    Version: {import.meta.env.VITE_BUILD_VERSION} ()
                   </Menu.Label>
                 </Menu.Dropdown>
               </Menu>
