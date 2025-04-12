@@ -72,7 +72,7 @@ func NewResolver(entClient *generated.Client) Config {
 	return Config{
 		Resolvers: &Resolver{
 			ent:     entClient,
-			twitch:  client.NewTwitchHandlers(),
+			twitch:  client.NewTwitchHandlers(entClient),
 			discord: client.NewDiscordHandlers(),
 		},
 		Directives: DirectiveRoot{

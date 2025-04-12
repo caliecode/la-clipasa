@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -206,16 +205,7 @@ func (h *Handlers) twitchCallback(c *gin.Context) {
 		return
 	}
 
-	http.SetCookie(c.Writer, &http.Cookie{
-		Name:     internal.Config.Twitch.AuthInfoCookieKey,
-		Value:    base64.URLEncoding.EncodeToString(tokenJSON.([]byte)),
-		Path:     "/",
-		Expires:  twitchTokenInfo.Expiry.Add(7 * 24 * time.Hour), // we will verify manually token expiration manually and use refresh token
-		Secure:   true,
-		HttpOnly: true, // prevent js access
-		Domain:   internal.Config.CookieDomain,
-		SameSite: http.SameSiteNoneMode,
-	})
+	httputil.SetTwitchAuthCookie(c, base64.URLEncoding.EncodeToString(tokenJSON.([]byte)))
 
 	userinfo, err := internal.GetUserInfoFromCtx(c)
 	if err != nil {

@@ -139,6 +139,7 @@
       "content": "Content",
       "categories": "Categories"
     },
+    "all": "All posts",
     "filters": {
       "activeCategoryFilters": "Active category filters",
       "filterByCategory": "Filter by category",

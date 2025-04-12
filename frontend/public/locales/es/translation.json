@@ -139,6 +139,7 @@
       "content": "Contenido",
       "categories": "Categorías"
     },
+    "all": "Todas las publicaciones",
     "filters": {
       "activeCategoryFilters": "Filtros de categoría activos",
       "filterByCategory": "Filtrar por categoría",

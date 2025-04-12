@@ -10,7 +10,7 @@ export default function ModerationFilters(): JSX.Element {
   const { queryParams, postActions } = usePostsSlice()
   const { t } = useTranslation()
   const statusSelectData: SelectData = [
-    { value: '', label: t('post.filters.moderation.statusPlaceholder') },
+    { value: '', label: t('post.all') },
     { value: 'true', label: t('post.filters.moderation.moderated') },
     { value: 'false', label: t('post.filters.moderation.notModerated') },
   ]

@@ -213,6 +213,7 @@ export default function Layout({ children }: LayoutProps) {
   const onLogout = async () => {
     ui.setIsLoggingOut(true)
     await logUserOut(queryClient)
+    ui.setIsLoggingOut(false)
   }
 
   function renderAvatarOrLogin() {

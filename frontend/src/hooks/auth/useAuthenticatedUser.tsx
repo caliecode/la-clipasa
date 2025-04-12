@@ -14,6 +14,7 @@ import AxiosInterceptors from 'src/utils/axios'
 import HttpStatus from 'src/utils/httpStatus'
 import { ToastId } from 'src/utils/toasts'
 import { useIsFirstRender } from 'usehooks-ts'
+import { apiPath } from 'src/services/apiPaths'
 
 let isFirstRender = false
 
@@ -93,17 +94,12 @@ export default function useAuthenticatedUser() {
 
 // TODO doesnt seem to clear react query
 export async function logUserOut(queryClient: QueryClient) {
-  // TODO: instead call /api/signout which calls signOutUser and removes all relevant cookies and db entries
-  Cookies.remove(LOGIN_COOKIE_KEY, {
-    expires: 365,
-    sameSite: 'none',
-    secure: true,
-  })
-  await queryClient.cancelQueries()
-  await queryClient.invalidateQueries()
-  queryClient.clear()
+  await AXIOS_INSTANCE.get(apiPath('/auth/signout'))
+  // await queryClient.cancelQueries()
+  // await queryClient.invalidateQueries()
+  // queryClient.clear()
   localStorage.removeItem(UI_SLICE_PERSIST_KEY)
-  window.location.reload()
+  // window.location.reload()
 }
 
 /**

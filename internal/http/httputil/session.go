@@ -16,20 +16,27 @@ const RefreshTokenCookieName = "rt"
 
 // SignOutUser completely signs out the user from the app.
 func SignOutUser(c *gin.Context, client generated.Client) {
-	http.SetCookie(c.Writer, &http.Cookie{
-		Name:     internal.Config.Twitch.AuthInfoCookieKey,
-		Value:    "",
-		Path:     "/",
-		Expires:  time.Unix(0, 0),
-		HttpOnly: true,
-		Secure:   true,
-	})
+	ClearTwitchAuthCookie(c)
 	ClearAccessTokenCookie(c)
 	ClearRefreshTokenCookie(c, client)
 
-	RenderError(c, "Sign out", internal.NewErrorf(internal.ErrorCodeSignedOut, "sign out"), RenderWithoutPanic())
+	c.Status(http.StatusOK)
 
-	c.Redirect(http.StatusFound, "/")
+	// FIXME: cookies not set via signout handler call
+}
+
+func ClearTwitchAuthCookie(c *gin.Context) {
+	http.SetCookie(c.Writer, &http.Cookie{
+		Name:     internal.Config.Twitch.AuthInfoCookieKey,
+		Value:    "",
+		MaxAge:   0, // deletes
+		Expires:  time.Now(),
+		Path:     "/",
+		Secure:   true,
+		HttpOnly: true, // prevent js access
+		Domain:   internal.Config.CookieDomain,
+		SameSite: http.SameSiteLaxMode,
+	})
 }
 
 func ClearRefreshTokenCookie(c *gin.Context, entClient generated.Client) {
@@ -45,8 +52,22 @@ func ClearRefreshTokenCookie(c *gin.Context, entClient generated.Client) {
 	http.SetCookie(c.Writer, &http.Cookie{
 		Name:     RefreshTokenCookieName,
 		Value:    "",
-		MaxAge:   -1, // deletes
+		MaxAge:   0, // deletes
+		Expires:  time.Now(),
 		Path:     "/",
+		Secure:   true,
+		HttpOnly: true, // prevent js access
+		Domain:   internal.Config.CookieDomain,
+		SameSite: http.SameSiteLaxMode,
+	})
+}
+
+func SetTwitchAuthCookie(c *gin.Context, b64Token string) {
+	http.SetCookie(c.Writer, &http.Cookie{
+		Name:     internal.Config.Twitch.AuthInfoCookieKey,
+		Value:    b64Token,
+		Path:     "/",
+		MaxAge:   3600 * 24 * 365,
 		Secure:   true,
 		HttpOnly: true, // prevent js access
 		Domain:   internal.Config.CookieDomain,
@@ -85,7 +106,8 @@ func ClearAccessTokenCookie(c *gin.Context) {
 		Name:     internal.Config.LoginCookieKey,
 		Value:    "",
 		Path:     "/",
-		Expires:  time.Unix(0, 0),
+		MaxAge:   0,
+		Expires:  time.Now(),
 		Domain:   internal.Config.CookieDomain,
 		Secure:   true,
 		HttpOnly: false, // must access via JS

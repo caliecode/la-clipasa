@@ -279,8 +279,9 @@ func NewServer(ctx context.Context, conf Config, opts ...ServerOption) (*Server,
 
 	authn := auth.NewAuthentication(entclient)
 	handlers := Handlers{
+		client: entclient,
 		logger: conf.Logger,
-		authmw: NewAuthMiddleware(conf.Logger, authn),
+		authmw: NewAuthMiddleware(conf.Logger, authn, entclient),
 		oauth2Providers: OAuth2Providers{
 			OAuth2LoginModeBroadcaster: twitchBroadcasterProvider,
 			OAuth2LoginModeUser:        twitchUserProvider,
@@ -313,6 +314,7 @@ func NewServer(ctx context.Context, conf Config, opts ...ServerOption) (*Server,
 	entClient := generated.FromContext(ctx)
 
 	authg := apiRouter.Group("/auth")
+	authg.GET("/signout", handlers.SignOut)
 	authg.GET("/twitch/login", handlers.twitchLogin)
 	authg.GET("/twitch/callback", handlers.codeExchange, handlers.twitchCallback)
 

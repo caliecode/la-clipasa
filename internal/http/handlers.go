@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/caliecode/la-clipasa/internal/auth"
+	"github.com/caliecode/la-clipasa/internal/ent/generated"
 	"github.com/gin-gonic/gin"
 	"github.com/zitadel/oidc/v3/pkg/client/rp"
 	"go.uber.org/zap"
@@ -48,4 +49,5 @@ type Handlers struct {
 	authmw          *authMiddleware
 	oauth2Providers OAuth2Providers
 	authn           *auth.Authentication
+	client          *generated.Client
 }
