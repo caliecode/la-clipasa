@@ -70,6 +70,8 @@ import { withBaseURL } from 'src/utils/urls'
 import { Trans, useTranslation } from 'react-i18next'
 import LanguageToggle from 'src/components/LanguageToggle'
 import { IconDeviceDesktopAnalytics } from '@tabler/icons-react'
+import { useRegisterSW } from 'virtual:pwa-register/react'
+import { notifications } from '@mantine/notifications'
 
 type LayoutProps = {
   children: React.ReactElement
@@ -85,6 +87,67 @@ export default function Layout({ children }: LayoutProps) {
   const { colorScheme } = useMantineColorScheme() // TODO: app logo useffect
   const { burgerOpened, setBurgerOpened } = useUISlice()
   const [broadcasterTokenOpened, { open: openBroadcasterToken, close: closeBroadcasterToken }] = useDisclosure(false)
+  const notificationIdRef = useRef<string | null>(null)
+
+  const {
+    needRefresh: [needRefresh],
+    updateServiceWorker,
+  } = useRegisterSW({
+    onRegisteredSW(swUrl, r) {
+      console.log(`Service Worker registered: ${swUrl}`)
+      setInterval(
+        () => {
+          r?.update()
+        },
+        15 * 60 * 1000,
+      ) // e.g., check every 15min
+    },
+    onRegisterError(error) {
+      console.error('Service Worker registration error:', error)
+    },
+  })
+
+  useEffect(() => {
+    if (needRefresh) {
+      if (!notificationIdRef.current || !notifications.update) {
+        const id = notifications.show({
+          id: 'pwa-update',
+          title: t('pwa.updateAvailableTitle'),
+          message: (
+            <>
+              {t('pwa.updateAvailableMessage')}
+              <Button
+                variant="light"
+                color="blue"
+                size="xs"
+                ml="md"
+                onClick={() => {
+                  notifications.hide('pwa-update')
+                  notificationIdRef.current = null
+                  updateServiceWorker(true)
+                }}
+              >
+                {t('common.update')}
+              </Button>
+            </>
+          ),
+          color: 'blue',
+          autoClose: false,
+          withCloseButton: true,
+          onClose: () => {
+            // potentially shown again later if needRefresh is still true
+            notificationIdRef.current = null
+          },
+        })
+        notificationIdRef.current = id
+      }
+    } else {
+      if (notificationIdRef.current) {
+        notifications.hide(notificationIdRef.current)
+        notificationIdRef.current = null
+      }
+    }
+  }, [needRefresh, updateServiceWorker, t])
 
   const tabs = []
   const tabComponents = tabs.map((tab) => (

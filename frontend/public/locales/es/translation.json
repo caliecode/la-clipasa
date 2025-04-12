@@ -1,4 +1,8 @@
 {
+  "pwa": {
+    "updateAvailableTitle": "Actualización disponible",
+    "updateAvailableMessage": "Una nueva actualización está disponible. Por favor, actualice la página para obtener la versión más reciente."
+  },
   "sessionManagement": {
     "title": "Gestión de Sesiones",
     "description": "Aquí puedes ver y gestionar tus sesiones activas en diferentes dispositivos. Revoca cualquier sesión que no reconozcas.",

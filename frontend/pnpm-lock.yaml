@@ -399,6 +399,9 @@ importers:
       vite-css-modules:
         specifier: ^1.8.4
         version: 1.8.4(postcss@8.5.3)(rollup@2.79.2)(vite@5.1.5(@types/node@22.13.10)(sugarss@4.0.1(postcss@8.5.3))(terser@5.39.0))
+      workbox-window:
+        specifier: ^7.3.0
+        version: 7.3.0
 
 packages:
 

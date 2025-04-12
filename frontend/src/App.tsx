@@ -92,7 +92,7 @@ export default function App() {
             labels={{ confirm: t('common.submit'), cancel: t('common.cancel') }}
             modalProps={{ styles: { root: { marginTop: '100px', zIndex: 20000 } } }}
           >
-            <Notifications />{' '}
+            <Notifications />
             <BrowserRouter basename={import.meta.env.BASE_URL}>
               <React.Suspense
                 fallback={<div style={{ backgroundColor: 'rgb(20, 21, 25)', height: '100vh', width: '100vw' }} />}

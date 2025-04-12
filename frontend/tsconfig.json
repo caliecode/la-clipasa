@@ -6,7 +6,8 @@
   ],
   "compilerOptions": {
     "types": [
-      "./@types/i18next.d.ts"
+      "./@types/i18next.d.ts",
+      "vite-plugin-pwa/client"
     ],
     "target": "ESNext",
     "useDefineForClassFields": true,

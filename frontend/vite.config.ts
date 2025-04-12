@@ -28,6 +28,7 @@ export default ({ mode }) => {
       tsconfigPaths({ root: '.' }),
       dynamicImport({}),
       VitePWA({
+        registerType: 'prompt', // or autoUpdate: refreshes automatically
         includeAssets: ['favicon.ico', 'maskable_icon.png', 'icon_x192.png', 'icon_x512.png'],
         manifest: {
           name: 'La Clipasa',
