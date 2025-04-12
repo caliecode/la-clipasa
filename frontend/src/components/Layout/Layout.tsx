@@ -363,7 +363,10 @@ export default function Layout({ children }: LayoutProps) {
                   <Menu.Item leftSection={<IconLogout size={14} stroke={1.5} />} onClick={onLogout}>
                     Logout
                   </Menu.Item>
-                </Menu.Dropdown>{' '}
+                  <Menu.Label c="dimmed" style={{ display: 'none' }}>
+                    Version: {import.meta.env.VITE_BUILD_VERSION}
+                  </Menu.Label>
+                </Menu.Dropdown>
               </Menu>
             </Group>
           </Group>
