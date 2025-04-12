@@ -107,7 +107,7 @@ export default function Layout({ children }: LayoutProps) {
           console.log('Checking for SW update...')
           r?.update()
         },
-        15 * 60 * 1000,
+        5 * 60 * 1000, // every 5 minutes
       )
     },
     onRegisterError(error) {
