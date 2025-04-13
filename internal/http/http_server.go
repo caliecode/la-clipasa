@@ -425,12 +425,17 @@ func Run(env string) (<-chan error, error) {
 		defer func() {
 			_ = logger.Sync()
 
-			entClient.Close()
-			pool.Close()
+			logger.Infof("Closing ent client")
+			if err := entClient.Close(); err != nil {
+				logger.Error("entClient.Close", zap.Error(err))
+			}
+			logger.Infof("Skipping closing postgres pool (sql pool used by pgx closed by ent)")
+			// pool.Close()
 			// rmq.Close()
 			stop()
 			cancel()
 			close(errC)
+			logger.Info("Shutdown cleanup completed")
 		}()
 
 		srv.Httpsrv.SetKeepAlivesEnabled(false)
