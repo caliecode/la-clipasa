@@ -64,7 +64,7 @@ export default ({ mode }) => {
         },
         workbox: {
           // what the service worker will precache:
-          globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+          globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,avif,jpg}'],
           // ensure dynamic imports are also cached
           runtimeCaching: [
             {
