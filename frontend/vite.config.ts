@@ -68,13 +68,13 @@ export default ({ mode }) => {
           // ensure dynamic imports are also cached
           runtimeCaching: [
             {
-              urlPattern: /^https:\/\/laclipasa\.fly\.dev\/ui\/_app\/immutable\/.*/i,
-              handler: 'CacheFirst',
+              urlPattern: /^https:\/\/laclipasa\.fly\.dev\/ui\/assets\/.*/i,
+              handler: 'StaleWhileRevalidate',
               options: {
-                cacheName: 'app-chunks',
+                cacheName: 'assets-cache',
                 expiration: {
-                  maxEntries: 100,
-                  maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+                  maxEntries: 300,
+                  maxAgeSeconds: 60 * 60 * 24 * 7, // 7 days
                 },
               },
             },
