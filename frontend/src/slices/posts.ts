@@ -7,7 +7,7 @@ import { PostContextType } from 'src/components/Post/Post.context'
 
 export const POSTS_SLICE_PERSIST_KEY = 'posts-slice'
 
-export type SortSelectOption = 'creationDate' | 'lastSeen' | 'mostLiked'
+export type SortSelectOption = 'creationDate' | 'lastSeen' | 'mostLiked' | 'approvedAt'
 
 type PostsState = {
   lastSeenCursor: Nullable<string>
@@ -101,6 +101,8 @@ export const usePostsSlice = create<PostsState>()(
               set(
                 produce<PostsState>((state) => {
                   state.sort = sort
+                  state.queryParams.where ||= {}
+                  state.queryParams.where.moderatedAtNotNil = false
                   _resetPagination(state)
                   switch (sort) {
                     case 'creationDate':
@@ -108,6 +110,12 @@ export const usePostsSlice = create<PostsState>()(
                         order.field = 'CREATED_AT'
                       })
                       break
+                    case 'approvedAt':
+                      _updateOrder(state, (order) => {
+                        order.field = 'MODERATED_AT'
+                        state.queryParams.where!.moderatedAtNotNil = true
+                      })
+
                     case 'lastSeen':
                       state.queryParams.after = state.lastSeenCursor
                       break

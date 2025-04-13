@@ -181,6 +181,8 @@
         "creationDate_desc": "Fecha de creación (más nuevas primero)",
         "lastSeen_asc": "Desde la última vista (fecha creación asc.)",
         "lastSeen_desc": "Desde la última vista (fecha creación desc.)",
+        "approvedAt_asc": "Fecha de moderación (más antiguas primero)",
+        "approvedAt_desc": "Fecha de moderación (más nuevas primero)",
         "mostLiked": "Más Me gusta"
       }
     },

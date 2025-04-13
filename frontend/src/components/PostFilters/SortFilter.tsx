@@ -24,6 +24,10 @@ export default function SortSelect(): JSX.Element {
       value: 'mostLiked',
       label: t('post.filters.sort.mostLiked'),
     },
+    {
+      value: 'approvedAt',
+      label: sortDirection === 'ASC' ? t('post.filters.sort.approvedAt_asc') : t('post.filters.sort.approvedAt_desc'),
+    },
   ]
 
   return (

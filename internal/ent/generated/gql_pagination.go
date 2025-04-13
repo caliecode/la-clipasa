@@ -1028,6 +1028,20 @@ var (
 			}
 		},
 	}
+	// PostOrderFieldModeratedAt orders Post by moderated_at.
+	PostOrderFieldModeratedAt = &PostOrderField{
+		Value: func(po *Post) (ent.Value, error) {
+			return po.ModeratedAt, nil
+		},
+		column: post.FieldModeratedAt,
+		toTerm: post.ByModeratedAt,
+		toCursor: func(po *Post) Cursor {
+			return Cursor{
+				ID:    po.ID,
+				Value: po.ModeratedAt,
+			}
+		},
+	}
 	// PostOrderFieldCommentsCount orders by COMMENTS_COUNT.
 	PostOrderFieldCommentsCount = &PostOrderField{
 		Value: func(po *Post) (ent.Value, error) {
@@ -1078,6 +1092,8 @@ func (f PostOrderField) String() string {
 		str = "UPDATED_AT"
 	case PostOrderFieldCreatedAt.column:
 		str = "CREATED_AT"
+	case PostOrderFieldModeratedAt.column:
+		str = "MODERATED_AT"
 	case PostOrderFieldCommentsCount.column:
 		str = "COMMENTS_COUNT"
 	case PostOrderFieldLikedByCount.column:
@@ -1104,6 +1120,8 @@ func (f *PostOrderField) UnmarshalGQL(v interface{}) error {
 		*f = *PostOrderFieldUpdatedAt
 	case "CREATED_AT":
 		*f = *PostOrderFieldCreatedAt
+	case "MODERATED_AT":
+		*f = *PostOrderFieldModeratedAt
 	case "COMMENTS_COUNT":
 		*f = *PostOrderFieldCommentsCount
 	case "LIKED_BY_COUNT":

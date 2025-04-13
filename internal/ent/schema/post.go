@@ -51,6 +51,7 @@ func (Post) Fields() []ent.Field {
 			Nillable().
 			Annotations(
 				entgql.Skip(entgql.SkipMutationCreateInput, entgql.SkipMutationUpdateInput),
+				entgql.OrderField("MODERATED_AT"),
 			),
 		// use triggers on table columns instead, with immutable, to mimic `GENERATED ALWAYS`.
 		// Atlas does respect index, trigger and function definitions in custom migration files, but not field expressions!

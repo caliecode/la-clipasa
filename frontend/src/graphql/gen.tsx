@@ -887,7 +887,7 @@ export type PostOrder = {
 }
 
 /** Properties by which Post connections can be ordered. */
-export type PostOrderField = 'COMMENTS_COUNT' | 'CREATED_AT' | 'ID' | 'LIKED_BY_COUNT' | 'UPDATED_AT'
+export type PostOrderField = 'COMMENTS_COUNT' | 'CREATED_AT' | 'ID' | 'LIKED_BY_COUNT' | 'MODERATED_AT' | 'UPDATED_AT'
 
 export type PostService = 'DISCORD' | 'UNKNOWN'
 

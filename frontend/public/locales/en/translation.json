@@ -181,6 +181,8 @@
         "creationDate_desc": "Creation date (newest first)",
         "lastSeen_asc": "From last seen (ascending creation date)",
         "lastSeen_desc": "From last seen (descending creation date)",
+        "approvedAt_asc": "Approved at (ascending creation date)",
+        "approvedAt_desc": "Approved at (descending creation date)",
         "mostLiked": "Most liked"
       }
     },
