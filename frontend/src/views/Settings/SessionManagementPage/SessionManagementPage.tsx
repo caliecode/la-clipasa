@@ -1,18 +1,6 @@
 import React, { useState, useMemo } from 'react'
-import {
-  Container,
-  Title,
-  Table,
-  Button,
-  Group,
-  Text,
-  LoadingOverlay,
-  ActionIcon,
-  Tooltip,
-  useMantineTheme,
-  Alert,
-  Space,
-} from '@mantine/core'
+import { Container, Title, ActionIcon, Tooltip, Text, LoadingOverlay, Alert, Space, Box } from '@mantine/core'
+import { DataTable, DataTableColumn, DataTableSortStatus } from 'mantine-datatable'
 import { IconTrash, IconInfoCircle } from '@tabler/icons-react'
 import { useMyRefreshTokensQuery, useDeleteRefreshTokenMutation, RefreshTokenFragment } from 'src/graphql/gen'
 import PageTemplate from 'src/components/PageTemplate'
@@ -43,28 +31,80 @@ const parseUserAgent = (uaString?: string | null): string => {
   }
 }
 
+interface SessionData {
+  id: string
+  deviceInfo: string
+  ipAddress: string | null
+  createdAt: Date
+  updatedAt: Date
+  expiresAt: Date
+  isCurrentSession: boolean
+}
+
 export default function SessionManagementPage() {
   const { t } = useTranslation()
-  const theme = useMantineTheme()
   const { user } = useAuthenticatedUser()
+  const [error, setError] = useState<string | null>(null)
+
+  const [sortStatus, setSortStatus] = useState<DataTableSortStatus<SessionData>>({
+    columnAccessor: 'createdAt',
+    direction: 'desc',
+  })
+
   const [sessionsData, refetchSessions] = useMyRefreshTokensQuery({
     variables: { where: { hasOwnerWith: [{ id: user?.id }] } },
     requestPolicy: 'cache-and-network',
   })
+
   const [deleteMutationState, deleteRefreshToken] = useDeleteRefreshTokenMutation()
-  const [error, setError] = useState<string | null>(null)
 
-  const sessions = useMemo(() => {
-    return sessionsData.data?.refreshTokens?.edges?.map((edge) => edge?.node).filter((t) => !!t) ?? []
-  }, [sessionsData.data])
+  const isPotentiallyCurrent = (createdAt: string): boolean => {
+    return dayjs().diff(dayjs(createdAt), 'minute') < 5
+  }
+  const sortedSessions = useMemo((): SessionData[] => {
+    const rawSessions =
+      sessionsData.data?.refreshTokens?.edges
+        ?.map((edge) => edge?.node)
+        .filter((t): t is RefreshTokenFragment => !!t) || []
 
-  const handleRevoke = (tokenId: string, isCurrentEstimate: boolean) => {
+    const mapped = rawSessions.map((session) => ({
+      id: session.id,
+      deviceInfo: parseUserAgent(session.userAgent),
+      ipAddress: session.ipAddress || null,
+      createdAt: new Date(session.createdAt),
+      updatedAt: new Date(session.updatedAt),
+      expiresAt: new Date(session.expiresAt),
+      isCurrentSession: isPotentiallyCurrent(session.createdAt),
+    }))
+
+    if (sortStatus) {
+      const { columnAccessor, direction } = sortStatus
+      return [...mapped].sort((a, b) => {
+        const aValue = a[columnAccessor as keyof SessionData]
+        const bValue = b[columnAccessor as keyof SessionData]
+
+        if (aValue instanceof Date && bValue instanceof Date) {
+          return direction === 'asc' ? aValue.getTime() - bValue.getTime() : bValue.getTime() - aValue.getTime()
+        }
+
+        if (typeof aValue === 'string' && typeof bValue === 'string') {
+          return direction === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue)
+        }
+
+        return 0
+      })
+    }
+
+    return mapped
+  }, [sessionsData.data, sortStatus])
+
+  const handleRevoke = (sessionId: string, isCurrentSession: boolean) => {
     openConfirmModal({
       title: t('sessionManagement.revokeConfirmTitle'),
       centered: true,
       children: (
         <Text size="sm">
-          {isCurrentEstimate
+          {isCurrentSession
             ? t('sessionManagement.revokeConfirmMessageCurrent')
             : t('sessionManagement.revokeConfirmMessage')}
         </Text>
@@ -73,7 +113,7 @@ export default function SessionManagementPage() {
       confirmProps: { color: 'red' },
       onConfirm: async () => {
         setError(null)
-        const result = await deleteRefreshToken({ id: tokenId })
+        const result = await deleteRefreshToken({ id: sessionId })
         if (result.error) {
           const gqlErrors = extractGqlErrors(result.error.graphQLErrors)
           const message = gqlErrors.length > 0 ? gqlErrors.join(', ') : result.error.message
@@ -97,57 +137,73 @@ export default function SessionManagementPage() {
     })
   }
 
-  const isPotentiallyCurrent = (session: RefreshTokenFragment): boolean => {
-    const createdAt = dayjs(session.createdAt)
-    return dayjs().diff(createdAt, 'minute') < 5
-  }
-
-  const rows = sessions.map((session) => {
-    const uaInfo = parseUserAgent(session.userAgent)
-    const isCurrentSessionEstimate = isPotentiallyCurrent(session)
-    return (
-      <Table.Tr key={session.id}>
-        <Table.Td>
-          <Text fz="sm">{uaInfo}</Text>
+  const columns: DataTableColumn<SessionData>[] = [
+    {
+      accessor: 'deviceInfo',
+      title: t('sessionManagement.headerDevice'),
+      sortable: false,
+      render: (session: SessionData) => (
+        <div>
+          <Text size="sm">{session.deviceInfo}</Text>
           {session.ipAddress && (
-            <Text fz="xs" c="dimmed">
+            <Text size="xs" c="dimmed">
               IP: {session.ipAddress}
             </Text>
           )}
-        </Table.Td>
-        <Table.Td>
-          <Tooltip label={dayjs(session.createdAt).format('YYYY-MM-DD HH:mm:ss')} withArrow position="top">
-            <Text fz="sm">{dayjs(session.createdAt).fromNow()}</Text>
-          </Tooltip>
-        </Table.Td>
-        <Table.Td>
-          <Tooltip label={dayjs(session.updatedAt).format('YYYY-MM-DD HH:mm:ss')} withArrow position="top">
-            <Text fz="sm">{dayjs(session.updatedAt).fromNow()}</Text>
-          </Tooltip>
-        </Table.Td>
-        <Table.Td>
-          <Tooltip label={dayjs(session.expiresAt).format('YYYY-MM-DD HH:mm:ss')} withArrow position="top">
-            <Text fz="sm">
-              {t('sessionManagement.expires')} {dayjs(session.expiresAt).fromNow()}
-            </Text>
-          </Tooltip>
-        </Table.Td>
-        <Table.Td>
-          <Tooltip label={t('sessionManagement.revokeButton')} withArrow>
-            <ActionIcon
-              color="red"
-              variant="subtle"
-              onClick={() => handleRevoke(session.id, isCurrentSessionEstimate)}
-              loading={deleteMutationState.fetching}
-              disabled={deleteMutationState.fetching}
-            >
-              <IconTrash size={16} />
-            </ActionIcon>
-          </Tooltip>
-        </Table.Td>
-      </Table.Tr>
-    )
-  })
+        </div>
+      ),
+    },
+    {
+      accessor: 'createdAt',
+      title: t('sessionManagement.headerCreated'),
+      sortable: true,
+      render: (session: SessionData) => (
+        <Tooltip label={dayjs(session.createdAt).format('YYYY-MM-DD HH:mm:ss')} withArrow>
+          <Text size="sm">{dayjs(session.createdAt).fromNow()}</Text>
+        </Tooltip>
+      ),
+    },
+    {
+      accessor: 'updatedAt',
+      title: t('sessionManagement.headerLastActive'),
+      sortable: true,
+      render: (session: SessionData) => (
+        <Tooltip label={dayjs(session.updatedAt).format('YYYY-MM-DD HH:mm:ss')} withArrow>
+          <Text size="sm">{dayjs(session.updatedAt).fromNow()}</Text>
+        </Tooltip>
+      ),
+    },
+    {
+      accessor: 'expiresAt',
+      title: t('sessionManagement.headerExpires'),
+      sortable: false,
+      render: (session: SessionData) => (
+        <Tooltip label={dayjs(session.expiresAt).format('YYYY-MM-DD HH:mm:ss')} withArrow>
+          <Text size="sm">
+            {t('sessionManagement.expires')} {dayjs(session.expiresAt).fromNow()}
+          </Text>
+        </Tooltip>
+      ),
+    },
+    {
+      accessor: 'actions',
+      title: t('sessionManagement.headerActions'),
+      textAlign: 'right',
+      render: (session: SessionData) => (
+        <Tooltip label={t('sessionManagement.revokeButton')} withArrow>
+          <ActionIcon
+            color="red"
+            variant="subtle"
+            onClick={() => handleRevoke(session.id, session.isCurrentSession)}
+            loading={deleteMutationState.fetching}
+            disabled={deleteMutationState.fetching}
+          >
+            <IconTrash size={16} />
+          </ActionIcon>
+        </Tooltip>
+      ),
+    },
+  ]
 
   return (
     <PageTemplate>
@@ -172,33 +228,21 @@ export default function SessionManagementPage() {
         )}
         <Space h="md" />
 
-        <div className={styles.tableContainer}>
+        <Box className={styles.tableContainer} pos="relative">
           <LoadingOverlay visible={sessionsData.fetching && !sessionsData.data} overlayProps={{ blur: 2 }} />
-          <Table striped highlightOnHover verticalSpacing="sm">
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>{t('sessionManagement.headerDevice')}</Table.Th>
-                <Table.Th>{t('sessionManagement.headerCreated')}</Table.Th>
-                <Table.Th>{t('sessionManagement.headerLastActive')}</Table.Th>
-                <Table.Th>{t('sessionManagement.headerExpires')}</Table.Th>
-                <Table.Th>{t('sessionManagement.headerActions')}</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {rows.length > 0 ? (
-                rows
-              ) : (
-                <Table.Tr>
-                  <Table.Td colSpan={4}>
-                    <Text ta="center" c="dimmed" py="lg">
-                      {sessionsData.fetching ? t('common.loading') : t('sessionManagement.noSessions')}
-                    </Text>
-                  </Table.Td>
-                </Table.Tr>
-              )}
-            </Table.Tbody>
-          </Table>
-        </div>
+
+          <DataTable
+            withTableBorder
+            highlightOnHover
+            striped
+            records={sortedSessions}
+            columns={columns}
+            sortStatus={sortStatus}
+            onSortStatusChange={setSortStatus}
+            noRecordsText={sessionsData.fetching ? t('common.loading') : t('sessionManagement.noSessions')}
+            minHeight={200}
+          />
+        </Box>
       </Container>
     </PageTemplate>
   )
