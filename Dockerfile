@@ -19,5 +19,7 @@ RUN apt-get update && apt-get install -y \
   && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /run-app /usr/local/bin/
+
+ARG GIN_MODE=release
 # EXPOSE 8090
 CMD ["run-app"]
