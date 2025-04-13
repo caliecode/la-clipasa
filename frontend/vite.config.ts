@@ -63,18 +63,30 @@ export default ({ mode }) => {
           },
         },
         workbox: {
-          // what the service worker will precache:
-          globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,avif,jpg}'],
+          navigateFallback: '/ui/',
+          // don't serve index.html for API requests, assets, etc.
+          navigateFallbackDenylist: [/^\/api\//, /\.(js|css|png|jpg|jpeg|gif|svg|ico)$/],
           // ensure dynamic imports are also cached
           runtimeCaching: [
             {
-              urlPattern: /^https:\/\/laclipasa\.fly\.dev\/ui\/assets\/.*/i,
-              handler: 'StaleWhileRevalidate',
+              urlPattern: /\.(?:ico|png|svg|webp|avif|jpg)/i,
+              handler: 'CacheFirst',
               options: {
                 cacheName: 'assets-cache',
                 expiration: {
                   maxEntries: 300,
                   maxAgeSeconds: 60 * 60 * 24 * 7, // 7 days
+                },
+              },
+            },
+            {
+              urlPattern: /\.(?:js|css|html)$/i,
+              handler: 'StaleWhileRevalidate',
+              options: {
+                cacheName: 'html-js-css-cache',
+                expiration: {
+                  maxEntries: 50,
+                  maxAgeSeconds: 60 * 60 * 24 * 7, // 1 week
                 },
               },
             },
