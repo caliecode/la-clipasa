@@ -70,13 +70,12 @@ export default ({ mode }) => {
           // ensure dynamic imports are also cached
           runtimeCaching: [
             {
-              urlPattern: /\.(?:gif|ico|png|svg|webp|avif|jpg)/i,
+              urlPattern: ({ request }) => request.destination === 'image',
               handler: 'StaleWhileRevalidate',
               options: {
-                cacheName: 'assets-cache',
+                cacheName: 'images-cache',
                 expiration: {
-                  maxEntries: 300,
-                  maxAgeSeconds: 60 * 60 * 24 * 7, // 7 days
+                  maxEntries: 60,
                 },
               },
             },
