@@ -63,7 +63,7 @@ export default ({ mode }) => {
           },
         },
         workbox: {
-          navigateFallback: '/ui/',
+          navigateFallback: '/ui/index.html',
           // don't serve index.html for API requests, assets, etc.
           navigateFallbackDenylist: [/^\/api\//, /\.(js|css|png|jpg|jpeg|gif|svg|ico)$/],
           // ensure dynamic imports are also cached

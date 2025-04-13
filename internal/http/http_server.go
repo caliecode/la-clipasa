@@ -589,7 +589,7 @@ func (s *staticFileSystem) Open(name string) (http.File, error) {
 func (s *staticFileSystem) Exists(prefix string, path string) bool {
 	cleanPath := strings.TrimPrefix(path, prefix)
 	cleanPath = strings.TrimPrefix(cleanPath, "/")
-	if cleanPath == "" {
+	if cleanPath == "" || cleanPath == "index.html" {
 		f, err := s.httpFs.Open("ui/index.html")
 		if err == nil {
 			f.Close()
