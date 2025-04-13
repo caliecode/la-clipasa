@@ -63,12 +63,12 @@ export default ({ mode }) => {
           },
         },
         workbox: {
-          globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,avif,jpg}'],
+          globPatterns: ['**/*.{js,css,html,woff2}'], // best for SPA in precache (maybe also include essential images)
           navigateFallback: '/ui/index.html',
           // don't serve index.html for API requests, assets, etc.
           navigateFallbackDenylist: [/^\/api\//, /\.(js|css|png|jpg|jpeg|gif|svg|ico)$/],
-          // ensure dynamic imports are also cached
           runtimeCaching: [
+            // runtime cache preferred for every other image, which will depend based on the user's navigation
             {
               urlPattern: ({ request }) => request.destination === 'image',
               handler: 'StaleWhileRevalidate',
@@ -76,17 +76,6 @@ export default ({ mode }) => {
                 cacheName: 'images-cache',
                 expiration: {
                   maxEntries: 60,
-                },
-              },
-            },
-            {
-              urlPattern: /\.(?:js|css|html)$/i,
-              handler: 'StaleWhileRevalidate',
-              options: {
-                cacheName: 'html-js-css-cache',
-                expiration: {
-                  maxEntries: 50,
-                  maxAgeSeconds: 60 * 60 * 24 * 7, // 1 week
                 },
               },
             },
