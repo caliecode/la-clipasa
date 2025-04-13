@@ -33,6 +33,7 @@ type Resolver struct {
 	ent     *generated.Client
 	twitch  *client.TwitchHandlers
 	discord *client.DiscordHandlers
+	authn   *auth.Authentication
 }
 
 func GinContextFromCtx(ctx context.Context) (*gin.Context, error) {
@@ -74,6 +75,7 @@ func NewResolver(entClient *generated.Client) Config {
 			ent:     entClient,
 			twitch:  client.NewTwitchHandlers(entClient),
 			discord: client.NewDiscordHandlers(),
+			authn:   auth.NewAuthentication(entClient),
 		},
 		Directives: DirectiveRoot{
 			HasRole:        hasRoleDirective,

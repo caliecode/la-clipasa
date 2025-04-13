@@ -1808,6 +1808,7 @@ export type PostFragment = {
 export type RefreshTokenFragment = {
   __typename?: 'RefreshToken'
   id: string
+  updatedAt: any
   createdAt: any
   expiresAt: any
   ipAddress?: string | null
@@ -2084,6 +2085,7 @@ export type MyRefreshTokensQuery = {
       node?: {
         __typename?: 'RefreshToken'
         id: string
+        updatedAt: any
         createdAt: any
         expiresAt: any
         ipAddress?: string | null
@@ -2262,6 +2264,7 @@ export const PostFragmentDoc = gql`
 export const RefreshTokenFragmentDoc = gql`
   fragment RefreshToken on RefreshToken {
     id
+    updatedAt
     createdAt
     expiresAt
     ipAddress

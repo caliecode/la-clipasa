@@ -13,12 +13,14 @@ import (
 	"github.com/caliecode/la-clipasa/internal/client"
 	"github.com/caliecode/la-clipasa/internal/ent/generated"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/apikey"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/predicate"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/privacy"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/refreshtoken"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
 	"github.com/caliecode/la-clipasa/internal/ent/privacy/token"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/google/uuid"
 	"github.com/zitadel/oidc/v3/pkg/oidc"
 )
 
@@ -270,18 +272,24 @@ func (a *Authentication) ValidateAndRotateRefreshToken(ctx context.Context, oldR
 }
 
 // CleanupExpiredAndRevokedTokens removes old tokens to prevent database bloat
-func (a *Authentication) CleanupExpiredAndRevokedTokens(ctx context.Context) {
+func (a *Authentication) CleanupExpiredAndRevokedTokens(ctx context.Context, userIDs ...uuid.UUID) {
 	a.entc.Logger.Info("Cleaning up expired and revoked tokens")
 	ctx = token.NewContextWithSystemCallToken(ctx)
 	ctx = privacy.DecisionContext(ctx, privacy.Allow)
 
+	pp := []predicate.RefreshToken{
+		refreshtoken.Or(
+			refreshtoken.RevokedEQ(true),
+			refreshtoken.ExpiresAtLT(time.Now()),
+		),
+	}
+
+	if len(userIDs) > 0 {
+		pp = append(pp, refreshtoken.OwnerIDIn(userIDs...))
+	}
+
 	_, err := a.entc.RefreshToken.Delete().
-		Where(
-			refreshtoken.Or(
-				refreshtoken.RevokedEQ(true),
-				refreshtoken.ExpiresAtLT(time.Now()),
-			),
-		).
+		Where(pp...).
 		Exec(ctx)
 	if err != nil {
 		fmt.Printf("Error cleaning up tokens: %v\n", err)

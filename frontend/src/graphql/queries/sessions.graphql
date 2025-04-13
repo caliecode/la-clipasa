@@ -1,5 +1,6 @@
 fragment RefreshToken on RefreshToken {
   id
+  updatedAt
   createdAt
   expiresAt
   ipAddress

@@ -121,6 +121,11 @@ export default function SessionManagementPage() {
           </Tooltip>
         </Table.Td>
         <Table.Td>
+          <Tooltip label={dayjs(session.updatedAt).format('YYYY-MM-DD HH:mm:ss')} withArrow position="top">
+            <Text fz="sm">{dayjs(session.updatedAt).fromNow()}</Text>
+          </Tooltip>
+        </Table.Td>
+        <Table.Td>
           <Tooltip label={dayjs(session.expiresAt).format('YYYY-MM-DD HH:mm:ss')} withArrow position="top">
             <Text fz="sm">
               {t('sessionManagement.expires')} {dayjs(session.expiresAt).fromNow()}
@@ -173,6 +178,7 @@ export default function SessionManagementPage() {
             <Table.Thead>
               <Table.Tr>
                 <Table.Th>{t('sessionManagement.headerDevice')}</Table.Th>
+                <Table.Th>{t('sessionManagement.headerCreated')}</Table.Th>
                 <Table.Th>{t('sessionManagement.headerLastActive')}</Table.Th>
                 <Table.Th>{t('sessionManagement.headerExpires')}</Table.Th>
                 <Table.Th>{t('sessionManagement.headerActions')}</Table.Th>

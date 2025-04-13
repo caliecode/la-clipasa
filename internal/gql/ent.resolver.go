@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"entgo.io/contrib/entgql"
+	"github.com/caliecode/la-clipasa/internal"
 	"github.com/caliecode/la-clipasa/internal/ent/generated"
 	"github.com/google/uuid"
 	"github.com/theopenlane/entx"
@@ -97,6 +98,9 @@ func (r *queryResolver) PostCategories(ctx context.Context, after *entgql.Cursor
 
 // RefreshTokens is the resolver for the refreshTokens field.
 func (r *queryResolver) RefreshTokens(ctx context.Context, after *entgql.Cursor[uuid.UUID], first *int, before *entgql.Cursor[uuid.UUID], last *int, orderBy *generated.RefreshTokenOrder, where *generated.RefreshTokenWhereInput) (*generated.RefreshTokenConnection, error) {
+	u := internal.GetUserFromCtx(ctx)
+	r.authn.CleanupExpiredAndRevokedTokens(ctx, u.ID)
+
 	res, err := r.ent.RefreshToken.Query().Paginate(
 		ctx,
 		after,
