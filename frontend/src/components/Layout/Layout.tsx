@@ -165,8 +165,13 @@ export default function Layout({ children }: LayoutProps) {
                   notifications.hide('pwa-update')
                   notificationIdRef.current = null
                   updateServiceWorker(true)
-                  console.log('Forcing window reload...')
-                  window.location.reload()
+                    .then(() => {
+                      console.log('Forcing window reload...')
+                      window.location.reload()
+                    })
+                    .catch((err) => {
+                      notifications.show({ color: 'red', title: 'PWA Error', message: 'Failed to update the app.' })
+                    })
                 }}
               >
                 {t('common.update', 'Update Now')}
