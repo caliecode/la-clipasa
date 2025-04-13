@@ -25,7 +25,7 @@ export const createUrqlClient = () => {
       }
 
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 5_000)
+      const timeoutId = setTimeout(() => controller.abort(), 7_000)
 
       try {
         const response = await fetch(url, {
@@ -61,7 +61,7 @@ export const createUrqlClient = () => {
       retryExchange({
         maxNumberAttempts: 2,
         initialDelayMs: 1_000,
-        maxDelayMs: 4_000,
+        maxDelayMs: 8_000,
         retryIf: (error) => {
           console.log(`urql error: ${error}`)
           if (error?.response?.status === 401 || error?.response?.status === 200) {
