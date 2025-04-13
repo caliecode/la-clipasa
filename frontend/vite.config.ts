@@ -70,8 +70,8 @@ export default ({ mode }) => {
           // ensure dynamic imports are also cached
           runtimeCaching: [
             {
-              urlPattern: /\.(?:ico|png|svg|webp|avif|jpg)/i,
-              handler: 'CacheFirst',
+              urlPattern: /\.(?:gif|ico|png|svg|webp|avif|jpg)/i,
+              handler: 'StaleWhileRevalidate',
               options: {
                 cacheName: 'assets-cache',
                 expiration: {
