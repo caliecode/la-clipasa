@@ -1,6 +1,33 @@
 // Code adapted from:
 // https://github.com/MarioCarrion/todo-api-microservice-example
 
+/**
+ * Kill hanging conns in supabase:
+DO
+$$
+DECLARE
+    r RECORD;
+BEGIN
+    FOR r IN
+        SELECT pid
+        FROM pg_stat_activity
+        WHERE state = 'idle'
+          AND pid <> pg_backend_pid()
+    LOOP
+        BEGIN
+            PERFORM pg_terminate_backend(r.pid);
+        EXCEPTION WHEN OTHERS THEN
+            -- Ignore termination errors
+        END;
+    END LOOP;
+END;
+$$;
+
+SELECT pid, usename, datname, client_addr, state, state_change
+FROM pg_stat_activity
+ORDER BY state_change DESC;
+*/
+
 package postgresql
 
 import (
