@@ -115,6 +115,7 @@ export const usePostsSlice = create<PostsState>()(
                         order.field = 'MODERATED_AT'
                         state.queryParams.where!.moderatedAtNotNil = true
                       })
+                      break
 
                     case 'lastSeen':
                       state.queryParams.after = state.lastSeenCursor
