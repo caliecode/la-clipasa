@@ -1413,6 +1413,7 @@ type PostMutation struct {
 	link               *string
 	moderation_comment *string
 	is_moderated       *bool
+	moderated_at       *time.Time
 	entity_vector      *string
 	metadata           *extramodel.PostMetadata
 	clearedFields      map[string]struct{}
@@ -1987,6 +1988,55 @@ func (m *PostMutation) ResetIsModerated() {
 	m.is_moderated = nil
 }
 
+// SetModeratedAt sets the "moderated_at" field.
+func (m *PostMutation) SetModeratedAt(t time.Time) {
+	m.moderated_at = &t
+}
+
+// ModeratedAt returns the value of the "moderated_at" field in the mutation.
+func (m *PostMutation) ModeratedAt() (r time.Time, exists bool) {
+	v := m.moderated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldModeratedAt returns the old "moderated_at" field's value of the Post entity.
+// If the Post object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PostMutation) OldModeratedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldModeratedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldModeratedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldModeratedAt: %w", err)
+	}
+	return oldValue.ModeratedAt, nil
+}
+
+// ClearModeratedAt clears the value of the "moderated_at" field.
+func (m *PostMutation) ClearModeratedAt() {
+	m.moderated_at = nil
+	m.clearedFields[post.FieldModeratedAt] = struct{}{}
+}
+
+// ModeratedAtCleared returns if the "moderated_at" field was cleared in this mutation.
+func (m *PostMutation) ModeratedAtCleared() bool {
+	_, ok := m.clearedFields[post.FieldModeratedAt]
+	return ok
+}
+
+// ResetModeratedAt resets all changes to the "moderated_at" field.
+func (m *PostMutation) ResetModeratedAt() {
+	m.moderated_at = nil
+	delete(m.clearedFields, post.FieldModeratedAt)
+}
+
 // SetEntityVector sets the "entity_vector" field.
 func (m *PostMutation) SetEntityVector(s string) {
 	m.entity_vector = &s
@@ -2362,7 +2412,7 @@ func (m *PostMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PostMutation) Fields() []string {
-	fields := make([]string, 0, 13)
+	fields := make([]string, 0, 14)
 	if m.updated_at != nil {
 		fields = append(fields, post.FieldUpdatedAt)
 	}
@@ -2395,6 +2445,9 @@ func (m *PostMutation) Fields() []string {
 	}
 	if m.is_moderated != nil {
 		fields = append(fields, post.FieldIsModerated)
+	}
+	if m.moderated_at != nil {
+		fields = append(fields, post.FieldModeratedAt)
 	}
 	if m.entity_vector != nil {
 		fields = append(fields, post.FieldEntityVector)
@@ -2432,6 +2485,8 @@ func (m *PostMutation) Field(name string) (ent.Value, bool) {
 		return m.ModerationComment()
 	case post.FieldIsModerated:
 		return m.IsModerated()
+	case post.FieldModeratedAt:
+		return m.ModeratedAt()
 	case post.FieldEntityVector:
 		return m.EntityVector()
 	case post.FieldMetadata:
@@ -2467,6 +2522,8 @@ func (m *PostMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldModerationComment(ctx)
 	case post.FieldIsModerated:
 		return m.OldIsModerated(ctx)
+	case post.FieldModeratedAt:
+		return m.OldModeratedAt(ctx)
 	case post.FieldEntityVector:
 		return m.OldEntityVector(ctx)
 	case post.FieldMetadata:
@@ -2557,6 +2614,13 @@ func (m *PostMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetIsModerated(v)
 		return nil
+	case post.FieldModeratedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetModeratedAt(v)
+		return nil
 	case post.FieldEntityVector:
 		v, ok := value.(string)
 		if !ok {
@@ -2613,6 +2677,9 @@ func (m *PostMutation) ClearedFields() []string {
 	if m.FieldCleared(post.FieldModerationComment) {
 		fields = append(fields, post.FieldModerationComment)
 	}
+	if m.FieldCleared(post.FieldModeratedAt) {
+		fields = append(fields, post.FieldModeratedAt)
+	}
 	if m.FieldCleared(post.FieldEntityVector) {
 		fields = append(fields, post.FieldEntityVector)
 	}
@@ -2644,6 +2711,9 @@ func (m *PostMutation) ClearField(name string) error {
 		return nil
 	case post.FieldModerationComment:
 		m.ClearModerationComment()
+		return nil
+	case post.FieldModeratedAt:
+		m.ClearModeratedAt()
 		return nil
 	case post.FieldEntityVector:
 		m.ClearEntityVector()
@@ -2691,6 +2761,9 @@ func (m *PostMutation) ResetField(name string) error {
 		return nil
 	case post.FieldIsModerated:
 		m.ResetIsModerated()
+		return nil
+	case post.FieldModeratedAt:
+		m.ResetModeratedAt()
 		return nil
 	case post.FieldEntityVector:
 		m.ResetEntityVector()

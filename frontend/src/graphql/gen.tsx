@@ -672,6 +672,7 @@ export type Post = Node & {
   likedBy: UserConnection
   link: Scalars['String']['output']
   metadata?: Maybe<PostMetadata>
+  moderatedAt?: Maybe<Scalars['Time']['output']>
   moderationComment?: Maybe<Scalars['String']['output']>
   nodeId: Scalars['String']['output']
   owner: User
@@ -1016,6 +1017,17 @@ export type PostWhereInput = {
   linkLTE?: InputMaybe<Scalars['String']['input']>
   linkNEQ?: InputMaybe<Scalars['String']['input']>
   linkNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** moderated_at field predicates */
+  moderatedAt?: InputMaybe<Scalars['Time']['input']>
+  moderatedAtGT?: InputMaybe<Scalars['Time']['input']>
+  moderatedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  moderatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  moderatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  moderatedAtLT?: InputMaybe<Scalars['Time']['input']>
+  moderatedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  moderatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  moderatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  moderatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** moderation_comment field predicates */
   moderationComment?: InputMaybe<Scalars['String']['input']>
   moderationCommentContains?: InputMaybe<Scalars['String']['input']>
@@ -1769,6 +1781,7 @@ export type PostFragment = {
   content?: string | null
   link: string
   isModerated: boolean
+  moderatedAt?: any | null
   moderationComment?: string | null
   createdAt: any
   updatedAt: any
@@ -1850,6 +1863,7 @@ export type PostsQuery = {
         content?: string | null
         link: string
         isModerated: boolean
+        moderatedAt?: any | null
         moderationComment?: string | null
         createdAt: any
         updatedAt: any
@@ -1900,6 +1914,7 @@ export type PinnedPostsQuery = {
         content?: string | null
         link: string
         isModerated: boolean
+        moderatedAt?: any | null
         moderationComment?: string | null
         createdAt: any
         updatedAt: any
@@ -1949,6 +1964,7 @@ export type UpdatePostMutation = {
       content?: string | null
       link: string
       isModerated: boolean
+      moderatedAt?: any | null
       moderationComment?: string | null
       createdAt: any
       updatedAt: any
@@ -1990,6 +2006,7 @@ export type CreatePostMutation = {
       content?: string | null
       link: string
       isModerated: boolean
+      moderatedAt?: any | null
       moderationComment?: string | null
       createdAt: any
       updatedAt: any
@@ -2223,6 +2240,7 @@ export const PostFragmentDoc = gql`
       totalCount
     }
     isModerated
+    moderatedAt
     moderationComment
     categories {
       id

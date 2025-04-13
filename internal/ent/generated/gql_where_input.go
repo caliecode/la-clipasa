@@ -860,6 +860,18 @@ type PostWhereInput struct {
 	IsModerated    *bool `json:"isModerated,omitempty"`
 	IsModeratedNEQ *bool `json:"isModeratedNEQ,omitempty"`
 
+	// "moderated_at" field predicates.
+	ModeratedAt       *time.Time  `json:"moderatedAt,omitempty"`
+	ModeratedAtNEQ    *time.Time  `json:"moderatedAtNEQ,omitempty"`
+	ModeratedAtIn     []time.Time `json:"moderatedAtIn,omitempty"`
+	ModeratedAtNotIn  []time.Time `json:"moderatedAtNotIn,omitempty"`
+	ModeratedAtGT     *time.Time  `json:"moderatedAtGT,omitempty"`
+	ModeratedAtGTE    *time.Time  `json:"moderatedAtGTE,omitempty"`
+	ModeratedAtLT     *time.Time  `json:"moderatedAtLT,omitempty"`
+	ModeratedAtLTE    *time.Time  `json:"moderatedAtLTE,omitempty"`
+	ModeratedAtIsNil  bool        `json:"moderatedAtIsNil,omitempty"`
+	ModeratedAtNotNil bool        `json:"moderatedAtNotNil,omitempty"`
+
 	// "entity_vector" field predicates.
 	EntityVector             *string  `json:"entityVector,omitempty"`
 	EntityVectorNEQ          *string  `json:"entityVectorNEQ,omitempty"`
@@ -1298,6 +1310,36 @@ func (i *PostWhereInput) P() (predicate.Post, error) {
 	}
 	if i.IsModeratedNEQ != nil {
 		predicates = append(predicates, post.IsModeratedNEQ(*i.IsModeratedNEQ))
+	}
+	if i.ModeratedAt != nil {
+		predicates = append(predicates, post.ModeratedAtEQ(*i.ModeratedAt))
+	}
+	if i.ModeratedAtNEQ != nil {
+		predicates = append(predicates, post.ModeratedAtNEQ(*i.ModeratedAtNEQ))
+	}
+	if len(i.ModeratedAtIn) > 0 {
+		predicates = append(predicates, post.ModeratedAtIn(i.ModeratedAtIn...))
+	}
+	if len(i.ModeratedAtNotIn) > 0 {
+		predicates = append(predicates, post.ModeratedAtNotIn(i.ModeratedAtNotIn...))
+	}
+	if i.ModeratedAtGT != nil {
+		predicates = append(predicates, post.ModeratedAtGT(*i.ModeratedAtGT))
+	}
+	if i.ModeratedAtGTE != nil {
+		predicates = append(predicates, post.ModeratedAtGTE(*i.ModeratedAtGTE))
+	}
+	if i.ModeratedAtLT != nil {
+		predicates = append(predicates, post.ModeratedAtLT(*i.ModeratedAtLT))
+	}
+	if i.ModeratedAtLTE != nil {
+		predicates = append(predicates, post.ModeratedAtLTE(*i.ModeratedAtLTE))
+	}
+	if i.ModeratedAtIsNil {
+		predicates = append(predicates, post.ModeratedAtIsNil())
+	}
+	if i.ModeratedAtNotNil {
+		predicates = append(predicates, post.ModeratedAtNotNil())
 	}
 	if i.EntityVector != nil {
 		predicates = append(predicates, post.EntityVectorEQ(*i.EntityVector))

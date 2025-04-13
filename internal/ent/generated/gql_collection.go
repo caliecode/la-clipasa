@@ -567,6 +567,11 @@ func (po *PostQuery) collectField(ctx context.Context, oneNode bool, opCtx *grap
 				selectedFields = append(selectedFields, post.FieldIsModerated)
 				fieldSeen[post.FieldIsModerated] = struct{}{}
 			}
+		case "moderatedAt":
+			if _, ok := fieldSeen[post.FieldModeratedAt]; !ok {
+				selectedFields = append(selectedFields, post.FieldModeratedAt)
+				fieldSeen[post.FieldModeratedAt] = struct{}{}
+			}
 		case "entityVector":
 			if _, ok := fieldSeen[post.FieldEntityVector]; !ok {
 				selectedFields = append(selectedFields, post.FieldEntityVector)

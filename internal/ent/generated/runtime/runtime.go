@@ -103,10 +103,13 @@ func init() {
 	}
 	postMixinHooks2 := postMixin[2].Hooks()
 	postMixinHooks3 := postMixin[3].Hooks()
+	postHooks := schema.Post{}.Hooks()
 
 	post.Hooks[1] = postMixinHooks2[0]
 
 	post.Hooks[2] = postMixinHooks3[0]
+
+	post.Hooks[3] = postHooks[0]
 	postMixinInters2 := postMixin[2].Interceptors()
 	postMixinInters3 := postMixin[3].Interceptors()
 	post.Interceptors[0] = postMixinInters2[0]
@@ -140,7 +143,7 @@ func init() {
 	// post.DefaultIsModerated holds the default value on creation for the is_moderated field.
 	post.DefaultIsModerated = postDescIsModerated.Default.(bool)
 	// postDescEntityVector is the schema descriptor for entity_vector field.
-	postDescEntityVector := postFields[6].Descriptor()
+	postDescEntityVector := postFields[7].Descriptor()
 	// post.DefaultEntityVector holds the default value on creation for the entity_vector field.
 	post.DefaultEntityVector = postDescEntityVector.Default.(string)
 	// postDescID is the schema descriptor for id field.

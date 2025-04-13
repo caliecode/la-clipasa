@@ -43,6 +43,8 @@ type Post struct {
 	ModerationComment string `json:"moderation_comment,omitempty"`
 	// IsModerated holds the value of the "is_moderated" field.
 	IsModerated bool `json:"is_moderated,omitempty"`
+	// ModeratedAt holds the value of the "moderated_at" field.
+	ModeratedAt *time.Time `json:"moderated_at,omitempty"`
 	// EntityVector holds the value of the "entity_vector" field.
 	EntityVector string `json:"entity_vector,omitempty"`
 	// Metadata holds the value of the "metadata" field.
@@ -135,7 +137,7 @@ func (*Post) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case post.FieldDeletedBy, post.FieldTitle, post.FieldContent, post.FieldLink, post.FieldModerationComment, post.FieldEntityVector:
 			values[i] = new(sql.NullString)
-		case post.FieldUpdatedAt, post.FieldCreatedAt, post.FieldDeletedAt:
+		case post.FieldUpdatedAt, post.FieldCreatedAt, post.FieldDeletedAt, post.FieldModeratedAt:
 			values[i] = new(sql.NullTime)
 		case post.FieldID, post.FieldOwnerID:
 			values[i] = new(uuid.UUID)
@@ -226,6 +228,13 @@ func (po *Post) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field is_moderated", values[i])
 			} else if value.Valid {
 				po.IsModerated = value.Bool
+			}
+		case post.FieldModeratedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field moderated_at", values[i])
+			} else if value.Valid {
+				po.ModeratedAt = new(time.Time)
+				*po.ModeratedAt = value.Time
 			}
 		case post.FieldEntityVector:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -336,6 +345,11 @@ func (po *Post) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("is_moderated=")
 	builder.WriteString(fmt.Sprintf("%v", po.IsModerated))
+	builder.WriteString(", ")
+	if v := po.ModeratedAt; v != nil {
+		builder.WriteString("moderated_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("entity_vector=")
 	builder.WriteString(po.EntityVector)

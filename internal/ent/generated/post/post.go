@@ -38,6 +38,8 @@ const (
 	FieldModerationComment = "moderation_comment"
 	// FieldIsModerated holds the string denoting the is_moderated field in the database.
 	FieldIsModerated = "is_moderated"
+	// FieldModeratedAt holds the string denoting the moderated_at field in the database.
+	FieldModeratedAt = "moderated_at"
 	// FieldEntityVector holds the string denoting the entity_vector field in the database.
 	FieldEntityVector = "entity_vector"
 	// FieldMetadata holds the string denoting the metadata field in the database.
@@ -101,6 +103,7 @@ var Columns = []string{
 	FieldLink,
 	FieldModerationComment,
 	FieldIsModerated,
+	FieldModeratedAt,
 	FieldEntityVector,
 	FieldMetadata,
 }
@@ -130,7 +133,7 @@ func ValidColumn(column string) bool {
 //
 //	import _ "github.com/caliecode/la-clipasa/internal/ent/generated/runtime"
 var (
-	Hooks        [3]ent.Hook
+	Hooks        [4]ent.Hook
 	Interceptors [2]ent.Interceptor
 	Policy       ent.Policy
 	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
@@ -212,6 +215,11 @@ func ByModerationComment(opts ...sql.OrderTermOption) OrderOption {
 // ByIsModerated orders the results by the is_moderated field.
 func ByIsModerated(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIsModerated, opts...).ToFunc()
+}
+
+// ByModeratedAt orders the results by the moderated_at field.
+func ByModeratedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldModeratedAt, opts...).ToFunc()
 }
 
 // ByEntityVector orders the results by the entity_vector field.

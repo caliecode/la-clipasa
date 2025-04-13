@@ -1,6 +1,10 @@
 package schema
 
 import (
+	"context"
+	"fmt"
+	"time"
+
 	"entgo.io/contrib/entgql"
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
@@ -9,7 +13,9 @@ import (
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
+	genhook "github.com/caliecode/la-clipasa/internal/ent/generated/hook"
 
+	"github.com/caliecode/la-clipasa/internal/ent/generated"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/privacy"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
 	"github.com/caliecode/la-clipasa/internal/ent/interceptors"
@@ -40,6 +46,12 @@ func (Post) Fields() []ent.Field {
 			Optional(),
 		field.Bool("is_moderated").
 			Default(false),
+		field.Time("moderated_at").
+			Optional().
+			Nillable().
+			Annotations(
+				entgql.Skip(entgql.SkipMutationCreateInput, entgql.SkipMutationUpdateInput),
+			),
 		// use triggers on table columns instead, with immutable, to mimic `GENERATED ALWAYS`.
 		// Atlas does respect index, trigger and function definitions in custom migration files, but not field expressions!
 		// see 20250129172342_trigger.up.sql
@@ -85,6 +97,38 @@ func (Post) Edges() []ent.Edge {
 
 func (Post) Annotations() []schema.Annotation {
 	return baseGqlAnnotations
+}
+
+// Hooks of the Post.
+func (Post) Hooks() []ent.Hook {
+	return []ent.Hook{
+		genhook.On(
+			func(next ent.Mutator) ent.Mutator {
+				return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+					postMutation, ok := m.(*generated.PostMutation)
+					if !ok {
+						// this should never happen if the hook is on the Post schema
+						return nil, fmt.Errorf("unexpected mutation type %T in Post hook", m)
+					}
+
+					isModerated, exists := postMutation.IsModerated()
+
+					if !exists {
+						// if is_moderated wasn't part of this specific mutation operation, just continue
+						return next.Mutate(ctx, m)
+					}
+
+					if isModerated {
+						postMutation.SetModeratedAt(time.Now())
+					}
+
+					// proceed with the mutation chain as normal
+					return next.Mutate(ctx, m)
+				})
+			},
+			ent.OpUpdate|ent.OpUpdateOne|ent.OpCreate,
+		),
+	}
 }
 
 func (Post) Mixin() []ent.Mixin {

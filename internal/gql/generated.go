@@ -196,6 +196,7 @@ type ComplexityRoot struct {
 		LikedBy           func(childComplexity int, after *entgql.Cursor[uuid.UUID], first *int, before *entgql.Cursor[uuid.UUID], last *int, orderBy *generated.UserOrder, where *generated.UserWhereInput) int
 		Link              func(childComplexity int) int
 		Metadata          func(childComplexity int) int
+		ModeratedAt       func(childComplexity int) int
 		ModerationComment func(childComplexity int) int
 		NodeID            func(childComplexity int) int
 		Owner             func(childComplexity int) int
@@ -1260,6 +1261,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Post.Metadata(childComplexity), true
+
+	case "Post.moderatedAt":
+		if e.complexity.Post.ModeratedAt == nil {
+			break
+		}
+
+		return e.complexity.Post.ModeratedAt(childComplexity), true
 
 	case "Post.moderationComment":
 		if e.complexity.Post.ModerationComment == nil {
@@ -6186,6 +6194,8 @@ func (ec *executionContext) fieldContext_Comment_post(_ context.Context, field g
 				return ec.fieldContext_Post_moderationComment(ctx, field)
 			case "isModerated":
 				return ec.fieldContext_Post_isModerated(ctx, field)
+			case "moderatedAt":
+				return ec.fieldContext_Post_moderatedAt(ctx, field)
 			case "entityVector":
 				return ec.fieldContext_Post_entityVector(ctx, field)
 			case "metadata":
@@ -9470,6 +9480,47 @@ func (ec *executionContext) fieldContext_Post_isModerated(_ context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _Post_moderatedAt(ctx context.Context, field graphql.CollectedField, obj *generated.Post) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Post_moderatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ModeratedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*time.Time)
+	fc.Result = res
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Post_moderatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Post",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Post_entityVector(ctx context.Context, field graphql.CollectedField, obj *generated.Post) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Post_entityVector(ctx, field)
 	if err != nil {
@@ -10050,6 +10101,8 @@ func (ec *executionContext) fieldContext_PostBulkCreatePayload_posts(_ context.C
 				return ec.fieldContext_Post_moderationComment(ctx, field)
 			case "isModerated":
 				return ec.fieldContext_Post_isModerated(ctx, field)
+			case "moderatedAt":
+				return ec.fieldContext_Post_moderatedAt(ctx, field)
 			case "entityVector":
 				return ec.fieldContext_Post_entityVector(ctx, field)
 			case "metadata":
@@ -10309,6 +10362,8 @@ func (ec *executionContext) fieldContext_PostCategory_post(_ context.Context, fi
 				return ec.fieldContext_Post_moderationComment(ctx, field)
 			case "isModerated":
 				return ec.fieldContext_Post_isModerated(ctx, field)
+			case "moderatedAt":
+				return ec.fieldContext_Post_moderatedAt(ctx, field)
 			case "entityVector":
 				return ec.fieldContext_Post_entityVector(ctx, field)
 			case "metadata":
@@ -10991,6 +11046,8 @@ func (ec *executionContext) fieldContext_PostCreatePayload_post(_ context.Contex
 				return ec.fieldContext_Post_moderationComment(ctx, field)
 			case "isModerated":
 				return ec.fieldContext_Post_isModerated(ctx, field)
+			case "moderatedAt":
+				return ec.fieldContext_Post_moderatedAt(ctx, field)
 			case "entityVector":
 				return ec.fieldContext_Post_entityVector(ctx, field)
 			case "metadata":
@@ -11118,6 +11175,8 @@ func (ec *executionContext) fieldContext_PostEdge_node(_ context.Context, field 
 				return ec.fieldContext_Post_moderationComment(ctx, field)
 			case "isModerated":
 				return ec.fieldContext_Post_isModerated(ctx, field)
+			case "moderatedAt":
+				return ec.fieldContext_Post_moderatedAt(ctx, field)
 			case "entityVector":
 				return ec.fieldContext_Post_entityVector(ctx, field)
 			case "metadata":
@@ -11383,6 +11442,8 @@ func (ec *executionContext) fieldContext_PostUpdatePayload_post(_ context.Contex
 				return ec.fieldContext_Post_moderationComment(ctx, field)
 			case "isModerated":
 				return ec.fieldContext_Post_isModerated(ctx, field)
+			case "moderatedAt":
+				return ec.fieldContext_Post_moderatedAt(ctx, field)
 			case "entityVector":
 				return ec.fieldContext_Post_entityVector(ctx, field)
 			case "metadata":
@@ -12152,6 +12213,8 @@ func (ec *executionContext) fieldContext_Query_post(ctx context.Context, field g
 				return ec.fieldContext_Post_moderationComment(ctx, field)
 			case "isModerated":
 				return ec.fieldContext_Post_isModerated(ctx, field)
+			case "moderatedAt":
+				return ec.fieldContext_Post_moderatedAt(ctx, field)
 			case "entityVector":
 				return ec.fieldContext_Post_entityVector(ctx, field)
 			case "metadata":
@@ -14423,6 +14486,8 @@ func (ec *executionContext) fieldContext_User_savedPosts(_ context.Context, fiel
 				return ec.fieldContext_Post_moderationComment(ctx, field)
 			case "isModerated":
 				return ec.fieldContext_Post_isModerated(ctx, field)
+			case "moderatedAt":
+				return ec.fieldContext_Post_moderatedAt(ctx, field)
 			case "entityVector":
 				return ec.fieldContext_Post_entityVector(ctx, field)
 			case "metadata":
@@ -14506,6 +14571,8 @@ func (ec *executionContext) fieldContext_User_likedPosts(_ context.Context, fiel
 				return ec.fieldContext_Post_moderationComment(ctx, field)
 			case "isModerated":
 				return ec.fieldContext_Post_isModerated(ctx, field)
+			case "moderatedAt":
+				return ec.fieldContext_Post_moderatedAt(ctx, field)
 			case "entityVector":
 				return ec.fieldContext_Post_entityVector(ctx, field)
 			case "metadata":
@@ -14589,6 +14656,8 @@ func (ec *executionContext) fieldContext_User_publishedPosts(_ context.Context, 
 				return ec.fieldContext_Post_moderationComment(ctx, field)
 			case "isModerated":
 				return ec.fieldContext_Post_isModerated(ctx, field)
+			case "moderatedAt":
+				return ec.fieldContext_Post_moderatedAt(ctx, field)
 			case "entityVector":
 				return ec.fieldContext_Post_entityVector(ctx, field)
 			case "metadata":
@@ -19299,7 +19368,7 @@ func (ec *executionContext) unmarshalInputPostWhereInput(ctx context.Context, ob
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "updatedAt", "updatedAtNEQ", "updatedAtIn", "updatedAtNotIn", "updatedAtGT", "updatedAtGTE", "updatedAtLT", "updatedAtLTE", "createdAt", "createdAtNEQ", "createdAtIn", "createdAtNotIn", "createdAtGT", "createdAtGTE", "createdAtLT", "createdAtLTE", "deletedAt", "deletedAtNEQ", "deletedAtIn", "deletedAtNotIn", "deletedAtGT", "deletedAtGTE", "deletedAtLT", "deletedAtLTE", "deletedAtIsNil", "deletedAtNotNil", "deletedBy", "deletedByNEQ", "deletedByIn", "deletedByNotIn", "deletedByGT", "deletedByGTE", "deletedByLT", "deletedByLTE", "deletedByContains", "deletedByHasPrefix", "deletedByHasSuffix", "deletedByIsNil", "deletedByNotNil", "deletedByEqualFold", "deletedByContainsFold", "pinned", "pinnedNEQ", "title", "titleNEQ", "titleIn", "titleNotIn", "titleGT", "titleGTE", "titleLT", "titleLTE", "titleContains", "titleHasPrefix", "titleHasSuffix", "titleEqualFold", "titleContainsFold", "content", "contentNEQ", "contentIn", "contentNotIn", "contentGT", "contentGTE", "contentLT", "contentLTE", "contentContains", "contentHasPrefix", "contentHasSuffix", "contentIsNil", "contentNotNil", "contentEqualFold", "contentContainsFold", "link", "linkNEQ", "linkIn", "linkNotIn", "linkGT", "linkGTE", "linkLT", "linkLTE", "linkContains", "linkHasPrefix", "linkHasSuffix", "linkEqualFold", "linkContainsFold", "moderationComment", "moderationCommentNEQ", "moderationCommentIn", "moderationCommentNotIn", "moderationCommentGT", "moderationCommentGTE", "moderationCommentLT", "moderationCommentLTE", "moderationCommentContains", "moderationCommentHasPrefix", "moderationCommentHasSuffix", "moderationCommentIsNil", "moderationCommentNotNil", "moderationCommentEqualFold", "moderationCommentContainsFold", "isModerated", "isModeratedNEQ", "entityVector", "entityVectorNEQ", "entityVectorIn", "entityVectorNotIn", "entityVectorGT", "entityVectorGTE", "entityVectorLT", "entityVectorLTE", "entityVectorContains", "entityVectorHasPrefix", "entityVectorHasSuffix", "entityVectorIsNil", "entityVectorNotNil", "entityVectorEqualFold", "entityVectorContainsFold", "hasOwner", "hasOwnerWith", "hasComments", "hasCommentsWith", "hasSavedBy", "hasSavedByWith", "hasLikedBy", "hasLikedByWith", "hasCategories", "hasCategoriesWith", "includeDeleted", "includeDeletedOnly"}
+	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "updatedAt", "updatedAtNEQ", "updatedAtIn", "updatedAtNotIn", "updatedAtGT", "updatedAtGTE", "updatedAtLT", "updatedAtLTE", "createdAt", "createdAtNEQ", "createdAtIn", "createdAtNotIn", "createdAtGT", "createdAtGTE", "createdAtLT", "createdAtLTE", "deletedAt", "deletedAtNEQ", "deletedAtIn", "deletedAtNotIn", "deletedAtGT", "deletedAtGTE", "deletedAtLT", "deletedAtLTE", "deletedAtIsNil", "deletedAtNotNil", "deletedBy", "deletedByNEQ", "deletedByIn", "deletedByNotIn", "deletedByGT", "deletedByGTE", "deletedByLT", "deletedByLTE", "deletedByContains", "deletedByHasPrefix", "deletedByHasSuffix", "deletedByIsNil", "deletedByNotNil", "deletedByEqualFold", "deletedByContainsFold", "pinned", "pinnedNEQ", "title", "titleNEQ", "titleIn", "titleNotIn", "titleGT", "titleGTE", "titleLT", "titleLTE", "titleContains", "titleHasPrefix", "titleHasSuffix", "titleEqualFold", "titleContainsFold", "content", "contentNEQ", "contentIn", "contentNotIn", "contentGT", "contentGTE", "contentLT", "contentLTE", "contentContains", "contentHasPrefix", "contentHasSuffix", "contentIsNil", "contentNotNil", "contentEqualFold", "contentContainsFold", "link", "linkNEQ", "linkIn", "linkNotIn", "linkGT", "linkGTE", "linkLT", "linkLTE", "linkContains", "linkHasPrefix", "linkHasSuffix", "linkEqualFold", "linkContainsFold", "moderationComment", "moderationCommentNEQ", "moderationCommentIn", "moderationCommentNotIn", "moderationCommentGT", "moderationCommentGTE", "moderationCommentLT", "moderationCommentLTE", "moderationCommentContains", "moderationCommentHasPrefix", "moderationCommentHasSuffix", "moderationCommentIsNil", "moderationCommentNotNil", "moderationCommentEqualFold", "moderationCommentContainsFold", "isModerated", "isModeratedNEQ", "moderatedAt", "moderatedAtNEQ", "moderatedAtIn", "moderatedAtNotIn", "moderatedAtGT", "moderatedAtGTE", "moderatedAtLT", "moderatedAtLTE", "moderatedAtIsNil", "moderatedAtNotNil", "entityVector", "entityVectorNEQ", "entityVectorIn", "entityVectorNotIn", "entityVectorGT", "entityVectorGTE", "entityVectorLT", "entityVectorLTE", "entityVectorContains", "entityVectorHasPrefix", "entityVectorHasSuffix", "entityVectorIsNil", "entityVectorNotNil", "entityVectorEqualFold", "entityVectorContainsFold", "hasOwner", "hasOwnerWith", "hasComments", "hasCommentsWith", "hasSavedBy", "hasSavedByWith", "hasLikedBy", "hasLikedByWith", "hasCategories", "hasCategoriesWith", "includeDeleted", "includeDeletedOnly"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -20090,6 +20159,76 @@ func (ec *executionContext) unmarshalInputPostWhereInput(ctx context.Context, ob
 				return it, err
 			}
 			it.IsModeratedNEQ = data
+		case "moderatedAt":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("moderatedAt"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ModeratedAt = data
+		case "moderatedAtNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("moderatedAtNEQ"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ModeratedAtNEQ = data
+		case "moderatedAtIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("moderatedAtIn"))
+			data, err := ec.unmarshalOTime2ᚕtimeᚐTimeᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ModeratedAtIn = data
+		case "moderatedAtNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("moderatedAtNotIn"))
+			data, err := ec.unmarshalOTime2ᚕtimeᚐTimeᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ModeratedAtNotIn = data
+		case "moderatedAtGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("moderatedAtGT"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ModeratedAtGT = data
+		case "moderatedAtGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("moderatedAtGTE"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ModeratedAtGTE = data
+		case "moderatedAtLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("moderatedAtLT"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ModeratedAtLT = data
+		case "moderatedAtLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("moderatedAtLTE"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ModeratedAtLTE = data
+		case "moderatedAtIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("moderatedAtIsNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ModeratedAtIsNil = data
+		case "moderatedAtNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("moderatedAtNotNil"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ModeratedAtNotNil = data
 		case "entityVector":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("entityVector"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
@@ -23748,6 +23887,8 @@ func (ec *executionContext) _Post(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "moderatedAt":
+			out.Values[i] = ec._Post_moderatedAt(ctx, field, obj)
 		case "entityVector":
 			out.Values[i] = ec._Post_entityVector(ctx, field, obj)
 		case "metadata":

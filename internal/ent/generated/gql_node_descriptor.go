@@ -167,7 +167,7 @@ func (po *Post) Node(ctx context.Context) (node *Node, err error) {
 	node = &Node{
 		ID:     po.ID,
 		Type:   "Post",
-		Fields: make([]*Field, 12),
+		Fields: make([]*Field, 13),
 		Edges:  make([]*Edge, 5),
 	}
 	var buf []byte
@@ -251,10 +251,18 @@ func (po *Post) Node(ctx context.Context) (node *Node, err error) {
 		Name:  "is_moderated",
 		Value: string(buf),
 	}
-	if buf, err = json.Marshal(po.EntityVector); err != nil {
+	if buf, err = json.Marshal(po.ModeratedAt); err != nil {
 		return nil, err
 	}
 	node.Fields[10] = &Field{
+		Type:  "time.Time",
+		Name:  "moderated_at",
+		Value: string(buf),
+	}
+	if buf, err = json.Marshal(po.EntityVector); err != nil {
+		return nil, err
+	}
+	node.Fields[11] = &Field{
 		Type:  "string",
 		Name:  "entity_vector",
 		Value: string(buf),
@@ -262,7 +270,7 @@ func (po *Post) Node(ctx context.Context) (node *Node, err error) {
 	if buf, err = json.Marshal(po.Metadata); err != nil {
 		return nil, err
 	}
-	node.Fields[11] = &Field{
+	node.Fields[12] = &Field{
 		Type:  "extramodel.PostMetadata",
 		Name:  "metadata",
 		Value: string(buf),

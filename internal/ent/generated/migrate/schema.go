@@ -86,6 +86,7 @@ var (
 		{Name: "link", Type: field.TypeString},
 		{Name: "moderation_comment", Type: field.TypeString, Nullable: true},
 		{Name: "is_moderated", Type: field.TypeBool, Default: false},
+		{Name: "moderated_at", Type: field.TypeTime, Nullable: true},
 		{Name: "entity_vector", Type: field.TypeString, Nullable: true, Size: 2147483647, Default: "", SchemaType: map[string]string{"postgres": "tsvector"}},
 		{Name: "metadata", Type: field.TypeJSON, Nullable: true, SchemaType: map[string]string{"postgres": "jsonb"}},
 		{Name: "owner_id", Type: field.TypeUUID},
@@ -98,7 +99,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "posts_users_published_posts",
-				Columns:    []*schema.Column{PostsColumns[13]},
+				Columns:    []*schema.Column{PostsColumns[14]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -107,7 +108,7 @@ var (
 			{
 				Name:    "post_owner_id",
 				Unique:  false,
-				Columns: []*schema.Column{PostsColumns[13]},
+				Columns: []*schema.Column{PostsColumns[14]},
 				Annotation: &entsql.IndexAnnotation{
 					Where: "(deleted_at IS NULL)",
 				},
@@ -115,7 +116,7 @@ var (
 			{
 				Name:    "post_entity_vector",
 				Unique:  false,
-				Columns: []*schema.Column{PostsColumns[11]},
+				Columns: []*schema.Column{PostsColumns[12]},
 				Annotation: &entsql.IndexAnnotation{
 					Type: "GIN",
 				},

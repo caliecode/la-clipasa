@@ -18,6 +18,7 @@ fragment Post on Post {
     totalCount
   }
   isModerated
+  moderatedAt
   moderationComment
   categories {
     # example: with category multiselect, we may have 2 categories already.

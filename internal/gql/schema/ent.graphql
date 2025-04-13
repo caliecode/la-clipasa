@@ -450,6 +450,7 @@ type Post implements Node {
   link: String!
   moderationComment: String
   isModerated: Boolean!
+  moderatedAt: Time
   entityVector: String
   metadata: PostMetadata
   owner: User!
@@ -849,6 +850,19 @@ input PostWhereInput {
   """
   isModerated: Boolean
   isModeratedNEQ: Boolean
+  """
+  moderated_at field predicates
+  """
+  moderatedAt: Time
+  moderatedAtNEQ: Time
+  moderatedAtIn: [Time!]
+  moderatedAtNotIn: [Time!]
+  moderatedAtGT: Time
+  moderatedAtGTE: Time
+  moderatedAtLT: Time
+  moderatedAtLTE: Time
+  moderatedAtIsNil: Boolean
+  moderatedAtNotNil: Boolean
   """
   entity_vector field predicates
   """

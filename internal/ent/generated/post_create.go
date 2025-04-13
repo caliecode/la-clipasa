@@ -155,6 +155,20 @@ func (pc *PostCreate) SetNillableIsModerated(b *bool) *PostCreate {
 	return pc
 }
 
+// SetModeratedAt sets the "moderated_at" field.
+func (pc *PostCreate) SetModeratedAt(t time.Time) *PostCreate {
+	pc.mutation.SetModeratedAt(t)
+	return pc
+}
+
+// SetNillableModeratedAt sets the "moderated_at" field if the given value is not nil.
+func (pc *PostCreate) SetNillableModeratedAt(t *time.Time) *PostCreate {
+	if t != nil {
+		pc.SetModeratedAt(*t)
+	}
+	return pc
+}
+
 // SetEntityVector sets the "entity_vector" field.
 func (pc *PostCreate) SetEntityVector(s string) *PostCreate {
 	pc.mutation.SetEntityVector(s)
@@ -440,6 +454,10 @@ func (pc *PostCreate) createSpec() (*Post, *sqlgraph.CreateSpec) {
 	if value, ok := pc.mutation.IsModerated(); ok {
 		_spec.SetField(post.FieldIsModerated, field.TypeBool, value)
 		_node.IsModerated = value
+	}
+	if value, ok := pc.mutation.ModeratedAt(); ok {
+		_spec.SetField(post.FieldModeratedAt, field.TypeTime, value)
+		_node.ModeratedAt = &value
 	}
 	if value, ok := pc.mutation.EntityVector(); ok {
 		_spec.SetField(post.FieldEntityVector, field.TypeString, value)

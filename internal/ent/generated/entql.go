@@ -79,6 +79,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			post.FieldLink:              {Type: field.TypeString, Column: post.FieldLink},
 			post.FieldModerationComment: {Type: field.TypeString, Column: post.FieldModerationComment},
 			post.FieldIsModerated:       {Type: field.TypeBool, Column: post.FieldIsModerated},
+			post.FieldModeratedAt:       {Type: field.TypeTime, Column: post.FieldModeratedAt},
 			post.FieldEntityVector:      {Type: field.TypeString, Column: post.FieldEntityVector},
 			post.FieldMetadata:          {Type: field.TypeJSON, Column: post.FieldMetadata},
 		},
@@ -617,6 +618,11 @@ func (f *PostFilter) WhereModerationComment(p entql.StringP) {
 // WhereIsModerated applies the entql bool predicate on the is_moderated field.
 func (f *PostFilter) WhereIsModerated(p entql.BoolP) {
 	f.Where(p.Field(post.FieldIsModerated))
+}
+
+// WhereModeratedAt applies the entql time.Time predicate on the moderated_at field.
+func (f *PostFilter) WhereModeratedAt(p entql.TimeP) {
+	f.Where(p.Field(post.FieldModeratedAt))
 }
 
 // WhereEntityVector applies the entql string predicate on the entity_vector field.

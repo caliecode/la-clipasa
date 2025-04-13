@@ -190,6 +190,26 @@ func (pu *PostUpdate) SetNillableIsModerated(b *bool) *PostUpdate {
 	return pu
 }
 
+// SetModeratedAt sets the "moderated_at" field.
+func (pu *PostUpdate) SetModeratedAt(t time.Time) *PostUpdate {
+	pu.mutation.SetModeratedAt(t)
+	return pu
+}
+
+// SetNillableModeratedAt sets the "moderated_at" field if the given value is not nil.
+func (pu *PostUpdate) SetNillableModeratedAt(t *time.Time) *PostUpdate {
+	if t != nil {
+		pu.SetModeratedAt(*t)
+	}
+	return pu
+}
+
+// ClearModeratedAt clears the value of the "moderated_at" field.
+func (pu *PostUpdate) ClearModeratedAt() *PostUpdate {
+	pu.mutation.ClearModeratedAt()
+	return pu
+}
+
 // SetMetadata sets the "metadata" field.
 func (pu *PostUpdate) SetMetadata(em extramodel.PostMetadata) *PostUpdate {
 	pu.mutation.SetMetadata(em)
@@ -481,6 +501,12 @@ func (pu *PostUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := pu.mutation.IsModerated(); ok {
 		_spec.SetField(post.FieldIsModerated, field.TypeBool, value)
+	}
+	if value, ok := pu.mutation.ModeratedAt(); ok {
+		_spec.SetField(post.FieldModeratedAt, field.TypeTime, value)
+	}
+	if pu.mutation.ModeratedAtCleared() {
+		_spec.ClearField(post.FieldModeratedAt, field.TypeTime)
 	}
 	if pu.mutation.EntityVectorCleared() {
 		_spec.ClearField(post.FieldEntityVector, field.TypeString)
@@ -878,6 +904,26 @@ func (puo *PostUpdateOne) SetNillableIsModerated(b *bool) *PostUpdateOne {
 	return puo
 }
 
+// SetModeratedAt sets the "moderated_at" field.
+func (puo *PostUpdateOne) SetModeratedAt(t time.Time) *PostUpdateOne {
+	puo.mutation.SetModeratedAt(t)
+	return puo
+}
+
+// SetNillableModeratedAt sets the "moderated_at" field if the given value is not nil.
+func (puo *PostUpdateOne) SetNillableModeratedAt(t *time.Time) *PostUpdateOne {
+	if t != nil {
+		puo.SetModeratedAt(*t)
+	}
+	return puo
+}
+
+// ClearModeratedAt clears the value of the "moderated_at" field.
+func (puo *PostUpdateOne) ClearModeratedAt() *PostUpdateOne {
+	puo.mutation.ClearModeratedAt()
+	return puo
+}
+
 // SetMetadata sets the "metadata" field.
 func (puo *PostUpdateOne) SetMetadata(em extramodel.PostMetadata) *PostUpdateOne {
 	puo.mutation.SetMetadata(em)
@@ -1199,6 +1245,12 @@ func (puo *PostUpdateOne) sqlSave(ctx context.Context) (_node *Post, err error) 
 	}
 	if value, ok := puo.mutation.IsModerated(); ok {
 		_spec.SetField(post.FieldIsModerated, field.TypeBool, value)
+	}
+	if value, ok := puo.mutation.ModeratedAt(); ok {
+		_spec.SetField(post.FieldModeratedAt, field.TypeTime, value)
+	}
+	if puo.mutation.ModeratedAtCleared() {
+		_spec.ClearField(post.FieldModeratedAt, field.TypeTime)
 	}
 	if puo.mutation.EntityVectorCleared() {
 		_spec.ClearField(post.FieldEntityVector, field.TypeString)

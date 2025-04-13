@@ -111,6 +111,11 @@ func IsModerated(v bool) predicate.Post {
 	return predicate.Post(sql.FieldEQ(FieldIsModerated, v))
 }
 
+// ModeratedAt applies equality check predicate on the "moderated_at" field. It's identical to ModeratedAtEQ.
+func ModeratedAt(v time.Time) predicate.Post {
+	return predicate.Post(sql.FieldEQ(FieldModeratedAt, v))
+}
+
 // EntityVector applies equality check predicate on the "entity_vector" field. It's identical to EntityVectorEQ.
 func EntityVector(v string) predicate.Post {
 	return predicate.Post(sql.FieldEQ(FieldEntityVector, v))
@@ -639,6 +644,56 @@ func IsModeratedEQ(v bool) predicate.Post {
 // IsModeratedNEQ applies the NEQ predicate on the "is_moderated" field.
 func IsModeratedNEQ(v bool) predicate.Post {
 	return predicate.Post(sql.FieldNEQ(FieldIsModerated, v))
+}
+
+// ModeratedAtEQ applies the EQ predicate on the "moderated_at" field.
+func ModeratedAtEQ(v time.Time) predicate.Post {
+	return predicate.Post(sql.FieldEQ(FieldModeratedAt, v))
+}
+
+// ModeratedAtNEQ applies the NEQ predicate on the "moderated_at" field.
+func ModeratedAtNEQ(v time.Time) predicate.Post {
+	return predicate.Post(sql.FieldNEQ(FieldModeratedAt, v))
+}
+
+// ModeratedAtIn applies the In predicate on the "moderated_at" field.
+func ModeratedAtIn(vs ...time.Time) predicate.Post {
+	return predicate.Post(sql.FieldIn(FieldModeratedAt, vs...))
+}
+
+// ModeratedAtNotIn applies the NotIn predicate on the "moderated_at" field.
+func ModeratedAtNotIn(vs ...time.Time) predicate.Post {
+	return predicate.Post(sql.FieldNotIn(FieldModeratedAt, vs...))
+}
+
+// ModeratedAtGT applies the GT predicate on the "moderated_at" field.
+func ModeratedAtGT(v time.Time) predicate.Post {
+	return predicate.Post(sql.FieldGT(FieldModeratedAt, v))
+}
+
+// ModeratedAtGTE applies the GTE predicate on the "moderated_at" field.
+func ModeratedAtGTE(v time.Time) predicate.Post {
+	return predicate.Post(sql.FieldGTE(FieldModeratedAt, v))
+}
+
+// ModeratedAtLT applies the LT predicate on the "moderated_at" field.
+func ModeratedAtLT(v time.Time) predicate.Post {
+	return predicate.Post(sql.FieldLT(FieldModeratedAt, v))
+}
+
+// ModeratedAtLTE applies the LTE predicate on the "moderated_at" field.
+func ModeratedAtLTE(v time.Time) predicate.Post {
+	return predicate.Post(sql.FieldLTE(FieldModeratedAt, v))
+}
+
+// ModeratedAtIsNil applies the IsNil predicate on the "moderated_at" field.
+func ModeratedAtIsNil() predicate.Post {
+	return predicate.Post(sql.FieldIsNull(FieldModeratedAt))
+}
+
+// ModeratedAtNotNil applies the NotNil predicate on the "moderated_at" field.
+func ModeratedAtNotNil() predicate.Post {
+	return predicate.Post(sql.FieldNotNull(FieldModeratedAt))
 }
 
 // EntityVectorEQ applies the EQ predicate on the "entity_vector" field.
