@@ -309,7 +309,6 @@ export default function Layout({ children }: LayoutProps) {
               <div></div>
             )} */}
             <Group>
-              <LanguageToggle />
               <Menu
                 width={220}
                 position="bottom-end"
@@ -321,6 +320,11 @@ export default function Layout({ children }: LayoutProps) {
               >
                 <Menu.Target>{renderAvatarOrLogin()}</Menu.Target>
                 <Menu.Dropdown classNames={{ dropdown: styles.menuDropdown }}>
+                  <Group justify="center">
+                    <LanguageToggle />
+                  </Group>
+                  <Menu.Divider />
+                  <Menu.Label>{t('common.theme')}</Menu.Label>
                   <ThemeSwitcher />
                   {checkAuthorization({ user, requiredRole: 'ADMIN' }).authorized && (
                     <>

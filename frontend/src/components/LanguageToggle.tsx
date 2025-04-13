@@ -29,18 +29,23 @@ export default function LanguageToggle() {
   ))
 
   return (
-    <div>
-      <Menu onOpen={() => setOpened(true)} onClose={() => setOpened(false)} radius="md" withinPortal>
-        <Menu.Target>
-          <UnstyledButton className={classes.control} data-expanded={opened || undefined} p={6}>
-            <Group gap="4">
-              <Image src={selected.image} style={{ width: '22px', height: '22px' }} />
-              <IconChevronDown size={16} stroke={3} />
-            </Group>
-          </UnstyledButton>
-        </Menu.Target>
-        <Menu.Dropdown>{items}</Menu.Dropdown>
-      </Menu>
-    </div>
+    <Menu onOpen={() => setOpened(true)} onClose={() => setOpened(false)} radius="md" withinPortal>
+      <Menu.Target>
+        <UnstyledButton
+          className={classes.control}
+          data-expanded={opened || undefined}
+          pl={12}
+          pr={12}
+          aria-label={selected.label}
+        >
+          <Group gap={8}>
+            <Image src={selected.image} style={{ width: '22px', height: '22px' }} />
+            {selected.label}
+          </Group>
+          <IconChevronDown size={16} stroke={2} />
+        </UnstyledButton>
+      </Menu.Target>
+      <Menu.Dropdown>{items}</Menu.Dropdown>
+    </Menu>
   )
 }

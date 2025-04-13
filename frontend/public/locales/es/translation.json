@@ -22,6 +22,8 @@
     "expires": "Expira"
   },
   "common": {
+    "language": "Idioma",
+    "theme": "Tema",
     "submit": "Enviar",
     "cancel": "Cancelar",
     "update": "Actualizar",

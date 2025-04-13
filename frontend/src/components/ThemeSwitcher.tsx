@@ -9,7 +9,7 @@ export function ThemeSwitcher() {
   const Icon = computedColorScheme === 'dark' ? IconSun : IconMoon
 
   return (
-    <Group align="center" my="sm" className={classes.group}>
+    <Group align="center" mb={'xs'} justify="center">
       <UnstyledButton aria-label="Toggle theme" className={classes.control} onClick={() => toggleColorScheme()}>
         {colorScheme === 'dark' && <Text size="sm" className={classes.value}></Text>}
         <Center className={classes.iconWrapper}>
