@@ -63,6 +63,7 @@ export default ({ mode }) => {
           },
         },
         workbox: {
+          globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,avif,jpg}'],
           navigateFallback: '/ui/index.html',
           // don't serve index.html for API requests, assets, etc.
           navigateFallbackDenylist: [/^\/api\//, /\.(js|css|png|jpg|jpeg|gif|svg|ico)$/],
