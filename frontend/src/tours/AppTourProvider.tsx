@@ -48,7 +48,7 @@ const TourController = () => {
   const { setSteps, setIsOpen, setCurrentStep, currentStep, isOpen, steps } = useTour()
   const location = useLocation()
   const tour = useTour()
-  const isMobile = useMediaQuery('(max-width: 768px)', window.innerWidth < 768)
+  const isMobile = useMediaQuery('(max-width: 1100px)', window.innerWidth < 1100)
 
   const [activeTourId, setActiveTourId] = React.useState<string | null>(null)
 

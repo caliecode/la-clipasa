@@ -13,7 +13,7 @@ type PageTemplateProps = {
 const PageTemplate = ({ children, minWidth, maxWidth, sidePanel }: PageTemplateProps) => {
   const theme = useMantineTheme()
   const { colorScheme } = useMantineColorScheme()
-  const isMobile = useMediaQuery('(max-width: 768px)', window.innerWidth < 768)
+  const isMobile = useMediaQuery('(max-width: 1100px)', window.innerWidth < 1100)
 
   return (
     <Container fluid className={styles.container}>

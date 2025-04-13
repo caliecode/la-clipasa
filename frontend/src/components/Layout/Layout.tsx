@@ -152,10 +152,10 @@ export default function Layout({ children }: LayoutProps) {
       if (!notificationIdRef.current || !notifications.update) {
         const id = notifications.show({
           id: 'pwa-update',
-          title: t('pwa.updateAvailableTitle', 'Update Available'),
+          title: t('pwa.updateAvailableTitle'),
           message: (
             <Flex direction="column" gap={8}>
-              {t('pwa.updateAvailableMessage', 'A new version of the application is ready.')}
+              {t('pwa.updateAvailableMessage')}
               <Button
                 variant="light"
                 color="blue"
@@ -174,7 +174,7 @@ export default function Layout({ children }: LayoutProps) {
                     })
                 }}
               >
-                {t('common.update', 'Update Now')}
+                {t('common.update')}
               </Button>
             </Flex>
           ),

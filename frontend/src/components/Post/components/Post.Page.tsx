@@ -60,7 +60,7 @@ export const PostPage = () => {
   const { image: categoryImage, color: categoryColor } = useCardBackground(post)
   const cardBackgroundImage = categoryImage || 'auto'
 
-  const isMobile = useMediaQuery('(max-width: 768px)', window.innerWidth < 768)
+  const isMobile = useMediaQuery('(max-width: 1100px)', window.innerWidth < 1100)
 
   const swipeStartXRef = useRef(0)
   const swipeCurrentXRef = useRef(0)
