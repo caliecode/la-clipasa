@@ -60,7 +60,7 @@ export const PostEmbed = ({ inline = false }: PostEmbedProps) => {
             src={`${post.link.replace('www.reddit.com', 'www.redditmedia.com').split('/').slice(0, -1).join('/')}/?ref_source=embed&ref=share&embed=true`}
             sandbox="allow-scripts allow-same-origin allow-popups"
             width="100%"
-            style={{ borderRadius: 10, border: 'none' }}
+            style={{ borderRadius: 10, border: 'none', height: '60vh' }}
           ></iframe>
         )
       default:
