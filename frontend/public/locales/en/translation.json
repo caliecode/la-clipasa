@@ -182,10 +182,10 @@
         "toggleDirectionTooltip": "Toggle sort direction",
         "creationDate_asc": "Creation date (newest last)",
         "creationDate_desc": "Creation date (newest first)",
-        "lastSeen_asc": "From last seen (ascending creation date)",
-        "lastSeen_desc": "From last seen (descending creation date)",
-        "approvedAt_asc": "Approved at (ascending creation date)",
-        "approvedAt_desc": "Approved at (descending creation date)",
+        "lastSeen_asc": "From last seen (newest last)",
+        "lastSeen_desc": "From last seen (newest first)",
+        "approvedAt_asc": "Approved at (newest last)",
+        "approvedAt_desc": "Approved at (newest first)",
         "mostLiked": "Most liked"
       }
     },
