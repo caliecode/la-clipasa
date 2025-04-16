@@ -35,11 +35,11 @@ type PostsState = {
 
 const initialState: Omit<PostsState, 'postActions'> = {
   lastSeenCursor: undefined,
-  sort: 'creationDate',
+  sort: 'approvedAt',
   scrollToIndexOnLoad: null,
   queryParams: {
     where: { isModerated: true },
-    orderBy: { field: 'CREATED_AT', direction: 'DESC' },
+    orderBy: { field: 'MODERATED_AT', direction: 'DESC' },
     first: 10,
   },
   posts: [],
