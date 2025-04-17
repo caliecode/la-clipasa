@@ -52,7 +52,7 @@ export default function SessionManagementPage() {
   })
 
   const [sessionsData, refetchSessions] = useMyRefreshTokensQuery({
-    variables: { where: { hasOwnerWith: [{ id: user?.id }] } },
+    variables: { where: { hasOwnerWith: [{ id: user?.id }], revoked: false } },
     requestPolicy: 'cache-and-network',
   })
 
