@@ -226,18 +226,37 @@ func (a *Authentication) ValidateAndRotateRefreshToken(ctx context.Context, oldR
 	refreshTokenHash := sha256.Sum256([]byte(oldRefreshTokenString))
 	refreshTokenHashString := base64.URLEncoding.EncodeToString(refreshTokenHash[:])
 
-	ctx = token.NewContextWithSystemCallToken(ctx)
-	// we use entgql.Transactioner in all gql api ops.
-	rt, err := a.entc.RefreshToken.Query().
+	txClient, err := a.entc.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to begin transaction: %w", err)
+	}
+
+	defer func() {
+		if r := recover(); r != nil {
+			_ = txClient.Rollback()
+			panic(r)
+		}
+		if err != nil {
+			_ = txClient.Rollback()
+		}
+	}()
+
+	entTx := txClient.Client()
+
+	sysCtx := token.NewContextWithSystemCallToken(ctx)
+	sysCtx = privacy.DecisionContext(sysCtx, privacy.Allow)
+
+	rt, err := entTx.RefreshToken.Query().
 		Where(
 			refreshtoken.TokenHashEQ(refreshTokenHashString),
 		).
 		WithOwner().
-		Only(ctx)
+		Only(sysCtx)
 	if err != nil {
 		if generated.IsNotFound(err) {
 			return nil, nil, ErrRefreshTokenNotFound
 		}
+
 		return nil, nil, fmt.Errorf("failed to query refresh token: %w", err)
 	}
 
@@ -249,26 +268,71 @@ func (a *Authentication) ValidateAndRotateRefreshToken(ctx context.Context, oldR
 	}
 
 	user := rt.Edges.Owner
-	ctxWithOwner := internal.SetUserCtx(ctx, user)
-	// only revoke the current session before reissuing, not all
-	// instead of revoking instantly, set exp to 1min ahead to allow for concurrent queries
-	// to also rotate the rt and prevent 401s and sign outs
-	_, err = a.entc.RefreshToken.UpdateOne(rt).SetExpiresAt(time.Now().Add(time.Minute)).Save(ctxWithOwner)
+	if user == nil {
+		return nil, nil, errors.New("refresh token owner not found")
+	}
+
+	ctxWithUser := internal.SetUserCtx(sysCtx, user)
+	// revoke the token immediately within the transaction - row level lock.
+	// concurrent requests should fail on their own transactional row update
+	_, err = entTx.RefreshToken.UpdateOne(rt).
+		SetRevoked(true).
+		Save(ctxWithUser)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to revoke old refresh token: %w", err)
 	}
 
 	ginCtx, ok := ctx.Value("GinContextKey").(*gin.Context)
 	if !ok {
-		return nil, nil, fmt.Errorf("failed to get gin context: %w", err)
+		return nil, nil, errors.New("failed to get gin context from context value")
 	}
-	// always creating prevents race conditions with refresh token rotation
-	tp, err := a.IssueNewTokenPair(ctx, user, ginCtx.ClientIP(), ginCtx.Request.UserAgent())
+	ipAddress := ginCtx.ClientIP()
+	userAgent := ginCtx.Request.UserAgent()
+
+	tp, err := a.IssueNewTokenPair(ctxWithUser, entTx, user, ipAddress, userAgent)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to issue new token pair: %w", err)
 	}
 
+	if err = txClient.Commit(); err != nil {
+		return nil, nil, fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
 	return user, tp, nil
+}
+
+// IssueNewTokenPair creates a new token pair.
+func (a *Authentication) IssueNewTokenPair(ctx context.Context, client *generated.Client, user *generated.User, ipAddress, userAgent string) (*TokenPair, error) {
+	accessToken, err := a.CreateAccessTokenForUser(ctx, user)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create access token: %w", err)
+	}
+
+	rb := make([]byte, RefreshTokenBytes)
+	if _, err := rand.Read(rb); err != nil {
+		return nil, fmt.Errorf("failed to generate refresh token bytes: %w", err)
+	}
+	refreshTokenString := base64.URLEncoding.EncodeToString(rb)
+	refreshTokenHash := sha256.Sum256([]byte(refreshTokenString))
+	refreshTokenHashString := base64.URLEncoding.EncodeToString(refreshTokenHash[:])
+	refreshExpiresAt := time.Now().Add(RefreshTokenLifeTime)
+
+	_, err = client.RefreshToken.Create().
+		SetOwner(user).
+		SetTokenHash(refreshTokenHashString).
+		SetExpiresAt(refreshExpiresAt).
+		SetIPAddress(ipAddress).
+		SetUserAgent(userAgent).
+		SetRevoked(false).
+		Save(internal.SetUserCtx(ctx, user))
+	if err != nil {
+		return nil, fmt.Errorf("failed to save refresh token: %w", err)
+	}
+
+	return &TokenPair{
+		AccessToken:  accessToken,
+		RefreshToken: refreshTokenString,
+	}, nil
 }
 
 // CleanupExpiredAndRevokedTokens removes old tokens to prevent database bloat
@@ -294,38 +358,4 @@ func (a *Authentication) CleanupExpiredAndRevokedTokens(ctx context.Context, use
 	if err != nil {
 		fmt.Printf("Error cleaning up tokens: %v\n", err)
 	}
-}
-
-func (a *Authentication) IssueNewTokenPair(ctx context.Context, user *generated.User, ipAddress, userAgent string) (*TokenPair, error) {
-	accessToken, err := a.CreateAccessTokenForUser(ctx, user)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create access token: %w", err)
-	}
-
-	rb := make([]byte, RefreshTokenBytes)
-	if _, err := rand.Read(rb); err != nil {
-		return nil, fmt.Errorf("failed to generate refresh token bytes: %w", err)
-	}
-	refreshTokenString := base64.URLEncoding.EncodeToString(rb)
-
-	refreshTokenHash := sha256.Sum256([]byte(refreshTokenString))
-	refreshTokenHashString := base64.URLEncoding.EncodeToString(refreshTokenHash[:])
-
-	refreshExpiresAt := time.Now().Add(RefreshTokenLifeTime)
-
-	_, err = a.entc.RefreshToken.Create().
-		SetOwner(user).
-		SetTokenHash(refreshTokenHashString).
-		SetExpiresAt(refreshExpiresAt).
-		SetIPAddress(ipAddress).
-		SetUserAgent(userAgent).
-		Save(internal.SetUserCtx(ctx, user))
-	if err != nil {
-		return nil, fmt.Errorf("failed to save refresh token: %w", err)
-	}
-
-	return &TokenPair{
-		AccessToken:  accessToken,
-		RefreshToken: refreshTokenString,
-	}, nil
 }

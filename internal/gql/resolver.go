@@ -47,11 +47,11 @@ func GinContextFromCtx(ctx context.Context) (*gin.Context, error) {
 func hasRoleDirective(ctx context.Context, obj any, next graphql.Resolver, role user.Role) (res any, err error) {
 	u := internal.GetUserFromCtx(ctx)
 	if u == nil {
-		return nil, internal.WrapErrorf(errors.New("has role directive: unauthenticated"), internal.ErrorCodeUnauthenticated, "unauthenticated")
+		return nil, internal.WrapErrorf(errors.New("role directive"), internal.ErrorCodeUnauthenticated, "unauthenticated")
 	}
 
 	if !auth.IsAuthorized(u, role) {
-		return nil, internal.WrapErrorf(errors.New("has role directive: unauthorized"), internal.ErrorCodeUnauthorized, "unauthorized")
+		return nil, internal.WrapErrorf(errors.New("role directive"), internal.ErrorCodeUnauthorized, "unauthorized")
 	}
 
 	return next(ctx)

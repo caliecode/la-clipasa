@@ -84,7 +84,7 @@ func (m *authMiddleware) TryAuthentication() gin.HandlerFunc {
 						} else {
 							// invalid, expired, revoked refresh token, db error, etc.
 							logger.Warnw("Failed to refresh token", "error", refreshErr)
-							httputil.SignOutUser(c, *m.client)
+							// httputil.SignOutUser(c, *m.client) // may be concurrent request and previous refreshed the token, don't sign out
 							// u remains nil
 						}
 					} else {

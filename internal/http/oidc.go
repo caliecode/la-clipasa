@@ -220,7 +220,8 @@ func (h *Handlers) twitchCallback(c *gin.Context) {
 		httputil.RenderError(c, "OIDC", internal.WrapErrorf(err, internal.ErrorCodeOIDC, "could not get or register user"))
 	}
 
-	tokenPair, err := h.authn.IssueNewTokenPair(ctxWithPrivacyToken, u, c.ClientIP(), c.Request.UserAgent())
+	// don't need tx for rt token here - unique call
+	tokenPair, err := h.authn.IssueNewTokenPair(ctxWithPrivacyToken, h.client, u, c.ClientIP(), c.Request.UserAgent())
 	if err != nil {
 		h.logger.Errorf("Failed to issue token pair for user %s: %v", u.ID, err)
 		httputil.RenderError(c, "Auth", internal.WrapErrorf(err, internal.ErrorCodeUnknown, "could not issue session tokens"))
