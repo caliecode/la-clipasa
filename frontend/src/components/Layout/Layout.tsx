@@ -287,11 +287,6 @@ export default function Layout({ children }: LayoutProps) {
                 title={title}
               />
 
-              {import.meta.env.DEV && (
-                <Button onClick={handleManualUpdateCheck} variant="outline" color="grape">
-                  Dev: Check for PWA Update
-                </Button>
-              )}
               {window.innerWidth < 768 && (
                 <Image
                   alt="la clipasa"

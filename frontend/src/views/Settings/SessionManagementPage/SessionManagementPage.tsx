@@ -232,9 +232,11 @@ export default function SessionManagementPage() {
           <LoadingOverlay visible={sessionsData.fetching && !sessionsData.data} overlayProps={{ blur: 2 }} />
 
           <DataTable
-            withTableBorder
+            withTableBorder={false}
             highlightOnHover
             striped
+            backgroundColor="light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-6))"
+            borderRadius={8}
             records={sortedSessions}
             columns={columns}
             sortStatus={sortStatus}

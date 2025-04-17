@@ -289,7 +289,8 @@ func (a *Authentication) ValidateAndRotateRefreshToken(ctx context.Context, oldR
 	ipAddress := ginCtx.ClientIP()
 	userAgent := ginCtx.Request.UserAgent()
 
-	tp, err := a.IssueNewTokenPair(ctxWithUser, entTx, user, ipAddress, userAgent)
+	// retain old token createdAt for session management reference
+	tp, err := a.IssueNewTokenPair(ctxWithUser, entTx, user, ipAddress, userAgent, &rt.CreatedAt)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to issue new token pair: %w", err)
 	}
@@ -302,7 +303,7 @@ func (a *Authentication) ValidateAndRotateRefreshToken(ctx context.Context, oldR
 }
 
 // IssueNewTokenPair creates a new token pair.
-func (a *Authentication) IssueNewTokenPair(ctx context.Context, client *generated.Client, user *generated.User, ipAddress, userAgent string) (*TokenPair, error) {
+func (a *Authentication) IssueNewTokenPair(ctx context.Context, client *generated.Client, user *generated.User, ipAddress, userAgent string, createdAt *time.Time) (*TokenPair, error) {
 	accessToken, err := a.CreateAccessTokenForUser(ctx, user)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create access token: %w", err)
@@ -317,15 +318,18 @@ func (a *Authentication) IssueNewTokenPair(ctx context.Context, client *generate
 	refreshTokenHashString := base64.URLEncoding.EncodeToString(refreshTokenHash[:])
 	refreshExpiresAt := time.Now().Add(RefreshTokenLifeTime)
 
-	_, err = client.RefreshToken.Create().
+	creator := client.RefreshToken.Create().
 		SetOwner(user).
 		SetTokenHash(refreshTokenHashString).
 		SetExpiresAt(refreshExpiresAt).
-		// SetIPAddress(ipAddress). // PII - maybe toggleable in session management
 		SetUserAgent(userAgent).
-		SetRevoked(false).
-		Save(internal.SetUserCtx(ctx, user))
-	if err != nil {
+		SetRevoked(false)
+
+	if createdAt != nil {
+		creator.SetCreatedAt(*createdAt)
+	}
+
+	if _, err := creator.Save(internal.SetUserCtx(ctx, user)); err != nil {
 		return nil, fmt.Errorf("failed to save refresh token: %w", err)
 	}
 

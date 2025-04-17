@@ -221,7 +221,7 @@ func (h *Handlers) twitchCallback(c *gin.Context) {
 	}
 
 	// don't need tx for rt token here - unique call
-	tokenPair, err := h.authn.IssueNewTokenPair(ctxWithPrivacyToken, h.client, u, c.ClientIP(), c.Request.UserAgent())
+	tokenPair, err := h.authn.IssueNewTokenPair(ctxWithPrivacyToken, h.client, u, c.ClientIP(), c.Request.UserAgent(), nil)
 	if err != nil {
 		h.logger.Errorf("Failed to issue token pair for user %s: %v", u.ID, err)
 		httputil.RenderError(c, "Auth", internal.WrapErrorf(err, internal.ErrorCodeUnknown, "could not issue session tokens"))

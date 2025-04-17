@@ -1,6 +1,8 @@
 import 'src/assets/css/fonts.css'
 import 'src/assets/css/pulsate.css'
 import '@mantine/core/styles.css'
+import '@mantine/core/styles.layer.css'
+import 'mantine-datatable/styles.layer.css'
 import '@mantine/notifications/styles.css'
 import '@mantine/code-highlight/styles.css'
 import '@mantine/dates/styles.css'
