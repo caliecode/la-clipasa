@@ -321,7 +321,7 @@ func (a *Authentication) IssueNewTokenPair(ctx context.Context, client *generate
 		SetOwner(user).
 		SetTokenHash(refreshTokenHashString).
 		SetExpiresAt(refreshExpiresAt).
-		SetIPAddress(ipAddress).
+		// SetIPAddress(ipAddress). // PII - maybe toggleable in session management
 		SetUserAgent(userAgent).
 		SetRevoked(false).
 		Save(internal.SetUserCtx(ctx, user))

@@ -60,7 +60,6 @@ func (m *rateLimitMiddleware) Limit() gin.HandlerFunc {
 				ip = "unknown"
 			}
 		}
-		m.logger.Debugf("ip: %v", ip)
 
 		limiter := m.getVisitor(ip)
 		if !limiter.Allow() {
