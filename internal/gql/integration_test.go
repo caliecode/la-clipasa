@@ -3,16 +3,15 @@ package gql_test
 import (
 	"context"
 	"database/sql"
+	"errors"
+	"fmt"
+	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
 	"time"
 
-	_ "github.com/caliecode/la-clipasa/internal/ent/generated/runtime"
-
-	"entgo.io/ent/dialect"
-	entsql "entgo.io/ent/dialect/sql"
-	"github.com/99designs/gqlgen/client"
+	"github.com/Yamashou/gqlgenc/clientv2"
 	"github.com/caliecode/la-clipasa/internal"
 	"github.com/caliecode/la-clipasa/internal/auth"
 	"github.com/caliecode/la-clipasa/internal/ent/generated"
@@ -20,10 +19,15 @@ import (
 	"github.com/caliecode/la-clipasa/internal/ent/generated/post"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/postcategory"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/privacy"
+	_ "github.com/caliecode/la-clipasa/internal/ent/generated/runtime"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
 	"github.com/caliecode/la-clipasa/internal/ent/privacy/token"
+	"github.com/caliecode/la-clipasa/internal/gql/testclient"
 	httpServer "github.com/caliecode/la-clipasa/internal/http"
 	"github.com/caliecode/la-clipasa/internal/testutil"
+
+	"entgo.io/ent/dialect"
+	entsql "entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/assert"
@@ -37,10 +41,26 @@ var (
 	testSQLPool *sql.DB
 	testClient  *generated.Client
 	testAuthn   *auth.Authentication
-	gqlClient   *client.Client
 	testLogger  *zap.SugaredLogger
 	testServer  *httptest.Server
 )
+
+func newAuthClient(token string) testclient.TestGraphClient {
+	httpClient := testServer.Client()
+
+	graphqlURL := testServer.URL + internal.Config.APIVersion + "/graphql"
+	gqlClient := testclient.NewClient(httpClient, graphqlURL,
+		&clientv2.Options{
+			ParseDataAlongWithErrors: false,
+		},
+		func(ctx context.Context, req *http.Request, gqlInfo *clientv2.GQLRequestInfo, res any, next clientv2.RequestInterceptorFunc) error {
+			req.Header.Set("Authorization", "Bearer "+token)
+			return next(ctx, req, gqlInfo, res)
+		},
+	)
+
+	return gqlClient
+}
 
 func TestMain(m *testing.M) {
 	testutil.Setup()
@@ -88,14 +108,9 @@ func TestMain(m *testing.M) {
 	}
 
 	testServer = httptest.NewServer(srv.Httpsrv.Handler)
-	cfg := internal.Config
-
-	gqlClient = client.New(testServer.Config.Handler, client.Path(cfg.APIVersion+"/graphql"))
 
 	code := m.Run()
-
 	testServer.Close()
-
 	os.Exit(code)
 }
 
@@ -124,10 +139,12 @@ func createTestUser(ctx context.Context, t *testing.T, role user.Role) (*generat
 func createTestPost(ctx context.Context, t *testing.T, author *generated.User) *generated.Post {
 	t.Helper()
 	client := generated.FromContext(ctx)
-	require.NotNil(t, client, "Ent client must be present in context for createTestPost")
+	if client == nil {
+		client = testClient
+		ctx = generated.NewContext(ctx, client)
+	}
 
 	ctxWithUser := internal.SetUserCtx(ctx, author)
-
 	ctxWithUser = privacy.DecisionContext(ctxWithUser, privacy.Allow)
 
 	p := client.Post.Create().
@@ -150,133 +167,92 @@ func TestPostResolvers(t *testing.T) {
 	require.NotNil(t, modUser)
 	require.NotEmpty(t, modToken)
 
+	userGQLClient := newAuthClient(userToken)
+	modGQLClient := newAuthClient(modToken)
+
 	t.Run("CreatePost", func(t *testing.T) {
 		title := "My First Test Post " + testutil.RandomString(5)
 		link := testutil.RandomLink()
 
-		var resp struct {
-			CreatePost struct {
-				Post struct {
-					ID    string `json:"id"`
-					Title string `json:"title"`
-					Link  string `json:"link"`
-					Owner struct {
-						ID          string `json:"id"`
-						DisplayName string `json:"displayName"`
-					} `json:"owner"`
-				} `json:"post"`
-			} `json:"createPost"`
+		input := testclient.CreatePostInput{
+			Title: title,
+			Link:  link,
 		}
 
-		mutation := `
-			mutation CreatePost($input: CreatePostInput!) {
-				createPost(input: $input) {
-					post {
-						id
-						title
-						link
-						owner { id displayName }
-					}
-				}
-			}`
-		variables := map[string]any{
-			"input": map[string]any{
-				"title":   title,
-				"link":    link,
-				"ownerID": testUser.ID,
-			},
-		}
+		resp, err := userGQLClient.CreatePostMutation(ctx, input)
+		require.NoError(t, err)
+		require.NotNil(t, resp, "Response should not be nil")
 
-		err := gqlClient.Post(mutation, &resp, client.Var("input", variables["input"]), client.AddHeader("Authorization", "Bearer "+userToken))
-		require.NoError(t, err)
+		require.NotNil(t, resp.GetCreatePost(), "CreatePost payload should not be nil")
+		require.NotNil(t, resp.GetCreatePost().GetPost(), "Created post should not be nil")
 
-		postID, err := uuid.Parse(resp.CreatePost.Post.ID)
-		require.NoError(t, err)
-		ownerID, err := uuid.Parse(resp.CreatePost.Post.Owner.ID)
-		require.NoError(t, err)
+		createdPost := resp.GetCreatePost().GetPost()
+		postID := createdPost.GetID()
+		owner := createdPost.GetOwner()
+		require.NotNil(t, owner, "Post owner should not be nil")
+		ownerID := owner.GetID()
 
 		assert.NotEmpty(t, postID)
-		assert.Equal(t, title, resp.CreatePost.Post.Title)
-		assert.Equal(t, link, resp.CreatePost.Post.Link)
-		assert.Equal(t, testUser.ID, ownerID)
-		assert.Equal(t, testUser.DisplayName, resp.CreatePost.Post.Owner.DisplayName)
+		assert.Equal(t, title, createdPost.GetTitle())
+		assert.Equal(t, link, createdPost.GetLink())
+		assert.EqualValues(t, testUser.ID, *ownerID)
+		assert.Equal(t, testUser.DisplayName, owner.GetDisplayName())
 
-		dbPost, err := testClient.Post.Get(ctx, postID)
+		dbPost, err := testClient.Post.Get(ctx, *postID)
 		require.NoError(t, err)
 		assert.Equal(t, title, dbPost.Title)
 		assert.Equal(t, link, dbPost.Link)
-		assert.Equal(t, testUser.ID, dbPost.OwnerID)
+
+		ownerEdge, err := dbPost.QueryOwner().OnlyID(ctx)
+		require.NoError(t, err)
+		assert.Equal(t, testUser.ID, ownerEdge)
 	})
 
 	t.Run("CreatePostWithCategories", func(t *testing.T) {
 		title := "Post With Categories " + testutil.RandomString(5)
 		link := testutil.RandomLink()
-		categories := []postcategory.Category{postcategory.CategoryRANA, postcategory.CategoryMEME_ARTESANAL}
-
-		var resp struct {
-			CreatePostWithCategories struct {
-				Post struct {
-					ID         string `json:"id"`
-					Title      string `json:"title"`
-					Categories []*struct {
-						ID       string                `json:"id"`
-						Category postcategory.Category `json:"category"`
-					} `json:"categories"`
-					Owner struct {
-						ID string `json:"id"`
-					} `json:"owner"`
-				} `json:"post"`
-			} `json:"createPostWithCategories"`
+		categories := []postcategory.Category{
+			postcategory.CategoryRANA,
+			postcategory.CategoryMEME_ARTESANAL,
 		}
 
-		mutation := `
-			mutation CreatePostWithCategories($input: CreatePostWithCategoriesInput!) {
-				createPostWithCategories(input: $input) {
-					post {
-						id
-						title
-						categories { id category }
-						owner { id }
-					}
-				}
-			}`
-		variables := map[string]any{
-			"input": map[string]any{
-				"base": map[string]any{
-					"title":   title,
-					"link":    link,
-					"ownerID": testUser.ID,
-				},
-				"categories": categories,
+		input := testclient.CreatePostWithCategoriesInput{
+			Base: &testclient.CreatePostInput{
+				Title: title,
+				Link:  link,
 			},
+			Categories: categories,
 		}
 
-		err := gqlClient.Post(mutation, &resp, client.Var("input", variables["input"]), client.AddHeader("Authorization", "Bearer "+userToken))
+		resp, err := userGQLClient.CreatePostWithCategoriesMutation(ctx, input)
 		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.NotNil(t, resp.GetCreatePostWithCategories())
+		require.NotNil(t, resp.GetCreatePostWithCategories().GetPost())
 
-		postID, err := uuid.Parse(resp.CreatePostWithCategories.Post.ID)
-		require.NoError(t, err)
-		ownerID, err := uuid.Parse(resp.CreatePostWithCategories.Post.Owner.ID)
-		require.NoError(t, err)
+		createdPost := resp.GetCreatePostWithCategories().GetPost()
+		postID := createdPost.GetID()
+		owner := createdPost.GetOwner()
+		require.NotNil(t, owner)
+		ownerID := owner.GetID()
 
 		assert.NotEmpty(t, postID)
-		assert.Equal(t, title, resp.CreatePostWithCategories.Post.Title)
-		assert.Equal(t, testUser.ID, ownerID)
-		require.Len(t, resp.CreatePostWithCategories.Post.Categories, 2)
+		assert.Equal(t, title, createdPost.GetTitle())
+		assert.Equal(t, testUser.ID, *ownerID)
+		require.Len(t, createdPost.GetCategories(), 2)
 
 		foundCategories := make(map[postcategory.Category]bool)
-		for _, cat := range resp.CreatePostWithCategories.Post.Categories {
+		for _, cat := range createdPost.GetCategories() {
 			require.NotNil(t, cat)
-			catID, err := uuid.Parse(cat.ID)
-			require.NoError(t, err)
-			assert.NotEmpty(t, catID)
-			foundCategories[cat.Category] = true
+			assert.NotEmpty(t, cat.GetID())
+			foundCategories[*cat.GetCategory()] = true
 		}
 		assert.True(t, foundCategories[postcategory.CategoryRANA])
 		assert.True(t, foundCategories[postcategory.CategoryMEME_ARTESANAL])
 
 		dbPost, err := testClient.Post.Query().
-			Where(post.ID(postID)).
+			Where(post.ID(*postID)).
+			WithOwner().
 			WithCategories().
 			Only(ctx)
 		require.NoError(t, err)
@@ -290,50 +266,28 @@ func TestPostResolvers(t *testing.T) {
 	})
 
 	t.Run("UpdatePost_Self", func(t *testing.T) {
-		ctxWithClient := generated.NewContext(ctx, testClient)
-		ctxWithUser := internal.SetUserCtx(ctxWithClient, testUser)
-		p := createTestPost(ctxWithUser, t, testUser)
+		p := createTestPost(ctx, t, testUser)
 
 		newTitle := "Updated Title " + testutil.RandomString(5)
 		newContent := "Updated content."
 
-		var resp struct {
-			UpdatePost struct {
-				Post struct {
-					ID      string  `json:"id"`
-					Title   string  `json:"title"`
-					Content *string `json:"content"`
-				} `json:"post"`
-			} `json:"updatePost"`
+		input := testclient.UpdatePostInput{
+			Title:   &newTitle,
+			Content: &newContent,
 		}
 
-		mutation := `
-			mutation UpdatePost($id: ID!, $input: UpdatePostInput!) {
-				updatePost(id: $id, input: $input) {
-					post {
-						id
-						title
-						content
-					}
-				}
-			}`
-		variables := map[string]any{
-			"id": p.ID.String(),
-			"input": map[string]any{
-				"title":   newTitle,
-				"content": newContent,
-			},
-		}
-
-		err := gqlClient.Post(mutation, &resp, client.Var("id", variables["id"]), client.Var("input", variables["input"]), client.AddHeader("Authorization", "Bearer "+userToken))
+		resp, err := userGQLClient.UpdatePostMutation(ctx, p.ID, input)
 		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.NotNil(t, resp.GetUpdatePost())
+		require.NotNil(t, resp.GetUpdatePost().GetPost())
 
-		postID, err := uuid.Parse(resp.UpdatePost.Post.ID)
-		require.NoError(t, err)
-		assert.Equal(t, p.ID, postID)
-		assert.Equal(t, newTitle, resp.UpdatePost.Post.Title)
-		require.NotNil(t, resp.UpdatePost.Post.Content)
-		assert.Equal(t, newContent, *resp.UpdatePost.Post.Content)
+		updatedPost := resp.GetUpdatePost().GetPost()
+		postID := updatedPost.GetID()
+		assert.Equal(t, p.ID, *postID)
+		assert.Equal(t, newTitle, updatedPost.GetTitle())
+		require.NotNil(t, updatedPost.GetContent())
+		assert.Equal(t, newContent, *updatedPost.GetContent())
 
 		dbPost, err := testClient.Post.Get(ctx, p.ID)
 		require.NoError(t, err)
@@ -343,60 +297,39 @@ func TestPostResolvers(t *testing.T) {
 	})
 
 	t.Run("UpdatePost_Moderator", func(t *testing.T) {
-		ctxWithClient := generated.NewContext(ctx, testClient)
-		ctxWithUser := internal.SetUserCtx(ctxWithClient, testUser)
-		p := createTestPost(ctxWithUser, t, testUser)
+		p := createTestPost(ctx, t, testUser)
 
 		newTitle := "Moderator Updated Title " + testutil.RandomString(5)
 		modComment := "Moderator approved this."
+		isModerated := true
 
-		var resp struct {
-			UpdatePost struct {
-				Post struct {
-					ID                string  `json:"id"`
-					Title             string  `json:"title"`
-					ModerationComment string  `json:"moderationComment"`
-					IsModerated       bool    `json:"isModerated"`
-					ModeratedAt       *string `json:"moderatedAt"`
-				} `json:"post"`
-			} `json:"updatePost"`
+		input := testclient.UpdatePostInput{
+			Title:             &newTitle,
+			ModerationComment: &modComment,
+			IsModerated:       &isModerated,
 		}
 
-		mutation := `
-			mutation UpdatePost($id: ID!, $input: UpdatePostInput!) {
-				updatePost(id: $id, input: $input) {
-					post {
-						id
-						title
-						moderationComment
-						isModerated
-						moderatedAt
-					}
-				}
-			}`
-		variables := map[string]any{
-			"id": p.ID.String(),
-			"input": map[string]any{
-				"title":             newTitle,
-				"moderationComment": modComment,
-				"isModerated":       true,
-			},
-		}
-
-		err := gqlClient.Post(mutation, &resp, client.Var("id", variables["id"]), client.Var("input", variables["input"]), client.AddHeader("Authorization", "Bearer "+modToken))
+		resp, err := modGQLClient.UpdatePostMutation(ctx, p.ID, input)
 		require.NoError(t, err, "Moderator should be allowed by policy")
+		require.NotNil(t, resp)
+		require.NotNil(t, resp.GetUpdatePost())
+		require.NotNil(t, resp.GetUpdatePost().GetPost())
 
-		postID, err := uuid.Parse(resp.UpdatePost.Post.ID)
-		require.NoError(t, err)
-		assert.Equal(t, p.ID, postID)
-		assert.Equal(t, newTitle, resp.UpdatePost.Post.Title)
-		assert.Equal(t, modComment, resp.UpdatePost.Post.ModerationComment)
-		assert.True(t, resp.UpdatePost.Post.IsModerated)
-		assert.NotNil(t, resp.UpdatePost.Post.ModeratedAt)
+		updatedPost := resp.GetUpdatePost().GetPost()
+		postID := updatedPost.GetID()
+
+		assert.Equal(t, p.ID, *postID)
+		assert.Equal(t, newTitle, updatedPost.GetTitle())
+		require.NotNil(t, updatedPost.GetModerationComment())
+		assert.Equal(t, modComment, *updatedPost.GetModerationComment())
+		assert.True(t, updatedPost.GetIsModerated())
+		require.NotNil(t, updatedPost.GetModeratedAt())
+		assert.WithinDuration(t, time.Now(), *updatedPost.GetModeratedAt(), 5*time.Second)
 
 		dbPost, err := testClient.Post.Get(ctx, p.ID)
 		require.NoError(t, err)
 		assert.Equal(t, newTitle, dbPost.Title)
+		require.NotNil(t, dbPost.ModerationComment)
 		assert.Equal(t, modComment, dbPost.ModerationComment)
 		assert.True(t, dbPost.IsModerated)
 		assert.NotNil(t, dbPost.ModeratedAt)
@@ -404,38 +337,23 @@ func TestPostResolvers(t *testing.T) {
 	})
 
 	t.Run("DeletePost_Self", func(t *testing.T) {
-		ctxWithClient := generated.NewContext(ctx, testClient)
-		ctxWithUser := internal.SetUserCtx(ctxWithClient, testUser)
-		p := createTestPost(ctxWithUser, t, testUser)
+		p := createTestPost(ctx, t, testUser)
 
-		var resp struct {
-			DeletePost struct {
-				DeletedID string `json:"deletedID"`
-			} `json:"deletePost"`
-		}
-
-		mutation := `
-			mutation DeletePost($id: ID!) {
-				deletePost(id: $id) {
-					deletedID
-				}
-			}`
-		variables := map[string]any{
-			"id": p.ID.String(),
-		}
-
-		err := gqlClient.Post(mutation, &resp, client.Var("id", variables["id"]), client.AddHeader("Authorization", "Bearer "+userToken))
+		resp, err := userGQLClient.DeletePostMutation(ctx, p.ID)
 		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.NotNil(t, resp.GetDeletePost())
 
-		deletedID, err := uuid.Parse(resp.DeletePost.DeletedID)
-		require.NoError(t, err)
-		assert.Equal(t, p.ID, deletedID)
+		deletedID := resp.GetDeletePost().GetDeletedID()
+		require.NotNil(t, deletedID, "Deleted ID should not be nil")
+		assert.Equal(t, p.ID, *deletedID)
 
 		softDeleteCtx := entx.SkipSoftDelete(ctx)
 		dbPost, err := testClient.Post.Query().Where(post.ID(p.ID)).Only(softDeleteCtx)
 		require.NoError(t, err)
 		require.NotNil(t, dbPost.DeletedAt)
-		require.NotEmpty(t, dbPost.DeletedBy)
+
+		require.NotNil(t, dbPost.DeletedBy)
 		assert.Equal(t, testUser.ID.String(), dbPost.DeletedBy)
 
 		_, err = testClient.Post.Get(ctx, p.ID)
@@ -444,9 +362,10 @@ func TestPostResolvers(t *testing.T) {
 	})
 
 	t.Run("RestorePost_Moderator", func(t *testing.T) {
-		ctxWithClient := generated.NewContext(ctx, testClient)
-		ctxWithMod := internal.SetUserCtx(ctxWithClient, modUser)
+		ctxWithMod := internal.SetUserCtx(ctx, modUser)
+
 		ctxWithMod = privacy.DecisionContext(ctxWithMod, privacy.Allow)
+
 		p := createTestPost(ctxWithMod, t, modUser)
 		err := testClient.Post.DeleteOne(p).Exec(ctxWithMod)
 		require.NoError(t, err)
@@ -456,22 +375,12 @@ func TestPostResolvers(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, dbPost.DeletedAt)
 
-		var resp struct {
-			RestorePost *bool `json:"restorePost"`
-		}
-
-		mutation := `
-			mutation RestorePost($id: ID!) {
-				restorePost(id: $id)
-			}`
-		variables := map[string]any{
-			"id": p.ID.String(),
-		}
-
-		err = gqlClient.Post(mutation, &resp, client.Var("id", variables["id"]), client.AddHeader("Authorization", "Bearer "+modToken))
+		resp, err := modGQLClient.RestorePostMutation(ctx, p.ID)
 		require.NoError(t, err, "Moderator should be allowed by policy")
-		require.NotNil(t, resp.RestorePost)
-		assert.True(t, *resp.RestorePost)
+		require.NotNil(t, resp)
+
+		require.NotNil(t, resp.GetRestorePost(), "RestorePost boolean pointer should not be nil")
+		assert.True(t, *resp.GetRestorePost(), "RestorePost should return true")
 
 		dbPost, err = testClient.Post.Get(ctx, p.ID)
 		require.NoError(t, err)
@@ -480,135 +389,92 @@ func TestPostResolvers(t *testing.T) {
 	})
 
 	t.Run("QueryPosts", func(t *testing.T) {
-		ctxWithClient := generated.NewContext(ctx, testClient)
-		ctxWithUser := internal.SetUserCtx(ctxWithClient, testUser)
-		p1 := createTestPost(ctxWithUser, t, testUser)
-		p2 := createTestPost(ctxWithUser, t, testUser)
+		p1 := createTestPost(ctx, t, testUser)
+		p2 := createTestPost(ctx, t, testUser)
 		_ = createTestPost(ctx, t, modUser)
 
-		var resp struct {
-			Posts struct {
-				TotalCount int `json:"totalCount"`
-				Edges      []*struct {
-					Node struct {
-						ID    string `json:"id"`
-						Title string `json:"title"`
-						Owner *struct {
-							ID string `json:"id"`
-						} `json:"owner"`
-					} `json:"node"`
-				} `json:"edges"`
-			} `json:"posts"`
-		}
-
-		query := `
-			query GetPosts($first: Int, $where: PostWhereInput) {
-				posts(first: $first, where: $where) {
-					totalCount
-					edges {
-						node {
-							id
-							title
-							owner { id }
-						}
-					}
-				}
-			}`
-		variables := map[string]any{
-			"first": 50,
-			"where": map[string]any{
-				"hasOwnerWith": []map[string]any{{"id": testUser.ID.String()}},
+		first := int64(50)
+		where := testclient.PostWhereInput{
+			HasOwnerWith: []*testclient.UserWhereInput{
+				{ID: &testUser.ID},
 			},
 		}
 
-		err := gqlClient.Post(query, &resp, client.Var("first", variables["first"]), client.Var("where", variables["where"]), client.AddHeader("Authorization", "Bearer "+userToken))
+		resp, err := userGQLClient.GetPostsQuery(ctx, &first, nil, nil, nil, &where)
 		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.NotNil(t, resp.GetPosts())
 
-		require.GreaterOrEqual(t, resp.Posts.TotalCount, 2)
-		require.GreaterOrEqual(t, len(resp.Posts.Edges), 2)
+		postsConn := resp.GetPosts()
+		require.GreaterOrEqual(t, postsConn.GetTotalCount(), int64(2))
+		require.GreaterOrEqual(t, len(postsConn.GetEdges()), 2)
 
 		foundIDs := make(map[uuid.UUID]bool)
-		for _, edge := range resp.Posts.Edges {
-			require.NotNil(t, edge.Node)
-			require.NotNil(t, edge.Node.Owner)
+		for _, edge := range postsConn.GetEdges() {
+			require.NotNil(t, edge)
+			node := edge.GetNode()
+			require.NotNil(t, node)
+			owner := node.GetOwner()
+			require.NotNil(t, owner)
 
-			postID, err := uuid.Parse(edge.Node.ID)
-			require.NoError(t, err)
-			ownerID, err := uuid.Parse(edge.Node.Owner.ID)
-			require.NoError(t, err)
+			postID := node.GetID()
+			require.NotNil(t, postID)
+			ownerID := owner.GetID()
+			require.NotNil(t, ownerID)
 
-			assert.Equal(t, testUser.ID, ownerID)
-			foundIDs[postID] = true
+			assert.Equal(t, testUser.ID, *ownerID)
+			foundIDs[*postID] = true
 		}
 		assert.True(t, foundIDs[p1.ID])
 		assert.True(t, foundIDs[p2.ID])
 	})
 
 	t.Run("QueryPosts_IncludingDeleted_AsModerator", func(t *testing.T) {
-		ctxWithClient := generated.NewContext(ctx, testClient)
-		ctxWithUser := internal.SetUserCtx(ctxWithClient, testUser)
-		p1 := createTestPost(ctxWithUser, t, testUser)
-		p2 := createTestPost(ctxWithUser, t, testUser)
+		p1 := createTestPost(ctx, t, testUser)
+		p2 := createTestPost(ctx, t, testUser)
 
 		ctxWithMod := internal.SetUserCtx(ctx, modUser)
 		ctxWithMod = privacy.DecisionContext(ctxWithMod, privacy.Allow)
 		err := testClient.Post.DeleteOne(p1).Exec(ctxWithMod)
 		require.NoError(t, err)
 
-		var resp struct {
-			Posts struct {
-				TotalCount int `json:"totalCount"`
-				Edges      []*struct {
-					Node struct {
-						ID        string  `json:"id"`
-						Title     string  `json:"title"`
-						DeletedAt *string `json:"deletedAt"`
-					} `json:"node"`
-				} `json:"edges"`
-			} `json:"posts"`
-		}
-
-		query := `
-			query GetPosts($first: Int, $where: PostWhereInput) {
-				posts(first: $first, where: $where) {
-					totalCount
-					edges {
-						node {
-							id
-							title
-							deletedAt
-						}
-					}
-				}
-			}`
-		variables := map[string]any{
-			"first": 50,
-			"where": map[string]any{
-				"includeDeleted": true,
-				"hasOwnerWith":   []map[string]any{{"id": testUser.ID.String()}},
+		first := int64(50)
+		includeDeleted := true
+		where := testclient.PostWhereInput{
+			IncludeDeleted: &includeDeleted,
+			HasOwnerWith: []*testclient.UserWhereInput{
+				{ID: &testUser.ID},
 			},
 		}
 
-		err = gqlClient.Post(query, &resp, client.Var("first", variables["first"]), client.Var("where", variables["where"]), client.AddHeader("Authorization", "Bearer "+modToken))
+		resp, err := modGQLClient.GetPostsQuery(ctx, &first, nil, nil, nil, &where)
 		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.NotNil(t, resp.GetPosts())
 
-		require.GreaterOrEqual(t, resp.Posts.TotalCount, 2)
-		require.GreaterOrEqual(t, len(resp.Posts.Edges), 2)
+		postsConn := resp.GetPosts()
+		require.GreaterOrEqual(t, postsConn.GetTotalCount(), int64(2))
+		require.GreaterOrEqual(t, len(postsConn.GetEdges()), 2)
 
 		foundP1 := false
 		foundP2 := false
-		for _, edge := range resp.Posts.Edges {
-			require.NotNil(t, edge.Node)
-			postID, err := uuid.Parse(edge.Node.ID)
-			require.NoError(t, err)
+		for _, edge := range postsConn.GetEdges() {
+			require.NotNil(t, edge)
+			node := edge.GetNode()
+			require.NotNil(t, node)
+			postID := node.GetID()
+			require.NotNil(t, postID)
 
-			if postID == p1.ID {
+			deletedAt := node.GetDeletedAt()
+
+			if *postID == p1.ID {
 				foundP1 = true
-				assert.NotNil(t, edge.Node.DeletedAt)
+				require.NotNil(t, deletedAt, "Deleted post p1 should have DeletedAt set")
+				assert.False(t, deletedAt.IsZero())
 			}
-			if postID == p2.ID {
+			if *postID == p2.ID {
 				foundP2 = true
-				assert.Nil(t, edge.Node.DeletedAt)
+				assert.Nil(t, deletedAt, "Active post p2 should have nil DeletedAt")
 			}
 		}
 		assert.True(t, foundP1, "Deleted post p1 was not found")
@@ -624,19 +490,21 @@ func TestPostAuthorization(t *testing.T) {
 	_, user2Token := createTestUser(ctx, t, user.RoleUSER)
 	modUser, modToken := createTestUser(ctx, t, user.RoleMODERATOR)
 
-	ctxWithUser1 := internal.SetUserCtx(ctx, user1)
-	post1 := createTestPost(ctxWithUser1, t, user1)
+	user1GQLClient := newAuthClient(user1Token)
+	user2GQLClient := newAuthClient(user2Token)
+	modGQLClient := newAuthClient(modToken)
+
+	post1 := createTestPost(ctx, t, user1)
 
 	t.Run("UpdatePost_Fail_NonOwnerNonModerator", func(t *testing.T) {
-		var resp struct {
-			UpdatePost struct{ Post struct{ ID string } } `json:"updatePost"`
-		}
-		mutation := `mutation ($id: ID!, $input: UpdatePostInput!) { updatePost(id: $id, input: $input) { post { id } } }`
-		variables := map[string]any{"id": post1.ID.String(), "input": map[string]any{"title": "Attempted Update"}}
+		title := "Attempted Update"
+		input := testclient.UpdatePostInput{Title: &title}
 
-		err := gqlClient.Post(mutation, &resp, client.Var("id", variables["id"]), client.Var("input", variables["input"]), client.AddHeader("Authorization", "Bearer "+user2Token))
+		_, err := user2GQLClient.UpdatePostMutation(ctx, post1.ID, input)
+
 		require.Error(t, err)
-		require.Contains(t, err.Error(), "post not found", "Expected access denied error") // Privacy rule should deny - TODO: override error message instead of giving X not found
+
+		assert.Contains(t, err.Error(), "not found", "Expected permission error")
 
 		dbPost, dbErr := testClient.Post.Get(ctx, post1.ID)
 		require.NoError(t, dbErr)
@@ -644,25 +512,20 @@ func TestPostAuthorization(t *testing.T) {
 	})
 
 	t.Run("UpdatePost_Success_Moderator", func(t *testing.T) {
-		var resp struct {
-			UpdatePost struct {
-				Post struct {
-					ID    string `json:"id"`
-					Title string `json:"title"`
-				} `json:"post"`
-			} `json:"updatePost"`
-		}
-		mutation := `mutation ($id: ID!, $input: UpdatePostInput!) { updatePost(id: $id, input: $input) { post { id title } } }`
 		newTitle := "Mod Update " + testutil.RandomString(3)
-		variables := map[string]any{"id": post1.ID.String(), "input": map[string]any{"title": newTitle}}
+		input := testclient.UpdatePostInput{Title: &newTitle}
+		fmt.Printf("modUser.ID: %v\n", modUser.ID)
+		resp, err := modGQLClient.UpdatePostMutation(ctx, post1.ID, input)
+		require.NoError(t, err, "Moderator should be allowed to update")
+		require.NotNil(t, resp)
+		require.NotNil(t, resp.GetUpdatePost())
+		require.NotNil(t, resp.GetUpdatePost().GetPost())
 
-		err := gqlClient.Post(mutation, &resp, client.Var("id", variables["id"]), client.Var("input", variables["input"]), client.AddHeader("Authorization", "Bearer "+modToken))
-		require.NoError(t, err, "Moderator role should pass privacy check")
-
-		postID, err := uuid.Parse(resp.UpdatePost.Post.ID)
-		require.NoError(t, err)
-		assert.Equal(t, post1.ID, postID)
-		assert.Equal(t, newTitle, resp.UpdatePost.Post.Title)
+		updatedPost := resp.GetUpdatePost().GetPost()
+		postID := updatedPost.GetID()
+		require.NotNil(t, postID)
+		assert.Equal(t, post1.ID, *postID)
+		assert.Equal(t, newTitle, updatedPost.GetTitle())
 
 		dbPost, dbErr := testClient.Post.Get(ctx, post1.ID)
 		require.NoError(t, dbErr)
@@ -670,18 +533,12 @@ func TestPostAuthorization(t *testing.T) {
 	})
 
 	t.Run("DeletePost_Fail_NonOwnerNonModerator", func(t *testing.T) {
-		ctxWithUser1 := internal.SetUserCtx(ctx, user1)
-		post2 := createTestPost(ctxWithUser1, t, user1)
+		post2 := createTestPost(ctx, t, user1)
 
-		var resp struct {
-			DeletePost struct{ DeletedID string } `json:"deletePost"`
-		}
-		mutation := `mutation ($id: ID!) { deletePost(id: $id) { deletedID } }`
-		variables := map[string]any{"id": post2.ID.String()}
-
-		err := gqlClient.Post(mutation, &resp, client.Var("id", variables["id"]), client.AddHeader("Authorization", "Bearer "+user2Token))
+		_, err := user2GQLClient.DeletePostMutation(ctx, post2.ID)
 		require.Error(t, err)
-		require.Contains(t, err.Error(), "not found", "Expected access denied error") // TODO: replace error messages when user owned kicks in
+
+		assert.Contains(t, err.Error(), "not found", "Expected permission error")
 
 		dbPost, err := testClient.Post.Get(ctx, post2.ID)
 		require.NoError(t, err)
@@ -689,29 +546,22 @@ func TestPostAuthorization(t *testing.T) {
 	})
 
 	t.Run("DeletePost_Success_Moderator", func(t *testing.T) {
-		ctxWithUser1 := internal.SetUserCtx(ctx, user1)
-		post3 := createTestPost(ctxWithUser1, t, user1)
+		post3 := createTestPost(ctx, t, user1)
 
-		var resp struct {
-			DeletePost struct {
-				DeletedID string `json:"deletedID"`
-			} `json:"deletePost"`
-		}
-		mutation := `mutation ($id: ID!) { deletePost(id: $id) { deletedID } }`
-		variables := map[string]any{"id": post3.ID.String()}
-
-		err := gqlClient.Post(mutation, &resp, client.Var("id", variables["id"]), client.AddHeader("Authorization", "Bearer "+modToken))
+		resp, err := modGQLClient.DeletePostMutation(ctx, post3.ID)
 		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.NotNil(t, resp.GetDeletePost())
 
-		deletedID, err := uuid.Parse(resp.DeletePost.DeletedID)
-		require.NoError(t, err)
-		assert.Equal(t, post3.ID, deletedID)
+		deletedID := resp.GetDeletePost().GetDeletedID()
+		require.NotNil(t, deletedID)
+		assert.Equal(t, post3.ID, *deletedID)
 
 		softDeleteCtx := entx.SkipSoftDelete(ctx)
 		dbPost, err := testClient.Post.Query().Where(post.ID(post3.ID)).Only(softDeleteCtx)
 		require.NoError(t, err)
-		require.NotNil(t, dbPost.DeletedAt)
-		require.NotEmpty(t, dbPost.DeletedBy)
+		require.False(t, dbPost.DeletedAt.IsZero())
+		require.NotNil(t, dbPost.DeletedBy)
 		assert.Equal(t, modUser.ID.String(), dbPost.DeletedBy)
 	})
 
@@ -722,20 +572,36 @@ func TestPostAuthorization(t *testing.T) {
 		err := testClient.Post.DeleteOne(p).Exec(ctxWithMod)
 		require.NoError(t, err)
 
-		var resp struct {
-			RestorePost *bool `json:"restorePost"`
-		}
-		mutation := `mutation RestorePost($id: ID!) { restorePost(id: $id) }`
-		variables := map[string]any{"id": p.ID.String()}
-
-		err = gqlClient.Post(mutation, &resp, client.Var("id", variables["id"]), client.AddHeader("Authorization", "Bearer "+user1Token))
+		_, err = user1GQLClient.RestorePostMutation(ctx, p.ID)
 		require.Error(t, err)
-
-		require.Contains(t, err.Error(), "unauthorized", "Expected unauthorized/access denied error from directive")
+		require.Contains(t, err.Error(), "unauthorized", "Expected unauthorized/permission error")
 
 		softDeleteCtx := entx.SkipSoftDelete(ctx)
 		dbPost, err := testClient.Post.Get(softDeleteCtx, p.ID)
 		require.NoError(t, err)
 		require.NotNil(t, dbPost.DeletedAt)
 	})
+}
+
+func PtrTo[T any](v T) *T {
+	return &v
+}
+
+func assertGraphQLErrorCode(t *testing.T, err error, expectedCode string) {
+	t.Helper()
+	require.Error(t, err)
+	var gqlErrList *clientv2.GqlErrorList
+	if errors.As(err, &gqlErrList) {
+		require.NotEmpty(t, gqlErrList.Errors, "GqlErrorList should contain errors")
+		found := false
+		for _, gqlErr := range gqlErrList.Errors {
+			if code, ok := gqlErr.Extensions["code"].(string); ok && code == expectedCode {
+				found = true
+				break
+			}
+		}
+		assert.Truef(t, found, "Expected error code '%s' not found in extensions: %v", expectedCode, gqlErrList.Errors)
+	} else {
+		assert.Failf(t, "Error was not a GqlErrorList", "Error type: %T, Error: %v", err, err)
+	}
 }

@@ -1,0 +1,67 @@
+fragment PostFields on Post {
+  id
+  title
+  link
+  content
+  moderationComment
+  isModerated
+  moderatedAt
+  deletedAt
+  owner {
+    id
+    displayName
+  }
+  categories {
+    id
+    category
+  }
+}
+
+fragment PostConnectionFields on PostConnection {
+  totalCount
+  edges {
+    node {
+      ...PostFields
+    }
+  }
+}
+
+mutation CreatePostMutation($input: CreatePostInput!) {
+  createPost(input: $input) {
+    post {
+      ...PostFields
+    }
+  }
+}
+
+mutation CreatePostWithCategoriesMutation($input: CreatePostWithCategoriesInput!) {
+  createPostWithCategories(input: $input) {
+    post {
+      ...PostFields
+    }
+  }
+}
+
+mutation UpdatePostMutation($id: ID!, $input: UpdatePostInput!) {
+  updatePost(id: $id, input: $input) {
+    post {
+      ...PostFields
+    }
+  }
+}
+
+mutation DeletePostMutation($id: ID!) {
+  deletePost(id: $id) {
+    deletedID
+  }
+}
+
+mutation RestorePostMutation($id: ID!) {
+  restorePost(id: $id)
+}
+
+query GetPostsQuery($first: Int, $after: Cursor, $last: Int, $before: Cursor, $where: PostWhereInput) {
+  posts(first: $first, after: $after, last: $last, before: $before, where: $where) {
+    ...PostConnectionFields
+  }
+}

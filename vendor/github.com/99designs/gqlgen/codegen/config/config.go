@@ -31,6 +31,7 @@ type Config struct {
 	Models                               TypeMap                    `yaml:"models,omitempty"`
 	StructTag                            string                     `yaml:"struct_tag,omitempty"`
 	Directives                           map[string]DirectiveConfig `yaml:"directives,omitempty"`
+	LocalPrefix                          string                     `yaml:"local_prefix,omitempty"`
 	GoBuildTags                          StringList                 `yaml:"go_build_tags,omitempty"`
 	GoInitialisms                        GoInitialismsConfig        `yaml:"go_initialisms,omitempty"`
 	OmitSliceElementPointers             bool                       `yaml:"omit_slice_element_pointers,omitempty"`
@@ -54,6 +55,7 @@ type Config struct {
 	ResolversAlwaysReturnPointers  bool           `yaml:"resolvers_always_return_pointers,omitempty"`
 	NullableInputOmittable         bool           `yaml:"nullable_input_omittable,omitempty"`
 	EnableModelJsonOmitemptyTag    *bool          `yaml:"enable_model_json_omitempty_tag,omitempty"`
+	EnableModelJsonOmitzeroTag     *bool          `yaml:"enable_model_json_omitzero_tag,omitempty"`
 	SkipValidation                 bool           `yaml:"skip_validation,omitempty"`
 	SkipModTidy                    bool           `yaml:"skip_mod_tidy,omitempty"`
 	Sources                        []*ast.Source  `yaml:"-"`
@@ -68,6 +70,7 @@ var cfgFilenames = []string{".gqlgen.yml", "gqlgen.yml", "gqlgen.yaml"}
 
 // DefaultConfig creates a copy of the default config
 func DefaultConfig() *Config {
+	falseValue := false
 	return &Config{
 		SchemaFilename:                 StringList{"schema.graphql"},
 		Model:                          PackageConfig{Filename: "models_gen.go"},
@@ -78,6 +81,7 @@ func DefaultConfig() *Config {
 		ReturnPointersInUnmarshalInput: false,
 		ResolversAlwaysReturnPointers:  true,
 		NullableInputOmittable:         false,
+		EnableModelJsonOmitzeroTag:     &falseValue,
 	}
 }
 
@@ -338,6 +342,20 @@ func (c *Config) injectTypesFromSchema() error {
 					typeMapEntry := c.Models[schemaType.Name]
 					typeMapFieldEntry := typeMapEntry.Fields[field.Name]
 
+					if ta := fd.Arguments.ForName("type"); ta != nil {
+						if c.Models.UserDefined(schemaType.Name) {
+							return fmt.Errorf(
+								"argument 'type' for directive @goField (src: %s, line: %d) not applicable for user-defined models",
+								fd.Position.Src.Name,
+								fd.Position.Line,
+							)
+						}
+
+						if ft, err := ta.Value.Value(nil); err == nil {
+							typeMapFieldEntry.Type = ft.(string)
+						}
+					}
+
 					if ra := fd.Arguments.ForName("forceResolver"); ra != nil {
 						if fr, err := ra.Value.Value(nil); err == nil {
 							typeMapFieldEntry.Resolver = fr.(bool)
@@ -465,6 +483,24 @@ type TypeMapEntry struct {
 }
 
 type TypeMapField struct {
+	// Type is the Go type of the field.
+	//
+	// It supports the builtin basic types (like string or int64), named types
+	// (qualified by the full package path), pointers to those types (prefixed
+	// with `*`), and slices of those types (prefixed with `[]`).
+	//
+	// For example, the following are valid types:
+	//  string
+	//  *github.com/author/package.Type
+	//  []string
+	//  []*github.com/author/package.Type
+	//
+	// Note that the type will be referenced from the generated/graphql, which
+	// means the package it lives in must not reference the generated/graphql
+	// package to avoid circular imports.
+	// restrictions.
+	Type string `yaml:"type"`
+
 	Resolver        bool   `yaml:"resolver"`
 	FieldName       string `yaml:"fieldName"`
 	Omittable       *bool  `yaml:"omittable"`
