@@ -3,7 +3,6 @@ package gql
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/caliecode/la-clipasa/internal"
@@ -23,7 +22,7 @@ func (r *mutationResolver) CreatePost(ctx context.Context, input generated.Creat
 	u := internal.GetUserFromCtx(ctx)
 	p, err := r.ent.Post.Create().SetInput(input).SetOwner(u).Save(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("could not create post: %w", err)
+		return nil, parseRequestError(err, action{action: ActionCreate, object: "post"})
 	}
 
 	return &model.PostCreatePayload{
@@ -43,8 +42,6 @@ func (r *mutationResolver) CreateBulkCSVPost(ctx context.Context, input graphql.
 
 // UpdatePost is the resolver for the updatePost field.
 func (r *mutationResolver) UpdatePost(ctx context.Context, id uuid.UUID, input generated.UpdatePostInput) (*model.PostUpdatePayload, error) {
-	u := internal.GetUserFromCtx(ctx)
-	r.ent.Logger.Debugf("user: %+v", u)
 	if auth.IsAuthorized(internal.GetUserFromCtx(ctx), user.RoleMODERATOR) {
 		// allow moderators to update any post field
 		ctx = privacy.DecisionContext(ctx, privacy.Allow)
@@ -52,7 +49,7 @@ func (r *mutationResolver) UpdatePost(ctx context.Context, id uuid.UUID, input g
 	}
 	p, err := r.ent.Post.UpdateOneID(id).SetInput(input).Save(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("could not update post: %w", err)
+		return nil, parseRequestError(err, action{action: ActionUpdate, object: "post"})
 	}
 
 	return &model.PostUpdatePayload{
@@ -68,7 +65,7 @@ func (r *mutationResolver) DeletePost(ctx context.Context, id uuid.UUID) (*model
 		ctx = token.NewContextWithSystemCallToken(ctx)
 	}
 	if err := r.ent.Post.DeleteOneID(id).Exec(ctx); err != nil {
-		return nil, fmt.Errorf("could not delete post: %w", err)
+		return nil, parseRequestError(err, action{action: ActionDelete, object: "post"})
 	}
 
 	return &model.PostDeletePayload{

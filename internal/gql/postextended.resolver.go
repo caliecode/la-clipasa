@@ -61,7 +61,7 @@ func (r *mutationResolver) RestorePost(ctx context.Context, id uuid.UUID) (*bool
 	ctx = privacy.DecisionContext(ctx, privacy.Allow)
 	_, err := r.ent.Post.UpdateOneID(id).ClearDeletedAt().ClearDeletedBy().Save(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("could not restore post: %w", err)
+		return nil, parseRequestError(err, action{action: ActionUpdate, object: "post"})
 	}
 
 	return pointers.New(true), nil
@@ -74,7 +74,7 @@ func (r *mutationResolver) RefreshDiscordLink(ctx context.Context, id uuid.UUID)
 	ctx = privacy.DecisionContext(ctx, privacy.Allow) // skip user owned hook
 	p, err := r.ent.Post.Get(ctx, id)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get post: %w", err)
+		return nil, parseRequestError(err, action{action: ActionGet, object: "post"})
 	}
 	if p.Metadata.Service != extramodel.PostServiceDiscord {
 		return nil, fmt.Errorf("post is not from discord")
@@ -90,7 +90,7 @@ func (r *mutationResolver) RefreshDiscordLink(ctx context.Context, id uuid.UUID)
 	m.DiscordVideo.Expiration = res.Expiration
 	_, err = r.ent.Post.UpdateOneID(id).SetLink(res.URL).SetMetadata(m).Save(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to update post: %w", err)
+		return nil, parseRequestError(err, action{action: ActionUpdate, object: "post"})
 	}
 	return pointers.New(res.URL), nil
 }

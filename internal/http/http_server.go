@@ -525,7 +525,7 @@ func migrateUp(logger *zap.SugaredLogger, pool *pgxpool.Pool) {
 func graphqlHandler(entClient *generated.Client) gin.HandlerFunc {
 	// NewExecutableSchema and Config are in the generated.go file
 	srv := handler.New(gql.NewExecutableSchema(gql.NewResolver(entClient)))
-
+	srv.SetErrorPresenter(gql.NewErrorPresenter())
 	srv.Use(entgql.Transactioner{
 		TxOpener: entClient,
 		// see https://entgo.io/docs/tutorial-todo-gql-tx-mutation for skipping tx based on ops, etc.

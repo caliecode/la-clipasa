@@ -25,7 +25,7 @@ func (r *mutationResolver) CreatePostCategory(ctx context.Context, input generat
 
 	pc, err := r.ent.PostCategory.Create().SetInput(input).Save(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create post category: %w", err)
+		return nil, parseRequestError(err, action{action: ActionCreate, object: "post category"})
 	}
 	return &model.PostCategoryCreatePayload{PostCategory: pc}, nil
 }
@@ -49,7 +49,7 @@ func (r *mutationResolver) UpdatePostCategory(ctx context.Context, id uuid.UUID,
 func (r *mutationResolver) DeletePostCategory(ctx context.Context, id uuid.UUID) (*model.PostCategoryDeletePayload, error) {
 	err := r.ent.PostCategory.DeleteOneID(id).Exec(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to delete post category: %w", err)
+		return nil, parseRequestError(err, action{action: ActionDelete, object: "post category"})
 	}
 	return &model.PostCategoryDeletePayload{DeletedID: id}, nil
 }

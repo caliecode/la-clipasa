@@ -11,3 +11,18 @@ scalar Upload
 type Mutation {
   _m: Boolean
 }
+"""
+Standardized error codes returned in GraphQL responses.
+"""
+enum ErrorCode {
+  NOT_FOUND
+  ALREADY_EXISTS
+  FOREIGN_KEY_CONSTRAINT
+  VALIDATION_ERROR
+  CONSTRAINT_ERROR
+  UNAUTHORIZED
+  UNAUTHENTICATED
+  INTERNAL_SERVER_ERROR
+  CASCADE_DELETE
+  SEARCH_FAILED
+}

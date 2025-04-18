@@ -5,7 +5,12 @@ import (
 	"fmt"
 
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/caliecode/la-clipasa/internal"
+	"github.com/caliecode/la-clipasa/internal/auth"
 	"github.com/caliecode/la-clipasa/internal/ent/generated"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/privacy"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
+	"github.com/caliecode/la-clipasa/internal/ent/privacy/token"
 	"github.com/caliecode/la-clipasa/internal/gql/model"
 	"github.com/google/uuid"
 )
@@ -32,6 +37,10 @@ func (r *mutationResolver) UpdateRefreshToken(ctx context.Context, id uuid.UUID,
 
 // DeleteRefreshToken is the resolver for the deleteRefreshToken field.
 func (r *mutationResolver) DeleteRefreshToken(ctx context.Context, id uuid.UUID) (*model.RefreshTokenDeletePayload, error) {
+	if auth.IsAuthorized(internal.GetUserFromCtx(ctx), user.RoleADMIN) {
+		ctx = privacy.DecisionContext(ctx, privacy.Allow)
+		ctx = token.NewContextWithSystemCallToken(ctx)
+	}
 	if err := r.ent.RefreshToken.DeleteOneID(id).Exec(ctx); err != nil {
 		return nil, parseRequestError(err, action{action: ActionDelete, object: "refresh token"})
 	}

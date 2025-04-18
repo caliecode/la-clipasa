@@ -6,15 +6,19 @@
 package gql
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strings"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/lib/pq"
 	"github.com/rs/zerolog/log"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 
 	"github.com/caliecode/la-clipasa/internal/ent/generated"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/privacy"
+	"github.com/caliecode/la-clipasa/internal/gql/model"
 )
 
 var (
@@ -36,6 +40,40 @@ var (
 	// ErrUnableToDetermineObjectType is returned when the object type up the parent upload object cannot be determined.
 	ErrUnableToDetermineObjectType = errors.New("unable to determine parent object type")
 )
+
+// UnauthenticatedError is returned when access is denied.
+type UnauthenticatedError struct {
+	ObjectType string
+}
+
+// Error returns the UnauthenticatedError in string format.
+func (e *UnauthenticatedError) Error() string {
+	return e.ObjectType + " not found"
+}
+
+// newPermissionDeniedError returns a UnauthenticatedError.
+func newUnauthenticatedError(o string) *UnauthenticatedError {
+	return &UnauthenticatedError{
+		ObjectType: o,
+	}
+}
+
+// UnauthorizedError is returned when access is denied.
+type UnauthorizedError struct {
+	ObjectType string
+}
+
+// Error returns the UnauthorizedError in string format.
+func (e *UnauthorizedError) Error() string {
+	return e.ObjectType + " not found"
+}
+
+// newPermissionDeniedError returns a UnauthorizedError.
+func newUnauthorizedError(o string) *UnauthorizedError {
+	return &UnauthorizedError{
+		ObjectType: o,
+	}
+}
 
 // NotFoundError is returned when the requested object is not found.
 type NotFoundError struct {
@@ -122,7 +160,7 @@ func parseRequestError(err error, a action) error {
 			Str("field", validationError.Name).
 			Msg("validation error")
 
-		return validationError
+		return newValidationError(validationError.Error())
 	case generated.IsConstraintError(err):
 		constraintError := err.(*generated.ConstraintError)
 
@@ -153,6 +191,23 @@ func parseRequestError(err error, a action) error {
 		log.Error().Err(err).Msg("unexpected error occurred")
 
 		return err
+	}
+}
+
+// ValidationError is returned when a field fails validation
+type ValidationError struct {
+	ErrMsg string
+}
+
+// Error returns the ValidationError in string format, by removing the "generated: " prefix
+func (e *ValidationError) Error() string {
+	return strings.ReplaceAll(e.ErrMsg, "generated: ", "")
+}
+
+// newValidationError returns a ValidationError
+func newValidationError(errMsg string) *ValidationError {
+	return &ValidationError{
+		ErrMsg: errMsg,
 	}
 }
 
@@ -189,4 +244,65 @@ func getConstraintField(err error, object string) string {
 	}
 
 	return ""
+}
+
+// GetErrorCode maps Go errors to GraphQL error codes.
+func GetErrorCode(err error) model.ErrorCode {
+	var (
+		notFoundErr        *NotFoundError
+		alreadyExistsErr   *AlreadyExistsError
+		fkErr              *ForeignKeyError
+		validationErr      *ValidationError
+		unauthorizedErr    *UnauthorizedError
+		unauthenticatedErr *UnauthenticatedError
+	)
+
+	switch {
+	case errors.Is(err, ErrCascadeDelete):
+		return model.ErrorCodeCascadeDelete
+	case errors.Is(err, ErrInternalServerError):
+		return model.ErrorCodeInternalServerError
+	case errors.Is(err, ErrSearchFailed):
+		return model.ErrorCodeSearchFailed
+	case errors.As(err, &unauthorizedErr):
+		return model.ErrorCodeUnauthorized
+	case errors.As(err, &unauthenticatedErr):
+		return model.ErrorCodeUnauthenticated
+	case errors.As(err, &notFoundErr):
+		return model.ErrorCodeNotFound
+	case errors.As(err, &alreadyExistsErr):
+		return model.ErrorCodeAlreadyExists
+	case errors.As(err, &fkErr):
+		return model.ErrorCodeForeignKeyConstraint
+	case errors.As(err, &validationErr):
+		return model.ErrorCodeValidationError
+	case generated.IsValidationError(err):
+		return model.ErrorCodeValidationError
+	case generated.IsConstraintError(err):
+		if !errors.As(err, &alreadyExistsErr) && !errors.As(err, &fkErr) {
+			return model.ErrorCodeConstraintError
+		}
+	case errors.Is(err, privacy.Deny):
+		return model.ErrorCodeUnauthorized
+	}
+
+	return model.ErrorCodeInternalServerError
+}
+
+// NewErrorPresenter creates a gqlgen ErrorPresenterFunc.
+func NewErrorPresenter() func(ctx context.Context, err error) *gqlerror.Error {
+	return func(ctx context.Context, err error) *gqlerror.Error {
+		gqlErr := graphql.DefaultErrorPresenter(ctx, err)
+
+		originalErr := errors.Unwrap(err)
+		if originalErr == nil {
+			originalErr = err
+		}
+
+		gqlErr.Extensions = map[string]interface{}{
+			"code": GetErrorCode(originalErr),
+		}
+
+		return gqlErr
+	}
 }
