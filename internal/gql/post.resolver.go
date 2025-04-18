@@ -62,8 +62,11 @@ func (r *mutationResolver) UpdatePost(ctx context.Context, id uuid.UUID, input g
 
 // DeletePost is the resolver for the deletePost field.
 func (r *mutationResolver) DeletePost(ctx context.Context, id uuid.UUID) (*model.PostDeletePayload, error) {
-	// since it already has role directive, and else we can't query the post (not found)
-	ctx = privacy.DecisionContext(ctx, privacy.Allow)
+	if auth.IsAuthorized(internal.GetUserFromCtx(ctx), user.RoleMODERATOR) {
+		// allow moderators to delete any post
+		ctx = privacy.DecisionContext(ctx, privacy.Allow)
+		ctx = token.NewContextWithSystemCallToken(ctx)
+	}
 	if err := r.ent.Post.DeleteOneID(id).Exec(ctx); err != nil {
 		return nil, fmt.Errorf("could not delete post: %w", err)
 	}
