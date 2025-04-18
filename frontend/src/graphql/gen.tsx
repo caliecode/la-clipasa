@@ -414,6 +414,19 @@ export type DiscordVideoMetadata = {
   id?: Maybe<Scalars['String']['output']>
 }
 
+/** Standardized error codes returned in GraphQL responses. */
+export type ErrorCode =
+  | 'ALREADY_EXISTS'
+  | 'CASCADE_DELETE'
+  | 'CONSTRAINT_ERROR'
+  | 'FOREIGN_KEY_CONSTRAINT'
+  | 'INTERNAL_SERVER_ERROR'
+  | 'NOT_FOUND'
+  | 'SEARCH_FAILED'
+  | 'UNAUTHENTICATED'
+  | 'UNAUTHORIZED'
+  | 'VALIDATION_ERROR'
+
 export type Mutation = {
   __typename?: 'Mutation'
   _m?: Maybe<Scalars['Boolean']['output']>

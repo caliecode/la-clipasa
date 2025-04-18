@@ -1379,6 +1379,78 @@ func (e CommentOrderField) MarshalJSON() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
+// Standardized error codes returned in GraphQL responses.
+type ErrorCode string
+
+const (
+	ErrorCodeNotFound             ErrorCode = "NOT_FOUND"
+	ErrorCodeAlreadyExists        ErrorCode = "ALREADY_EXISTS"
+	ErrorCodeForeignKeyConstraint ErrorCode = "FOREIGN_KEY_CONSTRAINT"
+	ErrorCodeValidationError      ErrorCode = "VALIDATION_ERROR"
+	ErrorCodeConstraintError      ErrorCode = "CONSTRAINT_ERROR"
+	ErrorCodeUnauthorized         ErrorCode = "UNAUTHORIZED"
+	ErrorCodeUnauthenticated      ErrorCode = "UNAUTHENTICATED"
+	ErrorCodeInternalServerError  ErrorCode = "INTERNAL_SERVER_ERROR"
+	ErrorCodeCascadeDelete        ErrorCode = "CASCADE_DELETE"
+	ErrorCodeSearchFailed         ErrorCode = "SEARCH_FAILED"
+)
+
+var AllErrorCode = []ErrorCode{
+	ErrorCodeNotFound,
+	ErrorCodeAlreadyExists,
+	ErrorCodeForeignKeyConstraint,
+	ErrorCodeValidationError,
+	ErrorCodeConstraintError,
+	ErrorCodeUnauthorized,
+	ErrorCodeUnauthenticated,
+	ErrorCodeInternalServerError,
+	ErrorCodeCascadeDelete,
+	ErrorCodeSearchFailed,
+}
+
+func (e ErrorCode) IsValid() bool {
+	switch e {
+	case ErrorCodeNotFound, ErrorCodeAlreadyExists, ErrorCodeForeignKeyConstraint, ErrorCodeValidationError, ErrorCodeConstraintError, ErrorCodeUnauthorized, ErrorCodeUnauthenticated, ErrorCodeInternalServerError, ErrorCodeCascadeDelete, ErrorCodeSearchFailed:
+		return true
+	}
+	return false
+}
+
+func (e ErrorCode) String() string {
+	return string(e)
+}
+
+func (e *ErrorCode) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ErrorCode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ErrorCode", str)
+	}
+	return nil
+}
+
+func (e ErrorCode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ErrorCode) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ErrorCode) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Possible directions in which to order a list of items when provided an `orderBy` argument.
 type OrderDirection string
 

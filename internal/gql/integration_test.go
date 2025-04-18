@@ -3,11 +3,11 @@ package gql_test
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"sync"
 	"testing"
 	"time"
 
@@ -19,12 +19,17 @@ import (
 	"github.com/caliecode/la-clipasa/internal/ent/generated/post"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/postcategory"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/privacy"
+	"github.com/caliecode/la-clipasa/internal/ent/generated/refreshtoken"
 	_ "github.com/caliecode/la-clipasa/internal/ent/generated/runtime"
 	"github.com/caliecode/la-clipasa/internal/ent/generated/user"
 	"github.com/caliecode/la-clipasa/internal/ent/privacy/token"
+	"github.com/caliecode/la-clipasa/internal/gql/model"
 	"github.com/caliecode/la-clipasa/internal/gql/testclient"
+	"github.com/caliecode/la-clipasa/internal/gql/testutils"
 	httpServer "github.com/caliecode/la-clipasa/internal/http"
+	"github.com/caliecode/la-clipasa/internal/http/httputil"
 	"github.com/caliecode/la-clipasa/internal/testutil"
+	"github.com/caliecode/la-clipasa/internal/utils/pointers"
 
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
@@ -44,6 +49,37 @@ var (
 	testLogger  *zap.SugaredLogger
 	testServer  *httptest.Server
 )
+
+func newCookieAuthClient(refreshToken string) testclient.TestGraphClient {
+	httpClient := &http.Client{
+		Transport: testServer.Client().Transport,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
+
+	graphqlURL := testServer.URL + internal.Config.APIVersion + "/graphql"
+
+	gqlClient := testclient.NewClient(httpClient, graphqlURL,
+		&clientv2.Options{
+			ParseDataAlongWithErrors: false,
+		},
+		func(ctx context.Context, req *http.Request, gqlInfo *clientv2.GQLRequestInfo, res any, next clientv2.RequestInterceptorFunc) error {
+			cookie := &http.Cookie{
+				Name:   httputil.RefreshTokenCookieName,
+				Value:  refreshToken,
+				Path:   "/",
+				Domain: internal.Config.CookieDomain,
+				Secure: true,
+			}
+			req.AddCookie(cookie)
+			// requests are allowed with rt but no accesstoken - rt is httponly on domain
+			return next(ctx, req, gqlInfo, res)
+		},
+	)
+
+	return gqlClient
+}
 
 func newAuthClient(token string) testclient.TestGraphClient {
 	httpClient := testServer.Client()
@@ -504,7 +540,7 @@ func TestPostAuthorization(t *testing.T) {
 
 		require.Error(t, err)
 
-		assert.Contains(t, err.Error(), "not found", "Expected permission error")
+		testutils.AssertGraphQLErrorCodeField(t, err, model.ErrorCodeNotFound)
 
 		dbPost, dbErr := testClient.Post.Get(ctx, post1.ID)
 		require.NoError(t, dbErr)
@@ -538,7 +574,7 @@ func TestPostAuthorization(t *testing.T) {
 		_, err := user2GQLClient.DeletePostMutation(ctx, post2.ID)
 		require.Error(t, err)
 
-		assert.Contains(t, err.Error(), "not found", "Expected permission error")
+		testutils.AssertGraphQLErrorCodeField(t, err, model.ErrorCodeNotFound)
 
 		dbPost, err := testClient.Post.Get(ctx, post2.ID)
 		require.NoError(t, err)
@@ -574,7 +610,7 @@ func TestPostAuthorization(t *testing.T) {
 
 		_, err = user1GQLClient.RestorePostMutation(ctx, p.ID)
 		require.Error(t, err)
-		require.Contains(t, err.Error(), "unauthorized", "Expected unauthorized/permission error")
+		testutils.AssertGraphQLErrorCodeField(t, err, model.ErrorCodeUnauthorized)
 
 		softDeleteCtx := entx.SkipSoftDelete(ctx)
 		dbPost, err := testClient.Post.Get(softDeleteCtx, p.ID)
@@ -583,25 +619,284 @@ func TestPostAuthorization(t *testing.T) {
 	})
 }
 
-func PtrTo[T any](v T) *T {
-	return &v
-}
+func TestRefreshTokenResolvers(t *testing.T) {
+	t.Parallel()
 
-func assertGraphQLErrorCode(t *testing.T, err error, expectedCode string) {
-	t.Helper()
-	require.Error(t, err)
-	var gqlErrList *clientv2.GqlErrorList
-	if errors.As(err, &gqlErrList) {
-		require.NotEmpty(t, gqlErrList.Errors, "GqlErrorList should contain errors")
-		found := false
-		for _, gqlErr := range gqlErrList.Errors {
-			if code, ok := gqlErr.Extensions["code"].(string); ok && code == expectedCode {
-				found = true
-				break
+	baseCtx := context.Background()
+	baseCtx = generated.NewContext(baseCtx, testClient)
+	baseSysCtx := token.NewContextWithSystemCallToken(baseCtx)
+	baseSysCtx = privacy.DecisionContext(baseSysCtx, privacy.Allow)
+
+	issueTokenPair := func(ctx context.Context, t *testing.T, u *generated.User, ip, ua string) (*auth.TokenPair, *generated.RefreshToken) {
+		t.Helper()
+
+		sysCtx := privacy.DecisionContext(token.NewContextWithSystemCallToken(context.Background()), privacy.Allow)
+		sysCtx = generated.NewContext(sysCtx, testClient)
+
+		tp, err := testAuthn.IssueNewTokenPair(sysCtx, testClient, u, ip, ua, nil)
+		require.NoError(t, err)
+
+		rt, err := testClient.RefreshToken.Query().
+			Where(refreshtoken.HasOwnerWith(user.IDEQ(u.ID)), refreshtoken.Revoked(false)).
+			Order(refreshtoken.ByCreatedAt(entsql.OrderDesc())).
+			First(sysCtx)
+		require.NoError(t, err)
+		return tp, rt
+	}
+
+	t.Run("ListRefreshTokens_Self", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := baseCtx
+		sysCtx := baseSysCtx
+
+		user1, user1Token := createTestUser(ctx, t, user.RoleUSER)
+		user1Client := newAuthClient(user1Token)
+		_, rt1User1 := issueTokenPair(sysCtx, t, user1, "1.1.1.1", "Browser1")
+		_, rt2User1 := issueTokenPair(sysCtx, t, user1, "1.1.1.2", "Browser2")
+
+		resp, err := user1Client.GetAllRefreshTokens(ctx, pointers.New(int64(20)), nil, nil, nil, nil)
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.NotNil(t, resp.GetRefreshTokens())
+
+		tokens := resp.GetRefreshTokens()
+
+		queriedTokens, err := testClient.RefreshToken.Query().
+			Where(refreshtoken.HasOwnerWith(user.IDEQ(user1.ID)), refreshtoken.Revoked(false)).
+			All(sysCtx)
+		require.NoError(t, err)
+
+		assert.Len(t, queriedTokens, 2)
+		assert.EqualValues(t, 2, tokens.TotalCount)
+		assert.Len(t, tokens.Edges, 2)
+
+		foundIDs := make(map[uuid.UUID]bool)
+		for _, edge := range tokens.Edges {
+			require.NotNil(t, edge)
+			node := edge.GetNode()
+			require.NotNil(t, node)
+			foundIDs[*node.GetID()] = true
+			assert.False(t, node.GetRevoked(), "Tokens should not be revoked yet")
+			if *node.GetID() == rt1User1.ID {
+				assert.NotNil(t, node.GetIPAddress())
+				assert.Equal(t, "", *node.GetIPAddress()) /* ignoring on purpose for now */
+				assert.Equal(t, "Browser1", *node.GetUserAgent())
+			} else if *node.GetID() == rt2User1.ID {
+				assert.NotNil(t, node.GetIPAddress())
+				assert.Equal(t, "", *node.GetIPAddress()) /* ignoring on purpose for now */
+				assert.Equal(t, "Browser2", *node.GetUserAgent())
+			} else {
+				t.Errorf("Found unexpected token ID: %s", *node.GetID())
 			}
 		}
-		assert.Truef(t, found, "Expected error code '%s' not found in extensions: %v", expectedCode, gqlErrList.Errors)
-	} else {
-		assert.Failf(t, "Error was not a GqlErrorList", "Error type: %T, Error: %v", err, err)
+		assert.True(t, foundIDs[rt1User1.ID])
+		assert.True(t, foundIDs[rt2User1.ID])
+	})
+
+	t.Run("ListRefreshTokens_AdminSeesAll", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := baseCtx
+		sysCtx := baseSysCtx
+
+		user1, _ := createTestUser(ctx, t, user.RoleUSER)
+		user2, _ := createTestUser(ctx, t, user.RoleUSER)
+		_, adminToken := createTestUser(ctx, t, user.RoleADMIN)
+		adminClient := newAuthClient(adminToken)
+
+		_, rt1User1 := issueTokenPair(sysCtx, t, user1, "2.1.1.1", "BrowserA")
+		_, rt2User1 := issueTokenPair(sysCtx, t, user1, "2.1.1.2", "BrowserB")
+		_, rt1User2 := issueTokenPair(sysCtx, t, user2, "2.1.2.1", "BrowserC")
+
+		where := &testclient.RefreshTokenWhereInput{
+			Revoked: pointers.New(false),
+			Or: []*testclient.RefreshTokenWhereInput{
+				{HasOwnerWith: []*testclient.UserWhereInput{{ID: pointers.New(user1.ID)}}},
+				{HasOwnerWith: []*testclient.UserWhereInput{{ID: pointers.New(user2.ID)}}},
+			},
+		}
+
+		resp, err := adminClient.GetAllRefreshTokens(ctx, pointers.New(int64(20)), nil, nil, nil, where)
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.NotNil(t, resp.GetRefreshTokens())
+
+		tokens := resp.GetRefreshTokens()
+
+		assert.EqualValues(t, 3, tokens.TotalCount)
+		assert.Len(t, tokens.Edges, 3)
+
+		foundIDs := make(map[uuid.UUID]bool)
+		for _, edge := range tokens.Edges {
+			require.NotNil(t, edge)
+			node := edge.GetNode()
+			require.NotNil(t, node)
+			foundIDs[*node.GetID()] = true
+
+		}
+		assert.True(t, foundIDs[rt1User1.ID])
+		assert.True(t, foundIDs[rt2User1.ID])
+		assert.True(t, foundIDs[rt1User2.ID])
+	})
+
+	t.Run("DeleteRefreshToken_Self", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := baseCtx
+		sysCtx := baseSysCtx
+
+		user1, user1Token := createTestUser(ctx, t, user.RoleUSER)
+		user1Client := newAuthClient(user1Token)
+
+		_, rtToKeep := issueTokenPair(sysCtx, t, user1, "3.1.1.1", "BrowserToKeep")
+		_, rtToDelete := issueTokenPair(sysCtx, t, user1, "3.1.1.2", "BrowserToDelete")
+
+		resp, err := user1Client.DeleteRefreshToken(ctx, rtToDelete.ID)
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.NotNil(t, resp.GetDeleteRefreshToken())
+		assert.Equal(t, rtToDelete.ID, *resp.GetDeleteRefreshToken().GetDeletedID())
+
+		wi := &testclient.RefreshTokenWhereInput{
+			HasOwnerWith: []*testclient.UserWhereInput{{ID: pointers.New(user1.ID)}},
+		}
+		listResp, err := user1Client.GetAllRefreshTokens(ctx, pointers.New(int64(20)), nil, nil, nil, wi)
+		require.NoError(t, err)
+		require.NotNil(t, listResp.GetRefreshTokens())
+
+		assert.Len(t, listResp.GetRefreshTokens().GetEdges(), 1, "Only one token should remain for user1")
+		if len(listResp.GetRefreshTokens().GetEdges()) == 1 {
+			edge := listResp.GetRefreshTokens().GetEdges()[0]
+			require.NotNil(t, edge)
+			node := edge.GetNode()
+			require.NotNil(t, node)
+			assert.Equal(t, rtToKeep.ID, *node.GetID(), "The remaining token should be the one we kept")
+		}
+
+		_, err = testClient.RefreshToken.Get(sysCtx, rtToDelete.ID)
+		require.Error(t, err)
+		assert.True(t, generated.IsNotFound(err), "Token should be deleted from DB")
+
+		_, err = testClient.RefreshToken.Get(sysCtx, rtToKeep.ID)
+		require.NoError(t, err, "The token to keep should still exist")
+	})
+
+	t.Run("DeleteRefreshToken_Fail_OtherUser", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := baseCtx
+		sysCtx := baseSysCtx
+
+		_, user1Token := createTestUser(ctx, t, user.RoleUSER)
+		user2, _ := createTestUser(ctx, t, user.RoleUSER)
+		user1Client := newAuthClient(user1Token)
+
+		_, rtUser2 := issueTokenPair(sysCtx, t, user2, "4.1.2.1", "BrowserOtherUser")
+
+		_, err := user1Client.DeleteRefreshToken(ctx, rtUser2.ID)
+		require.Error(t, err)
+		testutils.AssertGraphQLErrorCodeField(t, err, model.ErrorCodeNotFound)
+
+		_, err = testClient.RefreshToken.Get(sysCtx, rtUser2.ID)
+		require.NoError(t, err, "User2's token should still exist")
+	})
+
+	t.Run("DeleteRefreshToken_Success_Admin", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := baseCtx
+		sysCtx := baseSysCtx
+
+		user2, _ := createTestUser(ctx, t, user.RoleUSER)
+		_, adminToken := createTestUser(ctx, t, user.RoleADMIN)
+		adminClient := newAuthClient(adminToken)
+
+		_, rtUser2 := issueTokenPair(sysCtx, t, user2, "5.1.2.1", "BrowserAdminDeleteTarget")
+
+		resp, err := adminClient.DeleteRefreshToken(ctx, rtUser2.ID)
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.NotNil(t, resp.GetDeleteRefreshToken())
+		assert.Equal(t, rtUser2.ID, *resp.GetDeleteRefreshToken().GetDeletedID())
+
+		_, err = testClient.RefreshToken.Get(sysCtx, rtUser2.ID)
+		require.Error(t, err)
+		assert.True(t, generated.IsNotFound(err), "Token should be deleted from DB by admin")
+	})
+
+	t.Run("ConcurrentRefreshTokenRotation", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := baseCtx
+		sysCtx := baseSysCtx
+
+		concurrencyLevel := 20
+		targetUser, _ := createTestUser(ctx, t, user.RoleUSER)
+		initialPair, initialRT := issueTokenPair(sysCtx, t, targetUser, "10.0.0.1", "ConcurrentTester")
+
+		client := newCookieAuthClient(initialPair.RefreshToken)
+
+		var wg sync.WaitGroup
+		wg.Add(concurrencyLevel)
+
+		runRequest := func(workerID int) {
+			defer wg.Done()
+
+			reqCtx := context.Background()
+
+			_, err := client.Me(reqCtx)
+			if err != nil {
+				t.Logf("[Worker %d] Concurrent request encountered error (potentially expected): %v", workerID, err)
+			} else {
+				t.Logf("[Worker %d] Concurrent request succeeded.", workerID)
+			}
+		}
+
+		for i := 0; i < concurrencyLevel; i++ {
+			go runRequest(i)
+		}
+
+		wg.Wait()
+
+		verifySysCtx := privacy.DecisionContext(token.NewContextWithSystemCallToken(context.Background()), privacy.Allow)
+		verifySysCtx = generated.NewContext(verifySysCtx, testClient)
+
+		validTokens, err := testClient.RefreshToken.Query().
+			Where(
+				refreshtoken.HasOwnerWith(user.IDEQ(targetUser.ID)),
+				refreshtoken.RevokedEQ(false),
+				refreshtoken.ExpiresAtGT(time.Now()),
+			).
+			All(verifySysCtx)
+		require.NoError(t, err, "Error querying valid tokens after rotation")
+
+		_, err = testClient.RefreshToken.Query().
+			Where(refreshtoken.ID(initialRT.ID)).
+			Only(verifySysCtx)
+		if err != nil {
+			t.Logf("Error querying initial token %s: %v", initialRT.ID, err)
+		}
+
+		/* exactly one valid token should exist regardless of what concurrent request succeeded from a single session */
+		assert.Len(t, validTokens, 1, "Expected exactly one valid (non-revoked, non-expired) refresh token after concurrent rotation")
+	})
+}
+
+// newAuthClientWithoutToken creates a client that doesn't automatically add an Authorization header.
+// Useful for testing token logic where the access token might be missing or expired.
+func newAuthClientWithoutToken() testclient.TestGraphClient {
+	httpClient := &http.Client{
+		Transport: testServer.Client().Transport,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
 	}
+
+	graphqlURL := testServer.URL + internal.Config.APIVersion + "/graphql"
+	gqlClient := testclient.NewClient(httpClient, graphqlURL, &clientv2.Options{
+		ParseDataAlongWithErrors: false,
+	})
+
+	return gqlClient
 }

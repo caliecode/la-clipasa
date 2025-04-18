@@ -18,6 +18,9 @@ type TestGraphClient interface {
 	DeletePostMutation(ctx context.Context, id uuid.UUID, interceptors ...clientv2.RequestInterceptor) (*DeletePostMutation, error)
 	RestorePostMutation(ctx context.Context, id uuid.UUID, interceptors ...clientv2.RequestInterceptor) (*RestorePostMutation, error)
 	GetPostsQuery(ctx context.Context, first *int64, after *string, last *int64, before *string, where *PostWhereInput, interceptors ...clientv2.RequestInterceptor) (*GetPostsQuery, error)
+	GetAllRefreshTokens(ctx context.Context, first *int64, after *string, last *int64, before *string, where *RefreshTokenWhereInput, interceptors ...clientv2.RequestInterceptor) (*GetAllRefreshTokens, error)
+	DeleteRefreshToken(ctx context.Context, id uuid.UUID, interceptors ...clientv2.RequestInterceptor) (*DeleteRefreshToken, error)
+	Me(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*Me, error)
 }
 
 type Client struct {
@@ -120,6 +123,84 @@ func (t *PostConnectionFields) GetEdges() []*PostConnectionFields_Edges {
 	return t.Edges
 }
 
+type RefreshTokenFields struct {
+	ID        uuid.UUID "json:\"id\" graphql:\"id\""
+	CreatedAt time.Time "json:\"createdAt\" graphql:\"createdAt\""
+	UpdatedAt time.Time "json:\"updatedAt\" graphql:\"updatedAt\""
+	ExpiresAt time.Time "json:\"expiresAt\" graphql:\"expiresAt\""
+	Revoked   bool      "json:\"revoked\" graphql:\"revoked\""
+	IPAddress *string   "json:\"ipAddress,omitempty\" graphql:\"ipAddress\""
+	UserAgent *string   "json:\"userAgent,omitempty\" graphql:\"userAgent\""
+}
+
+func (t *RefreshTokenFields) GetID() *uuid.UUID {
+	if t == nil {
+		t = &RefreshTokenFields{}
+	}
+	return &t.ID
+}
+func (t *RefreshTokenFields) GetCreatedAt() *time.Time {
+	if t == nil {
+		t = &RefreshTokenFields{}
+	}
+	return &t.CreatedAt
+}
+func (t *RefreshTokenFields) GetUpdatedAt() *time.Time {
+	if t == nil {
+		t = &RefreshTokenFields{}
+	}
+	return &t.UpdatedAt
+}
+func (t *RefreshTokenFields) GetExpiresAt() *time.Time {
+	if t == nil {
+		t = &RefreshTokenFields{}
+	}
+	return &t.ExpiresAt
+}
+func (t *RefreshTokenFields) GetRevoked() bool {
+	if t == nil {
+		t = &RefreshTokenFields{}
+	}
+	return t.Revoked
+}
+func (t *RefreshTokenFields) GetIPAddress() *string {
+	if t == nil {
+		t = &RefreshTokenFields{}
+	}
+	return t.IPAddress
+}
+func (t *RefreshTokenFields) GetUserAgent() *string {
+	if t == nil {
+		t = &RefreshTokenFields{}
+	}
+	return t.UserAgent
+}
+
+type RefreshTokenConnectionFields struct {
+	TotalCount int64                                 "json:\"totalCount\" graphql:\"totalCount\""
+	PageInfo   RefreshTokenConnectionFields_PageInfo "json:\"pageInfo\" graphql:\"pageInfo\""
+	Edges      []*RefreshTokenConnectionFields_Edges "json:\"edges,omitempty\" graphql:\"edges\""
+}
+
+func (t *RefreshTokenConnectionFields) GetTotalCount() int64 {
+	if t == nil {
+		t = &RefreshTokenConnectionFields{}
+	}
+	return t.TotalCount
+}
+func (t *RefreshTokenConnectionFields) GetPageInfo() *RefreshTokenConnectionFields_PageInfo {
+	if t == nil {
+		t = &RefreshTokenConnectionFields{}
+	}
+	return &t.PageInfo
+}
+func (t *RefreshTokenConnectionFields) GetEdges() []*RefreshTokenConnectionFields_Edges {
+	if t == nil {
+		t = &RefreshTokenConnectionFields{}
+	}
+	return t.Edges
+}
+
 type PostFields_Owner struct {
 	DisplayName string    "json:\"displayName\" graphql:\"displayName\""
 	ID          uuid.UUID "json:\"id\" graphql:\"id\""
@@ -199,6 +280,49 @@ type PostConnectionFields_Edges struct {
 func (t *PostConnectionFields_Edges) GetNode() *PostFields {
 	if t == nil {
 		t = &PostConnectionFields_Edges{}
+	}
+	return t.Node
+}
+
+type RefreshTokenConnectionFields_PageInfo struct {
+	EndCursor       *string "json:\"endCursor,omitempty\" graphql:\"endCursor\""
+	HasNextPage     bool    "json:\"hasNextPage\" graphql:\"hasNextPage\""
+	HasPreviousPage bool    "json:\"hasPreviousPage\" graphql:\"hasPreviousPage\""
+	StartCursor     *string "json:\"startCursor,omitempty\" graphql:\"startCursor\""
+}
+
+func (t *RefreshTokenConnectionFields_PageInfo) GetEndCursor() *string {
+	if t == nil {
+		t = &RefreshTokenConnectionFields_PageInfo{}
+	}
+	return t.EndCursor
+}
+func (t *RefreshTokenConnectionFields_PageInfo) GetHasNextPage() bool {
+	if t == nil {
+		t = &RefreshTokenConnectionFields_PageInfo{}
+	}
+	return t.HasNextPage
+}
+func (t *RefreshTokenConnectionFields_PageInfo) GetHasPreviousPage() bool {
+	if t == nil {
+		t = &RefreshTokenConnectionFields_PageInfo{}
+	}
+	return t.HasPreviousPage
+}
+func (t *RefreshTokenConnectionFields_PageInfo) GetStartCursor() *string {
+	if t == nil {
+		t = &RefreshTokenConnectionFields_PageInfo{}
+	}
+	return t.StartCursor
+}
+
+type RefreshTokenConnectionFields_Edges struct {
+	Node *RefreshTokenFields "json:\"node,omitempty\" graphql:\"node\""
+}
+
+func (t *RefreshTokenConnectionFields_Edges) GetNode() *RefreshTokenFields {
+	if t == nil {
+		t = &RefreshTokenConnectionFields_Edges{}
 	}
 	return t.Node
 }
@@ -402,6 +526,78 @@ func (t *GetPostsQuery_Posts_PostConnectionFields_Edges) GetNode() *PostFields {
 	return t.Node
 }
 
+type GetAllRefreshTokens_RefreshTokens_RefreshTokenConnectionFields_PageInfo struct {
+	EndCursor       *string "json:\"endCursor,omitempty\" graphql:\"endCursor\""
+	HasNextPage     bool    "json:\"hasNextPage\" graphql:\"hasNextPage\""
+	HasPreviousPage bool    "json:\"hasPreviousPage\" graphql:\"hasPreviousPage\""
+	StartCursor     *string "json:\"startCursor,omitempty\" graphql:\"startCursor\""
+}
+
+func (t *GetAllRefreshTokens_RefreshTokens_RefreshTokenConnectionFields_PageInfo) GetEndCursor() *string {
+	if t == nil {
+		t = &GetAllRefreshTokens_RefreshTokens_RefreshTokenConnectionFields_PageInfo{}
+	}
+	return t.EndCursor
+}
+func (t *GetAllRefreshTokens_RefreshTokens_RefreshTokenConnectionFields_PageInfo) GetHasNextPage() bool {
+	if t == nil {
+		t = &GetAllRefreshTokens_RefreshTokens_RefreshTokenConnectionFields_PageInfo{}
+	}
+	return t.HasNextPage
+}
+func (t *GetAllRefreshTokens_RefreshTokens_RefreshTokenConnectionFields_PageInfo) GetHasPreviousPage() bool {
+	if t == nil {
+		t = &GetAllRefreshTokens_RefreshTokens_RefreshTokenConnectionFields_PageInfo{}
+	}
+	return t.HasPreviousPage
+}
+func (t *GetAllRefreshTokens_RefreshTokens_RefreshTokenConnectionFields_PageInfo) GetStartCursor() *string {
+	if t == nil {
+		t = &GetAllRefreshTokens_RefreshTokens_RefreshTokenConnectionFields_PageInfo{}
+	}
+	return t.StartCursor
+}
+
+type GetAllRefreshTokens_RefreshTokens_RefreshTokenConnectionFields_Edges struct {
+	Node *RefreshTokenFields "json:\"node,omitempty\" graphql:\"node\""
+}
+
+func (t *GetAllRefreshTokens_RefreshTokens_RefreshTokenConnectionFields_Edges) GetNode() *RefreshTokenFields {
+	if t == nil {
+		t = &GetAllRefreshTokens_RefreshTokens_RefreshTokenConnectionFields_Edges{}
+	}
+	return t.Node
+}
+
+type DeleteRefreshToken_DeleteRefreshToken struct {
+	DeletedID uuid.UUID "json:\"deletedID\" graphql:\"deletedID\""
+}
+
+func (t *DeleteRefreshToken_DeleteRefreshToken) GetDeletedID() *uuid.UUID {
+	if t == nil {
+		t = &DeleteRefreshToken_DeleteRefreshToken{}
+	}
+	return &t.DeletedID
+}
+
+type Me_Me struct {
+	DisplayName string    "json:\"displayName\" graphql:\"displayName\""
+	ID          uuid.UUID "json:\"id\" graphql:\"id\""
+}
+
+func (t *Me_Me) GetDisplayName() string {
+	if t == nil {
+		t = &Me_Me{}
+	}
+	return t.DisplayName
+}
+func (t *Me_Me) GetID() *uuid.UUID {
+	if t == nil {
+		t = &Me_Me{}
+	}
+	return &t.ID
+}
+
 type CreatePostMutation struct {
 	CreatePost CreatePostMutation_CreatePost "json:\"createPost\" graphql:\"createPost\""
 }
@@ -466,6 +662,39 @@ func (t *GetPostsQuery) GetPosts() *PostConnectionFields {
 		t = &GetPostsQuery{}
 	}
 	return t.Posts
+}
+
+type GetAllRefreshTokens struct {
+	RefreshTokens *RefreshTokenConnectionFields "json:\"refreshTokens\" graphql:\"refreshTokens\""
+}
+
+func (t *GetAllRefreshTokens) GetRefreshTokens() *RefreshTokenConnectionFields {
+	if t == nil {
+		t = &GetAllRefreshTokens{}
+	}
+	return t.RefreshTokens
+}
+
+type DeleteRefreshToken struct {
+	DeleteRefreshToken DeleteRefreshToken_DeleteRefreshToken "json:\"deleteRefreshToken\" graphql:\"deleteRefreshToken\""
+}
+
+func (t *DeleteRefreshToken) GetDeleteRefreshToken() *DeleteRefreshToken_DeleteRefreshToken {
+	if t == nil {
+		t = &DeleteRefreshToken{}
+	}
+	return &t.DeleteRefreshToken
+}
+
+type Me struct {
+	Me *Me_Me "json:\"me,omitempty\" graphql:\"me\""
+}
+
+func (t *Me) GetMe() *Me_Me {
+	if t == nil {
+		t = &Me{}
+	}
+	return t.Me
 }
 
 const CreatePostMutationDocument = `mutation CreatePostMutation ($input: CreatePostInput!) {
@@ -701,6 +930,104 @@ func (c *Client) GetPostsQuery(ctx context.Context, first *int64, after *string,
 	return &res, nil
 }
 
+const GetAllRefreshTokensDocument = `query GetAllRefreshTokens ($first: Int, $after: Cursor, $last: Int, $before: Cursor, $where: RefreshTokenWhereInput) {
+	refreshTokens(first: $first, after: $after, last: $last, before: $before, where: $where) {
+		... RefreshTokenConnectionFields
+	}
+}
+fragment RefreshTokenConnectionFields on RefreshTokenConnection {
+	totalCount
+	pageInfo {
+		startCursor
+		endCursor
+		hasPreviousPage
+		hasNextPage
+	}
+	edges {
+		node {
+			... RefreshTokenFields
+		}
+	}
+}
+fragment RefreshTokenFields on RefreshToken {
+	id
+	createdAt
+	updatedAt
+	expiresAt
+	revoked
+	ipAddress
+	userAgent
+}
+`
+
+func (c *Client) GetAllRefreshTokens(ctx context.Context, first *int64, after *string, last *int64, before *string, where *RefreshTokenWhereInput, interceptors ...clientv2.RequestInterceptor) (*GetAllRefreshTokens, error) {
+	vars := map[string]any{
+		"first":  first,
+		"after":  after,
+		"last":   last,
+		"before": before,
+		"where":  where,
+	}
+
+	var res GetAllRefreshTokens
+	if err := c.Client.Post(ctx, "GetAllRefreshTokens", GetAllRefreshTokensDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const DeleteRefreshTokenDocument = `mutation DeleteRefreshToken ($id: ID!) {
+	deleteRefreshToken(id: $id) {
+		deletedID
+	}
+}
+`
+
+func (c *Client) DeleteRefreshToken(ctx context.Context, id uuid.UUID, interceptors ...clientv2.RequestInterceptor) (*DeleteRefreshToken, error) {
+	vars := map[string]any{
+		"id": id,
+	}
+
+	var res DeleteRefreshToken
+	if err := c.Client.Post(ctx, "DeleteRefreshToken", DeleteRefreshTokenDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const MeDocument = `query Me {
+	me {
+		id
+		displayName
+	}
+}
+`
+
+func (c *Client) Me(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*Me, error) {
+	vars := map[string]any{}
+
+	var res Me
+	if err := c.Client.Post(ctx, "Me", MeDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 var DocumentOperationNames = map[string]string{
 	CreatePostMutationDocument:               "CreatePostMutation",
 	CreatePostWithCategoriesMutationDocument: "CreatePostWithCategoriesMutation",
@@ -708,4 +1035,7 @@ var DocumentOperationNames = map[string]string{
 	DeletePostMutationDocument:               "DeletePostMutation",
 	RestorePostMutationDocument:              "RestorePostMutation",
 	GetPostsQueryDocument:                    "GetPostsQuery",
+	GetAllRefreshTokensDocument:              "GetAllRefreshTokens",
+	DeleteRefreshTokenDocument:               "DeleteRefreshToken",
+	MeDocument:                               "Me",
 }

@@ -65,3 +65,47 @@ query GetPostsQuery($first: Int, $after: Cursor, $last: Int, $before: Cursor, $w
     ...PostConnectionFields
   }
 }
+
+fragment RefreshTokenFields on RefreshToken {
+  id
+  createdAt
+  updatedAt
+  expiresAt
+  revoked
+  ipAddress
+  userAgent
+}
+
+fragment RefreshTokenConnectionFields on RefreshTokenConnection {
+  totalCount
+  pageInfo {
+    startCursor
+    endCursor
+    hasPreviousPage
+    hasNextPage
+  }
+  edges {
+    node {
+      ...RefreshTokenFields
+    }
+  }
+}
+
+query GetAllRefreshTokens($first: Int, $after: Cursor, $last: Int, $before: Cursor, $where: RefreshTokenWhereInput) {
+  refreshTokens(first: $first, after: $after, last: $last, before: $before, where: $where) {
+    ...RefreshTokenConnectionFields
+  }
+}
+
+mutation DeleteRefreshToken($id: ID!) {
+  deleteRefreshToken(id: $id) {
+    deletedID
+  }
+}
+
+query Me {
+  me {
+    id
+    displayName
+  }
+}

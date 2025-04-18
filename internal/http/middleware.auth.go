@@ -58,17 +58,16 @@ func (m *authMiddleware) TryAuthentication() gin.HandlerFunc {
 			return
 		}
 
-		if strings.HasPrefix(authHeader, auth.AccessTokenBearerPrefix) {
+		refreshTokenCookie, cookieErr := c.Cookie(httputil.RefreshTokenCookieName)
+		if strings.HasPrefix(authHeader, auth.AccessTokenBearerPrefix) || refreshTokenCookie != "" {
 			accessToken := strings.TrimPrefix(authHeader, auth.AccessTokenBearerPrefix)
-			tokenUser, err := m.authn.GetUserFromAccessToken(ctx, accessToken)
 
-			if err == nil {
+			if tokenUser, err := m.authn.GetUserFromAccessToken(ctx, accessToken); err == nil {
 				u = tokenUser
 			} else {
-				if errors.Is(err, auth.ErrExpiredToken) || errors.Is(err, jwt.ErrTokenExpired) {
+				if errors.Is(err, auth.ErrExpiredToken) || errors.Is(err, jwt.ErrTokenExpired) || accessToken == "" {
 					logger.Debugf("Access token expired, attempting refresh due to: %v", err)
 
-					refreshTokenCookie, cookieErr := c.Cookie(httputil.RefreshTokenCookieName)
 					if cookieErr == nil && refreshTokenCookie != "" {
 						// try to use cookie
 						sysCtx = context.WithValue(ctx, "GinContextKey", c)
