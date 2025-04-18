@@ -18,7 +18,7 @@ func IsAuthorized(u *generated.User, role user.Role) bool {
 	if u == nil {
 		return false
 	}
-	return RoleRank.Get(u.Role) > RoleRank.Get(role)
+	return RoleRank.Get(u.Role) >= RoleRank.Get(role)
 }
 
 var RoleRank = roleRank{
