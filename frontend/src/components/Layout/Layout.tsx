@@ -77,6 +77,7 @@ type LayoutProps = {
   children: React.ReactElement
 }
 
+const SW_UPDATE_INTERVAL_MS = 2 * 60 * 60 * 1000
 export default function Layout({ children }: LayoutProps) {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
@@ -102,13 +103,10 @@ export default function Layout({ children }: LayoutProps) {
         console.log('Workbox registration object available:', r)
         swRegistrationRef.current = r
       }
-      setInterval(
-        () => {
-          console.log('Checking for SW update...')
-          r?.update()
-        },
-        15 * 60 * 1000, // every 15 minutes
-      )
+      setInterval(() => {
+        console.log('Checking for SW update...')
+        r?.update()
+      }, SW_UPDATE_INTERVAL_MS)
     },
     onRegisterError(error) {
       console.error('Service Worker registration error:', error)
