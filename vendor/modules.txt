@@ -41,6 +41,7 @@ entgo.io/ent/schema/mixin
 ## explicit; go 1.23.0
 github.com/99designs/gqlgen
 github.com/99designs/gqlgen/api
+github.com/99designs/gqlgen/client
 github.com/99designs/gqlgen/codegen
 github.com/99designs/gqlgen/codegen/config
 github.com/99designs/gqlgen/codegen/templates

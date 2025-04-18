@@ -18,7 +18,7 @@ import (
 
 // CreatePost is the resolver for the createPost field.
 func (r *mutationResolver) CreatePost(ctx context.Context, input generated.CreatePostInput) (*model.PostCreatePayload, error) {
-	r.ent.Logger.Infof("CreatePost: %+v", input)
+	r.ent.Logger.Debugf("CreatePost: %+v", input)
 
 	u := internal.GetUserFromCtx(ctx)
 	p, err := r.ent.Post.Create().SetInput(input).SetOwner(u).Save(ctx)
@@ -43,6 +43,8 @@ func (r *mutationResolver) CreateBulkCSVPost(ctx context.Context, input graphql.
 
 // UpdatePost is the resolver for the updatePost field.
 func (r *mutationResolver) UpdatePost(ctx context.Context, id uuid.UUID, input generated.UpdatePostInput) (*model.PostUpdatePayload, error) {
+	u := internal.GetUserFromCtx(ctx)
+	r.ent.Logger.Debugf("user: %+v", u)
 	if auth.IsAuthorized(internal.GetUserFromCtx(ctx), user.RoleMODERATOR) {
 		// allow moderators to update any post field
 		ctx = privacy.DecisionContext(ctx, privacy.Allow)
