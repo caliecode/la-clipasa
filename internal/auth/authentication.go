@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect/sql"
 	"github.com/caliecode/la-clipasa/internal"
 	"github.com/caliecode/la-clipasa/internal/client"
 	"github.com/caliecode/la-clipasa/internal/ent/generated"
@@ -251,6 +252,7 @@ func (a *Authentication) ValidateAndRotateRefreshToken(ctx context.Context, oldR
 			refreshtoken.TokenHashEQ(refreshTokenHashString),
 		).
 		WithOwner().
+		ForUpdate(sql.WithLockAction(sql.SkipLocked)).
 		Only(sysCtx)
 	if err != nil {
 		if generated.IsNotFound(err) {
