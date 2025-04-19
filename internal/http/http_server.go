@@ -318,8 +318,10 @@ func NewServer(ctx context.Context, conf Config, opts ...ServerOption) (*Server,
 	authg.GET("/twitch/login", handlers.twitchLogin)
 	authg.GET("/twitch/callback", handlers.codeExchange, handlers.twitchCallback)
 
-	apiRouter.GET("/gql-apollo", gin.WrapH(playground.ApolloSandboxHandler("GraphQL", apiRouter.BasePath()+"/graphql")))
-	apiRouter.GET("/gql-altair", gin.WrapH(playground.AltairHandler("GraphQL", apiRouter.BasePath()+"/graphql", map[string]any{})))
+	if cfg.AppEnv != internal.AppEnvProd {
+		apiRouter.GET("/gql-apollo", gin.WrapH(playground.ApolloSandboxHandler("GraphQL", apiRouter.BasePath()+"/graphql")))
+		apiRouter.GET("/gql-altair", gin.WrapH(playground.AltairHandler("GraphQL", apiRouter.BasePath()+"/graphql", map[string]any{})))
+	}
 
 	apiRouter.Use(handlers.authmw.TryAuthentication())
 
