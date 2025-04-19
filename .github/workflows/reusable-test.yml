@@ -27,7 +27,10 @@ jobs:
           # go mod download # it will access network/cache, which is not necessary with -mod=vendor
           go mod verify
 
+          # should be up-to-date, else diff check failure
           project lint
+          project gen
+          project ent.generate-migration ci_migration
 
           cd frontend
           pnpm install
