@@ -724,19 +724,22 @@ x.ent.generate-migration() {
 
     docker.postgres.create_db "$GEN_POSTGRES_DB"
 
-    go run -mod=vendor internal/ent/migrate/main.go "$name"
+    go run -mod=vendor internal/ent/migrate/main.go -env=.env."$X_ENV" -name="$name"
   } 2>&4 | xlog >&3; } 4>&1 | xerr >&3; } 3>&1
 }
 
 x.ent.validate-migrations() {
   { { {
-    atlas migrate validate --dir "file://$MIGRATIONS_DIR" --dir-format golang-migrate --dev-url="$(get_db_url)?sslmode=disable"
+    (
+      POSTGRES_DB="$GEN_POSTGRES_DB"
+      atlas migrate validate --dir "file://$MIGRATIONS_DIR" --dev-url="$(get_db_url)?sslmode=disable"
+    )
   } 2>&4 | xlog >&3; } 4>&1 | xerr >&3; } 3>&1
 }
 
 x.ent.rehash-migrations() {
   { { {
-    atlas migrate hash --dir "file://$MIGRATIONS_DIR" --dir-format golang-migrate
+    atlas migrate hash --dir "file://$MIGRATIONS_DIR"
   } 2>&4 | xlog >&3; } 4>&1 | xerr >&3; } 3>&1
 }
 

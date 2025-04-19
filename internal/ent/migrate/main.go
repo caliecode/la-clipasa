@@ -4,10 +4,12 @@ package main
 
 import (
 	"context"
+	"flag"
 	"log"
 	"net"
 	"net/url"
 	"os"
+	"strings"
 
 	_ "github.com/lib/pq"
 
@@ -25,10 +27,33 @@ import (
 // Usage: go run -mod=mod ent/migrate/main.go <name>
 // Generates a migration diff file for golang-migrate.
 func main() {
-	// this is used only in dev mode to generate versioned migration files.
-	if err := envvar.Load(".env.dev"); err != nil {
-		log.Fatalf("failed loading .env.dev file: %v", err)
+	var env, name string
+
+	flag.StringVar(&env, "env", "", "Environment Variables filename")
+	flag.StringVar(&name, "name", "", "Migration name")
+	flag.Parse()
+
+	var errs []string
+	if name == "" {
+		errs = append(errs, "    - name is required but unset")
 	}
+	if env == "" {
+		errs = append(errs, "    - env is required but unset")
+	}
+	if env == string(internal.AppEnvProd) {
+		errs = append(errs, "    - migration generation with prod env is not allowed")
+	}
+	if env == string(internal.AppEnvCI) && os.Getenv("CI") != "true" {
+		errs = append(errs, "    - migration generation with ci env is not allowed")
+	}
+	if len(errs) > 0 {
+		log.Fatal("error: \n" + strings.Join(errs, "\n"))
+	}
+
+	if err := envvar.Load(env); err != nil {
+		log.Fatalf("Couldn't load env: %s", err)
+	}
+
 	if err := internal.NewAppConfig(); err != nil {
 		log.Fatalf("failed loading app config: %v", err)
 	}
@@ -49,9 +74,6 @@ func main() {
 		schema.WithDropIndex(true),
 		// schema.WithFormatter(atlas.DefaultFormatter), // just gives a single .sql
 	}
-	if len(os.Args) != 2 {
-		log.Fatalln("migration name is required. Usage: 'go run -mod=mod ent/migrate/main.go <name>'")
-	}
 
 	dsn := url.URL{
 		Scheme: "postgres",
@@ -60,7 +82,7 @@ func main() {
 		Path:   os.Getenv("GEN_POSTGRES_DB"), // for replay mode we just need an empty db
 	}
 
-	err = migrate.NamedDiff(ctx, dsn.String()+"?sslmode=disable", os.Args[1], opts...)
+	err = migrate.NamedDiff(ctx, dsn.String()+"?sslmode=disable", name, opts...)
 	if err != nil {
 		log.Fatalf("failed generating migration file: %v", err)
 	}

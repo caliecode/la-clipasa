@@ -19,6 +19,10 @@ jobs:
           submodules: recursive
       - uses: ./.github/actions/setup
 
+      - name: Install Atlas CLI
+        run: |
+          curl -sSf https://atlasgo.sh | sh
+
       # source .envrc instead of direnv setup
       - name: Setup project
         run: |
@@ -27,15 +31,13 @@ jobs:
           # go mod download # it will access network/cache, which is not necessary with -mod=vendor
           go mod verify
 
-          # should be up-to-date, else diff check failure
-          project lint
-          project gen
-          project ent.generate-migration ci_migration
-
           cd frontend
           pnpm install
 
+          # should be up-to-date, else diff check failure
           project test.backend.setup
+          project lint
+          project ent.generate-migration ci_migration
 
       - name: Test frontend
         run: |
