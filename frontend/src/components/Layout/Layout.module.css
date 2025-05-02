@@ -156,3 +156,10 @@
   border-radius: 9000px;
   width: 100%;
 }
+
+.twitchLogin {
+  background-color: hsla(264, 100%, 72%, 0.35);
+}
+.twitchLogin:hover {
+  background-color: hsla(264, 100%, 72%, 0.6);
+}

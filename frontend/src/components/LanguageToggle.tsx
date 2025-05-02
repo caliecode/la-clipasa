@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IconChevronDown } from '@tabler/icons-react'
-import { Group, Image, Menu, UnstyledButton } from '@mantine/core'
+import { Group, Image, Menu, Text, UnstyledButton } from '@mantine/core'
 import classes from './LanguageToggle.module.css'
 
 const languages = [
@@ -20,10 +20,10 @@ export default function LanguageToggle() {
   }
 
   const items = languages.map((item) => (
-    <Menu.Item onClick={() => handleLanguageChange(item.value)} key={item.value} lang={item.value}>
+    <Menu.Item w={'100%'} onClick={() => handleLanguageChange(item.value)} key={item.value} lang={item.value}>
       <Group>
         <Image src={item.image} style={{ width: '16px', height: '16px' }} alt={item.label} />
-        {item.label}
+        <Text size="sm">{item.label}</Text>
       </Group>
     </Menu.Item>
   ))
@@ -40,12 +40,12 @@ export default function LanguageToggle() {
         >
           <Group gap={8}>
             <Image src={selected.image} style={{ width: '22px', height: '22px' }} />
-            {selected.label}
+            <Text size="sm">{selected.label}</Text>
           </Group>
           <IconChevronDown size={16} stroke={2} />
         </UnstyledButton>
       </Menu.Target>
-      <Menu.Dropdown>{items}</Menu.Dropdown>
+      <Menu.Dropdown w={200}>{items}</Menu.Dropdown>
     </Menu>
   )
 }

@@ -41,6 +41,7 @@ import {
   IconBrandTwitch,
   IconUsers,
   IconBrandGithub,
+  IconUser,
 } from '@tabler/icons'
 import useAuthenticatedUser, { logUserOut } from 'src/hooks/auth/useAuthenticatedUser'
 import { useQueryClient } from '@tanstack/react-query'
@@ -60,7 +61,7 @@ import { EMOTES } from 'src/assets/img/emotes'
 import { ErrorPage } from 'src/components/ErrorPage/ErrorPage'
 import HttpStatus from 'src/utils/httpStatus'
 import BroadcasterTokenButton from 'src/components/BroadcasterTokenModal'
-import { checkAuthorization, redirectToBroadcasterAuthLogin } from 'src/services/authorization'
+import { checkAuthorization, redirectToBroadcasterAuthLogin, redirectToUserAuthLogin } from 'src/services/authorization'
 import BroadcasterTokenModal from 'src/components/BroadcasterTokenModal'
 import banner from 'src/assets/img/banner-la-clipassa.png'
 import homeBackground from 'src/assets/img/background-la-clipassa.jpg'
@@ -87,7 +88,8 @@ export default function Layout({ children }: LayoutProps) {
   const { user, isAuthenticating } = useAuthenticatedUser()
   const { colorScheme } = useMantineColorScheme() // TODO: app logo useffect
   const { burgerOpened, setBurgerOpened } = useUISlice()
-  const [broadcasterTokenOpened, { open: openBroadcasterToken, close: closeBroadcasterToken }] = useDisclosure(false)
+  const [broadcasterTokenModalOpened, { open: openBroadcasterTokenModal, close: closeBroadcasterTokenModal }] =
+    useDisclosure(false)
   const notificationIdRef = useRef<string | null>(null)
   const swRegistrationRef = useRef<ServiceWorkerRegistration | null>(null)
 
@@ -219,7 +221,7 @@ export default function Layout({ children }: LayoutProps) {
     ui.setIsLoggingOut(false)
   }
 
-  function renderAvatarOrLogin() {
+  function renderUserMenuButton() {
     if (ui.isLoggingOut || isAuthenticating)
       return (
         <Group gap={'md'} align="center">
@@ -228,18 +230,30 @@ export default function Layout({ children }: LayoutProps) {
           {ui.isLoggingOut && <Text>{t('layout.loggingOut')}</Text>}
         </Group>
       )
-    return user ? (
+
+    return (
       <UnstyledButton className={cx(styles.user, { [styles.userActive as string]: userMenuOpened })}>
         <Group gap={'xs'} m={4} align="center">
-          <Avatar alt={user.displayName} radius="xl" size={28} src={withBaseURL(user.profileImage)} />
-          <Text className={styles.displayName} fw={500} size="sm">
-            {user.displayName}
-          </Text>
+          {user ? (
+            <Avatar alt={user.displayName} radius="xl" size={28} src={withBaseURL(user.profileImage)} />
+          ) : (
+            <>
+              <Avatar radius="xl" size={28}>
+                <IconUser size={16} />
+              </Avatar>
+              <Text className={styles.displayName} fw={500} size="sm">
+                {t('common.login')}
+              </Text>
+            </>
+          )}
+          {user && (
+            <Text className={styles.displayName} fw={500} size="sm">
+              {user.displayName}
+            </Text>
+          )}
           <IconChevronDown size={12} stroke={1.5} />
         </Group>
       </UnstyledButton>
-    ) : (
-      <LoginButton />
     )
   }
 
@@ -254,7 +268,7 @@ export default function Layout({ children }: LayoutProps) {
       <Banner />
       <AppShell
         style={{
-          height: `calc(100% - var(--header-height) - var(--footer-height))`,
+          height: 'calc(100% - var(--header-height) - var(--footer-height))',
         }}
         className={styles.appShell}
         header={{ height: 'var(--header-height)' }}
@@ -306,12 +320,9 @@ export default function Layout({ children }: LayoutProps) {
                 width={220}
                 position="bottom-end"
                 onClose={() => setUserMenuOpened(false)}
-                onOpen={() => {
-                  if (user) setUserMenuOpened(true)
-                }}
-                disabled={!user}
+                onOpen={() => setUserMenuOpened(true)}
               >
-                <Menu.Target>{renderAvatarOrLogin()}</Menu.Target>
+                <Menu.Target>{renderUserMenuButton()}</Menu.Target>
                 <Menu.Dropdown classNames={{ dropdown: styles.menuDropdown }}>
                   <Group justify="center">
                     <LanguageToggle />
@@ -319,24 +330,28 @@ export default function Layout({ children }: LayoutProps) {
                   <Menu.Divider />
                   <Menu.Label>{t('common.theme')}</Menu.Label>
                   <ThemeSwitcher />
-                  {checkAuthorization({ user, requiredRole: 'ADMIN' }).authorized && (
-                    <>
-                      <Menu.Divider />
-                      <Menu.Label>Admin</Menu.Label>
-                      <Menu.Item
-                        component="a"
-                        color={
-                          window.location.href.includes(uiPath('/admin/users-management'))
-                            ? 'var(--mantine-primary-color-6)'
-                            : 'inherit'
-                        }
-                        leftSection={<IconUsers size={14} stroke={1.5} />}
-                        onClick={() => navigate(uiPath('/admin/users-management'))}
-                      >
-                        {t('layout.userManagement')}
-                      </Menu.Item>
-                    </>
-                  )}
+
+                  {user
+                    ? checkAuthorization({ user, requiredRole: 'ADMIN' }).authorized && (
+                        <>
+                          <Menu.Divider />
+                          <Menu.Label>Admin</Menu.Label>
+                          <Menu.Item
+                            component="a"
+                            color={
+                              window.location.href.includes(uiPath('/admin/users-management'))
+                                ? 'var(--mantine-primary-color-6)'
+                                : 'inherit'
+                            }
+                            leftSection={<IconUsers size={14} stroke={1.5} />}
+                            onClick={() => navigate(uiPath('/admin/users-management'))}
+                          >
+                            {t('layout.userManagement')}
+                          </Menu.Item>
+                        </>
+                      )
+                    : null}
+
                   <Menu.Divider />
                   <Menu.Item
                     leftSection={<IconBrandGithub size={14} stroke={1.5} />}
@@ -344,27 +359,44 @@ export default function Layout({ children }: LayoutProps) {
                   >
                     {t('layout.contribute')}
                   </Menu.Item>
-                  <Menu.Divider />
-                  <Menu.Label>Settings</Menu.Label>
-                  <Menu.Item leftSection={<IconSettings size={14} stroke={1.5} />}>
-                    {t('layout.accountSettings')}
-                  </Menu.Item>
-                  <Menu.Item
-                    leftSection={<IconDeviceDesktopAnalytics size={14} stroke={1.5} />}
-                    onClick={() => navigate(uiPath('/settings/sessions'))}
-                  >
-                    {t('layout.sessionManagement')}
-                  </Menu.Item>
-                  <Menu.Item
-                    onClick={() => openBroadcasterToken()}
-                    leftSection={<IconBrandTwitch size={14} stroke={1.5} />}
-                  >
-                    {t('layout.broadcasterToken')}
-                  </Menu.Item>
-                  <Menu.Divider />
-                  <Menu.Item leftSection={<IconLogout size={14} stroke={1.5} />} onClick={onLogout}>
-                    Logout
-                  </Menu.Item>
+
+                  {user ? (
+                    <>
+                      <Menu.Divider />
+                      <Menu.Label>Settings</Menu.Label>
+                      <Menu.Item leftSection={<IconSettings size={14} stroke={1.5} />}>
+                        {t('layout.accountSettings')}
+                      </Menu.Item>
+                      <Menu.Item
+                        leftSection={<IconDeviceDesktopAnalytics size={14} stroke={1.5} />}
+                        onClick={() => navigate(uiPath('/settings/sessions'))}
+                      >
+                        {t('layout.sessionManagement')}
+                      </Menu.Item>
+                      <Menu.Item
+                        onClick={() => openBroadcasterTokenModal()}
+                        leftSection={<IconBrandTwitch size={14} stroke={1.5} />}
+                      >
+                        {t('layout.broadcasterToken')}
+                      </Menu.Item>
+                      <Menu.Divider />
+                      <Menu.Item leftSection={<IconLogout size={14} stroke={1.5} />} onClick={onLogout}>
+                        {t('common.logout')}
+                      </Menu.Item>
+                    </>
+                  ) : (
+                    <>
+                      <Menu.Divider />
+                      <Menu.Item
+                        leftSection={<IconBrandTwitch size={14} stroke={1.5} />}
+                        className={styles.twitchLogin}
+                        onClick={redirectToUserAuthLogin}
+                      >
+                        {t('common.twitchLogin')}
+                      </Menu.Item>
+                    </>
+                  )}
+
                   <Menu.Label c="dimmed" style={{ display: 'none' }}>
                     Version: {import.meta.env.VITE_BUILD_VERSION} (1)
                   </Menu.Label>
@@ -425,8 +457,8 @@ export default function Layout({ children }: LayoutProps) {
         </Drawer>
         {/* <AppShell.Aside p="md">Aside</AppShell.Aside> */}
         <BroadcasterTokenModal
-          isOpen={broadcasterTokenOpened}
-          onClose={closeBroadcasterToken}
+          isOpen={broadcasterTokenModalOpened}
+          onClose={closeBroadcasterTokenModal}
           onConfirm={() => redirectToBroadcasterAuthLogin()}
         />
         <AppShell.Footer className={styles.footer}>
@@ -497,13 +529,13 @@ function Banner() {
       alt="la clipasa"
       src={banner}
       onClick={() => navigate('/')}
-      className={`showOnLargeOnly`}
+      className={styles.showOnLargeOnly}
       style={{
         cursor: 'pointer',
         height: 'var(--banner-height)',
         width: '100%',
         backgroundImage: `url(${banner})`,
-        animation: `slideIn 0.3s ease-in-out`,
+        animation: 'slideIn 0.3s ease-in-out',
       }}
     />
   )
@@ -515,9 +547,9 @@ function LiveAvatar({ streamTitle }) {
   return (
     <Group align="center">
       <Tooltip label={streamTitle}>
-        <a href={`https://www.twitch.tv/caliebre`} target="_blank" rel="noopener noreferrer">
+        <a href="https://www.twitch.tv/caliebre" target="_blank" rel="noopener noreferrer">
           <div style={{ position: 'relative' }}>
-            <img src={broadcasterIcon} alt={`caliebre`} height={40} width={40} className={styles.avatar} />
+            <img src={broadcasterIcon} alt="caliebre" height={40} width={40} className={styles.avatar} />
             <Badge className={styles.liveBadge} variant="filled" radius={5} size="xs">
               LIVE
             </Badge>
